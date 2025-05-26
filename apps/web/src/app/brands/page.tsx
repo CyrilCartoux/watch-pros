@@ -30,12 +30,12 @@ export default function BrandsPage() {
   return (
     <main className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-b from-background to-muted/30">
+      <section className="relative py-12 md:py-20 bg-gradient-to-b from-background to-muted/30">
         <div className="container mx-auto px-4">
-          <h1 className="text-5xl font-bold text-center mb-6">
+          <h1 className="text-3xl md:text-5xl font-bold text-center mb-4 md:mb-6">
             Les Plus Grandes Marques de Montres
           </h1>
-          <p className="text-xl text-muted-foreground text-center max-w-3xl mx-auto">
+          <p className="text-base md:text-xl text-muted-foreground text-center max-w-3xl mx-auto px-4">
             Découvrez notre sélection des plus prestigieuses marques horlogères du monde.
             De Rolex à Patek Philippe, explorez l'excellence de l'art horloger.
           </p>
@@ -43,15 +43,15 @@ export default function BrandsPage() {
       </section>
 
       {/* Featured Brands */}
-      <section className="py-16">
+      <section className="py-8 md:py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8">Marques Phares</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Marques Phares</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
             {sortedBrands.slice(0, 4).map((brand) => (
               <Link href={`/brands/${brand.slug}`} key={brand.slug}>
                 <Card className="h-full hover:shadow-lg transition-shadow">
-                  <CardContent className="p-6 flex flex-col items-center">
-                    <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-primary/20 mb-4">
+                  <CardContent className="p-3 md:p-6 flex flex-col items-center">
+                    <div className="w-20 h-20 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-primary/20 mb-3 md:mb-4">
                       <Image
                         src={brand.logo}
                         alt={brand.name}
@@ -60,7 +60,7 @@ export default function BrandsPage() {
                         className="object-contain p-2"
                       />
                     </div>
-                    <h3 className="text-xl font-semibold text-center">{brand.name}</h3>
+                    <h3 className="text-sm md:text-xl font-semibold text-center line-clamp-2">{brand.name}</h3>
                   </CardContent>
                 </Card>
               </Link>
@@ -70,22 +70,22 @@ export default function BrandsPage() {
       </section>
 
       {/* Alphabetical List */}
-      <section className="py-16 bg-muted/20">
+      <section className="py-8 md:py-16 bg-muted/20">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8">Toutes les Marques</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Toutes les Marques</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {Object.entries(groupedBrands).map(([letter, brands]) => (
-              <div key={letter} className="space-y-4">
-                <h3 className="text-2xl font-bold text-primary">{letter}</h3>
-                <div className="space-y-2">
+              <div key={letter} className="space-y-3 md:space-y-4">
+                <h3 className="text-xl md:text-2xl font-bold text-primary">{letter}</h3>
+                <div className="space-y-1 md:space-y-2">
                   {brands.map((brand) => (
                     <Link
                       href={`/brands/${brand.slug}`}
                       key={brand.slug}
-                      className="block p-3 rounded-lg hover:bg-muted transition-colors"
+                      className="block p-2 md:p-3 rounded-lg hover:bg-muted transition-colors"
                     >
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 rounded-full overflow-hidden border border-primary/20">
+                      <div className="flex items-center space-x-2 md:space-x-3">
+                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border border-primary/20">
                           <Image
                             src={brand.logo}
                             alt={brand.name}
@@ -94,7 +94,7 @@ export default function BrandsPage() {
                             className="object-contain p-1"
                           />
                         </div>
-                        <span className="font-medium">{brand.name}</span>
+                        <span className="text-sm md:text-base font-medium">{brand.name}</span>
                       </div>
                     </Link>
                   ))}
