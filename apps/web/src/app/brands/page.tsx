@@ -47,24 +47,26 @@ export default function BrandsPage() {
         <div className="container mx-auto px-4">
           <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">Marques Phares</h2>
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-            {sortedBrands.slice(0, 4).map((brand) => (
-              <Link href={`/brands/${brand.slug}`} key={brand.slug}>
-                <Card className="h-full hover:shadow-lg transition-shadow">
-                  <CardContent className="p-3 md:p-6 flex flex-col items-center">
-                    <div className="w-20 h-20 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-primary/20 mb-3 md:mb-4">
-                      <Image
-                        src={brand.logo}
-                        alt={brand.name}
-                        width={128}
-                        height={128}
-                        className="object-contain p-2"
-                      />
-                    </div>
-                    <h3 className="text-sm md:text-xl font-semibold text-center line-clamp-2">{brand.name}</h3>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+            {['rolex', 'audemars-piguet', 'patek-philippe', 'omega'].map((slug) => {
+              const brand = brandsData[slug as keyof typeof brandsData]
+              return (
+                <Link href={`/brands/${brand.slug}`} key={brand.slug}>
+                  <Card className="h-full hover:shadow-lg transition-shadow">
+                    <CardContent className="p-3 md:p-4 flex flex-col items-center justify-center h-full">
+                      <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
+                        <Image
+                          src={brand.logo}
+                          alt={brand.name}
+                          width={80}
+                          height={80}
+                          className="object-contain w-full h-full"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -85,13 +87,13 @@ export default function BrandsPage() {
                       className="block p-2 md:p-3 rounded-lg hover:bg-muted transition-colors"
                     >
                       <div className="flex items-center space-x-2 md:space-x-3">
-                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border border-primary/20">
+                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden border border-primary/20 flex items-center justify-center">
                           <Image
                             src={brand.logo}
                             alt={brand.name}
                             width={40}
                             height={40}
-                            className="object-contain p-1"
+                            className="object-contain w-full h-full p-1"
                           />
                         </div>
                         <span className="text-sm md:text-base font-medium">{brand.name}</span>

@@ -1,0 +1,113 @@
+"use client"
+
+import { useState } from "react"
+import { ListingFilters } from "@/components/ListingFilters"
+import { ListingCard } from "@/components/ListingCard"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Button } from "@/components/ui/button"
+import listingsData from "@/data/listings.json"
+
+export default function ListingsPage() {
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 12
+
+  const handleFilterChange = (filter: string) => {
+    setSelectedFilters(prev =>
+      prev.includes(filter)
+        ? prev.filter(f => f !== filter)
+        : [...prev, filter]
+    )
+  }
+
+  // Convertir les données de listings.json au format attendu par ListingCard
+  const listings = Object.entries(listingsData).map(([id, listing]) => ({
+    id,
+    brand: listing.brand,
+    model: listing.model,
+    reference: listing.reference,
+    variant: listing.variant,
+    price: listing.price,
+    shipping: {
+      cost: listing.shipping.cost,
+      location: listing.shipping.location
+    },
+    condition: {
+      status: listing.condition.status,
+      grade: listing.condition.grade
+    },
+    isCertified: listing.seller.type === "Professionnel certifié",
+    isPopular: listing.stats.views > 100,
+    images: listing.images
+  }))
+
+  const totalItems = listings.length
+  const totalPages = Math.ceil(totalItems / itemsPerPage)
+
+  return (
+    <main className="min-h-screen bg-background py-8">
+      <div className="container">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold">
+            {totalItems.toLocaleString()} annonces
+          </h1>
+          <Select defaultValue="relevance">
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Trier par" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="relevance">Pertinence</SelectItem>
+              <SelectItem value="popular">Populaire</SelectItem>
+              <SelectItem value="price-asc">Prix croissant</SelectItem>
+              <SelectItem value="price-desc">Prix décroissant</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <ListingFilters
+          selectedFilters={selectedFilters}
+          onFilterChange={handleFilterChange}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {listings.map((listing) => (
+            <ListingCard key={listing.id} listing={listing} />
+          ))}
+        </div>
+
+        {/* Pagination */}
+        <div className="flex justify-center gap-2 mt-8">
+          <Button
+            variant="outline"
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Précédent
+          </Button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <Button
+              key={page}
+              variant={currentPage === page ? "default" : "outline"}
+              onClick={() => setCurrentPage(page)}
+            >
+              {page}
+            </Button>
+          ))}
+          <Button
+            variant="outline"
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Suivant
+          </Button>
+        </div>
+      </div>
+    </main>
+  )
+} 
