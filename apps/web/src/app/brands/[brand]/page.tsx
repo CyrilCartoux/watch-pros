@@ -43,27 +43,26 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
   return (
     <main className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative min-h-[500px] flex items-center justify-center bg-gradient-to-b from-background to-muted/20">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Image
-            src={brandInfo.logo}
-            alt={`${brandInfo.name} logo`}
-            width={400}
-            height={400}
-            className="opacity-20 object-contain"
-          />
-        </div>
-        <div className="relative container max-w-4xl mx-auto px-4">
-          <div className="space-y-8 text-center">
-            <h1 className="text-7xl font-bold tracking-tight text-foreground">
-              {brandInfo.name}
-            </h1>
-            <div className="w-32 h-0.5 bg-primary/50 mx-auto" />
-            <p className="text-2xl text-muted-foreground/90 leading-relaxed max-w-3xl mx-auto">
-              {brandInfo.description}
-            </p>
+      <section className="relative min-h-[420px] flex flex-col items-center justify-center bg-gradient-to-b from-background to-muted/30 py-16">
+        <div className="relative z-10 flex flex-col items-center">
+          <div className="w-44 h-44 rounded-full overflow-hidden border-4 border-primary shadow-lg bg-white flex items-center justify-center p-4">
+            <Image
+              src={brandInfo.logo}
+              alt={`${brandInfo.name} logo`}
+              width={180}
+              height={180}
+              className="object-contain object-center"
+              priority
+            />
           </div>
+          <h1 className="mt-8 text-5xl font-extrabold tracking-tight text-foreground text-center">
+            {brandInfo.name}
+          </h1>
+          <p className="mt-4 text-lg text-muted-foreground text-center max-w-2xl">
+            {brandInfo.description}
+          </p>
         </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-muted/40 pointer-events-none" />
       </section>
 
       {/* Main Content */}
