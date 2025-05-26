@@ -305,10 +305,12 @@ export default function ListingPage({ params }: { params: { id: string } }) {
 
                   <div className="flex items-center gap-2">
                     <Star className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="font-medium">{listing.seller.name}</p>
-                      <p className="text-sm text-muted-foreground">{listing.seller.type} • {listing.seller.rating} ({listing.seller.reviews})</p>
-                    </div>
+                    <Link href={`/sellers/${listing.seller.name.toLowerCase().replace(/\s+/g, '-')}`} className="hover:underline">
+                      <div>
+                        <p className="font-medium">{listing.seller.name}</p>
+                        <p className="text-sm text-muted-foreground">{listing.seller.type} • {listing.seller.rating} ({listing.seller.reviews})</p>
+                      </div>
+                    </Link>
                   </div>
                 </div>
               </CardContent>
@@ -378,35 +380,35 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                 <dl className="space-y-3">
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Code annonce</dt>
-                    <dd className="font-medium">{listing.id}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.id}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Marque</dt>
-                    <dd className="font-medium">{listing.brand}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.brand}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Modèle</dt>
-                    <dd className="font-medium">{listing.model}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.model}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Numéro de référence</dt>
-                    <dd className="font-medium">{listing.reference}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.reference}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">État</dt>
-                    <dd className="font-medium">{listing.condition.status} ({listing.condition.grade})</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.condition.status} ({listing.condition.grade})</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Contenu livré</dt>
-                    <dd className="font-medium">{listing.included.join(", ")}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.included.join(", ")}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Sexe</dt>
-                    <dd className="font-medium">{listing.gender}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.gender}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Emplacement</dt>
-                    <dd className="font-medium">{listing.location.city}, {listing.location.country}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.location.city}, {listing.location.country}</dd>
                   </div>
                 </dl>
               </CardContent>
@@ -419,23 +421,23 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                 <dl className="space-y-3">
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Mouvement</dt>
-                    <dd className="font-medium">{listing.specifications.movement.type}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.movement.type}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Calibre/Rouages</dt>
-                    <dd className="font-medium">{listing.specifications.movement.caliber}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.movement.caliber}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Base Calibre</dt>
-                    <dd className="font-medium">{listing.specifications.movement.base}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.movement.base}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Réserve de marche</dt>
-                    <dd className="font-medium">{listing.specifications.movement.powerReserve}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.movement.powerReserve}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Nombre de pierres</dt>
-                    <dd className="font-medium">{listing.specifications.movement.jewels}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.movement.jewels}</dd>
                   </div>
                 </dl>
               </CardContent>
@@ -448,31 +450,31 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                 <dl className="space-y-3">
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Matériau</dt>
-                    <dd className="font-medium">{listing.specifications.case.material}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.case.material}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Diamètre</dt>
-                    <dd className="font-medium">{listing.specifications.case.diameter}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.case.diameter}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Étanche</dt>
-                    <dd className="font-medium">{listing.specifications.case.waterResistance}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.case.waterResistance}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Matériau de la lunette</dt>
-                    <dd className="font-medium">{listing.specifications.case.bezel}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.case.bezel}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Verre</dt>
-                    <dd className="font-medium">{listing.specifications.case.crystal}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.case.crystal}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Cadran</dt>
-                    <dd className="font-medium">{listing.specifications.case.dial}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.case.dial}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Chiffres du cadran</dt>
-                    <dd className="font-medium">{listing.specifications.case.numerals}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.case.numerals}</dd>
                   </div>
                 </dl>
               </CardContent>
@@ -485,19 +487,19 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                 <dl className="space-y-3">
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Matière</dt>
-                    <dd className="font-medium">{listing.specifications.bracelet.material}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.bracelet.material}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Couleur</dt>
-                    <dd className="font-medium">{listing.specifications.bracelet.color}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.bracelet.color}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Boucle</dt>
-                    <dd className="font-medium">{listing.specifications.bracelet.clasp}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.bracelet.clasp}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Matériau de la boucle</dt>
-                    <dd className="font-medium">{listing.specifications.bracelet.claspMaterial}</dd>
+                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.bracelet.claspMaterial}</dd>
                   </div>
                 </dl>
               </CardContent>

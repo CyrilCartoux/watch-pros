@@ -44,14 +44,20 @@ export function Testimonials() {
           </p>
         </div>
 
-        <div className="relative max-w-4xl mx-auto">
-          <Carousel className="w-full">
-            <CarouselContent className="py-4">
+        <div className="relative max-w-4xl mx-auto px-4">
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-4">
               {testimonials.map((testimonial, index) => (
-                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                  <Card className="border-none shadow-none h-full">
+                <CarouselItem key={index} className="pl-4 basis-full md:basis-1/2 lg:basis-1/3">
+                  <Card className="border-none shadow-none h-full bg-background/50 backdrop-blur-sm">
                     <CardContent className="p-6 flex flex-col h-full">
-                      <blockquote className="text-lg italic mb-6 flex-grow">
+                      <blockquote className="text-base md:text-lg italic mb-6 flex-grow">
                         "{testimonial.quote}"
                       </blockquote>
                       <div className="mt-auto">
@@ -65,10 +71,10 @@ export function Testimonials() {
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <div className="flex items-center justify-center gap-2 mt-4">
-              <CarouselPrevious className="static translate-y-0" />
-              <CarouselDots />
-              <CarouselNext className="static translate-y-0" />
+            <div className="flex items-center justify-center gap-2 mt-6">
+              <CarouselPrevious className="static translate-y-0 hover:bg-background/80" />
+              <CarouselDots className="mx-2" />
+              <CarouselNext className="static translate-y-0 hover:bg-background/80" />
             </div>
           </Carousel>
         </div>

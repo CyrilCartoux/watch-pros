@@ -14,7 +14,6 @@ export default function Home() {
       <FeaturedListings />
       <HowItWorks />
       <Testimonials />
-      <Footer />
     </main>
   )
 }
