@@ -109,7 +109,7 @@ export function ListingCard({ listing }: ListingCardProps) {
                   {listing.brand} {listing.model}
                 </h3>
                 <p className="text-sm text-muted-foreground truncate">
-                  {listing.reference} {listing.variant && `• ${listing.variant}`}
+                  Ref. {listing.reference} {listing.variant && `• ${listing.variant}`}
                 </p>
               </div>
               <div className="text-right flex-shrink-0 ml-2">
