@@ -1,0 +1,32 @@
+{
+  "name": "watch-pros",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev:api": "pnpm --filter apps/api dev",
+    "dev:web": "pnpm --filter web dev",
+    "build:api": "pnpm --filter apps/api build",
+    "build:web": "pnpm --filter web build",
+    "start:web": "pnpm --filter web start",
+    "lint": "pnpm --filter ... run lint"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.11.0",
+  "dependencies": {
+    "@hookform/resolvers": "^5.0.1",
+    "@radix-ui/react-select": "^2.2.5",
+    "@shadcn/ui": "^0.0.4",
+    "cloudinary": "^2.6.1",
+    "react-hook-form": "^7.56.4",
+    "typesense": "^2.0.3",
+    "zod": "^3.24.4"
+  }
+}

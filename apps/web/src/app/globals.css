@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Base colors */
+    --background: 0 0% 100%;
+    --foreground: 20 14% 4%;
+
+    /* Primary colors - Rich gold and deep navy */
+    --primary: 35 91% 32%; /* Rich gold */
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary colors - Warm gray */
+    --secondary: 20 6% 90%;
+    --secondary-foreground: 20 14% 4%;
+
+    /* Accent colors - Deep navy */
+    --accent: 222 47% 11%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Muted colors - Warm gray */
+    --muted: 20 6% 90%;
+    --muted-foreground: 20 6% 45%;
+
+    /* Card colors */
+    --card: 0 0% 100%;
+    --card-foreground: 20 14% 4%;
+
+    /* Popover colors */
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 14% 4%;
+
+    /* Border and input colors */
+    --border: 20 6% 90%;
+    --input: 20 6% 90%;
+    --ring: 35 91% 32%;
+
+    /* Destructive colors */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Radius */
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Base colors */
+    --background: 20 14% 4%;
+    --foreground: 20 6% 90%;
+
+    /* Primary colors - Rich gold */
+    --primary: 35 91% 32%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary colors - Deep navy */
+    --secondary: 222 47% 11%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Accent colors - Warm gray */
+    --accent: 20 6% 90%;
+    --accent-foreground: 20 14% 4%;
+
+    /* Muted colors */
+    --muted: 20 6% 20%;
+    --muted-foreground: 20 6% 70%;
+
+    /* Card colors */
+    --card: 20 14% 4%;
+    --card-foreground: 20 6% 90%;
+
+    /* Popover colors */
+    --popover: 20 14% 4%;
+    --popover-foreground: 20 6% 90%;
+
+    /* Border and input colors */
+    --border: 20 6% 20%;
+    --input: 20 6% 20%;
+    --ring: 35 91% 32%;
+
+    /* Destructive colors */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

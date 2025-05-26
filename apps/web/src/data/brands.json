@@ -1,0 +1,400 @@
+{
+  "rolex": {
+    "name": "Rolex",
+    "slug": "rolex",
+    "description": "Rolex est la marque de montres de luxe par excellence, celle dont les classiques dictent la mode. Adulées dans le monde entier, les prix des montres Rolex ne cessent d'augmenter et vont souvent de pair avec investissement rentable.",
+    "logo": "/images/brands/rolex.png",
+    "overview": {
+      "title": "Une icône du luxe horloger",
+      "content": [
+        "Rolex est la marque de montres de luxe par excellence, dont les modèles classiques dictent les tendances. La demande croissante et la production limitée contribuent à une hausse constante des prix, faisant des montres Rolex des investissements particulièrement intéressants.",
+        "La marque se distingue par son indépendance et sa discrétion : elle fabrique en interne la quasi-totalité de ses composants et maintient une communication très contrôlée."
+      ]
+    },
+    "keyFeatures": [
+      "Design intemporel avec fort potentiel de plus-value",
+      "Production limitée garantissant la rareté",
+      "Fabrication intégrée de la plupart des composants",
+      "Certificat chronomètrique COSC pour chaque montre"
+    ],
+    "priceRange": {
+      "catalog": "Entre 5 500 € et 42 000 €",
+      "secondary": "Prix majorés de 20% à 100% selon les modèles"
+    },
+    "featuredModels": [
+      {
+        "name": "Submariner",
+        "description": "La référence des montres de plongée, disponible avec ou sans date. Un design intemporel qui a défini le standard des montres de plongée.",
+        "image": "/images/watches/submariner.jpg",
+        "price": "À partir de 12,500 €",
+        "features": [
+          "Étanche jusqu'à 300m",
+          "Lunette tournante unidirectionnelle",
+          "Mouvement automatique de manufacture"
+        ]
+      },
+      {
+        "name": "Daytona",
+        "description": "Le chronographe iconique, portant le nom du circuit légendaire de Daytona Beach. Un design Tricompax qui a fait sa renommée.",
+        "image": "/images/watches/daytona.jpg",
+        "price": "À partir de 22,000 €",
+        "features": [
+          "Chronographe précis à 1/8e de seconde",
+          "Lunette tachymétrique en céramique",
+          "Mouvement automatique avec réserve de marche de 72h"
+        ]
+      },
+      {
+        "name": "GMT-Master II",
+        "description": "La montre GMT par excellence, développée à l'origine pour les pilotes. Sa lunette bicolore est devenue un symbole de la marque.",
+        "image": "/images/watches/gmt-master.jpg",
+        "price": "À partir de 13,000 €",
+        "features": [
+          "Affichage de deux fuseaux horaires",
+          "Lunette Cerachrom bicolore",
+          "Mouvement automatique avec réserve de marche de 70h"
+        ]
+      }
+    ],
+    "history": {
+      "title": "Histoire de la Marque",
+      "content": [
+        "Fondée en 1905 à Londres par Hans Wilsdorf et Alfred Davis, Rolex s'installe à Genève en 1919. La marque a révolutionné l'horlogerie avec des innovations majeures comme la première montre étanche (1926) et le premier mouvement automatique à rotor perpétuel (1931).",
+        "La couronne à cinq pointes, adoptée en 1925, est devenue le symbole de la marque. Rolex est restée indépendante depuis sa création, contrôlée par la Fondation Hans Wilsdorf qui finance des projets sociaux, environnementaux et culturels.",
+        "Aujourd'hui, Rolex est reconnue pour sa précision chronométrique, chaque montre étant certifiée par le COSC et testée en interne pour une précision de -2/+2 secondes par jour."
+      ]
+    }
+  },
+  "patek-philippe": {
+    "name": "Patek Philippe",
+    "slug": "patek-philippe",
+    "description": "Plus qu'aucune autre marque, Patek Philippe incarne la haute horlogerie. La manufacture genevoise réunit luxe, tradition et maîtrise artisanale de haut niveau. Les montres Patek Philippe sont des garde-temps d'exception de renommée internationale.",
+    "logo": "/images/brands/patek.png",
+    "overview": {
+      "title": "Une marque indépendante et estimée",
+      "content": [
+        "Patek Philippe est l'une des dernières marques horlogères genevoises de luxe à demeurer une entreprise familiale indépendante. C'est notamment pour cette raison que le fabricant jouit d'une excellente réputation, et pas uniquement auprès des professionnels. La quasi-totalité des composants de ses montres est conçue en interne par la marque et les amateurs de montres du monde entier aspirent à agrémenter leur collection d'une Patek Philippe.",
+        "La manufacture cultive un style de design avant tout traditionnel et revendique son caractère familial. Pour ses créations, Patek Philippe mise le plus souvent sur des métaux précieux tel l'or ou le platine. À l'encontre des catalogues des autres manufactures, celui de Patek ne comprend que quelques montres en acier inoxydable."
+      ]
+    },
+    "keyFeatures": [
+      "Des montres de luxe symboles de prestige",
+      "Les modèles des collections Calatrava et Nautilus représentent d'excellents investissements",
+      "Boîtier en or 18 carats ou en platine 950",
+      "Très précises grâce aux calibres de manufacture ultra modernes",
+      "Inventeur de complications majeures comme le quantième annuel ou le double chronographe"
+    ],
+    "priceRange": {
+      "catalog": "Entre 8 500 € et 3 020 000 €",
+      "secondary": "Prix majorés de 50% à 500% selon les modèles"
+    },
+    "featuredModels": [
+      {
+        "name": "Nautilus",
+        "description": "La collection sportive emblématique créée par Gérald Genta en 1976. Son design en forme de hublot est devenu une icône de l'horlogerie moderne.",
+        "image": "/images/watches/nautilus.jpg",
+        "price": "À partir de 153 000 €",
+        "features": [
+          "Design emblématique en forme de hublot",
+          "Bracelet intégré articulé",
+          "Mouvement automatique de manufacture"
+        ]
+      },
+      {
+        "name": "Calatrava",
+        "description": "Le symbole de l'élégance et de la sobriété depuis 1932. Un design intemporel qui incarne l'excellence de la marque.",
+        "image": "/images/watches/calatrava.jpg",
+        "price": "À partir de 45 000 €",
+        "features": [
+          "Design épuré et élégant",
+          "Construction plate et fine",
+          "Mouvement de manufacture"
+        ]
+      },
+      {
+        "name": "Aquanaut",
+        "description": "Une montre sportive moderne inspirée de la Nautilus, lancée en 1997. Son bracelet Tropical en matériau composite est une innovation unique.",
+        "image": "/images/watches/aquanaut.jpg",
+        "price": "À partir de 62 000 €",
+        "features": [
+          "Bracelet Tropical en matériau composite",
+          "Design moderne et arrondi",
+          "Résistant à l'eau et aux UV"
+        ]
+      }
+    ],
+    "history": {
+      "title": "Histoire de la Marque",
+      "content": [
+        "En 1839, l'horloger polonais en exil Antoni Patek débute la production de montres de poche à Genève, où il s'associe 6 ans plus tard à son confrère français Adrien Philippe. En 1844, Adrien Philippe invente la couronne de remontage, révolutionnant l'horlogerie. Depuis 1851, l'entreprise porte le nom Patek Philippe.",
+        "La marque a révolutionné l'horlogerie avec des innovations majeures : le premier double chronographe en 1902, la première montre-bracelet avec quantième annuel en 1925, et la première montre à quartz à circuit intégré en 1959.",
+        "L'entreprise est reprise par la famille Stern en 1932 et est dirigée par Thierry Stern depuis 2010. Chaque année, environ 68 000 montres sortent des ateliers Patek Philippe, toutes fabriquées avec une précision et un soin exceptionnels."
+      ]
+    }
+  },
+  "audemars-piguet": {
+    "name": "Audemars Piguet",
+    "slug": "audemars-piguet",
+    "description": "Il émane des garde-temps Audemars Piguet une grande noblesse. La manufacture compte aussi à son catalogue des modèles compliqués munis d'un quantième perpétuel et d'un tourbillon. La Royal Oak est la montre la plus emblématique de la marque.",
+    "logo": "/images/brands/ap.png",
+    "overview": {
+      "title": "Pionnière et révolutionnaire dans l'industrie horlogère",
+      "content": [
+        "Les montres d'Audemars Piguet font partie des montres les plus raffinées et les plus réputées au monde. Aux côtés de Patek Philippe et Vacheron Constantin, la manufacture vient former la trinité de la haute horlogerie suisse. Depuis sa création en 1875, l'entreprise a été transmise de génération en génération et elle est l'un des derniers fabricants de montres suisse à ne pas avoir été revendu à un autre directeur ou à un grand groupe.",
+        "Sortie tout droit de l'imagination de l'iconique designer Gérald Genta, la Royal Oak est le modèle le plus réputé et le plus convoité de la manufacture sise au Brassus. Présentée en 1972, elle a bouleversé l'univers de l'horlogerie de luxe et a surtout fait parler d'elle en raison de son prix : cette montre en acier imposante était en effet aussi onéreuse qu'une montre en or classique !"
+      ]
+    },
+    "keyFeatures": [
+      "Montres mécaniques de luxe particulièrement élaborées",
+      "Modèle Royal Oak : excellent investissement et fort potentiel de plus-value",
+      "Excellents calibres de manufacture",
+      "Finition parfaite",
+      "Large choix de modèles"
+    ],
+    "priceRange": {
+      "catalog": "Entre 11 000 € et 802 000 €",
+      "secondary": "Prix majorés de 30% à 300% selon les modèles"
+    },
+    "featuredModels": [
+      {
+        "name": "Royal Oak",
+        "description": "La montre sportive emblématique créée par Gérald Genta en 1972. Son design révolutionnaire avec sa lunette octogonale et ses vis apparentes a changé l'horlogerie de luxe.",
+        "image": "/images/watches/royal-oak.jpg",
+        "price": "À partir de 30 000 €",
+        "features": [
+          "Lunette octogonale aux bords biseautés",
+          "8 vis hexagonales apparentes",
+          "Bracelet intégré avec mailles étroites"
+        ]
+      },
+      {
+        "name": "Royal Oak Offshore",
+        "description": "Une version plus sportive et imposante de la Royal Oak, lancée en 1993. Elle reprend les codes de la Royal Oak tout en proposant un design plus moderne et robuste.",
+        "image": "/images/watches/royal-oak-offshore.jpg",
+        "price": "À partir de 25 000 €",
+        "features": [
+          "Design plus imposant et sportif",
+          "Diamètres de 37 à 48 mm",
+          "Fonction chronographe intégrée"
+        ]
+      },
+      {
+        "name": "Code 11.59",
+        "description": "Une collection innovante lancée en 2019 qui marie tradition et modernité. Elle combine des éléments de design classiques avec des innovations techniques.",
+        "image": "/images/watches/code-11-59.jpg",
+        "price": "À partir de 21 000 €",
+        "features": [
+          "Design unique avec boîtier octogonal",
+          "Premier calibre chronographe intégré",
+          "Cadran avec index bâtons et chiffres"
+        ]
+      }
+    ],
+    "history": {
+      "title": "Histoire d'une manufacture d'exception",
+      "content": [
+        "Audemars Piguet est riche d'une histoire de plus de 140 ans. Jules-Louis Audemars fonde l'entreprise en 1875, juste après avoir terminé son apprentissage en tant que repasseur. La société est sise au Brassus, dans la vallée de Joux.",
+        "En 1881, Jules-Louis Audemars et Edward-Auguste Piguet fondent la société Audemars Piguet & Cie. Dès le début, ils se lancent dans la production de montres de poche compliquées, présentant leurs premières montres munies de quantième perpétuel, répétition minutes et fonction chronographe.",
+        "La manufacture a révolutionné l'horlogerie avec des innovations majeures comme la Royal Oak en 1972, la Royal Oak Offshore en 1993, et plus récemment la Code 11.59 en 2019. Aujourd'hui, Audemars Piguet continue d'innover tout en préservant son héritage familial et son savoir-faire artisanal."
+      ]
+    }
+  },
+  "omega": {
+    "name": "Omega",
+    "slug": "omega",
+    "description": "Omega est synonyme de tradition, de précision et de progrès. Des créations telles que l'échappement Co-Axial, le Master Chronometer et la légendaire Speedmaster Professional Moonwatch renforcent la réputation d'excellence de la marque.",
+    "logo": "/images/brands/omega.png",
+    "overview": {
+      "title": "Innovation et tradition depuis 1848",
+      "content": [
+        "Omega a vu le jour au milieu du XIXe siècle. Au cours de sa longue histoire, la marque a acquis la réputation d'une marque de montres fiables, précises et fonctionnelles. La manufacture de Bienne, en Suisse, est en outre considérée comme un moteur de l'innovation dans le domaine de la technique des calibres et de la recherche sur les matériaux.",
+        "Le catalogue d'Omega répertorie certaines des montres-bracelets les plus connues au monde. La Speedmaster Professional Moonwatch en est un parfait exemple : elle a participé aux premières missions lunaires à l'été 1969 après un processus de sélection très strict. Depuis près de 60 ans, les plongeurs professionnels et de loisir font confiance à la vaste collection Seamaster."
+      ]
+    },
+    "keyFeatures": [
+      "Des modèles cultes tels que la Speedmaster et la Seamaster",
+      "Calibre de haute qualité avec échappement Co-Axial et composants amagnétiques",
+      "Des matériaux innovants tels que l'or Canopus et l'O-Megasteel",
+      "Complications comme répétition minutes, heure universelle ou tourbillon"
+    ],
+    "priceRange": {
+      "catalog": "Entre 2 900 € et 435 000 €",
+      "secondary": "Prix majorés de 20% à 200% selon les modèles"
+    },
+    "featuredModels": [
+      {
+        "name": "Speedmaster Professional Moonwatch",
+        "description": "Le chronographe culte qui a foulé la Lune en 1969. Un design intemporel qui a défini le standard des chronographes sportifs.",
+        "image": "/images/watches/speedmaster.jpg",
+        "price": "À partir de 6 200 €",
+        "features": [
+          "Première montre sur la Lune",
+          "Chronographe manuel",
+          "Lunette tachymétrique"
+        ]
+      },
+      {
+        "name": "Seamaster Diver 300M",
+        "description": "La montre de plongée emblématique portée par James Bond. Un design moderne avec valve à hélium et cadran ondulé.",
+        "image": "/images/watches/seamaster.jpg",
+        "price": "À partir de 4 600 €",
+        "features": [
+          "Étanche jusqu'à 300m",
+          "Valve à hélium",
+          "Calibre Co-Axial"
+        ]
+      },
+      {
+        "name": "Aqua Terra",
+        "description": "Une montre polyvalente qui allie élégance et performance. Aussi à l'aise dans l'eau que sur terre.",
+        "image": "/images/watches/aqua-terra.jpg",
+        "price": "À partir de 2 900 €",
+        "features": [
+          "Design versatile",
+          "Étanche jusqu'à 150m",
+          "Calibre Co-Axial"
+        ]
+      }
+    ],
+    "history": {
+      "title": "L'histoire d'Omega",
+      "content": [
+        "L'histoire d'Omega remonte au XIXe siècle : le Suisse Louis Brandt a débuté la production de montres de poche en 1848 à La Chaux-de-Fonds. Plus tard, les fils Brandt décident de déménager l'entreprise à Bienne, son siège actuel. Le nom 'Omega' est officiellement enregistré en 1903, symbolisant la notion d'accomplissement.",
+        "En 1930, Omega s'associe à Tissot mais les deux marques continuent d'exister indépendamment. En 1983, les deux marques intègrent le groupe Swatch, dont Omega fait toujours partie aujourd'hui.",
+        "La marque a révolutionné l'horlogerie avec des innovations majeures comme l'échappement Co-Axial et le Master Chronometer. Elle est également connue pour ses collaborations historiques avec la NASA et James Bond."
+      ]
+    }
+  },
+  "cartier": {
+    "name": "Cartier",
+    "slug": "cartier",
+    "description": "Synonyme de luxe, de savoir-faire et d'expérience, Cartier incarne la perfection. Pionnière de l'art horloger depuis plus de 160 ans, la maison parisienne a notamment conçu la toute première montre d'aviateur.",
+    "logo": "/images/brands/cartier.png",
+    "overview": {
+      "title": "Cartier, inventrice de la montre-bracelet",
+      "content": [
+        "Cartier dispose d'une longue tradition horlogère et fait figure de référence en matière de design. Au début du XXe siècle, Cartier présente sa toute première montre à cadran rectangulaire ornée des chiffres romains de style Art déco caractéristiques de la marque.",
+        "Le modèle Santos, conçu spécialement pour le pilote brésilien Alberto Santos-Dumont en 1904, fait aujourd'hui partie des montres-bracelets les plus célèbres de Cartier. Il en va de même pour la Tank, introduite en 1917, qui est devenue une véritable icône du design au fil des décennies."
+      ]
+    },
+    "keyFeatures": [
+      "Design iconique avec chiffres romains Art déco",
+      "Première montre-bracelet de l'histoire",
+      "Savoir-faire joaillier exceptionnel",
+      "Collections emblématiques : Tank, Santos, Ballon Bleu"
+    ],
+    "priceRange": {
+      "catalog": "Entre 2 399 € et 136 350 €",
+      "secondary": "Prix majorés de 0% à 17% selon les modèles"
+    },
+    "featuredModels": [
+      {
+        "name": "Tank de Cartier",
+        "description": "Une montre culte depuis plus de 100 ans, avec son boîtier rectangulaire et son design Art déco intemporel.",
+        "image": "/images/watches/tank.jpg",
+        "price": "À partir de 2 399 €",
+        "features": [
+          "Boîtier rectangulaire",
+          "Chiffres romains Art déco",
+          "Aiguilles glaive bleuies"
+        ]
+      },
+      {
+        "name": "Santos de Cartier",
+        "description": "La première montre d'aviateur au monde, créée en 1904 pour Alberto Santos-Dumont.",
+        "image": "/images/watches/santos.jpg",
+        "price": "À partir de 6 000 €",
+        "features": [
+          "Cadran rectangulaire",
+          "Lunette avec vis apparentes",
+          "Calibre de manufacture"
+        ]
+      },
+      {
+        "name": "Ballon Bleu de Cartier",
+        "description": "Une montre ronde élégante avec sa couronne intégrée au boîtier et son cabochon en saphir bleu.",
+        "image": "/images/watches/ballon-bleu.jpg",
+        "price": "À partir de 4 500 €",
+        "features": [
+          "Couronne intégrée avec cabochon",
+          "Design épuré et moderne",
+          "Disponible en plusieurs tailles"
+        ]
+      }
+    ],
+    "history": {
+      "title": "L'histoire de Cartier en bref",
+      "content": [
+        "Le joaillier et horloger traditionnel français est riche d'une histoire de plus de 160 ans. En 1847, Louis-François Cartier reprend à Paris la joaillerie de son maître d'apprentissage Adolphe Picard.",
+        "En 1874, son fils Alfred rejoint la société et développe le département horloger. Les fils de ce dernier, Louis, Pierre et Jacques, établissent la renommée internationale de Cartier avec des succursales à Paris, New York et Londres.",
+        "La maison a révolutionné l'horlogerie avec des innovations majeures comme la première montre-bracelet en 1888, la Santos en 1904, et la Tank en 1917. Aujourd'hui, Cartier fait partie du groupe Richemont et continue d'innover tout en préservant son héritage."
+      ]
+    }
+  },
+  "jaeger-lecoultre": {
+    "name": "Jaeger-LeCoultre",
+    "slug": "jaeger-lecoultre",
+    "description": "La manufacture suisse de montres de luxe Jaeger-LeCoultre est reconnue dans le monde entier pour son excellence : montres habillées extrêmement plates ou modèles complexes munis de répétition minutes, quantième perpétuel ou tourbillon.",
+    "logo": "/images/brands/jlc.png",
+    "overview": {
+      "title": "L'artisanat à la perfection",
+      "content": [
+        "Jaeger-LeCoultre est rarement une manufacture horlogère suisse qui aura initié autant d'innovations horlogères au cours de son histoire. Le fabricant relève même les défis techniques les plus complexes avec des créations comme le calibre à deux étages Duoplan et son descendant direct, le mouvement le plus petit au monde, le calibre 101.",
+        "La manufacture crée principalement des montres habillées au style classique et élégant pour homme et pour femme, avec des modèles emblématiques comme la Reverso au boîtier carré et la Master Ultra Thin extrêmement plate."
+      ]
+    },
+    "keyFeatures": [
+      "Montres de manufacture suisses nobles",
+      "Composants du calibre décorés à la main",
+      "Modèle réputé : Reverso avec boîtier réversible",
+      "Memovox avec fonction alarme"
+    ],
+    "priceRange": {
+      "catalog": "Entre 3 300 € et 440 000 €",
+      "secondary": "Prix majorés de 0% à 30% selon les modèles"
+    },
+    "featuredModels": [
+      {
+        "name": "Reverso",
+        "description": "Une icône au boîtier réversible, créée en 1931 pour les joueurs de polo. Le boîtier peut être retourné pour protéger le cadran.",
+        "image": "/images/watches/reverso.jpg",
+        "price": "À partir de 4 000 €",
+        "features": [
+          "Boîtier réversible",
+          "Design Art déco",
+          "Face verso gravée ou émaillée"
+        ]
+      },
+      {
+        "name": "Master Ultra Thin",
+        "description": "La montre extra plate de la manufacture, inspirée d'un modèle de montre de gousset minimaliste de 1907.",
+        "image": "/images/watches/master-ultra-thin.jpg",
+        "price": "À partir de 6 000 €",
+        "features": [
+          "Épaisseur de seulement 7,5 mm",
+          "Design épuré",
+          "Calibre de manufacture"
+        ]
+      },
+      {
+        "name": "Polaris",
+        "description": "Une collection sportive moderne inspirée du célèbre modèle Memovox Polaris de 1968.",
+        "image": "/images/watches/polaris.jpg",
+        "price": "À partir de 6 500 €",
+        "features": [
+          "Design sportif moderne",
+          "Disponible en acier et or",
+          "Fonction chronographe optionnelle"
+        ]
+      }
+    ],
+    "history": {
+      "title": "L'histoire d'une entreprise innovante",
+      "content": [
+        "C'est en 1833 que les frères Charles-Antoine et François Ulysse LeCoultre fondèrent leur atelier. À ses débuts, LeCoultre fabriquait des roues d'engrenage et des machines pour la production d'engrenages.",
+        "En 1844, l'entreprise présenta le millionomètre, un appareil permettant de mesurer une unité de longueur d'un millième de millimètre, devenu l'appareil de mesure standard pour l'horlogerie de précision.",
+        "Au début du XXe siècle, le fabricant d'ébauches LeCoultre travaillait en collaboration avec l'horloger Edmond Jaeger, ce qui déboucha sur l'union des deux entreprises en 1937. Depuis 2000, l'entreprise appartient au groupe suisse Richemont."
+      ]
+    }
+  }
+} 
