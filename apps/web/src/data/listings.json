@@ -1,0 +1,98 @@
+{
+  "O5FLZ2": {
+    "id": "O5FLZ2",
+    "brand": "Rolex",
+    "model": "Day-Date 40",
+    "reference": "228235",
+    "variant": "Sundust Full Set",
+    "price": 37900,
+    "shipping": {
+      "cost": 349,
+      "location": "France",
+      "method": "Colis assuré"
+    },
+    "condition": {
+      "status": "D'occasion",
+      "grade": "Très bon",
+      "description": "L'article présente de légères traces d'usure, telles que quelques légères rayures, qui ne sont toutefois pas perceptibles au toucher."
+    },
+    "year": 2015,
+    "included": [
+      "Avec boîte d'origine",
+      "Avec papiers d'origine"
+    ],
+    "gender": "Montre homme/Unisexe",
+    "location": {
+      "country": "France",
+      "city": "Paris"
+    },
+    "availability": "En stock",
+    "delivery": {
+      "estimated": {
+        "from": "28/05",
+        "to": "03/06"
+      }
+    },
+    "seller": {
+      "name": "AV WATCHES",
+      "type": "Professionnel certifié",
+      "rating": 4.9,
+      "reviews": 237
+    },
+    "specifications": {
+      "movement": {
+        "type": "Remontage automatique",
+        "caliber": "3255",
+        "base": "3255, Manufacture Rolex",
+        "powerReserve": "70 h",
+        "jewels": 31
+      },
+      "case": {
+        "material": "Or rose",
+        "diameter": "40 mm",
+        "waterResistance": "10 ATM",
+        "bezel": "Or rose",
+        "crystal": "Verre saphir",
+        "dial": "Rose",
+        "numerals": "Romains"
+      },
+      "bracelet": {
+        "material": "Or rose",
+        "color": "Or",
+        "clasp": "Plis",
+        "claspMaterial": "Or rose"
+      },
+      "functions": [
+        "Date"
+      ]
+    },
+    "images": [
+      "/images/listings/rolex-daydate-1.jpg",
+      "/images/listings/rolex-daydate-2.jpg",
+      "/images/listings/rolex-daydate-3.jpg"
+    ],
+    "description": {
+      "title": "DESCRIPTION DU PRODUIT",
+      "content": [
+        "MARQUE : Rolex",
+        "MODELE : Day-Date 40",
+        "REFERENCE : 228235 Cadran Sundust",
+        "ANNEE : 2015",
+        "CONTENU : Full Set",
+        "Prix : 37900 euros"
+      ],
+      "contact": {
+        "title": "NOUS CONTACTER",
+        "content": "Nous parlons français et anglais."
+      },
+      "shipping": {
+        "title": "LIVRAISON GARANTIE ET SECURISEE",
+        "content": "Remise en main propre à Paris ou expédition en France et à l'étranger via Fedex Priority."
+      }
+    },
+    "stats": {
+      "views": 291,
+      "period": "48 heures"
+    }
+  }
+} 

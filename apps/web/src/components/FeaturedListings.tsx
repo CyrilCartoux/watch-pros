@@ -13,7 +13,7 @@ const listings = [
     price: "12,500",
     condition: "New",
     image: "/images/watches/submariner.jpg",
-    href: "/listings/1"
+    href: "/listings/O5FLZ2"
   },
   {
     id: 2,
