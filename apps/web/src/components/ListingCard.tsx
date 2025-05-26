@@ -3,7 +3,7 @@ import { Card, CardContent } from "./ui/card"
 import Image from "next/image"
 import Link from "next/link"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { useState } from "react"
+import { useState, TouchEvent } from "react"
 
 interface ListingCardProps {
   listing: {
@@ -36,6 +36,11 @@ export function ListingCard({ listing }: ListingCardProps) {
   const images = listing.images || (listing.image ? [listing.image] : ['/images/placeholder.jpg'])
   console.log(images);
   const [currentImage, setCurrentImage] = useState(0)
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchEnd, setTouchEnd] = useState<number | null>(null)
+
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50
 
   const nextImage = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -49,10 +54,39 @@ export function ListingCard({ listing }: ListingCardProps) {
     setCurrentImage((prev) => (prev === 0 ? images.length - 1 : prev - 1))
   }
 
+  const onTouchStart = (e: TouchEvent) => {
+    setTouchEnd(null)
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const onTouchMove = (e: TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > minSwipeDistance
+    const isRightSwipe = distance < -minSwipeDistance
+
+    if (isLeftSwipe) {
+      setCurrentImage((prev) => (prev === images.length - 1 ? 0 : prev + 1))
+    }
+    if (isRightSwipe) {
+      setCurrentImage((prev) => (prev === 0 ? images.length - 1 : prev - 1))
+    }
+  }
+
   return (
     <Link href={`/listings/${listing.id}`}>
       <Card className="overflow-hidden hover:shadow-lg transition-all h-full flex flex-col">
-        <div className="relative aspect-square group">
+        <div 
+          className="relative aspect-square group"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
           <Image
             src={images[currentImage]}
             alt={`${listing.brand} ${listing.model}`}

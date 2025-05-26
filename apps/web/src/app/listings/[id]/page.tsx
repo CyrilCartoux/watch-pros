@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Heart, Share2, Shield, Clock, Package, Star, ChevronLeft, ChevronRight } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import { useState, useEffect, TouchEvent } from "react"
 import listingsData from "@/data/listings.json"
 import brandsData from "@/data/brands.json"
 
@@ -95,6 +95,11 @@ export default function ListingPage({ params }: { params: { id: string } }) {
   const [isFavorite, setIsFavorite] = useState(false)
   const [currentPopularModel, setCurrentPopularModel] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
+  const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [touchEnd, setTouchEnd] = useState<number | null>(null)
+
+  // Minimum swipe distance (in px)
+  const minSwipeDistance = 50
 
   useEffect(() => {
     const checkMobile = () => {
@@ -106,6 +111,30 @@ export default function ListingPage({ params }: { params: { id: string } }) {
     
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    setTouchEnd(null)
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > minSwipeDistance
+    const isRightSwipe = distance < -minSwipeDistance
+
+    if (isLeftSwipe) {
+      setCurrentImage((prev) => (prev === listing.images.length - 1 ? 0 : prev + 1))
+    }
+    if (isRightSwipe) {
+      setCurrentImage((prev) => (prev === 0 ? listing.images.length - 1 : prev - 1))
+    }
+  }
 
   const listing = listingsData[params.id as keyof typeof listingsData] as ListingData
   const brandInfo = brandsData[listing.brand.toLowerCase().replace(/\s+/g, '-') as keyof typeof brandsData]
@@ -133,7 +162,12 @@ export default function ListingPage({ params }: { params: { id: string } }) {
           {/* Left Column - Images */}
           <div className="space-y-4">
             {/* Main Image */}
-            <div className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+            <div 
+              className="relative aspect-square rounded-lg overflow-hidden bg-muted"
+              onTouchStart={onTouchStart}
+              onTouchMove={onTouchMove}
+              onTouchEnd={onTouchEnd}
+            >
               <Image
                 src={listing.images[currentImage]}
                 alt={`${listing.brand} ${listing.model}`}
