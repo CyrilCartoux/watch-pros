@@ -1,0 +1,13 @@
+{
+    "braceletColors": [
+        "Argent", "Argent (massif)", "Blanc", "Bleu", "Bordeaux", "Bronze", "Brun",
+        "Champagne", "Gris", "Jaune", "Météorite", "Nacre", "Noir", "Or", "Or (massif)",
+        "Orange", "Rose", "Rouge", "Squeletté", "Turquoise", "Vert", "Violet"
+      ],
+      "braceletMaterials": [
+        "Acier", "Aluminium", "Argent", "Bronze", "Carbone", "Céramique", "Laiton",
+        "Or blanc", "Or blanc et acier", "Or jaune", "Or jaune et acier", "Or rose",
+        "Or rose et acier", "Or rouge", "Or/Acier", "Palladium", "Plaquée or",
+        "Plastique", "Platine", "Tantale", "Titane", "Tungstène", "Verre saphir"
+      ]
+}

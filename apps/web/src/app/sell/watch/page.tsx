@@ -9,10 +9,10 @@ import { useState, useEffect } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Check, ChevronDown, Upload, ChevronLeft, ChevronRight } from "lucide-react"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, CarouselDots } from "@/components/ui/carousel"
+import { Upload, ChevronLeft, ChevronRight } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import watchProperties from "@/data/watch-properties.json"
 
 // Ajouter un composant pour afficher les erreurs
 const FormError = ({ error, isSubmitted }: { error?: string, isSubmitted: boolean }) => {
@@ -80,36 +80,12 @@ const models = {
   ],
 }
 
-const dialColors = [
-  "Argent", "Argent (massif)", "Blanc", "Bleu", "Bordeaux", "Bronze", "Brun",
-  "Champagne", "Gris", "Jaune", "Météorite", "Nacre", "Noir", "Or", "Or (massif)",
-  "Orange", "Rose", "Rouge", "Squeletté", "Turquoise", "Vert", "Violet"
-]
+const dialColors = watchProperties.dialColors;
+const movements = watchProperties.movements;
+const cases = watchProperties.cases;
+const braceletMaterials = watchProperties.braceletMaterials;
+const braceletColors = watchProperties.braceletColors;
 
-const movements = [
-  "Montre connectée", "Quartz", "Automatique", "Manuelle", "Solaire"
-]
-
-const cases = [
-  "Acier", "Aluminium", "Argent", "Bronze", "Carbone", "Céramique", "Laiton",
-  "Or blanc", "Or blanc et acier", "Or jaune", "Or jaune et acier", "Or rose",
-  "Or rose et acier", "Or rouge", "Or/Acier", "Palladium", "Plaquée or",
-  "Plastique", "Platine", "Tantale", "Titane", "Tungstène", "Verre saphir"
-]
-
-const braceletMaterials = [
-  "Acier", "Aluminium", "Argent", "Caoutchouc", "Céramique", "Cuir",
-  "Cuir d'autruche", "Cuir de crocodile", "Cuir de lézard", "Cuir de requin",
-  "Cuir de serpent", "Cuir de vache", "Laiton", "Matière plastique",
-  "Or blanc", "Or jaune", "Or rose", "Or rouge", "Or/Acier", "Peau d'alligator",
-  "Plaquée or", "Platine", "Satin", "Silicone", "Textile", "Titane"
-]
-
-const braceletColors = [
-  "Acier", "Argenté", "Beige", "Blanc", "Bleu", "Bordeaux", "Bronze",
-  "Brun", "Gris", "Jaune", "Noir", "Or", "Or/Acier", "Orange", "Rose",
-  "Rouge", "Vert", "Violet"
-]
 
 const includedOptions = [
   {
