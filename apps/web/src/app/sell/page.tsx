@@ -13,6 +13,12 @@ import { Check, ChevronDown, Upload, ChevronLeft, ChevronRight } from "lucide-re
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, CarouselDots } from "@/components/ui/carousel"
 import Image from "next/image"
 
+// Ajouter un composant pour afficher les erreurs
+const FormError = ({ error, isSubmitted }: { error?: string, isSubmitted: boolean }) => {
+    if (!error || !isSubmitted) return null
+    return <p className="text-sm text-red-500 mt-1">{error}</p>
+}
+
 // Schéma de validation pour le formulaire de vente
 const sellSchema = z.object({
   // Step 1: Informations de base
@@ -138,6 +144,8 @@ export default function SellPage() {
   const [selectedImages, setSelectedImages] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [currentImage, setCurrentImage] = useState(0)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isStepSubmitted, setIsStepSubmitted] = useState(false)
 
   const form = useForm({
     resolver: zodResolver(sellSchema),
@@ -164,7 +172,44 @@ export default function SellPage() {
       price: 0,
       currency: "EUR",
     },
+    mode: "onChange",
   })
+
+  // Validation des étapes
+  const validateStep = async (stepNumber: number) => {
+    let fieldsToValidate: (keyof z.infer<typeof sellSchema>)[] = []
+
+    switch (stepNumber) {
+      case 1:
+        fieldsToValidate = [
+          "brand",
+          "model",
+          "reference",
+          "title",
+          "year",
+          "gender",
+          "dialColor",
+          "movement",
+          "case",
+          "braceletMaterial",
+          "braceletColor"
+        ]
+        break
+      case 2:
+        fieldsToValidate = ["included"]
+        break
+      case 3:
+        fieldsToValidate = ["images"]
+        break
+      case 4:
+        fieldsToValidate = ["price"]
+        break
+    }
+
+    const result = await form.trigger(fieldsToValidate)
+    setIsStepSubmitted(true)
+    return result
+  }
 
   const handleBrandChange = (value: string) => {
     setSelectedBrand(value)
@@ -232,15 +277,19 @@ export default function SellPage() {
     return price - calculateCommission(price)
   }
 
-  const onSubmit = (data: any) => {
-    console.log(data)
-  }
+  const nextStep = async () => {
+    setIsSubmitting(true)
+    const isValid = await validateStep(step)
+    setIsSubmitting(false)
 
-  const nextStep = () => {
-    setStep(prev => prev + 1)
+    if (isValid) {
+      setIsStepSubmitted(false)
+      setStep(prev => prev + 1)
+    }
   }
 
   const prevStep = () => {
+    setIsStepSubmitted(false)
     setStep(prev => prev - 1)
   }
 
@@ -254,6 +303,18 @@ export default function SellPage() {
     e.preventDefault()
     e.stopPropagation()
     setCurrentImage((prev) => (prev === 0 ? imagePreviews.length - 1 : prev - 1))
+  }
+
+  const onSubmit = async (data: any) => {
+    setIsSubmitting(true)
+    try {
+      console.log(data)
+      // TODO: Submit form data
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -337,6 +398,7 @@ export default function SellPage() {
                               </Select>
                             )}
                           />
+                          <FormError error={form.formState.errors.brand?.message} isSubmitted={isStepSubmitted} />
                         </div>
 
                         <div>
@@ -363,6 +425,7 @@ export default function SellPage() {
                               </Select>
                             )}
                           />
+                          <FormError error={form.formState.errors.model?.message} isSubmitted={isStepSubmitted} />
                         </div>
 
                         <div>
@@ -372,6 +435,7 @@ export default function SellPage() {
                             placeholder="ex: 18038" 
                             {...form.register("reference")} 
                           />
+                          <FormError error={form.formState.errors.reference?.message} isSubmitted={isStepSubmitted} />
                         </div>
                       </div>
 
@@ -389,6 +453,7 @@ export default function SellPage() {
                           <p className="text-sm text-muted-foreground mt-1">
                             {form.watch("title")?.length || 0} / 40
                           </p>
+                          <FormError error={form.formState.errors.title?.message} isSubmitted={isStepSubmitted} />
                         </div>
 
                         <div>
@@ -402,6 +467,7 @@ export default function SellPage() {
                           <p className="text-sm text-muted-foreground mt-1">
                             {form.watch("description")?.length || 0} / 40
                           </p>
+                          <FormError error={form.formState.errors.description?.message} isSubmitted={isStepSubmitted} />
                         </div>
                       </div>
 
@@ -416,6 +482,7 @@ export default function SellPage() {
                             placeholder="ex: 2013" 
                             {...form.register("year")}
                           />
+                          <FormError error={form.formState.errors.year?.message} isSubmitted={isStepSubmitted} />
                         </div>
 
                         <div>
@@ -436,6 +503,7 @@ export default function SellPage() {
                               </Select>
                             )}
                           />
+                          <FormError error={form.formState.errors.gender?.message} isSubmitted={isStepSubmitted} />
                         </div>
 
                         <div>
@@ -467,6 +535,7 @@ export default function SellPage() {
                               </Select>
                             )}
                           />
+                          <FormError error={form.formState.errors.dialColor?.message} isSubmitted={isStepSubmitted} />
                         </div>
 
                         <div>
@@ -483,6 +552,7 @@ export default function SellPage() {
                             />
                             <span className="text-muted-foreground">mm</span>
                           </div>
+                          <FormError error={form.formState.errors.diameter?.min?.message || form.formState.errors.diameter?.max?.message} isSubmitted={isStepSubmitted} />
                         </div>
 
                         <div>
@@ -505,6 +575,7 @@ export default function SellPage() {
                               </Select>
                             )}
                           />
+                          <FormError error={form.formState.errors.movement?.message} isSubmitted={isStepSubmitted} />
                         </div>
 
                         <div>
@@ -527,6 +598,7 @@ export default function SellPage() {
                               </Select>
                             )}
                           />
+                          <FormError error={form.formState.errors.case?.message} isSubmitted={isStepSubmitted} />
                         </div>
 
                         <div>
@@ -549,6 +621,7 @@ export default function SellPage() {
                               </Select>
                             )}
                           />
+                          <FormError error={form.formState.errors.braceletMaterial?.message} isSubmitted={isStepSubmitted} />
                         </div>
 
                         <div>
@@ -571,6 +644,7 @@ export default function SellPage() {
                               </Select>
                             )}
                           />
+                          <FormError error={form.formState.errors.braceletColor?.message} isSubmitted={isStepSubmitted} />
                         </div>
                       </div>
                     </>
@@ -743,12 +817,19 @@ export default function SellPage() {
                       </Button>
                     )}
                     {step < 4 ? (
-                      <Button type="button" onClick={nextStep}>
-                        Continuer
+                      <Button 
+                        type="button" 
+                        onClick={nextStep}
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? "Validation..." : "Continuer"}
                       </Button>
                     ) : (
-                      <Button type="submit">
-                        Publier l'annonce
+                      <Button 
+                        type="submit"
+                        disabled={isSubmitting}
+                      >
+                        {isSubmitting ? "Publication..." : "Publier l'annonce"}
                       </Button>
                     )}
                   </div>
@@ -840,11 +921,15 @@ export default function SellPage() {
                     </div>
                     <div>
                       <p className="text-muted-foreground">Référence</p>
-                      <p className="font-medium">{form.watch("reference") || "-"}</p>
+                      <p className="font-medium truncate" title={form.watch("reference") || "-"}>
+                        {form.watch("reference") || "-"}
+                      </p>
                     </div>
                     <div>
                       <p className="text-muted-foreground">Année</p>
-                      <p className="font-medium">{form.watch("year") || "-"}</p>
+                      <p className="font-medium truncate" title={form.watch("year") || "-"}>
+                        {form.watch("year") || "-"}
+                      </p>
                     </div>
                   </div>
                   <div className="pt-4 border-t">
