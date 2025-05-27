@@ -5,13 +5,14 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Check, ChevronDown, Upload, ChevronLeft, ChevronRight } from "lucide-react"
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, CarouselDots } from "@/components/ui/carousel"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 // Ajouter un composant pour afficher les erreurs
 const FormError = ({ error, isSubmitted }: { error?: string, isSubmitted: boolean }) => {
@@ -28,7 +29,7 @@ const sellSchema = z.object({
   title: z.string().min(1, "Le titre est requis").max(60, "Le titre ne doit pas dépasser 60 caractères"),
   description: z.string().optional(),
   year: z.string().min(1, "L'année est requise"),
-  gender: z.string().min(1, "Le genre est requis"),
+  gender: z.string().optional(),
   serialNumber: z.string().optional(),
   dialColor: z.string().min(1, "La couleur du cadran est requise"),
   diameter: z.object({
@@ -41,7 +42,7 @@ const sellSchema = z.object({
   braceletColor: z.string().min(1, "La couleur du bracelet est requise"),
   
   // Step 2: Contenu de la livraison
-  included: z.string(),
+  included: z.string().min(1, "Veuillez sélectionner le contenu de la livraison"),
   
   // Step 3: Photos
   images: z.array(z.instanceof(File)).min(1, "Au moins une photo est requise").max(10, "Maximum 10 photos"),
@@ -137,6 +138,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
 
 export default function SellPage() {
+  const router = useRouter()
   const [step, setStep] = useState(1)
   const [selectedBrand, setSelectedBrand] = useState("")
   const [selectedModel, setSelectedModel] = useState("")
@@ -174,6 +176,11 @@ export default function SellPage() {
     },
     mode: "onChange",
   })
+
+  // Mettre à jour l'aperçu du titre quand le titre change
+  useEffect(() => {
+    setPreviewTitle(form.watch("title"))
+  }, [form.watch("title")])
 
   // Validation des étapes
   const validateStep = async (stepNumber: number) => {
@@ -221,12 +228,6 @@ export default function SellPage() {
   const handleModelChange = (value: string) => {
     setSelectedModel(value)
     form.setValue("model", value)
-  }
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value
-    form.setValue("title", value)
-    setPreviewTitle(value)
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -310,10 +311,25 @@ export default function SellPage() {
     try {
       console.log(data)
       // TODO: Submit form data
+      // Simuler un délai de soumission
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      router.push("/sell/success")
     } catch (error) {
       console.error(error)
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true)
+    const isValid = await validateStep(4)
+    setIsSubmitting(false)
+
+    console.log(form.getValues());
+
+    if (isValid) {
+      form.handleSubmit(onSubmit)()
     }
   }
 
@@ -448,7 +464,7 @@ export default function SellPage() {
                             id="title" 
                             placeholder="Complétez le titre de l'annonce" 
                             maxLength={40}
-                            onChange={handleTitleChange}
+                            {...form.register("title")}
                           />
                           <p className="text-sm text-muted-foreground mt-1">
                             {form.watch("title")?.length || 0} / 40
@@ -486,7 +502,7 @@ export default function SellPage() {
                         </div>
 
                         <div>
-                          <Label htmlFor="gender">Genre *</Label>
+                          <Label htmlFor="gender">Genre</Label>
                           <Controller
                             name="gender"
                             control={form.control}
@@ -654,8 +670,9 @@ export default function SellPage() {
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold">Contenu de la livraison</h3>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Sélectionnez ce qui sera inclus avec la montre
+                        Sélectionnez ce qui sera inclus avec la montre *
                       </p>
+                      <FormError error={form.formState.errors.included?.message} isSubmitted={isStepSubmitted} />
                       <div className="grid gap-4">
                         {includedOptions.map((option) => (
                           <Card
@@ -666,7 +683,7 @@ export default function SellPage() {
                                 : "hover:border-primary/50"
                             }`}
                             onClick={() => {
-                              form.setValue("included", option.id)
+                              form.setValue("included", option.id, { shouldValidate: true })
                             }}
                           >
                             <CardContent className="p-4">
@@ -702,6 +719,8 @@ export default function SellPage() {
                       <p className="text-sm text-muted-foreground mb-4">
                         Ajoutez jusqu'à 10 photos de votre montre. Formats acceptés : JPG, PNG, WEBP. Taille maximum : 5MB par photo.
                       </p>
+
+                      <FormError error={form.formState.errors.images?.message} isSubmitted={isStepSubmitted} />
                       
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                         {imagePreviews.map((preview, index) => (
@@ -806,6 +825,7 @@ export default function SellPage() {
                             </p>
                           </CardContent>
                         </Card>
+                        <FormError error={form.formState.errors.price?.message} isSubmitted={isStepSubmitted} />
                       </div>
                     </div>
                   )}
@@ -826,7 +846,8 @@ export default function SellPage() {
                       </Button>
                     ) : (
                       <Button 
-                        type="submit"
+                        type="button"
+                        onClick={handleSubmit}
                         disabled={isSubmitting}
                       >
                         {isSubmitting ? "Publication..." : "Publier l'annonce"}
