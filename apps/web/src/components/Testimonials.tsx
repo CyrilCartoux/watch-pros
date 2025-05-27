@@ -45,13 +45,7 @@ export function Testimonials() {
         </div>
 
         <div className="relative max-w-4xl mx-auto px-4">
-          <Carousel
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-            className="w-full"
-          >
+          <Carousel className="w-full">
             <CarouselContent className="-ml-4">
               {testimonials.map((testimonial, index) => (
                 <CarouselItem key={index} className="pl-4 basis-full md:basis-1/2 lg:basis-1/3">

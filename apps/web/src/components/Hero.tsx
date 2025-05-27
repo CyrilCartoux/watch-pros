@@ -1,6 +1,9 @@
 "use client"
 
+import { Button } from "@/components/ui/button"
 import { SearchBar } from "@/components/SearchBar"
+import Link from "next/link"
+import { ArrowRight } from "lucide-react"
 
 export function Hero() {
   return (
@@ -23,8 +26,16 @@ export function Hero() {
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-12">
           Connect with trusted dealers, source rare timepieces, and grow your luxury watch business with Watch Pros.
         </p>
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto space-y-4">
           <SearchBar />
+          <div className="flex justify-center">
+            <Link href="/sell">
+              <Button size="lg" className="gap-2">
+                Sell your watch
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </section>

@@ -2,8 +2,9 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Menu } from "lucide-react"
+import { Menu, Search, ShoppingCart, User } from "lucide-react"
 import { useState } from "react"
+import { Input } from "./ui/input"
 
 const navigation = [
   { name: "Brands", href: "/brands" },
@@ -17,7 +18,8 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <nav className="container flex h-16 items-center">
+      <nav className="container flex h-16 items-center justify-between">
+        {/* Logo */}
         <div className="mr-8">
           <Link href="/" className="text-2xl font-bold">
             Watch Pros
@@ -26,24 +28,37 @@ export function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex md:flex-1 md:items-center md:justify-between">
-          <div className="flex gap-6">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-              >
-                {item.name}
-              </Link>
-            ))}
+          {/* Main Navigation */}
+          <div className="flex items-center gap-6">
+            <Button variant="ghost" asChild>
+              <Link href="/listings">Acheter</Link>
+            </Button>
+            <Button variant="ghost" asChild>
+              <Link href="/sell">Vendre</Link>
+            </Button>
+            <div className="relative w-64">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Rechercher..."
+                className="pl-8"
+              />
+            </div>
           </div>
 
+          {/* Account & Cart */}
           <div className="flex items-center gap-4">
-            <Button variant="ghost" asChild>
-              <Link href="/login">Sign In</Link>
+            <Button variant="ghost" size="icon" asChild>
+              <Link href="/cart">
+                <ShoppingCart className="h-5 w-5" />
+                <span className="sr-only">Panier</span>
+              </Link>
             </Button>
-            <Button asChild>
-              <Link href="/register">Register</Link>
+            <Button variant="ghost" size="icon" asChild>
+              <Link href="/account">
+                <User className="h-5 w-5" />
+                <span className="sr-only">Mon compte</span>
+              </Link>
             </Button>
           </div>
         </div>
@@ -56,7 +71,7 @@ export function Navbar() {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle menu</span>
+            <span className="sr-only">Menu</span>
           </Button>
         </div>
       </nav>
@@ -65,22 +80,34 @@ export function Navbar() {
       {isMenuOpen && (
         <div className="md:hidden">
           <div className="container space-y-4 py-4">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="block text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {item.name}
-              </Link>
-            ))}
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Rechercher..."
+                className="pl-8"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Button variant="ghost" className="w-full justify-start" asChild>
+                <Link href="/listings">Acheter</Link>
+              </Button>
+              <Button variant="ghost" className="w-full justify-start" asChild>
+                <Link href="/sell">Vendre</Link>
+              </Button>
+            </div>
             <div className="flex flex-col gap-2 pt-4 border-t">
               <Button variant="ghost" className="w-full justify-start" asChild>
-                <Link href="/login">Sign In</Link>
+                <Link href="/cart" className="flex items-center gap-2">
+                  <ShoppingCart className="h-5 w-5" />
+                  Panier
+                </Link>
               </Button>
-              <Button className="w-full justify-start" asChild>
-                <Link href="/register">Register</Link>
+              <Button variant="ghost" className="w-full justify-start" asChild>
+                <Link href="/account" className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Mon compte
+                </Link>
               </Button>
             </div>
           </div>
