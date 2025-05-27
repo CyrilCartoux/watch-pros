@@ -40,6 +40,25 @@ const phonePrefixes = [
   { value: "+49", label: "Allemagne (+49)" },
 ]
 
+// Constantes pour la validation des fichiers
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
+
+// Fonction de validation des fichiers
+const validateFile = (file: File) => {
+  if (!file) return "Le fichier est requis";
+  
+  if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+    return "Format de fichier non accepté. Formats acceptés : JPG, PNG, PDF";
+  }
+  
+  if (file.size > MAX_FILE_SIZE) {
+    return "Le fichier est trop volumineux. Taille maximale : 5MB";
+  }
+  
+  return null;
+};
+
 // Schéma de validation pour le compte professionnel
 const accountSchema = z.object({
   companyName: z.string().min(1, "Le nom de la société est requis"),
@@ -129,6 +148,22 @@ const trustedSchema = z.object({
   returnCountry: z.string().min(1, "Le pays est requis"),
 })
 
+// Schéma de validation pour les documents
+const documentsSchema = z.object({
+  idCardFront: z.custom<File>((file) => {
+    if (!file) return false;
+    return validateFile(file as File) === null;
+  }, "Le recto de la pièce d'identité est requis"),
+  idCardBack: z.custom<File>((file) => {
+    if (!file) return false;
+    return validateFile(file as File) === null;
+  }, "Le verso de la pièce d'identité est requis"),
+  proofOfAddress: z.custom<File>((file) => {
+    if (!file) return false;
+    return validateFile(file as File) === null;
+  }, "Le justificatif de domicile est requis"),
+})
+
 // Ajouter un composant pour afficher les erreurs
 const FormError = ({ error, isSubmitted }: { error?: string, isSubmitted: boolean }) => {
   if (!error || !isSubmitted) return null
@@ -143,12 +178,14 @@ export default function RegisterFormPage() {
     address: false,
     banking: false,
     trusted: false,
+    documents: false,
   })
   const [isSubmitted, setIsSubmitted] = useState({
     account: false,
     address: false,
     banking: false,
     trusted: false,
+    documents: false,
   })
 
   const accountForm = useForm({
@@ -168,6 +205,11 @@ export default function RegisterFormPage() {
 
   const trustedForm = useForm({
     resolver: zodResolver(trustedSchema),
+    mode: "onSubmit",
+  })
+
+  const documentsForm = useForm({
+    resolver: zodResolver(documentsSchema),
     mode: "onSubmit",
   })
 
@@ -199,17 +241,19 @@ export default function RegisterFormPage() {
       const addressValid = await addressForm.trigger()
       const bankingValid = await bankingForm.trigger()
       const trustedValid = await trustedForm.trigger()
+      const documentsValid = await documentsForm.trigger()
 
       setIsFormValid({
         account: accountValid,
         address: addressValid,
         banking: bankingValid,
         trusted: trustedValid,
+        documents: documentsValid,
       })
     }
 
     validateForms()
-  }, [accountForm, addressForm, bankingForm, trustedForm])
+  }, [accountForm, addressForm, bankingForm, trustedForm, documentsForm])
 
   const handleSubmit = async () => {
     try {
@@ -218,8 +262,9 @@ export default function RegisterFormPage() {
       const isAddressValid = await addressForm.trigger()
       const isBankingValid = await bankingForm.trigger()
       const isTrustedValid = await trustedForm.trigger()
+      const isDocumentsValid = await documentsForm.trigger()
 
-      if (!isAccountValid || !isAddressValid || !isBankingValid || !isTrustedValid) {
+      if (!isAccountValid || !isAddressValid || !isBankingValid || !isTrustedValid || !isDocumentsValid) {
         console.error("Certains formulaires ne sont pas valides")
         return
       }
@@ -230,6 +275,7 @@ export default function RegisterFormPage() {
         address: addressForm.getValues(),
         banking: bankingForm.getValues(),
         trusted: trustedForm.getValues(),
+        documents: documentsForm.getValues(),
       }
 
       // Ici, vous pouvez envoyer les données à votre API
@@ -304,7 +350,18 @@ export default function RegisterFormPage() {
         }
         break
       case "documents":
-        setCurrentTab("summary")
+        setIsSubmitted(prev => ({ ...prev, documents: true }))
+        isValid = await documentsForm.trigger()
+        if (!isValid) {
+          console.log("Erreurs du formulaire documents:", documentsForm.formState.errors)
+        }
+        if (isValid) {
+          console.log("Documents form values:", documentsForm.getValues())
+          setCurrentTab("summary")
+        }
+        break
+      case "summary":
+        setCurrentTab("documents")
         break
       default:
         break
@@ -533,6 +590,7 @@ export default function RegisterFormPage() {
                         <Controller
                           name="phonePrefix"
                           control={accountForm.control}
+                          defaultValue=""
                           render={({ field }) => (
                             <Select onValueChange={field.onChange} value={field.value}>
                               <SelectTrigger className="w-[180px]">
@@ -552,12 +610,14 @@ export default function RegisterFormPage() {
                         <Controller
                           name="phone"
                           control={accountForm.control}
+                          defaultValue=""
                           render={({ field }) => (
                             <Input
                               {...field}
                               id="phone"
                               placeholder="Numéro de téléphone"
                               className="flex-1"
+                              value={field.value || ""}
                               onChange={(e) => {
                                 const value = e.target.value.replace(/\D/g, "");
                                 field.onChange(value);
@@ -565,7 +625,7 @@ export default function RegisterFormPage() {
                             />
                           )}
                         />
-                        <FormError error={accountForm.formState.errors.phonePrefix?.message} isSubmitted={isSubmitted.account} />
+                        <FormError error={accountForm.formState.errors.phone?.message} isSubmitted={isSubmitted.account} />
                       </div>
                     </div>
 
@@ -665,36 +725,50 @@ export default function RegisterFormPage() {
 
                     <div>
                       <Label htmlFor="country">Pays *</Label>
-                      <Select {...addressForm.register("country")} defaultValue="fr">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionnez un pays" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {countries.map((country) => (
-                            <SelectItem key={country.value} value={country.value}>
-                              {country.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <Controller
+                        name="country"
+                        control={addressForm.control}
+                        defaultValue=""
+                        render={({ field }) => (
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Sélectionnez un pays" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {countries.map((country) => (
+                                <SelectItem key={country.value} value={country.value}>
+                                  {country.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
                       <FormError error={addressForm.formState.errors.country?.message} isSubmitted={isSubmitted.address} />
                     </div>
 
                     <div>
                       <Label htmlFor="fax">Fax</Label>
                       <div className="flex gap-2">
-                        <Select {...addressForm.register("faxPrefix")} defaultValue="+33">
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Indicatif" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {phonePrefixes.map((prefix) => (
-                              <SelectItem key={prefix.value} value={prefix.value}>
-                                {prefix.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Controller
+                          name="faxPrefix"
+                          control={addressForm.control}
+                          defaultValue=""
+                          render={({ field }) => (
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Indicatif" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {phonePrefixes.map((prefix) => (
+                                  <SelectItem key={prefix.value} value={prefix.value}>
+                                    {prefix.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
                         <Input id="fax" placeholder="Numéro de fax" className="flex-1" {...addressForm.register("fax")} />
                       </div>
                       <FormError error={addressForm.formState.errors.fax?.message} isSubmitted={isSubmitted.address} />
@@ -704,18 +778,25 @@ export default function RegisterFormPage() {
                     <div>
                       <Label htmlFor="mobile">Mobile *</Label>
                       <div className="flex gap-2">
-                        <Select {...addressForm.register("mobilePrefix")} defaultValue="+33">
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Indicatif" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {phonePrefixes.map((prefix) => (
-                              <SelectItem key={prefix.value} value={prefix.value}>
-                                {prefix.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Controller
+                          name="mobilePrefix"
+                          control={addressForm.control}
+                          defaultValue=""
+                          render={({ field }) => (
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger className="w-[180px]">
+                                <SelectValue placeholder="Indicatif" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {phonePrefixes.map((prefix) => (
+                                  <SelectItem key={prefix.value} value={prefix.value}>
+                                    {prefix.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
                         <Input id="mobile" placeholder="Numéro de mobile" className="flex-1" {...addressForm.register("mobile")} />
                       </div>
                       <FormError error={addressForm.formState.errors.mobile?.message} isSubmitted={isSubmitted.address} />
@@ -811,18 +892,28 @@ export default function RegisterFormPage() {
                   <div className="space-y-4">
                     <div>
                       <Label htmlFor="paymentMethod">Moyen de paiement *</Label>
-                      <Select 
-                        {...bankingForm.register("paymentMethod")}
-                        onValueChange={(value) => setPaymentMethod(value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionnez un moyen de paiement" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="card">Carte bancaire</SelectItem>
-                          <SelectItem value="sepa">Prélèvement SEPA</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Controller
+                        name="paymentMethod"
+                        control={bankingForm.control}
+                        defaultValue="card"
+                        render={({ field }) => (
+                          <Select 
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              setPaymentMethod(value);
+                            }}
+                            value={field.value}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Sélectionnez un moyen de paiement" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="card">Carte bancaire</SelectItem>
+                              <SelectItem value="sepa">Prélèvement SEPA</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
                       <FormError error={bankingForm.formState.errors.paymentMethod?.message} isSubmitted={isSubmitted.banking} />
                     </div>
 
@@ -906,7 +997,7 @@ export default function RegisterFormPage() {
                           required
                         />
                         <Label htmlFor="authorization" className="text-sm">
-                          Par la présente, j'autorise Chrono24 GmbH, jusqu'à révocation, à débiter de ma carte bancaire les montants indiqués.
+                          Par la présente, j'autorise Watch pros GmbH, jusqu'à révocation, à débiter de ma carte bancaire les montants indiqués.
                         </Label>
                       </div>
                       <FormError error={bankingForm.formState.errors.authorization?.message} isSubmitted={isSubmitted.banking} />
@@ -942,18 +1033,25 @@ export default function RegisterFormPage() {
 
                       <div>
                         <Label htmlFor="sepaCountry">Pays *</Label>
-                        <Select {...bankingForm.register("sepaCountry")} defaultValue="fr">
-                          <SelectTrigger>
-                            <SelectValue placeholder="Sélectionnez un pays" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {countries.map((country) => (
-                              <SelectItem key={country.value} value={country.value}>
-                                {country.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Controller
+                          name="sepaCountry"
+                          control={bankingForm.control}
+                          defaultValue=""
+                          render={({ field }) => (
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Sélectionnez un pays" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {countries.map((country) => (
+                                  <SelectItem key={country.value} value={country.value}>
+                                    {country.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
                         <FormError error={bankingForm.formState.errors.sepaCountry?.message} isSubmitted={isSubmitted.banking} />
                       </div>
 
@@ -1135,36 +1233,50 @@ export default function RegisterFormPage() {
 
                         <div>
                           <Label htmlFor="nationality">Nationalité *</Label>
-                          <Select {...trustedForm.register("nationality")}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Sélectionnez" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {countries.map((country) => (
-                                <SelectItem key={country.value} value={country.value}>
-                                  {country.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <Controller
+                            name="nationality"
+                            control={trustedForm.control}
+                            defaultValue=""
+                            render={({ field }) => (
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Sélectionnez" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {countries.map((country) => (
+                                    <SelectItem key={country.value} value={country.value}>
+                                      {country.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                          />
                           <FormError error={trustedForm.formState.errors.nationality?.message} isSubmitted={isSubmitted.trusted} />
                         </div>
                       </div>
 
                       <div className="mt-4">
                         <Label htmlFor="residenceCountry">Pays de résidence *</Label>
-                        <Select {...trustedForm.register("residenceCountry")} defaultValue="fr">
-                          <SelectTrigger>
-                            <SelectValue placeholder="Sélectionnez" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {countries.map((country) => (
-                              <SelectItem key={country.value} value={country.value}>
-                                {country.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Controller
+                          name="residenceCountry"
+                          control={trustedForm.control}
+                          defaultValue=""
+                          render={({ field }) => (
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Sélectionnez" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {countries.map((country) => (
+                                  <SelectItem key={country.value} value={country.value}>
+                                    {country.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
                         <FormError error={trustedForm.formState.errors.residenceCountry?.message} isSubmitted={isSubmitted.trusted} />
                       </div>
                     </div>
@@ -1206,18 +1318,25 @@ export default function RegisterFormPage() {
 
                       <div className="mt-4">
                         <Label htmlFor="returnCountry">Pays *</Label>
-                        <Select {...trustedForm.register("returnCountry")} defaultValue="fr">
-                          <SelectTrigger>
-                            <SelectValue placeholder="Sélectionnez" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {countries.map((country) => (
-                              <SelectItem key={country.value} value={country.value}>
-                                {country.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <Controller
+                          name="returnCountry"
+                          control={trustedForm.control}
+                          defaultValue=""
+                          render={({ field }) => (
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Sélectionnez" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {countries.map((country) => (
+                                  <SelectItem key={country.value} value={country.value}>
+                                    {country.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
                         <FormError error={trustedForm.formState.errors.returnCountry?.message} isSubmitted={isSubmitted.trusted} />
                       </div>
                     </div>
@@ -1242,7 +1361,133 @@ export default function RegisterFormPage() {
           <TabsContent value="documents">
             <Card>
               <CardContent className="p-6">
-                <p className="text-muted-foreground">Formulaire de documents à venir...</p>
+                <div className="mb-8">
+                  <h2 className="text-2xl font-semibold mb-2">Documents requis</h2>
+                  <p className="text-muted-foreground">
+                    Pour finaliser votre inscription, nous avons besoin de quelques documents officiels. Ces documents sont nécessaires pour vérifier votre identité et votre adresse.
+                  </p>
+                </div>
+
+                <form onSubmit={(e) => {
+                  e.preventDefault()
+                  handleNext()
+                }} className="space-y-6">
+                  <div className="space-y-6">
+                    {/* Pièce d'identité */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold">Pièce d'identité</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Veuillez fournir une copie de votre pièce d'identité (carte nationale d'identité, passeport ou permis de conduire).
+                      </p>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="idCardFront">Recto *</Label>
+                          <Input
+                            id="idCardFront"
+                            type="file"
+                            accept=".jpg,.jpeg,.png,.pdf"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0]
+                              if (file) {
+                                const error = validateFile(file)
+                                if (error) {
+                                  documentsForm.setError("idCardFront", { message: error })
+                                } else {
+                                  documentsForm.setValue("idCardFront", file)
+                                  documentsForm.clearErrors("idCardFront")
+                                }
+                              }
+                            }}
+                            className="cursor-pointer"
+                          />
+                          <FormError error={documentsForm.formState.errors.idCardFront?.message} isSubmitted={isSubmitted.documents} />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Formats acceptés : JPG, PNG, PDF (max 5MB)
+                          </p>
+                        </div>
+
+                        <div>
+                          <Label htmlFor="idCardBack">Verso *</Label>
+                          <Input
+                            id="idCardBack"
+                            type="file"
+                            accept=".jpg,.jpeg,.png,.pdf"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0]
+                              if (file) {
+                                const error = validateFile(file)
+                                if (error) {
+                                  documentsForm.setError("idCardBack", { message: error })
+                                } else {
+                                  documentsForm.setValue("idCardBack", file)
+                                  documentsForm.clearErrors("idCardBack")
+                                }
+                              }
+                            }}
+                            className="cursor-pointer"
+                          />
+                          <FormError error={documentsForm.formState.errors.idCardBack?.message} isSubmitted={isSubmitted.documents} />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Formats acceptés : JPG, PNG, PDF (max 5MB)
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Justificatif de domicile */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold">Justificatif de domicile</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Veuillez fournir un justificatif de domicile datant de moins de 3 mois (facture d'électricité, de téléphone, quittance de loyer, etc.).
+                      </p>
+
+                      <div>
+                        <Label htmlFor="proofOfAddress">Document *</Label>
+                        <Input
+                          id="proofOfAddress"
+                          type="file"
+                          accept=".jpg,.jpeg,.png,.pdf"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              const error = validateFile(file)
+                              if (error) {
+                                documentsForm.setError("proofOfAddress", { message: error })
+                              } else {
+                                documentsForm.setValue("proofOfAddress", file)
+                                documentsForm.clearErrors("proofOfAddress")
+                              }
+                            }
+                          }}
+                          className="cursor-pointer"
+                        />
+                        <FormError error={documentsForm.formState.errors.proofOfAddress?.message} isSubmitted={isSubmitted.documents} />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Formats acceptés : JPG, PNG, PDF (max 5MB)
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center pt-6">
+                    <p className="text-sm text-muted-foreground">* Champ obligatoire</p>
+                    <div className="space-x-4">
+                      <Button type="button" variant="outline" size="lg" onClick={handleBack}>
+                        Retour
+                      </Button>
+                      <Button type="submit" size="lg">
+                        Continuer
+                      </Button>
+                    </div>
+                  </div>
+                </form>
+
+                <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+                  <p className="text-sm text-muted-foreground">
+                    Vos documents seront traités de manière confidentielle et sécurisée. Ils ne seront utilisés que pour vérifier votre identité et votre adresse.
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -1410,20 +1655,9 @@ export default function RegisterFormPage() {
                     </div>
                   </div>
 
-                  {/* Importation des données */}
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <h3 className="text-lg font-semibold mb-2">Vous avez une boutique en ligne ? Nous transférons vos annonces !</h3>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Importer automatiquement vos annonces vous permet de gagner un temps précieux en réduisant le nombre de manipulations.
-                    </p>
-                    <Button variant="link" className="p-0 h-auto">
-                      En savoir plus sur l'importation des données
-                    </Button>
-                  </div>
-
                   {/* Source d'information */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Comment avez-vous entendu parler de Chrono24 ?</h3>
+                    <h3 className="text-lg font-semibold">Comment avez-vous entendu parler de Watch Pros ?</h3>
                     <p className="text-sm text-muted-foreground">
                       Veuillez choisir une des options suivantes (participation facultative) :
                     </p>
@@ -1489,6 +1723,11 @@ export default function RegisterFormPage() {
                 isValid: trustedForm.formState.isValid,
                 errors: trustedForm.formState.errors,
                 values: trustedForm.getValues()
+              },
+              documents: {
+                isValid: documentsForm.formState.isValid,
+                errors: documentsForm.formState.errors,
+                values: documentsForm.getValues()
               }
             })
           }}

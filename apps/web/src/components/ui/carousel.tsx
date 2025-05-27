@@ -2,9 +2,8 @@
 
 import * as React from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-
-import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 const CarouselContext = React.createContext<{
   currentSlide: number
@@ -49,7 +48,7 @@ export function CarouselContent({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   const { currentSlide } = React.useContext(CarouselContext)
-  
+
   return (
     <div
       className={cn("flex transition-transform duration-500 ease-in-out", className)}
