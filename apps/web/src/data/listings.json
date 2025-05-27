@@ -282,5 +282,193 @@
       "views": 287,
       "period": "48 heures"
     }
+  },
+  "O31NX8": {
+    "id": "O31NX8",
+    "brand": "Rolex",
+    "model": "Submariner Date",
+    "reference": "126610LN",
+    "variant": "Submariner lunette en céramique foncée",
+    "price": 16211,
+    "shipping": {
+      "cost": 349,
+      "location": "États-Unis",
+      "method": "Colis assuré"
+    },
+    "condition": {
+      "status": "Neuve",
+      "grade": "Neuve",
+      "description": "L'article est neuf et ne présente aucune trace d'usure. La période de garantie commence à partir de l'achat de la montre."
+    },
+    "year": 2025,
+    "included": [
+      "Avec boîte d'origine",
+      "Avec papiers d'origine"
+    ],
+    "gender": "Montre homme/Unisexe",
+    "location": {
+      "country": "États-Unis",
+      "city": "Newport",
+      "state": "Rhode Island"
+    },
+    "availability": "En stock",
+    "delivery": {
+      "estimated": {
+        "from": "28/05",
+        "to": "03/06"
+      }
+    },
+    "seller": {
+      "name": "Luxury Timepieces",
+      "type": "Professionnel certifié",
+      "rating": 4.9,
+      "reviews": 156
+    },
+    "specifications": {
+      "movement": {
+        "type": "Remontage automatique",
+        "caliber": "3235",
+        "base": "cal. 3135",
+        "powerReserve": "70 h",
+        "jewels": 31
+      },
+      "case": {
+        "material": "Acier",
+        "diameter": "41 x 40 mm",
+        "waterResistance": "30 ATM",
+        "bezel": "Céramique",
+        "crystal": "Verre saphir",
+        "dial": "Noir",
+        "numerals": "Sans chiffres"
+      },
+      "bracelet": {
+        "material": "Acier",
+        "color": "Acier",
+        "clasp": "Plis",
+        "claspMaterial": "Acier"
+      },
+      "functions": [
+        "Date"
+      ]
+    },
+    "images": [
+      "/images/listings/submariner-1.jpg",
+      "/images/listings/submariner-2.jpg",
+      "/images/listings/submariner-3.jpg",
+      "/images/listings/submariner-4.jpg"
+    ],
+    "description": {
+      "title": "DESCRIPTION DU PRODUIT",
+      "content": [
+        "Rolex Submariner Date 126610LN",
+        "Nouvelle montre de 2025",
+        "État : Neuve",
+        "Avec boîte et papiers d'origine"
+      ],
+      "contact": {
+        "title": "NOUS CONTACTER",
+        "content": "Nous parlons français et anglais."
+      },
+      "shipping": {
+        "title": "LIVRAISON GARANTIE ET SECURISEE",
+        "content": "Remise en main propre à Newport ou expédition internationale via Fedex Priority."
+      }
+    },
+    "stats": {
+      "views": 0,
+      "period": "48 heures"
+    }
+  },
+  "M68346": {
+    "id": "M68346",
+    "brand": "Omega",
+    "model": "Speedmaster Professional Moonwatch",
+    "reference": "310.30.42.50.01.001",
+    "variant": "Moonwatch",
+    "price": 6492,
+    "shipping": {
+      "cost": 349,
+      "location": "Italie",
+      "method": "Colis assuré"
+    },
+    "condition": {
+      "status": "Neuve",
+      "grade": "Neuve",
+      "description": "L'article est neuf et ne présente aucune trace d'usure. La période de garantie commence à partir de l'achat de la montre."
+    },
+    "year": 2025,
+    "included": [
+      "Avec boîte d'origine",
+      "Avec papiers d'origine"
+    ],
+    "gender": "Montre homme/Unisexe",
+    "location": {
+      "country": "Italie",
+      "city": "Villafranca di Verona"
+    },
+    "availability": "En stock",
+    "delivery": {
+      "estimated": {
+        "from": "28/05",
+        "to": "03/06"
+      }
+    },
+    "seller": {
+      "name": "Omega Boutique",
+      "type": "Professionnel certifié",
+      "rating": 4.9,
+      "reviews": 89
+    },
+    "specifications": {
+      "movement": {
+        "type": "Remontage manuel",
+        "caliber": "3861",
+        "base": "Lemania 1873",
+        "powerReserve": "50 h",
+        "jewels": 26
+      },
+      "case": {
+        "material": "Acier",
+        "diameter": "42 mm",
+        "waterResistance": "5 ATM",
+        "bezel": "Acier",
+        "crystal": "Plexiglas",
+        "dial": "Noir",
+        "numerals": "Sans chiffres"
+      },
+      "bracelet": {
+        "material": "Acier",
+        "color": "Acier",
+        "clasp": "Plis",
+        "claspMaterial": "Acier"
+      },
+      "functions": [
+        "Chronographe"
+      ]
+    },
+    "images": [
+      "/images/listings/speedmaster-1.jpg",
+      "/images/listings/speedmaster-2.jpg"
+    ],
+    "description": {
+      "title": "DESCRIPTION DU PRODUIT",
+      "content": [
+        "Omega Speedmaster Moonwatch NEW",
+        "310.30.42.50.01.001 - 5 anni garanzia internazionale",
+        "Scatola e garanzia - carica manuale - vetro esalite"
+      ],
+      "contact": {
+        "title": "NOUS CONTACTER",
+        "content": "Nous parlons français et anglais."
+      },
+      "shipping": {
+        "title": "LIVRAISON GARANTIE ET SECURISEE",
+        "content": "Remise en main propre à Villafranca di Verona ou expédition internationale via Fedex Priority."
+      }
+    },
+    "stats": {
+      "views": 0,
+      "period": "48 heures"
+    }
   }
 } 
