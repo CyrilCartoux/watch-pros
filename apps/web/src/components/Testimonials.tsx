@@ -12,22 +12,22 @@ import { Card, CardContent } from "./ui/card"
 
 const testimonials = [
   {
-    quote: "Watch Pros has transformed how we source luxury timepieces. Their platform is intuitive and their service is impeccable.",
-    author: "Sarah Chen",
-    role: "CEO, Luxury Retail Group",
-    company: "Luxury Retail Group"
+    quote: "Watch Pros m'a permis de réduire de 70% le temps passé à gérer mes ventes. La recherche avancée et les alertes sont un vrai plus.",
+    author: "Thomas Dubois",
+    role: "Bijoutier",
+    company: "Luxury Timepieces Paris"
   },
   {
-    quote: "The quality of watches and the professionalism of sellers on Watch Pros is unmatched. It's become our go-to platform.",
-    author: "Michael Rodriguez",
-    role: "Watch Collector",
-    company: "Independent Collector"
+    quote: "Enfin une alternative sérieuse à Chrono24 ! Les badges de vérification et le KYC pro nous donnent une vraie crédibilité.",
+    author: "Sophie Martin",
+    role: "Directrice",
+    company: "Horlogerie & Co"
   },
   {
-    quote: "As a dealer, Watch Pros has helped us reach a global audience of serious buyers. The platform is a game-changer.",
-    author: "David Kim",
-    role: "Founder",
-    company: "Horology House"
+    quote: "La disponibilité en temps réel et la communication intégrée m'ont fait gagner des heures chaque semaine. Un must pour les professionnels.",
+    author: "Marc Laurent",
+    role: "Marchand de montres",
+    company: "Watch Collector Pro"
   }
 ]
 
@@ -37,10 +37,10 @@ export function Testimonials() {
       <div className="container">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight mb-4 text-foreground">
-            Trusted by Industry Leaders
+            Ce qu'en disent les professionnels
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Join the growing community of luxury watch professionals who trust Watch Pros for their business needs.
+            Découvrez comment Watch Pros transforme le quotidien des professionnels de l'horlogerie de luxe.
           </p>
         </div>
 
@@ -57,7 +57,7 @@ export function Testimonials() {
                       <div className="mt-auto">
                         <p className="font-semibold text-foreground">{testimonial.author}</p>
                         <p className="text-sm text-muted-foreground">
-                          {testimonial.role} at {testimonial.company}
+                          {testimonial.role} chez {testimonial.company}
                         </p>
                       </div>
                     </CardContent>

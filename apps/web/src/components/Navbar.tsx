@@ -36,12 +36,15 @@ export function Navbar() {
             <Button variant="ghost" asChild>
               <Link href="/sell">Vendre</Link>
             </Button>
-            <div className="relative w-64">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Button variant="ghost" asChild>
+              <Link href="/sellers">Voir les vendeurs</Link>
+            </Button>
+            <div className="relative w-96">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Rechercher..."
-                className="pl-8"
+                placeholder="Rechercher une montre..."
+                className="pl-10 h-11 text-base"
               />
             </div>
           </div>
@@ -81,11 +84,11 @@ export function Navbar() {
         <div className="md:hidden">
           <div className="container space-y-4 py-4">
             <div className="relative">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Rechercher..."
-                className="pl-8"
+                placeholder="Rechercher une montre..."
+                className="pl-10 h-11 text-base"
               />
             </div>
             <div className="flex flex-col gap-2">
@@ -94,6 +97,9 @@ export function Navbar() {
               </Button>
               <Button variant="ghost" className="w-full justify-start" asChild>
                 <Link href="/sell">Vendre</Link>
+              </Button>
+              <Button variant="ghost" className="w-full justify-start" asChild>
+                <Link href="/sellers">Voir les vendeurs</Link>
               </Button>
             </div>
             <div className="flex flex-col gap-2 pt-4 border-t">
