@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { CheckCircle2, Building2, User, AlertCircle } from "lucide-react"
+import Link from "next/link"
 
 export default function RegisterPage() {
   return (
@@ -161,9 +162,11 @@ export default function RegisterPage() {
 
         {/* CTA */}
         <div className="text-center">
-          <Button size="lg" className="px-8">
-            Créer mon compte
-          </Button>
+          <Link href="/register/form">
+            <Button size="lg" className="px-8">
+              Créer mon compte
+            </Button>
+          </Link>
         </div>
       </div>
     </main>
