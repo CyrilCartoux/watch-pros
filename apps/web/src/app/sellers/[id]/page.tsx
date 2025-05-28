@@ -3,11 +3,14 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Star, Shield, Award, MapPin, Phone, Mail, Globe, Building2, Clock, ChevronLeft, ChevronRight } from "lucide-react"
+import { Star, Shield, Award, MapPin, Phone, Mail, Globe, Building2, Clock, ChevronLeft, ChevronRight, MessageSquare, CheckCircle2 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useState } from "react"
 import sellersData from "@/data/sellers.json"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 
 interface Certification {
   name: string
@@ -81,6 +84,10 @@ interface SellerPageProps {
 
 export default function SellerPage({ params }: SellerPageProps) {
   const [currentListing, setCurrentListing] = useState(0)
+  const [isContactDialogOpen, setIsContactDialogOpen] = useState(false)
+  const [message, setMessage] = useState("")
+  const [isSubmittingMessage, setIsSubmittingMessage] = useState(false)
+  const [isMessageSuccess, setIsMessageSuccess] = useState(false)
   const seller = sellersData[params.id as keyof typeof sellersData] as Seller
 
   if (!seller) {
@@ -97,6 +104,28 @@ export default function SellerPage({ params }: SellerPageProps) {
     setCurrentListing((prev) => 
       prev === 0 ? seller.featuredListings.length - 1 : prev - 1
     )
+  }
+
+  const handleSubmitMessage = async () => {
+    if (!message.trim()) return
+
+    setIsSubmittingMessage(true)
+    try {
+      // TODO: Submit message to backend
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setIsMessageSuccess(true)
+      // Fermer la modale après 2 secondes
+      setTimeout(() => {
+        setIsContactDialogOpen(false)
+        setIsMessageSuccess(false)
+        setMessage("")
+      }, 2000)
+    } catch (error) {
+      console.error(error)
+      // TODO: Show error message
+    } finally {
+      setIsSubmittingMessage(false)
+    }
   }
 
   return (
@@ -192,6 +221,14 @@ export default function SellerPage({ params }: SellerPageProps) {
                   </div>
                 </div>
               </div>
+
+              <Button 
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() => setIsContactDialogOpen(true)}
+              >
+                <MessageSquare className="h-4 w-4" />
+                Contacter le vendeur
+              </Button>
             </CardContent>
           </Card>
         </div>
@@ -355,6 +392,69 @@ export default function SellerPage({ params }: SellerPageProps) {
             ))}
           </div>
         </div>
+
+        {/* Contact Dialog */}
+        <Dialog open={isContactDialogOpen} onOpenChange={setIsContactDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Contacter {seller.name}</DialogTitle>
+              <DialogDescription>
+                Envoyez un message au vendeur pour plus d'informations.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              {isMessageSuccess ? (
+                <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                  <CheckCircle2 className="w-16 h-16 text-primary animate-in zoom-in-50 duration-500" />
+                  <p className="text-lg font-medium text-center">Votre message a été envoyé avec succès !</p>
+                  <p className="text-sm text-muted-foreground text-center">
+                    Le vendeur vous répondra dès que possible.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="message">Votre message</Label>
+                    <Textarea
+                      id="message"
+                      placeholder="Bonjour, je suis intéressé par vos montres..."
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      className="min-h-[150px]"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      {message.length} / 1000 caractères
+                    </p>
+                  </div>
+
+                  <div className="text-sm text-muted-foreground">
+                    <p>Vendeur : {seller.name}</p>
+                    <p>Type : {seller.type}</p>
+                    <p>Note : {seller.stats.rating} ({seller.stats.totalReviews} avis)</p>
+                  </div>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              {!isMessageSuccess && (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsContactDialogOpen(false)}
+                  >
+                    Annuler
+                  </Button>
+                  <Button
+                    onClick={handleSubmitMessage}
+                    disabled={!message.trim() || isSubmittingMessage}
+                  >
+                    {isSubmittingMessage ? "Envoi..." : "Envoyer le message"}
+                  </Button>
+                </>
+              )}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </main>
   )
