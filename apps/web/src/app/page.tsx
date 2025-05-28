@@ -1,9 +1,7 @@
 import { FeaturedBrands } from "@/components/FeaturedBrands"
-import { FeaturedListings } from "@/components/FeaturedListings"
-import { Footer } from "@/components/Footer"
+import { FeaturedModels } from "@/components/FeaturedModels"
 import { Hero } from "@/components/Hero"
 import { HowItWorks } from "@/components/HowItWorks"
-import { Navbar } from "@/components/Navbar"
 import { SellCTA } from "@/components/SellCTA"
 import { Testimonials } from "@/components/Testimonials"
 
@@ -11,7 +9,8 @@ export default function Home() {
   return (
     <main>
       <Hero />
-      <FeaturedListings />
+      {/* <FeaturedListings /> */}
+      <FeaturedModels />
       <FeaturedBrands />
       <HowItWorks />
       <Testimonials />
