@@ -1,0 +1,87 @@
+{
+  "conversations": [
+    {
+      "id": 1,
+      "user": {
+        "id": 101,
+        "name": "John Doe",
+        "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop",
+        "isOnline": true,
+        "sellerSince": "2023",
+        "rating": 4.8
+      },
+      "listing": {
+        "id": 201,
+        "title": "Rolex Submariner 2023",
+        "price": 12500,
+        "image": "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=200&h=200&fit=crop"
+      },
+      "lastMessage": {
+        "content": "Bonjour, je suis intéressé par votre montre. Est-elle toujours disponible ?",
+        "timestamp": "2024-03-20T14:30:00Z",
+        "isRead": true
+      },
+      "messages": [
+        {
+          "id": 1,
+          "content": "Bonjour, je suis intéressé par votre montre. Est-elle toujours disponible ?",
+          "timestamp": "2024-03-20T14:30:00Z",
+          "senderId": 101,
+          "isRead": true
+        },
+        {
+          "id": 2,
+          "content": "Oui, elle est toujours disponible. Avez-vous des questions particulières ?",
+          "timestamp": "2024-03-20T14:32:00Z",
+          "senderId": "currentUser",
+          "isRead": true
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "user": {
+        "id": 102,
+        "name": "Jane Smith",
+        "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+        "isOnline": false,
+        "sellerSince": "2022",
+        "rating": 4.9
+      },
+      "listing": {
+        "id": 202,
+        "title": "Omega Seamaster 300M",
+        "price": 8900,
+        "image": "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=200&h=200&fit=crop"
+      },
+      "lastMessage": {
+        "content": "Merci pour votre réponse rapide...",
+        "timestamp": "2024-03-19T10:15:00Z",
+        "isRead": false
+      },
+      "messages": [
+        {
+          "id": 1,
+          "content": "Bonjour, je vois que vous vendez une Omega Seamaster. Est-ce que vous pourriez me donner plus de détails sur son état ?",
+          "timestamp": "2024-03-19T10:00:00Z",
+          "senderId": 102,
+          "isRead": true
+        },
+        {
+          "id": 2,
+          "content": "Bien sûr ! La montre est en excellent état, elle a été achetée en 2022 et n'a jamais été portée. Je peux vous envoyer des photos supplémentaires si vous le souhaitez.",
+          "timestamp": "2024-03-19T10:10:00Z",
+          "senderId": "currentUser",
+          "isRead": true
+        },
+        {
+          "id": 3,
+          "content": "Merci pour votre réponse rapide...",
+          "timestamp": "2024-03-19T10:15:00Z",
+          "senderId": 102,
+          "isRead": false
+        }
+      ]
+    }
+  ]
+} 
