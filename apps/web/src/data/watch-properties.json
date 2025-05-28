@@ -125,25 +125,6 @@
       "description": "La montre est livrée seule, sans accessoires"
     }
   ],
-  "accessoryTypes": [
-    "Aiguilles",
-    "Autres/Divers",
-    "Boîte",
-    "Boîtier",
-    "Boucle",
-    "Bracelet",
-    "Cadran",
-    "Couronne/Poussoir",
-    "Livrets/Calendriers",
-    "Lunette",
-    "Maillon/Lien",
-    "Mouvement (complet)",
-    "Mouvement (pièces)",
-    "Nettoyant",
-    "Outils",
-    "Remontoir de montres",
-    "Verre"
-  ],
   "claspTypes": [
     "Boucle ardillon",
     "Double plis",

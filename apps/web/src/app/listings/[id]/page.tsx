@@ -2,12 +2,15 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Heart, Share2, Shield, Clock, Package, Star, ChevronLeft, ChevronRight } from "lucide-react"
+import { Heart, Share2, Shield, Clock, Package, Star, ChevronLeft, ChevronRight, CheckCircle2 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useState, useEffect, TouchEvent } from "react"
 import listingsData from "@/data/listings.json"
 import brandsData from "@/data/brands.json"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,  } from "@/components/ui/dialog"
 
 interface ListingData {
   id: string
@@ -97,6 +100,10 @@ export default function ListingPage({ params }: { params: { id: string } }) {
   const [isMobile, setIsMobile] = useState(false)
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
+  const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false)
+  const [offerAmount, setOfferAmount] = useState("")
+  const [isSubmittingOffer, setIsSubmittingOffer] = useState(false)
+  const [isOfferSuccess, setIsOfferSuccess] = useState(false)
 
   // Minimum swipe distance (in px)
   const minSwipeDistance = 50
@@ -153,6 +160,28 @@ export default function ListingPage({ params }: { params: { id: string } }) {
     setCurrentPopularModel((prev) => 
       prev === 0 ? brandInfo.featuredModels.length - 1 : prev - 1
     )
+  }
+
+  const handleSubmitOffer = async () => {
+    if (!offerAmount || isNaN(Number(offerAmount))) return
+
+    setIsSubmittingOffer(true)
+    try {
+      // TODO: Submit offer to backend
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setIsOfferSuccess(true)
+      // Fermer la modale après 2 secondes
+      setTimeout(() => {
+        setIsOfferDialogOpen(false)
+        setIsOfferSuccess(false)
+        setOfferAmount("")
+      }, 2000)
+    } catch (error) {
+      console.error(error)
+      // TODO: Show error message
+    } finally {
+      setIsSubmittingOffer(false)
+    }
   }
 
   return (
@@ -246,11 +275,96 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                 <Button className="flex-1 bg-primary hover:bg-primary/90">
                   Acheter
                 </Button>
-                <Button variant="outline" className="flex-1">
-                  Proposer une offre
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => setIsOfferDialogOpen(true)}
+                >
+                  Faire une offre
                 </Button>
               </div>
             </div>
+
+            {/* Offer Dialog */}
+            <Dialog open={isOfferDialogOpen} onOpenChange={setIsOfferDialogOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Faire une offre</DialogTitle>
+                  <DialogDescription>
+                    Proposez un prix au vendeur pour cette montre. Le vendeur sera notifié de votre offre et pourra l'accepter ou la refuser.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  {isOfferSuccess ? (
+                    <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                      <CheckCircle2 className="w-16 h-16 text-primary animate-in zoom-in-50 duration-500" />
+                      <p className="text-lg font-medium text-center">Votre offre a été envoyée avec succès !</p>
+                      <p className="text-sm text-muted-foreground text-center">
+                        Le vendeur sera notifié et pourra accepter ou refuser votre offre.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="offerAmount">Montant de l'offre (€)</Label>
+                        <Input
+                          id="offerAmount"
+                          type="number"
+                          placeholder="0"
+                          value={offerAmount}
+                          onChange={(e) => setOfferAmount(e.target.value)}
+                        />
+                      </div>
+
+                      {/* Suggestions de réduction */}
+                      <div className="grid grid-cols-3 gap-2">
+                        {[5, 10, 15].map((reduction) => (
+                          <button
+                            key={reduction}
+                            onClick={() => {
+                              const reducedPrice = Math.round(listing.price * (1 - reduction / 100))
+                              setOfferAmount(reducedPrice.toString())
+                            }}
+                            className="p-3 border rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-colors text-center"
+                          >
+                            <p className="font-medium">-{reduction}%</p>
+                            <p className="text-sm text-muted-foreground">
+                              {Math.round(listing.price * (1 - reduction / 100)).toLocaleString()} €
+                            </p>
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="text-sm text-muted-foreground">
+                        <p>Prix demandé : {listing.price.toLocaleString()} €</p>
+                        <p>Votre offre : {Number(offerAmount).toLocaleString()} €</p>
+                        <p className="font-medium text-primary">
+                          Différence : {(Number(offerAmount) - listing.price).toLocaleString()} €
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+                <DialogFooter>
+                  {!isOfferSuccess && (
+                    <>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsOfferDialogOpen(false)}
+                      >
+                        Annuler
+                      </Button>
+                      <Button
+                        onClick={handleSubmitOffer}
+                        disabled={!offerAmount || isNaN(Number(offerAmount)) || isSubmittingOffer}
+                      >
+                        {isSubmittingOffer ? "Envoi..." : "Envoyer l'offre"}
+                      </Button>
+                    </>
+                  )}
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
             {/* Status and Stats */}
             <div className="space-y-2">

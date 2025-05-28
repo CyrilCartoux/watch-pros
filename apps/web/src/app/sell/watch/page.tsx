@@ -50,6 +50,10 @@ const sellSchema = z.object({
   // Step 4: Prix
   price: z.number().min(1, "Le prix est requis"),
   currency: z.string().default("EUR"),
+  shippingDelay: z.string().min(1, "Le délai d'envoi est requis"),
+
+  // Step 5: Documents
+  documents: z.array(z.instanceof(File)).optional(),
 })
 
 // Options pour les différents champs
@@ -113,7 +117,7 @@ const includedOptions = [
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
 
-export default function SellPage() {
+export default function SellWatchPage() {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [selectedBrand, setSelectedBrand] = useState("")
@@ -149,6 +153,8 @@ export default function SellPage() {
       images: [],
       price: 0,
       currency: "EUR",
+      shippingDelay: "",
+      documents: [],
     },
     mode: "onChange",
   })
@@ -186,6 +192,9 @@ export default function SellPage() {
         break
       case 4:
         fieldsToValidate = ["price"]
+        break
+      case 5:
+        fieldsToValidate = ["documents"]
         break
     }
 
@@ -299,7 +308,7 @@ export default function SellPage() {
 
   const handleSubmit = async () => {
     setIsSubmitting(true)
-    const isValid = await validateStep(4)
+    const isValid = await validateStep(5)
     setIsSubmitting(false)
 
     console.log(form.getValues());
@@ -324,11 +333,11 @@ export default function SellPage() {
         {/* Progress bar */}
         <div className="mb-8">
           <div className="flex justify-between mb-2">
-            {[1, 2, 3, 4].map((stepNumber) => (
+            {[1, 2, 3, 4, 5].map((stepNumber) => (
               <div
                 key={stepNumber}
                 className={`flex items-center ${
-                  stepNumber < 4 ? "flex-1" : ""
+                  stepNumber < 5 ? "flex-1" : ""
                 }`}
               >
                 <div
@@ -340,7 +349,7 @@ export default function SellPage() {
                 >
                   {stepNumber}
                 </div>
-                {stepNumber < 4 && (
+                {stepNumber < 5 && (
                   <div
                     className={`flex-1 h-1 mx-2 ${
                       stepNumber < step ? "bg-primary" : "bg-muted"
@@ -355,6 +364,7 @@ export default function SellPage() {
             <span className="w-8 text-center">Contenu</span>
             <span className="w-8 text-center">Photos</span>
             <span className="w-8 text-center">Prix</span>
+            <span className="w-8 text-center">Documents</span>
           </div>
         </div>
 
@@ -765,6 +775,27 @@ export default function SellPage() {
                           </div>
                         </div>
 
+                        <div className="space-y-2">
+                          <Label htmlFor="shippingDelay">Délai d'envoi *</Label>
+                          <Select
+                            value={form.watch("shippingDelay")}
+                            onValueChange={(value) => form.setValue("shippingDelay", value)}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Sélectionnez un délai d'envoi" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="1-2">1-2 jours ouvrés</SelectItem>
+                              <SelectItem value="2-3">2-3 jours ouvrés</SelectItem>
+                              <SelectItem value="3-5">3-5 jours ouvrés</SelectItem>
+                              <SelectItem value="5-7">5-7 jours ouvrés</SelectItem>
+                              <SelectItem value="7-10">7-10 jours ouvrés</SelectItem>
+                              <SelectItem value="10+">Plus de 10 jours ouvrés</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormError error={form.formState.errors.shippingDelay?.message} isSubmitted={isStepSubmitted} />
+                        </div>
+
                         <Card>
                           <CardContent className="p-4">
                             <div className="space-y-2">
@@ -806,13 +837,72 @@ export default function SellPage() {
                     </div>
                   )}
 
+                  {step === 5 && (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold">Documents importants</h3>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Ajoutez des documents importants comme des factures, certificats d'authenticité, etc. Ces documents ne seront visibles que par l'acheteur final après la validation de la transaction.
+                      </p>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {form.watch("documents")?.map((doc, index) => (
+                          <div key={index} className="relative aspect-square">
+                            <div className="w-full h-full border rounded-lg p-4 flex flex-col items-center justify-center">
+                              <p className="text-sm font-medium truncate w-full text-center">
+                                {doc.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {(doc.size / 1024 / 1024).toFixed(2)} MB
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newDocs = form.watch("documents")?.filter((_, i) => i !== index) || []
+                                  form.setValue("documents", newDocs)
+                                }}
+                                className="absolute top-2 right-2 w-6 h-6 bg-background/80 rounded-full flex items-center justify-center hover:bg-background"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                        
+                        <label className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
+                          <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                          <input
+                            type="file"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            className="hidden"
+                            onChange={(e) => {
+                              const files = Array.from(e.target.files || [])
+                              const validFiles = files.filter(file => {
+                                if (file.size > 5 * 1024 * 1024) {
+                                  alert(`Le fichier ${file.name} est trop volumineux. Taille maximum: 5MB`)
+                                  return false
+                                }
+                                if (![".pdf", ".jpg", ".jpeg", ".png"].some(ext => file.name.toLowerCase().endsWith(ext))) {
+                                  alert(`Le fichier ${file.name} n'est pas un format accepté. Formats acceptés: PDF, JPG, PNG`)
+                                  return false
+                                }
+                                return true
+                              })
+                              form.setValue("documents", [...(form.watch("documents") || []), ...validFiles])
+                            }}
+                            multiple
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex justify-between items-center pt-6">
                     {step > 1 && (
                       <Button type="button" variant="outline" onClick={prevStep}>
                         Retour
                       </Button>
                     )}
-                    {step < 4 ? (
+                    {step < 5 ? (
                       <Button 
                         type="button" 
                         onClick={nextStep}
@@ -926,6 +1016,12 @@ export default function SellPage() {
                       <p className="text-muted-foreground">Année</p>
                       <p className="font-medium truncate" title={form.watch("year") || "-"}>
                         {form.watch("year") || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Délai d'envoi</p>
+                      <p className="font-medium">
+                        {form.watch("shippingDelay") ? `${form.watch("shippingDelay")} jours ouvrés` : "-"}
                       </p>
                     </div>
                   </div>
