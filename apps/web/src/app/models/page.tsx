@@ -36,7 +36,7 @@ const featuredModels = [
     brand: "Rolex",
     name: "Datejust",
     description: "La montre par excellence, symbole d'élégance intemporelle",
-    image: "/images/models/rolex-datejust.jpg",
+    image: "/images/watches/rolex-datejust.jpg",
     price: "À partir de 8 500 €",
     slug: "rolex-datejust"
   },
@@ -44,7 +44,7 @@ const featuredModels = [
     brand: "Rolex",
     name: "Submariner",
     description: "L'icône des montres de plongée, robuste et élégante",
-    image: "/images/models/rolex-submariner.jpg",
+    image: "/images/watches/rolex-submariner.jpg",
     price: "À partir de 9 500 €",
     slug: "rolex-submariner"
   },
@@ -52,7 +52,7 @@ const featuredModels = [
     brand: "Rolex",
     name: "Daytona",
     description: "La chronographe légendaire des courses automobiles",
-    image: "/images/models/rolex-daytona.jpg",
+    image: "/images/watches/rolex-daytona.jpg",
     price: "À partir de 14 500 €",
     slug: "rolex-daytona"
   },
@@ -60,7 +60,7 @@ const featuredModels = [
     brand: "Omega",
     name: "Speedmaster",
     description: "La Moonwatch, la première montre portée sur la Lune",
-    image: "/images/models/omega-speedmaster.jpg",
+    image: "/images/watches/omega-speedmaster.jpg",
     price: "À partir de 6 500 €",
     slug: "omega-speedmaster"
   },
@@ -68,7 +68,7 @@ const featuredModels = [
     brand: "Audemars Piguet",
     name: "Royal Oak",
     description: "L'icône du design horloger moderne",
-    image: "/images/models/ap-royal-oak.jpg",
+    image: "/images/watches/ap-royal-oak.jpg",
     price: "À partir de 25 000 €",
     slug: "audemars-piguet-royal-oak"
   },
@@ -76,7 +76,7 @@ const featuredModels = [
     brand: "Rolex",
     name: "Day-Date",
     description: "La montre des présidents, symbole de prestige",
-    image: "/images/models/rolex-day-date.jpg",
+    image: "/images/watches/rolex-day-date.jpg",
     price: "À partir de 35 000 €",
     slug: "rolex-day-date"
   },
@@ -84,7 +84,7 @@ const featuredModels = [
     brand: "Rolex",
     name: "GMT-Master II",
     description: "La montre des voyageurs, affichage de deux fuseaux horaires",
-    image: "/images/models/rolex-gmt-master.jpg",
+    image: "/images/watches/rolex-gmt-master.jpg",
     price: "À partir de 10 500 €",
     slug: "rolex-gmt-master-ii"
   },
@@ -92,7 +92,7 @@ const featuredModels = [
     brand: "Patek Philippe",
     name: "Nautilus",
     description: "L'icône du luxe sportif, design intemporel",
-    image: "/images/models/patek-nautilus.jpg",
+    image: "/images/watches/patek-nautilus.jpg",
     price: "À partir de 35 000 €",
     slug: "patek-philippe-nautilus"
   }
