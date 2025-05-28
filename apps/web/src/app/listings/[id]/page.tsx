@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Heart, Share2, Shield, Clock, Package, Star, ChevronLeft, ChevronRight, CheckCircle2 } from "lucide-react"
+import { Heart, Share2, Shield, Clock, Package, Star, ChevronLeft, ChevronRight, CheckCircle2, MessageSquare, Bell } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useState, useEffect, TouchEvent } from "react"
@@ -10,7 +10,15 @@ import listingsData from "@/data/listings.json"
 import brandsData from "@/data/brands.json"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,  } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface ListingData {
   id: string
@@ -104,6 +112,13 @@ export default function ListingPage({ params }: { params: { id: string } }) {
   const [offerAmount, setOfferAmount] = useState("")
   const [isSubmittingOffer, setIsSubmittingOffer] = useState(false)
   const [isOfferSuccess, setIsOfferSuccess] = useState(false)
+  const [isContactDialogOpen, setIsContactDialogOpen] = useState(false)
+  const [message, setMessage] = useState("")
+  const [isSubmittingMessage, setIsSubmittingMessage] = useState(false)
+  const [isMessageSuccess, setIsMessageSuccess] = useState(false)
+  const [showNotificationTooltip, setShowNotificationTooltip] = useState(false)
+  const [notifyPriceChange, setNotifyPriceChange] = useState(false)
+  const [notifySale, setNotifySale] = useState(false)
 
   // Minimum swipe distance (in px)
   const minSwipeDistance = 50
@@ -184,6 +199,28 @@ export default function ListingPage({ params }: { params: { id: string } }) {
     }
   }
 
+  const handleSubmitMessage = async () => {
+    if (!message.trim()) return
+
+    setIsSubmittingMessage(true)
+    try {
+      // TODO: Submit message to backend
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setIsMessageSuccess(true)
+      // Fermer la modale après 2 secondes
+      setTimeout(() => {
+        setIsContactDialogOpen(false)
+        setIsMessageSuccess(false)
+        setMessage("")
+      }, 2000)
+    } catch (error) {
+      console.error(error)
+      // TODO: Show error message
+    } finally {
+      setIsSubmittingMessage(false)
+    }
+  }
+
   return (
     <main className="min-h-screen bg-background">
       <div className="container py-8">
@@ -259,11 +296,120 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                 >
                   <Heart className={`h-5 w-5 ${isFavorite ? "fill-primary text-primary" : ""}`} />
                 </Button>
+                <Dialog open={showNotificationTooltip} onOpenChange={setShowNotificationTooltip}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                    >
+                      <Bell className={`h-5 w-5 ${(notifyPriceChange || notifySale) ? "text-primary" : ""}`} />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="w-80 p-4">
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-2">
+                        <Bell className="h-5 w-5 text-primary" />
+                        <p className="font-medium">Recevoir des notifications</p>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="price-change" className="text-sm">Changement de prix</Label>
+                          <Switch
+                            id="price-change"
+                            checked={notifyPriceChange}
+                            onCheckedChange={setNotifyPriceChange}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="sale" className="text-sm">Mise en vente</Label>
+                          <Switch
+                            id="sale"
+                            checked={notifySale}
+                            onCheckedChange={setNotifySale}
+                          />
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Vous recevrez un email pour chaque notification activée.
+                      </p>
+                    </div>
+                  </DialogContent>
+                </Dialog>
                 <Button variant="outline" size="icon">
                   <Share2 className="h-5 w-5" />
                 </Button>
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  onClick={() => setIsContactDialogOpen(true)}
+                >
+                  <MessageSquare className="h-5 w-5" />
+                </Button>
               </div>
             </div>
+
+            {/* Contact Dialog */}
+            <Dialog open={isContactDialogOpen} onOpenChange={setIsContactDialogOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Contacter le vendeur</DialogTitle>
+                  <DialogDescription>
+                    Envoyez un message au vendeur pour plus d'informations sur cette montre.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  {isMessageSuccess ? (
+                    <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                      <CheckCircle2 className="w-16 h-16 text-primary animate-in zoom-in-50 duration-500" />
+                      <p className="text-lg font-medium text-center">Votre message a été envoyé avec succès !</p>
+                      <p className="text-sm text-muted-foreground text-center">
+                        Le vendeur vous répondra dès que possible.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="message">Votre message</Label>
+                        <Textarea
+                          id="message"
+                          placeholder="Bonjour, je suis intéressé par cette montre..."
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
+                          className="min-h-[150px]"
+                        />
+                        <p className="text-sm text-muted-foreground">
+                          {message.length} / 1000 caractères
+                        </p>
+                      </div>
+
+                      <div className="text-sm text-muted-foreground">
+                        <p>Vendeur : {listing.seller.name}</p>
+                        <p>Type : {listing.seller.type}</p>
+                        <p>Note : {listing.seller.rating} ({listing.seller.reviews} avis)</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <DialogFooter>
+                  {!isMessageSuccess && (
+                    <>
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsContactDialogOpen(false)}
+                      >
+                        Annuler
+                      </Button>
+                      <Button
+                        onClick={handleSubmitMessage}
+                        disabled={!message.trim() || isSubmittingMessage}
+                      >
+                        {isSubmittingMessage ? "Envoi..." : "Envoyer le message"}
+                      </Button>
+                    </>
+                  )}
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
             {/* Price and Shipping */}
             <div className="space-y-4">
