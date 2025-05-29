@@ -396,5 +396,335 @@
         "Au début du XXe siècle, le fabricant d'ébauches LeCoultre travaillait en collaboration avec l'horloger Edmond Jaeger, ce qui déboucha sur l'union des deux entreprises en 1937. Depuis 2000, l'entreprise appartient au groupe suisse Richemont."
       ]
     }
+  },
+  "richard-mille": {
+    "name": "Richard Mille",
+    "slug": "richard-mille",
+    "description": "Richard Mille est synonyme d'innovation et de haute technologie dans l'horlogerie. La marque est reconnue pour ses montres ultra-légères et résistantes, utilisant des matériaux de pointe comme le carbone, le titane et la céramique.",
+    "logo": "/images/brands/richard-mille.png",
+    "overview": {
+      "title": "L'innovation au service de la performance",
+      "content": [
+        "Fondée en 2001, Richard Mille est une marque relativement jeune mais qui a révolutionné l'horlogerie de luxe en introduisant des matériaux et des techniques innovantes. Chaque montre est conçue comme une véritable machine de course, alliant légèreté et résistance.",
+        "La marque est particulièrement connue pour ses collaborations avec des sportifs de haut niveau et ses montres inspirées du monde de la Formule 1 et de l'aéronautique."
+      ]
+    },
+    "keyFeatures": [
+      "Montres ultra-légères et résistantes",
+      "Utilisation de matériaux innovants",
+      "Design futuriste et reconnaissable",
+      "Collaborations avec des sportifs de haut niveau"
+    ],
+    "priceRange": {
+      "catalog": "Entre 80 000 € et 2 000 000 €",
+      "secondary": "Prix majorés de 20% à 100% selon les modèles"
+    },
+    "featuredModels": [
+      {
+        "name": "RM 011",
+        "description": "Un chronographe automatique emblématique avec son design caractéristique et sa grande lisibilité.",
+        "image": "/images/watches/rm-011.jpg",
+        "price": "À partir de 150 000 €",
+        "features": [
+          "Chronographe flyback",
+          "Boîtier en carbone",
+          "Mouvement automatique"
+        ]
+      },
+      {
+        "name": "RM 27-01",
+        "description": "Une montre ultra-légère développée avec Rafael Nadal, capable de résister aux impacts du tennis professionnel.",
+        "image": "/images/watches/rm-27-01.jpg",
+        "price": "À partir de 700 000 €",
+        "features": [
+          "Poids total de 19g",
+          "Suspension du mouvement",
+          "Résistance aux chocs"
+        ]
+      },
+      {
+        "name": "RM 35-01",
+        "description": "Une montre sportive avec son design caractéristique et sa grande résistance.",
+        "image": "/images/watches/rm-35-01.jpg",
+        "price": "À partir de 100 000 €",
+        "features": [
+          "Boîtier en carbone",
+          "Mouvement automatique",
+          "Design futuriste"
+        ]
+      }
+    ],
+    "history": {
+      "title": "Une marque visionnaire",
+      "content": [
+        "Richard Mille a été fondée en 2001 par Richard Mille, un visionnaire de l'horlogerie qui a révolutionné l'industrie avec ses concepts innovants. La marque s'est rapidement fait connaître pour ses montres ultra-légères et résistantes.",
+        "Dès ses débuts, Richard Mille a collaboré avec des sportifs de haut niveau, notamment Rafael Nadal, pour créer des montres capables de résister aux conditions extrêmes du sport professionnel.",
+        "La marque continue d'innover en utilisant des matériaux de pointe et en développant des mécanismes uniques, tout en maintenant une production limitée pour garantir l'exclusivité de ses créations."
+      ]
+    }
+  },
+  "tag-heuer": {
+    "name": "Tag Heuer",
+    "slug": "tag-heuer",
+    "description": "Tag Heuer est une marque suisse de montres de luxe reconnue pour ses chronographes sportifs et ses innovations dans le domaine de la précision. La marque est particulièrement associée au monde de la course automobile.",
+    "logo": "/images/brands/tag-heuer.png",
+    "overview": {
+      "title": "L'excellence du chronographe sportif",
+      "content": [
+        "Tag Heuer est une marque emblématique dans le monde des chronographes sportifs. Depuis plus de 160 ans, elle a développé une expertise reconnue dans la mesure du temps précis, particulièrement dans le domaine de la course automobile.",
+        "La marque est connue pour ses innovations techniques, comme le premier chronographe précis au 1/100e de seconde, et ses collaborations avec des événements sportifs majeurs comme la Formule 1."
+      ]
+    },
+    "keyFeatures": [
+      "Chronographes de précision",
+      "Design sportif et moderne",
+      "Innovations techniques constantes",
+      "Collaborations avec le monde du sport"
+    ],
+    "priceRange": {
+      "catalog": "Entre 1 500 € et 25 000 €",
+      "secondary": "Prix majorés de 0% à 30% selon les modèles"
+    },
+    "featuredModels": [
+      {
+        "name": "Carrera",
+        "description": "Un chronographe emblématique créé en 1963, inspiré par les courses automobiles.",
+        "image": "/images/watches/carrera.jpg",
+        "price": "À partir de 3 000 €",
+        "features": [
+          "Chronographe mécanique",
+          "Design intemporel",
+          "Légèreté et lisibilité"
+        ]
+      },
+      {
+        "name": "Monaco",
+        "description": "La première montre chronographe à boîtier carré étanche, rendue célèbre par Steve McQueen.",
+        "image": "/images/watches/monaco.jpg",
+        "price": "À partir de 6 000 €",
+        "features": [
+          "Boîtier carré étanche",
+          "Chronographe automatique",
+          "Design iconique"
+        ]
+      },
+      {
+        "name": "Autavia",
+        "description": "Un chronographe polyvalent inspiré des instruments de bord des avions et des voitures de course.",
+        "image": "/images/watches/autavia.jpg",
+        "price": "À partir de 4 000 €",
+        "features": [
+          "Lunette tournante bidirectionnelle",
+          "Chronographe automatique",
+          "Design rétro"
+        ]
+      }
+    ],
+    "history": {
+      "title": "Une histoire d'innovation",
+      "content": [
+        "Tag Heuer a été fondée en 1860 par Edouard Heuer à Saint-Imier, en Suisse. La marque s'est rapidement fait connaître pour ses innovations dans le domaine de la mesure du temps précis.",
+        "En 1887, Heuer invente le système d'embrayage oscillant pour les chronographes, une innovation majeure qui est toujours utilisée aujourd'hui. La marque a également été pionnière dans le développement des chronographes pour l'aviation et l'automobile.",
+        "Aujourd'hui, Tag Heuer continue d'innover tout en préservant son héritage dans le monde du sport et de la course automobile."
+      ]
+    }
+  },
+  "breitling": {
+    "name": "Breitling",
+    "slug": "breitling",
+    "description": "Breitling est une marque suisse de montres de luxe spécialisée dans les chronographes professionnels. La marque est particulièrement reconnue pour ses montres d'aviation et ses instruments de précision.",
+    "logo": "/images/brands/breitling.png",
+    "overview": {
+      "title": "L'expertise de l'aviation",
+      "content": [
+        "Breitling est une marque emblématique dans le monde de l'aviation. Depuis plus d'un siècle, elle fournit des instruments de précision aux pilotes et aux professionnels de l'aéronautique.",
+        "La marque est connue pour ses chronographes robustes et fiables, ainsi que pour ses innovations dans le domaine de la mesure du temps précis."
+      ]
+    },
+    "keyFeatures": [
+      "Chronographes professionnels",
+      "Expertise en aviation",
+      "Design robuste et fonctionnel",
+      "Certification COSC"
+    ],
+    "priceRange": {
+      "catalog": "Entre 3 000 € et 50 000 €",
+      "secondary": "Prix majorés de 0% à 20% selon les modèles"
+    },
+    "featuredModels": [
+      {
+        "name": "Navitimer",
+        "description": "Le chronographe emblématique des pilotes, avec sa règle à calcul circulaire.",
+        "image": "/images/watches/navitimer.jpg",
+        "price": "À partir de 8 000 €",
+        "features": [
+          "Règle à calcul circulaire",
+          "Chronographe automatique",
+          "Design iconique"
+        ]
+      },
+      {
+        "name": "Chronomat",
+        "description": "Un chronographe sportif polyvalent, apprécié pour sa robustesse et sa fiabilité.",
+        "image": "/images/watches/chronomat.jpg",
+        "price": "À partir de 6 000 €",
+        "features": [
+          "Bracelet Rouleaux",
+          "Chronographe automatique",
+          "Design sportif"
+        ]
+      },
+      {
+        "name": "Superocean",
+        "description": "Une montre de plongée robuste et fiable, avec une étanchéité jusqu'à 2000m.",
+        "image": "/images/watches/superocean.jpg",
+        "price": "À partir de 3 000 €",
+        "features": [
+          "Étanchéité jusqu'à 2000m",
+          "Lunette unidirectionnelle",
+          "Design sportif"
+        ]
+      }
+    ],
+    "history": {
+      "title": "Une histoire d'innovation",
+      "content": [
+        "Breitling a été fondée en 1884 par Léon Breitling à Saint-Imier, en Suisse. La marque s'est rapidement spécialisée dans la production de chronographes et d'instruments de précision pour l'aviation.",
+        "En 1915, Breitling invente le premier chronographe avec poussoir séparé, une innovation majeure dans l'horlogerie. La marque a également été pionnière dans le développement des montres-bracelets chronographes.",
+        "Aujourd'hui, Breitling continue d'innover tout en préservant son héritage dans le monde de l'aviation et des instruments de précision."
+      ]
+    }
+  },
+  "tudor": {
+    "name": "Tudor",
+    "slug": "tudor",
+    "description": "Tudor est une marque suisse de montres de luxe créée par Rolex en 1926. La marque propose des montres robustes et fiables à des prix plus accessibles que sa maison mère, tout en partageant son savoir-faire.",
+    "logo": "/images/brands/tudor.png",
+    "overview": {
+      "title": "L'excellence à prix accessible",
+      "content": [
+        "Tudor est née de la vision de Hans Wilsdorf, fondateur de Rolex, qui souhaitait créer une marque proposant des montres de qualité à des prix plus accessibles. La marque partage le savoir-faire de Rolex tout en développant sa propre identité.",
+        "Aujourd'hui, Tudor est reconnue pour ses montres robustes et fiables, particulièrement appréciées des plongeurs et des professionnels."
+      ]
+    },
+    "keyFeatures": [
+      "Montres robustes et fiables",
+      "Design sportif et fonctionnel",
+      "Prix plus accessibles que Rolex",
+      "Mouvements de qualité"
+    ],
+    "priceRange": {
+      "catalog": "Entre 2 500 € et 15 000 €",
+      "secondary": "Prix majorés de 0% à 30% selon les modèles"
+    },
+    "featuredModels": [
+      {
+        "name": "Black Bay",
+        "description": "Une collection de montres de plongée inspirée des modèles historiques de Tudor.",
+        "image": "/images/watches/black-bay.jpg",
+        "price": "À partir de 3 000 €",
+        "features": [
+          "Étanchéité jusqu'à 200m",
+          "Lunette unidirectionnelle",
+          "Design rétro"
+        ]
+      },
+      {
+        "name": "Pelagos",
+        "description": "Une montre de plongée technique avec boîtier en titane et valve à hélium.",
+        "image": "/images/watches/pelagos.jpg",
+        "price": "À partir de 4 000 €",
+        "features": [
+          "Boîtier en titane",
+          "Valve à hélium",
+          "Étanchéité jusqu'à 500m"
+        ]
+      },
+      {
+        "name": "Ranger",
+        "description": "Une montre de terrain robuste et fiable, inspirée des modèles militaires.",
+        "image": "/images/watches/ranger.jpg",
+        "price": "À partir de 2 500 €",
+        "features": [
+          "Design épuré",
+          "Mouvement automatique",
+          "Robustesse"
+        ]
+      }
+    ],
+    "history": {
+      "title": "Une histoire liée à Rolex",
+      "content": [
+        "Tudor a été créée en 1926 par Hans Wilsdorf, fondateur de Rolex, avec l'objectif de proposer des montres de qualité à des prix plus accessibles. La marque a rapidement gagné en popularité grâce à sa fiabilité et son rapport qualité-prix.",
+        "Dans les années 1950, Tudor s'est fait connaître pour ses montres de plongée robustes, utilisées par les marines du monde entier. La marque a également été pionnière dans le développement des montres-bracelets chronographes.",
+        "Aujourd'hui, Tudor continue d'innover tout en préservant son héritage de robustesse et de fiabilité."
+      ]
+    }
+  },
+  "hublot": {
+    "name": "Hublot",
+    "slug": "hublot",
+    "description": "Hublot est une marque suisse de montres de luxe connue pour son design audacieux et ses innovations dans l'utilisation de matériaux. La marque est particulièrement reconnue pour sa fusion de matériaux traditionnels et modernes.",
+    "logo": "/images/brands/hublot.png",
+    "overview": {
+      "title": "L'art de la fusion",
+      "content": [
+        "Hublot est une marque qui a révolutionné l'horlogerie avec son concept de 'fusion' entre matériaux traditionnels et modernes. Depuis sa création, la marque n'a cessé d'innover dans l'utilisation de nouveaux matériaux et techniques.",
+        "La marque est connue pour ses collaborations avec des artistes, des sportifs et des événements prestigieux, ainsi que pour son design audacieux et reconnaissable."
+      ]
+    },
+    "keyFeatures": [
+      "Design audacieux et moderne",
+      "Innovation dans les matériaux",
+      "Collaborations prestigieuses",
+      "Mouvements de haute qualité"
+    ],
+    "priceRange": {
+      "catalog": "Entre 10 000 € et 500 000 €",
+      "secondary": "Prix majorés de 0% à 50% selon les modèles"
+    },
+    "featuredModels": [
+      {
+        "name": "Big Bang",
+        "description": "La collection emblématique de Hublot, avec son design audacieux et ses matériaux innovants.",
+        "image": "/images/watches/big-bang.jpg",
+        "price": "À partir de 15 000 €",
+        "features": [
+          "Design moderne",
+          "Matériaux innovants",
+          "Chronographe automatique"
+        ]
+      },
+      {
+        "name": "Classic Fusion",
+        "description": "Une collection plus classique mais toujours avec l'ADN Hublot.",
+        "image": "/images/watches/classic-fusion.jpg",
+        "price": "À partir de 10 000 €",
+        "features": [
+          "Design épuré",
+          "Élégance moderne",
+          "Mouvement automatique"
+        ]
+      },
+      {
+        "name": "Spirit of Big Bang",
+        "description": "Une version tonneau de la Big Bang, avec un design encore plus audacieux.",
+        "image": "/images/watches/spirit-of-big-bang.jpg",
+        "price": "À partir de 20 000 €",
+        "features": [
+          "Design tonneau",
+          "Matériaux innovants",
+          "Chronographe automatique"
+        ]
+      }
+    ],
+    "history": {
+      "title": "Une histoire d'innovation",
+      "content": [
+        "Hublot a été fondée en 1980 par Carlo Crocco, qui a révolutionné l'horlogerie avec sa première montre combinant un boîtier en or et un bracelet en caoutchouc. Cette innovation a donné naissance au concept de 'fusion' qui caractérise la marque.",
+        "En 2004, Jean-Claude Biver rejoint Hublot et lance la collection Big Bang, qui propulse la marque au rang des grandes maisons horlogères. La marque continue d'innover avec des matériaux comme le Magic Gold, l'alliage d'or le plus dur au monde.",
+        "Aujourd'hui, Hublot est reconnue pour ses innovations constantes et ses collaborations prestigieuses dans le monde du sport, de l'art et de la culture."
+      ]
+    }
   }
 } 

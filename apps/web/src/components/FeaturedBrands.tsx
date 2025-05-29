@@ -2,38 +2,16 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import brandsData from "@/data/brands.json"
 
-const brands = [
-  {
-    name: "Rolex",
-    logo: "/images/brands/rolex.png",
-    href: "/brands/rolex"
-  },
-  {
-    name: "Patek Philippe",
-    logo: "/images/brands/patek.png",
-    href: "/brands/patek-philippe"
-  },
-  {
-    name: "Audemars Piguet",
-    logo: "/images/brands/ap.png",
-    href: "/brands/audemars-piguet"
-  },
-  {
-    name: "Omega",
-    logo: "/images/brands/omega.png",
-    href: "/brands/omega"
-  },
-  {
-    name: "Cartier",
-    logo: "/images/brands/cartier.png",
-    href: "/brands/cartier"
-  },
-  {
-    name: "Jaeger-LeCoultre",
-    logo: "/images/brands/jlc.png",
-    href: "/brands/jaeger-lecoultre"
-  }
+// Sélection des 6 marques les plus prestigieuses
+const featuredBrands = [
+  "rolex",
+  "patek-philippe",
+  "audemars-piguet",
+  "omega",
+  "cartier",
+  "jaeger-lecoultre"
 ]
 
 export function FeaturedBrands() {
@@ -50,25 +28,28 @@ export function FeaturedBrands() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8">
-          {brands.map((brand) => (
-            <Link
-              key={brand.name}
-              href={brand.href}
-              className="group flex flex-col items-center justify-center p-6 bg-background/50 backdrop-blur supports-[backdrop-filter]:bg-background/60 rounded-xl border border-border transition-all hover:border-primary/50 hover:shadow-lg"
-            >
-              <div className="relative w-24 h-24 mb-4">
-                <Image
-                  src={brand.logo}
-                  alt={brand.name}
-                  fill
-                  className="object-contain filter grayscale group-hover:grayscale-0 transition-all"
-                />
-              </div>
-              {/* <span className="text-sm font-medium text-center text-muted-foreground group-hover:text-foreground transition-colors">
-                {brand.name}
-              </span> */}
-            </Link>
-          ))}
+          {featuredBrands.map((brandSlug) => {
+            const brand = brandsData[brandSlug as keyof typeof brandsData]
+            return (
+              <Link
+                key={brand.slug}
+                href={`/brands/${brand.slug}`}
+                className="group flex flex-col items-center justify-center p-6 bg-background/50 backdrop-blur supports-[backdrop-filter]:bg-background/60 rounded-xl border border-border transition-all hover:border-primary/50 hover:shadow-lg"
+              >
+                <div className="relative w-24 h-24 mb-4">
+                  <Image
+                    src={brand.logo}
+                    alt={brand.name}
+                    fill
+                    className="object-contain filter grayscale group-hover:grayscale-0 transition-all"
+                  />
+                </div>
+                {/* <span className="text-sm font-medium text-center text-muted-foreground group-hover:text-foreground transition-colors">
+                  {brand.name}
+                </span> */}
+              </Link>
+            )
+          })}
         </div>
 
         <div className="text-center mt-12">
@@ -82,4 +63,4 @@ export function FeaturedBrands() {
       </div>
     </section>
   )
-} 
+}

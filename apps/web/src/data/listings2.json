@@ -1,0 +1,28 @@
+{
+    "brand": "rolex",
+    "model": "daytona",
+    "reference": "116520LN",
+    "title": "Rolex - Daytona - 116520LN",
+    "description": "2025 Like New ",
+    "year": "2025",
+    "gender": "men",
+    "serialNumber": "1203I93D44N",
+    "dialColor": "Blanc",
+    "diameter": {
+        "min": "40",
+        "max": "40"
+    },
+    "movement": "Automatique",
+    "case": "Acier",
+    "braceletMaterial": "Acier",
+    "braceletColor": "Acier",
+    "included": "full-set",
+    "images": [
+        {},
+        {}
+    ],
+    "price": 24500,
+    "currency": "EUR",
+    "shippingDelay": "1-2",
+    "documents": []
+}
