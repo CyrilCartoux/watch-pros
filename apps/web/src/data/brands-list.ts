@@ -1,0 +1,107 @@
+export const brandsList = [
+  {
+    label: "Rolex",
+    slug: "rolex"
+  },
+  {
+    label: "Omega",
+    slug: "omega"
+  },
+  {
+    label: "Patek Philippe",
+    slug: "patek-philippe"
+  },
+  {
+    label: "Audemars Piguet",
+    slug: "audemars-piguet"
+  },
+  {
+    label: "Richard Mille", 
+    slug: "richard-mille"
+  },
+  {
+    label: "Cartier",
+    slug: "cartier"
+  },
+  {
+    label: "Tag Heuer",
+    slug: "tag-heuer"
+  },
+  {
+    label: "Breitling",
+    slug: "breitling"
+  },
+  {
+    label: "Tudor",
+    slug: "tudor"
+  },
+  {
+    label: "Hublot",
+    slug: "hublot"
+  },
+  {
+    label: "IWC",
+    slug: "iwc"
+  },
+  {
+    label: "Jaeger-LeCoultre",
+    slug: "jaeger-lecoultre"
+  },
+  {
+    label: "Panerai",
+    slug: "panerai"
+  },
+  {
+    label: "Longines",
+    slug: "longines"
+  },
+  {
+    label: "Zenith",
+    slug: "zenith"
+  },
+  {
+    label: "Vacheron Constantin",
+    slug: "vacheron-constantin"
+  },
+  {
+    label: "Seiko",
+    slug: "seiko"
+  },
+  {
+    label: "Breguet",
+    slug: "breguet"
+  },
+  {
+    label: "Chanel",
+    slug: "chanel"
+  },
+  {
+    label: "Bell & Ross",
+    slug: "bell-and-ross"
+  },
+  {
+    label: "Grand Seiko",
+    slug: "grand-seiko"
+  },
+  {
+    label: "Blancpain",
+    slug: "blancpain"
+  },
+  {
+    label: "Maurice Lacroix",
+    slug: "maurice-lacroix"
+  },
+  {
+    label: "Nomos",
+    slug: "nomos"
+  },
+  {
+    label: "Ulysse Nardin",
+    slug: "ulysse-nardin"
+  },
+  {
+    label: "Glashütte Original",
+    slug: "glashutte-original"
+  }
+
+]
