@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Menu, Search, ShoppingCart, User, Bell } from "lucide-react"
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Input } from "./ui/input"
 import { Badge } from "./ui/badge"
 
@@ -16,8 +16,26 @@ const navigation = [
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
   // TODO: Remplacer par un vrai compteur de notifications non lues
   const unreadNotifications = 3
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  const handleLinkClick = () => {
+    setIsMenuOpen(false)
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -107,7 +125,7 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden">
+        <div className="md:hidden" ref={menuRef}>
           <div className="container space-y-4 py-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -119,18 +137,18 @@ export function Navbar() {
             </div>
             <div className="flex flex-col gap-2">
               <Button variant="ghost" className="w-full justify-start" asChild>
-                <Link href="/listings">Acheter</Link>
+                <Link href="/listings" onClick={handleLinkClick}>Acheter</Link>
               </Button>
               <Button variant="ghost" className="w-full justify-start" asChild>
-                <Link href="/sell">Vendre</Link>
+                <Link href="/sell" onClick={handleLinkClick}>Vendre</Link>
               </Button>
               <Button variant="ghost" className="w-full justify-start" asChild>
-                <Link href="/sellers">Voir les vendeurs</Link>
+                <Link href="/sellers" onClick={handleLinkClick}>Voir les vendeurs</Link>
               </Button>
             </div>
             <div className="flex flex-col gap-2 pt-4 border-t">
               <Button variant="ghost" className="w-full justify-start" asChild>
-                <Link href="/notifications" className="flex items-center gap-2">
+                <Link href="/notifications" onClick={handleLinkClick} className="flex items-center gap-2">
                   <Bell className="h-5 w-5" />
                   Notifications
                   {unreadNotifications > 0 && (
@@ -141,13 +159,13 @@ export function Navbar() {
                 </Link>
               </Button>
               <Button variant="ghost" className="w-full justify-start" asChild>
-                <Link href="/cart" className="flex items-center gap-2">
+                <Link href="/cart" onClick={handleLinkClick} className="flex items-center gap-2">
                   <ShoppingCart className="h-5 w-5" />
                   Panier
                 </Link>
               </Button>
               <Button variant="ghost" className="w-full justify-start" asChild>
-                <Link href="/account" className="flex items-center gap-2">
+                <Link href="/account" onClick={handleLinkClick} className="flex items-center gap-2">
                   <User className="h-5 w-5" />
                   Mon compte
                 </Link>

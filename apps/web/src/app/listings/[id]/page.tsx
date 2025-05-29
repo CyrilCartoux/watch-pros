@@ -2,12 +2,13 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Heart, Share2, Shield, Clock, Package, Star, ChevronLeft, ChevronRight, CheckCircle2, MessageSquare, Bell } from "lucide-react"
+import { Heart, Share2, Shield, Clock, Package, Star, ChevronLeft, ChevronRight, CheckCircle2, MessageSquare, Bell, MapPin, Phone, Mail } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useState, useEffect, TouchEvent } from "react"
-import listingsData from "@/data/listings.json"
+import listingsData from "@/data/listings2.json"
 import brandsData from "@/data/brands.json"
+import sellersData from "@/data/sellers.json"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -19,86 +20,81 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { watchConditions } from "@/data/watch-conditions"
 
 interface ListingData {
   id: string
   brand: string
   model: string
   reference: string
-  variant: string
-  price: number
-  shipping: {
-    cost: number
-    location: string
-    method: string
-  }
-  condition: {
-    status: string
-    grade: string
-    description: string
-  }
-  year: number
-  included: string[]
+  title: string
+  description: string
+  year: string
   gender: string
-  location: {
-    country: string
-    city: string
+  condition: string
+  serialNumber: string
+  dialColor: string
+  diameter: {
+    min: string
+    max: string
   }
-  availability: string
-  delivery: {
-    estimated: {
-      from: string
-      to: string
-    }
-  }
-  seller: {
-    name: string
-    type: string
-    rating: number
-    reviews: number
-  }
-  specifications: {
-    movement: {
-      type: string
-      caliber: string
-      base: string
-      powerReserve: string
-      jewels: number
-    }
-    case: {
-      material: string
-      diameter: string
-      waterResistance: string
-      bezel: string
-      crystal: string
-      dial: string
-      numerals: string
-    }
-    bracelet: {
-      material: string
-      color: string
-      clasp: string
-      claspMaterial: string
-    }
-    functions: string[]
-  }
+  movement: string
+  case: string
+  braceletMaterial: string
+  braceletColor: string
+  included: string
   images: string[]
-  description: {
-    title: string
-    content: string[]
-    contact: {
-      title: string
-      content: string
-    }
-    shipping: {
-      title: string
-      content: string
-    }
+  price: number
+  currency: string
+  shippingDelay: string
+  documents: any[]
+  seller?: string
+}
+
+interface SellerData {
+  id: string
+  name: string
+  logo: string
+  type: string
+  description: string
+  location: {
+    address: string
+    city: string
+    postalCode: string
+    country: string
+  }
+  contact: {
+    phone: string
+    mobile: string
+    email: string
+    languages: string[]
+  }
+  business: {
+    vatNumber: string
+    hasPhysicalStore: boolean
+    yearsOfExperience: number
+    specialties: string[]
   }
   stats: {
-    views: number
-    period: string
+    totalSales: number
+    rating: number
+    totalReviews: number
+    recommendationRate: number
+    ratings: {
+      shipping: number
+      description: number
+      communication: number
+    }
   }
+  certifications: {
+    name: string
+    description: string
+    icon: string
+  }[]
+}
+
+interface SellersData {
+  [key: string]: SellerData
 }
 
 export default function ListingPage({ params }: { params: { id: string } }) {
@@ -106,8 +102,8 @@ export default function ListingPage({ params }: { params: { id: string } }) {
   const [isFavorite, setIsFavorite] = useState(false)
   const [currentPopularModel, setCurrentPopularModel] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
-  const [touchStart, setTouchStart] = useState<number | null>(null)
-  const [touchEnd, setTouchEnd] = useState<number | null>(null)
+  const [touchStart, setTouchStart] = useState(0)
+  const [touchEnd, setTouchEnd] = useState(0)
   const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false)
   const [offerAmount, setOfferAmount] = useState("")
   const [isSubmittingOffer, setIsSubmittingOffer] = useState(false)
@@ -120,8 +116,29 @@ export default function ListingPage({ params }: { params: { id: string } }) {
   const [notifyPriceChange, setNotifyPriceChange] = useState(false)
   const [notifySale, setNotifySale] = useState(false)
 
-  // Minimum swipe distance (in px)
-  const minSwipeDistance = 50
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const onTouchEnd = () => {
+    if (touchStart - touchEnd > 75) {
+      setCurrentImage((prev) => (prev === listing.images.length - 1 ? 0 : prev + 1))
+    }
+    if (touchStart - touchEnd < -75) {
+      setCurrentImage((prev) => (prev === 0 ? listing.images.length - 1 : prev - 1))
+    }
+  }
+
+  const listing = listingsData[params.id as keyof typeof listingsData] as unknown as ListingData
+  if (!listing) {
+    return <div>Listing non trouvé</div>
+  }
+
+  const brandInfo = brandsData[listing.brand.toLowerCase() as keyof typeof brandsData]
 
   useEffect(() => {
     const checkMobile = () => {
@@ -133,37 +150,6 @@ export default function ListingPage({ params }: { params: { id: string } }) {
     
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
-
-  const onTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    setTouchEnd(null)
-    setTouchStart(e.targetTouches[0].clientX)
-  }
-
-  const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    setTouchEnd(e.targetTouches[0].clientX)
-  }
-
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return
-
-    const distance = touchStart - touchEnd
-    const isLeftSwipe = distance > minSwipeDistance
-    const isRightSwipe = distance < -minSwipeDistance
-
-    if (isLeftSwipe) {
-      setCurrentImage((prev) => (prev === listing.images.length - 1 ? 0 : prev + 1))
-    }
-    if (isRightSwipe) {
-      setCurrentImage((prev) => (prev === 0 ? listing.images.length - 1 : prev - 1))
-    }
-  }
-
-  const listing = listingsData[params.id as keyof typeof listingsData] as ListingData
-  const brandInfo = brandsData[listing.brand.toLowerCase().replace(/\s+/g, '-') as keyof typeof brandsData]
-
-  if (!listing) {
-    return <div>Listing non trouvé</div>
-  }
 
   const nextPopularModel = () => {
     setCurrentPopularModel((prev) => 
@@ -236,7 +222,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
             >
               <Image
                 src={listing.images[currentImage]}
-                alt={`${listing.brand} ${listing.model}`}
+                alt={listing.title}
                 fill
                 className="object-cover"
               />
@@ -271,7 +257,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                 >
                   <Image
                     src={image}
-                    alt={`${listing.brand} ${listing.model} - Image ${index + 1}`}
+                    alt={`${listing.title} - Image ${index + 1}`}
                     fill
                     className="object-cover"
                   />
@@ -285,8 +271,8 @@ export default function ListingPage({ params }: { params: { id: string } }) {
             {/* Title and Actions */}
             <div className="flex justify-between items-start">
               <div>
-                <h1 className="text-2xl font-bold">{listing.brand} {listing.model}</h1>
-                <p className="text-muted-foreground">{listing.reference} {listing.variant}</p>
+                <h1 className="text-2xl font-bold">{listing.title}</h1>
+                <p className="text-muted-foreground">{listing.reference}</p>
               </div>
               <div className="flex gap-2">
                 <Button
@@ -383,9 +369,9 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                       </div>
 
                       <div className="text-sm text-muted-foreground">
-                        <p>Vendeur : {listing.seller.name}</p>
-                        <p>Type : {listing.seller.type}</p>
-                        <p>Note : {listing.seller.rating} ({listing.seller.reviews} avis)</p>
+                        <p>Vendeur : {(sellersData as SellersData)[listing.seller]?.name}</p>
+                        <p>Type : {(sellersData as SellersData)[listing.seller]?.type}</p>
+                        <p>Note : {(sellersData as SellersData)[listing.seller]?.stats.rating} ({(sellersData as SellersData)[listing.seller]?.stats.totalReviews} avis)</p>
                       </div>
                     </div>
                   )}
@@ -414,8 +400,8 @@ export default function ListingPage({ params }: { params: { id: string } }) {
             {/* Price and Shipping */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <p className="text-3xl font-bold">{listing.price.toLocaleString()} €</p>
-                <p className="text-muted-foreground">+ {listing.shipping.cost} € {listing.shipping.method} : {listing.shipping.location}</p>
+                <p className="text-3xl font-bold">{listing.price.toLocaleString()} {listing.currency}</p>
+                <p className="text-muted-foreground">Livraison estimée : {listing.shippingDelay} jours ouvrés</p>
               </div>
               <div className="flex gap-3">
                 <Button className="flex-1 bg-primary hover:bg-primary/90">
@@ -515,64 +501,69 @@ export default function ListingPage({ params }: { params: { id: string } }) {
             {/* Status and Stats */}
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">
-                {listing.condition.status} ({listing.condition.grade}) | Année de fabrication {listing.year} | {listing.included.join(" | ")}
+                {watchConditions.find(c => c.slug === listing.condition)?.label} | Année de fabrication {listing.year} | {listing.included === "full-set" ? "Avec boîte et papiers d'origine" : listing.included}
               </p>
-              <p className="text-sm text-muted-foreground">{listing.stats.views} clics en {listing.stats.period}</p>
             </div>
 
-            {/* Protection Cards */}
-            <div className="space-y-4">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <Shield className="h-6 w-6 text-primary" />
-                    <div>
-                      <h3 className="font-semibold">Partner Certified inclus</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Un horloger employé par le professionnel et agréé par nos soins a déjà certifié l'authenticité de cette montre.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <Shield className="h-6 w-6 text-primary" />
-                    <div>
-                      <h3 className="font-semibold">Protection des Acheteurs</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Avec la Protection des acheteurs, vous êtes entièrement couvert. En cas d'incident lors de votre commande, nous restons à vos côtés.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Shipping and Seller */}
+            {/* Seller Card */}
             <Card>
-              <CardContent className="p-4">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <Package className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="font-medium">{listing.availability}</p>
-                      <p className="text-sm text-muted-foreground">Date de livraison estimée : {listing.delivery.estimated.from} - {listing.delivery.estimated.to}</p>
+              <CardContent className="p-6">
+                {listing.seller && (sellersData as SellersData)[listing.seller] && (
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-4">
+                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary/20">
+                        <Image
+                          src={(sellersData as SellersData)[listing.seller].logo}
+                          alt={`${(sellersData as SellersData)[listing.seller].name} logo`}
+                          width={64}
+                          height={64}
+                          className="object-contain p-2"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="font-semibold text-lg">{(sellersData as SellersData)[listing.seller].name}</h3>
+                            <p className="text-sm text-muted-foreground">{(sellersData as SellersData)[listing.seller].type}</p>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Star className="h-4 w-4 text-primary fill-primary" />
+                            <span className="font-medium">{(sellersData as SellersData)[listing.seller].stats.rating}</span>
+                            <span className="text-sm text-muted-foreground">({(sellersData as SellersData)[listing.seller].stats.totalReviews})</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <span>{(sellersData as SellersData)[listing.seller].location.city}, {(sellersData as SellersData)[listing.seller].location.country}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-muted-foreground" />
+                        <span>{(sellersData as SellersData)[listing.seller].contact.phone}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {(sellersData as SellersData)[listing.seller].certifications.map((cert, index) => (
+                        <div key={index} className="flex items-center gap-1 px-2 py-1 bg-muted rounded-md text-xs">
+                          <Shield className="h-3 w-3 text-primary" />
+                          <span>{cert.name}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="pt-2">
+                      <Link href={`/sellers/${listing.seller}`}>
+                        <Button variant="outline" className="w-full">
+                          Voir le profil complet
+                        </Button>
+                      </Link>
                     </div>
                   </div>
-
-                  <div className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-primary" />
-                    <Link href={`/sellers/${listing.seller.name.toLowerCase().replace(/\s+/g, '-')}`} className="hover:underline">
-                      <div>
-                        <p className="font-medium">{listing.seller.name}</p>
-                        <p className="text-sm text-muted-foreground">{listing.seller.type} • {listing.seller.rating} ({listing.seller.reviews})</p>
-                      </div>
-                    </Link>
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 
@@ -589,7 +580,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Marque</dt>
-                      <dd>{listing.brand}</dd>
+                      <dd>{brandInfo.name}</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Modèle</dt>
@@ -607,15 +598,15 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                   <dl className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Mouvement</dt>
-                      <dd>{listing.specifications.movement.type}</dd>
+                      <dd>{listing.movement}</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Boîtier</dt>
-                      <dd>{listing.specifications.case.material}</dd>
+                      <dd>{listing.case}</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Matière du bracelet</dt>
-                      <dd>{listing.specifications.bracelet.material}</dd>
+                      <dd>{listing.braceletMaterial}</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Année de fabrication</dt>
@@ -625,181 +616,17 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Detailed Specifications Section */}
-        <div className="mt-16 space-y-8">
-          <h2 className="text-2xl font-bold">Spécifications détaillées</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Données de base */}
-            <Card>
+            {/* Description */}
+            <Card className="mt-8">
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Données de base</h3>
-                <dl className="space-y-3">
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Code annonce</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.id}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Marque</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.brand}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Modèle</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.model}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Numéro de référence</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.reference}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">État</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.condition.status} ({listing.condition.grade})</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Contenu livré</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.included.join(", ")}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Sexe</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.gender}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Emplacement</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.location.city}, {listing.location.country}</dd>
-                  </div>
-                </dl>
-              </CardContent>
-            </Card>
-
-            {/* Calibre */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Calibre</h3>
-                <dl className="space-y-3">
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Mouvement</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.movement.type}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Calibre/Rouages</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.movement.caliber}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Base Calibre</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.movement.base}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Réserve de marche</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.movement.powerReserve}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Nombre de pierres</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.movement.jewels}</dd>
-                  </div>
-                </dl>
-              </CardContent>
-            </Card>
-
-            {/* Boîtier */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Boîtier</h3>
-                <dl className="space-y-3">
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Matériau</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.case.material}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Diamètre</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.case.diameter}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Étanche</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.case.waterResistance}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Matériau de la lunette</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.case.bezel}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Verre</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.case.crystal}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Cadran</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.case.dial}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Chiffres du cadran</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.case.numerals}</dd>
-                  </div>
-                </dl>
-              </CardContent>
-            </Card>
-
-            {/* Bracelet */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Bracelet</h3>
-                <dl className="space-y-3">
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Matière</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.bracelet.material}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Couleur</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.bracelet.color}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Boucle</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.bracelet.clasp}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Matériau de la boucle</dt>
-                    <dd className="font-medium truncate max-w-[200px] text-right">{listing.specifications.bracelet.claspMaterial}</dd>
-                  </div>
-                </dl>
-              </CardContent>
-            </Card>
-
-            {/* Fonctions */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Fonctions</h3>
-                <ul className="space-y-2">
-                  {listing.specifications.functions.map((function_, index) => (
-                    <li key={index} className="flex items-center gap-2">
-                      <span className="text-primary">•</span>
-                      <span>{function_}</span>
-                    </li>
-                  ))}
-                </ul>
+                <h3 className="text-lg font-semibold mb-4">Description</h3>
+                <div className="prose prose-sm max-w-none">
+                  <p>{listing.description}</p>
+                </div>
               </CardContent>
             </Card>
           </div>
-
-          {/* Description */}
-          <Card className="mt-8">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4">{listing.description.title}</h3>
-              <div className="prose prose-sm max-w-none">
-                <div className="space-y-2">
-                  {listing.description.content.map((line, index) => (
-                    <p key={index}>{line}</p>
-                  ))}
-                </div>
-                <div className="mt-6 space-y-4">
-                  <h4 className="font-semibold">{listing.description.contact.title}</h4>
-                  <p>{listing.description.contact.content}</p>
-                  <h4 className="font-semibold">{listing.description.shipping.title}</h4>
-                  <p>{listing.description.shipping.content}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Brand Card */}

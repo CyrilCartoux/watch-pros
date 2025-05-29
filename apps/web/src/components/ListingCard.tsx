@@ -1,9 +1,15 @@
-import { Badge } from "./ui/badge"
 import { Card, CardContent } from "./ui/card"
 import Image from "next/image"
 import Link from "next/link"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Bell, Heart } from "lucide-react"
 import { useState, TouchEvent } from "react"
+import { watchConditions } from "@/data/watch-conditions"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface ListingCardProps {
   listing: {
@@ -11,47 +17,41 @@ interface ListingCardProps {
     brand: string
     model: string
     reference: string
-    variant?: string
+    title: string
+    year: string
+    condition: string
     price: number
-    shipping: {
-      cost: number
-      location: string
-    }
-    condition: {
-      status: string
-      grade?: string
-    }
-    isCertified?: boolean
-    isPopular?: boolean
-    isSponsored?: boolean
-    isPrivate?: boolean
-    images?: string[]
-    image?: string
+    currency: string
+    shippingDelay: string
+    images: string[]
   }
 }
 
 export function ListingCard({ listing }: ListingCardProps) {
-  // Utiliser les images si disponibles, sinon utiliser l'image unique, sinon utiliser une image par défaut
-  console.log(listing);
-  const images = listing.images || (listing.image ? [listing.image] : ['/images/placeholder.jpg'])
-  console.log(images);
   const [currentImage, setCurrentImage] = useState(0)
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
+  const [notifications, setNotifications] = useState<Record<string, boolean>>({})
 
-  // Minimum swipe distance (in px)
   const minSwipeDistance = 50
+
+  const toggleNotification = (id: string) => {
+    setNotifications(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }))
+  }
 
   const nextImage = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setCurrentImage((prev) => (prev === images.length - 1 ? 0 : prev + 1))
+    setCurrentImage((prev) => (prev === listing.images.length - 1 ? 0 : prev + 1))
   }
 
   const prevImage = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setCurrentImage((prev) => (prev === 0 ? images.length - 1 : prev - 1))
+    setCurrentImage((prev) => (prev === 0 ? listing.images.length - 1 : prev - 1))
   }
 
   const onTouchStart = (e: TouchEvent) => {
@@ -71,10 +71,10 @@ export function ListingCard({ listing }: ListingCardProps) {
     const isRightSwipe = distance < -minSwipeDistance
 
     if (isLeftSwipe) {
-      setCurrentImage((prev) => (prev === images.length - 1 ? 0 : prev + 1))
+      setCurrentImage((prev) => (prev === listing.images.length - 1 ? 0 : prev + 1))
     }
     if (isRightSwipe) {
-      setCurrentImage((prev) => (prev === 0 ? images.length - 1 : prev - 1))
+      setCurrentImage((prev) => (prev === 0 ? listing.images.length - 1 : prev - 1))
     }
   }
 
@@ -88,17 +88,42 @@ export function ListingCard({ listing }: ListingCardProps) {
           onTouchEnd={onTouchEnd}
         >
           <Image
-            src={images[currentImage]}
-            alt={`${listing.brand} ${listing.model}`}
+            src={listing.images[currentImage]}
+            alt={listing.title}
             fill
             className="object-cover"
           />
-          {listing.isPopular && (
-            <Badge className="absolute top-2 left-2 bg-primary z-10">Populaire</Badge>
-          )}
+          
+          {/* Notification Button */}
+          <div className="absolute top-2 right-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault()
+                      toggleNotification(listing.id)
+                    }}
+                    className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
+                      notifications[listing.id] 
+                        ? "bg-red-500 hover:bg-red-600" 
+                        : "bg-background/80 hover:bg-background/90"
+                    }`}
+                  >
+                    <Heart className={`h-4 w-4 ${notifications[listing.id] ? "text-white" : "text-muted-foreground"}`} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {notifications[listing.id] 
+                    ? "Added to favorites" 
+                    : "Add to favorites"}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           
           {/* Navigation Buttons - Only show if there are multiple images */}
-          {images.length > 1 && (
+          {listing.images.length > 1 && (
             <>
               <button
                 onClick={prevImage}
@@ -117,7 +142,7 @@ export function ListingCard({ listing }: ListingCardProps) {
 
               {/* Dots Navigation */}
               <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-                {images.map((_, index) => (
+                {listing.images.map((_, index) => (
                   <button
                     key={index}
                     onClick={(e) => {
@@ -136,38 +161,24 @@ export function ListingCard({ listing }: ListingCardProps) {
           )}
         </div>
         <CardContent className="p-4 flex-1 flex flex-col">
-          <div className="space-y-2 flex-1">
-            <div className="flex items-start justify-between">
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-lg truncate">
-                  {listing.brand} {listing.model}
-                </h3>
-                <p className="text-sm text-muted-foreground truncate">
-                  Ref. {listing.reference} {listing.variant && `• ${listing.variant}`}
-                </p>
-              </div>
-              <div className="text-right flex-shrink-0 ml-2">
-                <p className="font-semibold text-lg">{listing.price.toLocaleString()} €</p>
-                <p className="text-sm text-muted-foreground">
-                  {listing.shipping.cost > 0 
-                    ? `+ ${listing.shipping.cost} € de frais de port`
-                    : "Livraison gratuite"}
-                </p>
-              </div>
-            </div>
+          <div className="space-y-3">
+            {/* Title */}
+            <h3 className="font-semibold text-lg">{listing.title}</h3>
 
-            <div className="flex flex-wrap gap-2 mt-auto">
-              {listing.isCertified && (
-                <Badge variant="secondary">Certified</Badge>
-              )}
-              {listing.isSponsored && (
-                <Badge variant="outline">Sponsorisée</Badge>
-              )}
-              {listing.isPrivate && (
-                <Badge variant="outline">Vendeur particulier</Badge>
-              )}
-              <Badge variant="outline">{listing.condition.status}</Badge>
-              <Badge variant="outline">{listing.shipping.location}</Badge>
+            {/* Tags and Price */}
+            <div className="flex flex-col gap-2">
+              <div className="flex flex-wrap gap-2">
+                <span className="px-2 py-1 bg-muted rounded-md text-xs">
+                  {listing.year}
+                </span>
+                <span className="px-2 py-1 bg-muted rounded-md text-xs">
+                  {watchConditions.find(c => c.slug === listing.condition)?.label}
+                </span>
+                <span className="px-2 py-1 bg-muted rounded-md text-xs">
+                  {listing.shippingDelay} jours
+                </span>
+              </div>
+              <p className="text-xl font-bold mt-2">{listing.price.toLocaleString()} {listing.currency}</p>
             </div>
           </div>
         </CardContent>

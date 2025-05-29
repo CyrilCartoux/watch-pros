@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation"
 import watchProperties from "@/data/watch-properties.json"
 import { brandsList } from "@/data/brands-list"
 import { modelsList } from "@/data/models-list"
+import { watchConditions } from "@/data/watch-conditions"
 
 // Ajouter un composant pour afficher les erreurs
 const FormError = ({ error, isSubmitted }: { error?: string, isSubmitted: boolean }) => {
@@ -45,6 +46,7 @@ const sellSchema = z.object({
   
   // Step 2: Contenu de la livraison
   included: z.string().min(1, "Veuillez sélectionner le contenu de la livraison"),
+  condition: z.string().min(1, "Veuillez sélectionner l'état de la montre"),
   
   // Step 3: Photos
   images: z.array(z.instanceof(File)).min(1, "Au moins une photo est requise").max(10, "Maximum 10 photos"),
@@ -153,6 +155,7 @@ export default function SellWatchPage() {
       braceletMaterial: "",
       braceletColor: "",
       included: "",
+      condition: "",
       images: [],
       price: 0,
       currency: "EUR",
@@ -193,7 +196,7 @@ export default function SellWatchPage() {
         ]
         break
       case 2:
-        fieldsToValidate = ["included"]
+        fieldsToValidate = ["included", "condition"]
         break
       case 3:
         fieldsToValidate = ["images"]
@@ -731,48 +734,92 @@ export default function SellWatchPage() {
                   )}
 
                   {step === 2 && (
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Contenu de la livraison</h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Sélectionnez ce qui sera inclus avec la montre *
-                      </p>
-                      <FormError error={form.formState.errors.included?.message} isSubmitted={isStepSubmitted} />
-                      <div className="grid gap-4">
-                        {includedOptions.map((option) => (
-                          <Card
-                            key={option.id}
-                            className={`cursor-pointer transition-colors ${
-                              form.watch("included") === option.id
-                                ? "border-primary"
-                                : "hover:border-primary/50"
-                            }`}
-                            onClick={() => {
-                              form.setValue("included", option.id, { shouldValidate: true })
-                            }}
-                          >
-                            <CardContent className="p-4">
-                              <div className="flex items-center gap-4">
-                                <div
-                                  className={`w-5 h-5 p-0.5 rounded-full border-2 flex items-center justify-center ${
-                                    form.watch("included") === option.id
-                                      ? "border-primary bg-primary"
-                                      : "border-input"
-                                  }`}
-                                >
-                                  {form.watch("included") === option.id && (
-                                    <div className="w-full h-full rounded-full bg-primary-foreground" />
-                                  )}
+                    <div className="space-y-8">
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold">Contenu de la livraison</h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Sélectionnez ce qui sera inclus avec la montre *
+                        </p>
+                        <FormError error={form.formState.errors.included?.message} isSubmitted={isStepSubmitted} />
+                        <div className="grid gap-4">
+                          {includedOptions.map((option) => (
+                            <Card
+                              key={option.id}
+                              className={`cursor-pointer transition-colors ${
+                                form.watch("included") === option.id
+                                  ? "border-primary"
+                                  : "hover:border-primary/50"
+                              }`}
+                              onClick={() => {
+                                form.setValue("included", option.id, { shouldValidate: true })
+                              }}
+                            >
+                              <CardContent className="p-4">
+                                <div className="flex items-center gap-4">
+                                  <div
+                                    className={`w-5 h-5 p-0.5 rounded-full border-2 flex items-center justify-center ${
+                                      form.watch("included") === option.id
+                                        ? "border-primary bg-primary"
+                                        : "border-input"
+                                    }`}
+                                  >
+                                    {form.watch("included") === option.id && (
+                                      <div className="w-full h-full rounded-full bg-primary-foreground" />
+                                    )}
+                                  </div>
+                                  <div>
+                                    <h4 className="font-medium">{option.title}</h4>
+                                    <p className="text-sm text-muted-foreground">
+                                      {option.description}
+                                    </p>
+                                  </div>
                                 </div>
-                                <div>
-                                  <h4 className="font-medium">{option.title}</h4>
-                                  <p className="text-sm text-muted-foreground">
-                                    {option.description}
-                                  </p>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold">État de la montre</h3>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Sélectionnez l'état de votre montre *
+                        </p>
+                        <FormError error={form.formState.errors.condition?.message} isSubmitted={isStepSubmitted} />
+                        <div className="grid gap-4">
+                          {watchConditions.map((condition) => (
+                            <Card
+                              key={condition.slug}
+                              className={`cursor-pointer transition-colors ${
+                                form.watch("condition") === condition.slug
+                                  ? "border-primary"
+                                  : "hover:border-primary/50"
+                              }`}
+                              onClick={() => {
+                                form.setValue("condition", condition.slug, { shouldValidate: true })
+                              }}
+                            >
+                              <CardContent className="p-4">
+                                <div className="flex items-center gap-4">
+                                  <div
+                                    className={`w-5 h-5 p-0.5 rounded-full border-2 flex items-center justify-center ${
+                                      form.watch("condition") === condition.slug
+                                        ? "border-primary bg-primary"
+                                        : "border-input"
+                                    }`}
+                                  >
+                                    {form.watch("condition") === condition.slug && (
+                                      <div className="w-full h-full rounded-full bg-primary-foreground" />
+                                    )}
+                                  </div>
+                                  <div>
+                                    <h4 className="font-medium">{condition.label}</h4>
+                                  </div>
                                 </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -1096,10 +1143,16 @@ export default function SellWatchPage() {
                         {form.watch("year") || "-"}
                       </p>
                     </div>
-                    <div>
+                    <div className="space-y-2">
                       <p className="text-muted-foreground">Délai d'envoi</p>
                       <p className="font-medium">
                         {form.watch("shippingDelay") ? `${form.watch("shippingDelay")} jours ouvrés` : "-"}
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-muted-foreground">État</p>
+                      <p className="font-medium">
+                        {watchConditions.find(c => c.slug === form.watch("condition"))?.label || "-"}
                       </p>
                     </div>
                   </div>

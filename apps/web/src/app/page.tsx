@@ -1,5 +1,6 @@
 import { FeaturedBrands } from "@/components/FeaturedBrands"
 import { FeaturedModels } from "@/components/FeaturedModels"
+import { FeaturedListings } from "@/components/FeaturedListings"
 import { Hero } from "@/components/Hero"
 import { HowItWorks } from "@/components/HowItWorks"
 import { SellCTA } from "@/components/SellCTA"
@@ -9,7 +10,7 @@ export default function Home() {
   return (
     <main>
       <Hero />
-      {/* <FeaturedListings /> */}
+      <FeaturedListings />
       <FeaturedModels />
       <FeaturedBrands />
       <HowItWorks />

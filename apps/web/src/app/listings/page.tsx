@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import listingsData from "@/data/listings.json"
+import listingsData from "@/data/listings2.json"
 
 export default function ListingsPage() {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([])
@@ -26,24 +26,19 @@ export default function ListingsPage() {
     )
   }
 
-  // Convertir les données de listings.json au format attendu par ListingCard
+  // Convertir les données de listings2.json au format attendu par ListingCard
   const listings = Object.entries(listingsData).map(([id, listing]) => ({
     id,
     brand: listing.brand,
     model: listing.model,
     reference: listing.reference,
-    variant: listing.variant,
+    title: listing.title,
+    description: listing.description,
+    year: listing.year,
+    condition: listing.condition,
     price: listing.price,
-    shipping: {
-      cost: listing.shipping.cost,
-      location: listing.shipping.location
-    },
-    condition: {
-      status: listing.condition.status,
-      grade: listing.condition.grade
-    },
-    isCertified: listing.seller.type === "Professionnel certifié",
-    isPopular: listing.stats.views > 100,
+    currency: listing.currency,
+    shippingDelay: listing.shippingDelay,
     images: listing.images
   }))
 
