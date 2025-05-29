@@ -317,29 +317,29 @@ export default function SellWatchPage() {
   const handleSubmit = async () => {
     setIsSubmitting(true)
     const isValid = await validateStep(5)
-    setIsSubmitting(false)
-
-    console.log(form.getValues());
-
+    
     if (isValid) {
-      form.handleSubmit(onSubmit)()
+      const formData = form.getValues()
+      await onSubmit(formData)
     }
+    
+    setIsSubmitting(false)
   }
 
   return (
-    <main className="container py-12">
+    <main className="container py-4 sm:py-12">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold tracking-tight mb-4">
+        <div className="text-center mb-4 sm:mb-12">
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight mb-2 sm:mb-4">
             Mettre en vente une montre
           </h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-sm sm:text-lg">
             Complétez les informations ci-dessous pour créer votre annonce
           </p>
         </div>
 
         {/* Progress bar */}
-        <div className="mb-8">
+        <div className="mb-4 sm:mb-8">
           <div className="flex justify-between mb-2">
             {[1, 2, 3, 4, 5].map((stepNumber) => (
               <div
@@ -368,7 +368,7 @@ export default function SellWatchPage() {
             ))}
           </div>
           <div className="flex justify-between text-sm text-muted-foreground px-2">
-            <span className="w-8 text-center">Informations</span>
+            <span className="w-8 text-center">Infos</span>
             <span className="w-8 text-center">Contenu</span>
             <span className="w-8 text-center">Photos</span>
             <span className="w-8 text-center">Prix</span>
@@ -416,8 +416,7 @@ export default function SellWatchPage() {
                           </div>
                         </div>
                         
-                        <div>
-                          <Label htmlFor="brand">Marque *</Label>
+                        <div className="space-y-2">
                           <Controller
                             name="brand"
                             control={form.control}
@@ -468,8 +467,7 @@ export default function SellWatchPage() {
                           </div>
                         )}
 
-                        <div>
-                          <Label htmlFor="model">Modèle *</Label>
+                        <div className="space-y-2">
                           <Controller
                             name="model"
                             control={form.control}

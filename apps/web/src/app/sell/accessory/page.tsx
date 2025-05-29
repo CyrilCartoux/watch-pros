@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Upload, ChevronLeft, ChevronRight } from "lucide-react"
+import { Upload, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
@@ -14,7 +14,15 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Checkbox } from "@/components/ui/checkbox"
 import watchProperties from "@/data/watch-properties.json"
 import accessoryProperties from "@/data/accessory-properties.json"
+import { brandsList } from "@/data/brands-list"
+import { modelsList } from "@/data/models-list"
+import Image from "next/image"
 
+// Ajouter un composant pour afficher les erreurs
+const FormError = ({ error, isSubmitted }: { error?: string, isSubmitted: boolean }) => {
+    if (!error || !isSubmitted) return null
+    return <p className="text-sm text-red-500 mt-1">{error}</p>
+}
 
 // Schéma de validation pour le formulaire d'accessoire
 const accessorySchema = z.object({
@@ -22,6 +30,7 @@ const accessorySchema = z.object({
   type: z.string().min(1, "Le type d'accessoire est requis"),
   brand: z.string().min(1, "La marque est requise"),
   model: z.string().min(1, "Le modèle est requis"),
+  title: z.string().min(1, "Le titre est requis").max(60, "Le titre ne doit pas dépasser 60 caractères"),
   year: z.string().optional(),
   yearUnknown: z.boolean().default(false),
   reference: z.string().optional(),
@@ -62,15 +71,46 @@ const accessorySchema = z.object({
   glassType: z.string().optional(),
 })
 
+const popularBrands = [
+  {
+    slug: "rolex",
+    label: "Rolex",
+    image: "/images/brands/rolex.png"
+  },
+  {
+    slug: "omega",
+    label: "Omega",
+    image: "/images/brands/omega.png"
+  },
+  {
+    slug: "audemars-piguet",
+    label: "Audemars Piguet",
+    image: "/images/brands/ap.png"
+  },
+  {
+    slug: "patek-philippe",
+    label: "Patek Philippe",
+    image: "/images/brands/patek.png"
+  },
+  {
+    slug: "cartier",
+    label: "Cartier",
+    image: "/images/brands/cartier.png"
+  }
+]
+
 export default function SellAccessoryPage() {
   const router = useRouter()
   const [step, setStep] = useState(1)
   const [selectedType, setSelectedType] = useState("")
+  const [selectedBrand, setSelectedBrand] = useState("")
+  const [selectedModel, setSelectedModel] = useState("")
   const [selectedImages, setSelectedImages] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [currentImage, setCurrentImage] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isStepSubmitted, setIsStepSubmitted] = useState(false)
+  const [showDetails, setShowDetails] = useState(false)
 
   const form = useForm({
     resolver: zodResolver(accessorySchema),
@@ -78,6 +118,7 @@ export default function SellAccessoryPage() {
       type: "",
       brand: "",
       model: "",
+      title: "",
       year: "",
       yearUnknown: false,
       reference: "",
@@ -116,13 +157,25 @@ export default function SellAccessoryPage() {
     mode: "onChange",
   })
 
+  // Auto-compléter le titre quand le type, la marque ou le modèle change
+  useEffect(() => {
+    const type = form.watch("type")
+    const brand = brandsList.find(b => b.slug === form.watch("brand"))?.label
+    const model = selectedBrand && modelsList[selectedBrand as keyof typeof modelsList]?.find((m: any) => m.slug === form.watch("model"))?.label
+
+    if (type && brand && model) {
+      const suggestedTitle = `${type} - ${brand} - ${model}`
+      form.setValue("title", suggestedTitle)
+    }
+  }, [form.watch("type"), form.watch("brand"), form.watch("model")])
+
   // Validation des étapes
   const validateStep = async (stepNumber: number) => {
     let fieldsToValidate: (keyof z.infer<typeof accessorySchema>)[] = []
 
     switch (stepNumber) {
       case 1:
-        fieldsToValidate = ["type", "brand", "model"]
+        fieldsToValidate = ["type", "brand", "model", "title"]
         if (selectedType === "Cadran") {
           fieldsToValidate.push("year", "reference", "dialColor", "dimensions")
         }
@@ -134,7 +187,7 @@ export default function SellAccessoryPage() {
         fieldsToValidate = ["images"]
         break
       case 4:
-        fieldsToValidate = ["price"]
+        fieldsToValidate = ["price", "shippingDelay"]
         break
     }
 
@@ -146,6 +199,18 @@ export default function SellAccessoryPage() {
   const handleTypeChange = (value: string) => {
     setSelectedType(value)
     form.setValue("type", value)
+  }
+
+  const handleBrandChange = (value: string) => {
+    setSelectedBrand(value)
+    setSelectedModel("")
+    form.setValue("brand", value)
+    form.setValue("model", "")
+  }
+
+  const handleModelChange = (value: string) => {
+    setSelectedModel(value)
+    form.setValue("model", value)
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -219,13 +284,13 @@ export default function SellAccessoryPage() {
   }
 
   return (
-    <main className="container py-12">
+    <main className="container py-4 sm:py-12">
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold tracking-tight mb-4">
+        <div className="text-center mb-4 sm:mb-12">
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight mb-2 sm:mb-4">
             Mettre en vente un accessoire
           </h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="text-muted-foreground text-sm sm:text-lg">
             Complétez les informations ci-dessous pour créer votre annonce
           </p>
         </div>
@@ -233,11 +298,11 @@ export default function SellAccessoryPage() {
         {/* Progress bar */}
         <div className="mb-8">
           <div className="flex justify-between mb-2">
-            {[1, 2, 3, 4, 5, 6].map((stepNumber) => (
+            {[1, 2, 3, 4, 5].map((stepNumber) => (
               <div
                 key={stepNumber}
                 className={`flex items-center ${
-                  stepNumber < 6 ? "flex-1" : ""
+                  stepNumber < 5 ? "flex-1" : ""
                 }`}
               >
                 <div
@@ -249,7 +314,7 @@ export default function SellAccessoryPage() {
                 >
                   {stepNumber}
                 </div>
-                {stepNumber < 6 && (
+                {stepNumber < 5 && (
                   <div
                     className={`flex-1 h-1 mx-2 ${
                       stepNumber < step ? "bg-primary" : "bg-muted"
@@ -265,7 +330,6 @@ export default function SellAccessoryPage() {
             <span className="w-8 text-center">Photos</span>
             <span className="w-8 text-center">Prix</span>
             <span className="w-8 text-center">Documents</span>
-            <span className="w-8 text-center">Récap</span>
           </div>
         </div>
 
@@ -295,91 +359,189 @@ export default function SellAccessoryPage() {
                             ))}
                           </SelectContent>
                         </Select>
-                        {isStepSubmitted && form.formState.errors.type && (
-                          <p className="text-sm text-red-500">{form.formState.errors.type.message}</p>
-                        )}
+                        <FormError error={form.formState.errors.type?.message} isSubmitted={isStepSubmitted} />
                       </div>
 
-                      {/* Marque et Modèle - Toujours affichés */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="brand">Marque *</Label>
-                          <Select
-                            value={form.watch("brand")}
-                            onValueChange={(value) => form.setValue("brand", value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Sélectionnez une marque" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {/* TODO: Ajouter les marques depuis l'API */}
-                              <SelectItem value="rolex">Rolex</SelectItem>
-                              <SelectItem value="omega">Omega</SelectItem>
-                              <SelectItem value="patek">Patek Philippe</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          {isStepSubmitted && form.formState.errors.brand && (
-                            <p className="text-sm text-red-500">{form.formState.errors.brand.message}</p>
-                          )}
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="model">Modèle *</Label>
-                          <Select
-                            value={form.watch("model")}
-                            onValueChange={(value) => form.setValue("model", value)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Sélectionnez un modèle" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {/* TODO: Ajouter les modèles en fonction de la marque sélectionnée */}
-                              <SelectItem value="model1">Modèle 1</SelectItem>
-                              <SelectItem value="model2">Modèle 2</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          {isStepSubmitted && form.formState.errors.model && (
-                            <p className="text-sm text-red-500">{form.formState.errors.model.message}</p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Année - Toujours affichée */}
+                      {/* Marques populaires */}
                       <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <Label htmlFor="year">Année de fabrication</Label>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              id="yearUnknown"
-                              checked={form.watch("yearUnknown")}
-                              onCheckedChange={(checked) => {
-                                form.setValue("yearUnknown", checked as boolean)
-                                if (checked) {
-                                  form.setValue("year", "")
-                                }
-                              }}
-                            />
-                            <Label htmlFor="yearUnknown" className="text-sm">Année inconnue</Label>
+                        <Label>Marques populaires</Label>
+                        <div className="grid grid-cols-5 sm:grid-cols-3 md:grid-cols-5 gap-1 sm:gap-2">
+                          {popularBrands.map((brand) => (
+                            <button
+                              key={brand.slug}
+                              type="button"
+                              onClick={() => handleBrandChange(brand.slug)}
+                              className={`relative aspect-square rounded-lg border-2 transition-colors ${
+                                form.watch("brand") === brand.slug
+                                  ? "border-primary bg-primary/5"
+                                  : "border-input hover:border-primary/50"
+                              }`}
+                            >
+                              <div className="absolute inset-0 flex items-center justify-center p-1 sm:p-2">
+                                <Image
+                                  src={brand.image}
+                                  alt={brand.label}
+                                  fill
+                                  className="object-contain p-1 sm:p-2"
+                                />
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="space-y-2"  >
+                          <Controller
+                            name="brand"
+                            control={form.control}
+                            render={({ field }) => (
+                              <Select onValueChange={handleBrandChange} value={field.value}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Sélectionnez une marque" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {brandsList.map((brand) => (
+                                    <SelectItem key={brand.slug} value={brand.slug}>
+                                      {brand.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                          />
+                          <FormError error={form.formState.errors.brand?.message} isSubmitted={isStepSubmitted} />
+                        </div>
+
+                      {/* Modèles populaires */}
+                      {selectedBrand && modelsList[selectedBrand as keyof typeof modelsList] && (
+                        <div className="space-y-2">
+                          <Label>Modèles {brandsList.find(b => b.slug === selectedBrand)?.label}</Label>
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2">
+                            {modelsList[selectedBrand as keyof typeof modelsList]
+                              .slice(0, 4)
+                              .map((model: any) => (
+                                <button
+                                  key={model.slug}
+                                  type="button"
+                                  onClick={() => handleModelChange(model.slug)}
+                                  className={`relative aspect-[4/1] sm:aspect-[3/2] rounded-lg border-2 transition-colors ${
+                                    form.watch("model") === model.slug
+                                      ? "border-primary bg-primary/5"
+                                      : "border-input hover:border-primary/50"
+                                  }`}
+                                >
+                                  <div className="absolute inset-0 flex flex-col items-center justify-center p-1 sm:p-2">
+                                    <span className="text-[10px] sm:text-xs font-medium text-center line-clamp-1 sm:line-clamp-2 break-words w-full px-0.5">
+                                      {model.label}
+                                    </span>
+                                  </div>
+                                </button>
+                              ))}
                           </div>
                         </div>
-                        {!form.watch("yearUnknown") && (
-                          <Input
-                            type="number"
-                            id="year"
-                            placeholder="par ex. 2013"
-                            {...form.register("year")}
+                      )}
+                      <div>
+                          <Controller
+                            name="model"
+                            control={form.control}
+                            render={({ field }) => (
+                              <Select 
+                                onValueChange={handleModelChange} 
+                                value={field.value}
+                                disabled={!selectedBrand}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Sélectionnez un modèle" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {selectedBrand && modelsList[selectedBrand as keyof typeof modelsList]?.map((model: any) => (
+                                    <SelectItem key={model.slug} value={model.slug}>
+                                      {model.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
                           />
-                        )}
-                        {isStepSubmitted && form.formState.errors.year && (
-                          <p className="text-sm text-red-500">{form.formState.errors.year.message}</p>
-                        )}
+                          <FormError error={form.formState.errors.model?.message} isSubmitted={isStepSubmitted} />
+                        </div>
+    
+                      {/* Titre de l'annonce */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold">Titre de l'annonce</h3>
+                        <div>
+                          <Label htmlFor="title">Titre *</Label>
+                          <Input 
+                            id="title" 
+                            placeholder="Complétez le titre de l'annonce" 
+                            maxLength={40}
+                            {...form.register("title")}
+                          />
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {form.watch("title")?.length || 0} / 40
+                          </p>
+                          <FormError error={form.formState.errors.title?.message} isSubmitted={isStepSubmitted} />
+                        </div>
                       </div>
 
-                      {/* Champs spécifiques en fonction du type d'accessoire */}
-                      {selectedType && (
-                        <div className="space-y-4">
-                          {/* Numéro de référence - Pour tous sauf Aiguilles */}
-                          {selectedType !== "Aiguilles" && (
+                      {/* Description - Pour tous les types */}
+                      <div className="space-y-2">
+                        <Label htmlFor="description">Description</Label>
+                        <Input
+                          type="text"
+                          id="description"
+                          maxLength={250}
+                          {...form.register("description")}
+                        />
+                        <p className="text-sm text-muted-foreground">
+                          {form.watch("description")?.length || 0} / 250
+                        </p>
+                      </div>
+
+                      {/* Détails supplémentaires - Toggle Section */}
+                      <div className="space-y-4">
+                        <button
+                          type="button"
+                          onClick={() => setShowDetails(!showDetails)}
+                          className="flex items-center justify-between w-full text-left"
+                        >
+                          <h3 className="text-lg font-semibold">Plus d'informations (facultatif)</h3>
+                          {showDetails ? (
+                            <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                          ) : (
+                            <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                          )}
+                        </button>
+
+                        {showDetails && (
+                          <div className="space-y-4 pt-4">
+                            {/* Année - Toujours affichée */}
+                            <div className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <Label htmlFor="year">Année de fabrication</Label>
+                                <div className="flex items-center space-x-2">
+                                  <Checkbox
+                                    id="yearUnknown"
+                                    checked={form.watch("yearUnknown")}
+                                    onCheckedChange={(checked) => {
+                                      form.setValue("yearUnknown", checked as boolean)
+                                      if (checked) {
+                                        form.setValue("year", "")
+                                      }
+                                    }}
+                                  />
+                                  <Label htmlFor="yearUnknown" className="text-sm">Année inconnue</Label>
+                                </div>
+                              </div>
+                              {!form.watch("yearUnknown") && (
+                                <Input
+                                  type="number"
+                                  id="year"
+                                  placeholder="par ex. 2013"
+                                  {...form.register("year")}
+                                />
+                              )}
+                            </div>
+                            
                             <div className="space-y-2">
                               <Label htmlFor="reference">Numéro de référence</Label>
                               <Input
@@ -392,322 +554,290 @@ export default function SellAccessoryPage() {
                                 {form.watch("reference")?.length || 0} / 250
                               </p>
                             </div>
-                          )}
 
-                          {/* Description - Pour tous les types */}
-                          <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
-                            <Input
-                              type="text"
-                              id="description"
-                              maxLength={250}
-                              {...form.register("description")}
-                            />
-                            <p className="text-sm text-muted-foreground">
-                              {form.watch("description")?.length || 0} / 250
-                            </p>
+                            {/* Champs spécifiques en fonction du type d'accessoire */}
+                            {selectedType && (
+                              <div className="space-y-4">
+                                {/* Champs spécifiques pour les Cadrans */}
+                                {selectedType === "Cadran" && (
+                                  <>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="dialColor">Couleur du cadran</Label>
+                                      <Select
+                                        value={form.watch("dialColor")}
+                                        onValueChange={(value) => form.setValue("dialColor", value)}
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Sélectionnez une couleur" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {watchProperties.dialColors.map((color) => (
+                                            <SelectItem key={color} value={color}>
+                                              {color}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <div className="space-y-2">
+                                        <Label htmlFor="dimensions.width">Diamètre</Label>
+                                        <Input
+                                          type="number"
+                                          id="dimensions.width"
+                                          placeholder="mm"
+                                          {...form.register("dimensions.width")}
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label htmlFor="dimensions.height">Épaisseur</Label>
+                                        <Input
+                                          type="number"
+                                          id="dimensions.height"
+                                          placeholder="mm"
+                                          {...form.register("dimensions.height")}
+                                        />
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+
+                                {/* Champs spécifiques pour les Lunettes */}
+                                {selectedType === "Lunette" && (
+                                  <>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="lensMaterial">Matériau de la lunette</Label>
+                                      <Select
+                                        value={form.watch("lensMaterial")}
+                                        onValueChange={(value) => form.setValue("lensMaterial", value)}
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Sélectionnez un matériau" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {accessoryProperties.lensMaterials.map((material) => (
+                                            <SelectItem key={material} value={material}>
+                                              {material}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                      <div className="space-y-2">
+                                        <Label htmlFor="dimensions.width">Diamètre</Label>
+                                        <Input
+                                          type="number"
+                                          id="dimensions.width"
+                                          placeholder="mm"
+                                          {...form.register("dimensions.width")}
+                                        />
+                                      </div>
+                                      <div className="space-y-2">
+                                        <Label htmlFor="dimensions.height">Épaisseur</Label>
+                                        <Input
+                                          type="number"
+                                          id="dimensions.height"
+                                          placeholder="mm"
+                                          {...form.register("dimensions.height")}
+                                        />
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+
+                                {/* Champs spécifiques pour les Mouvements (complet) */}
+                                {selectedType === "Mouvement (complet)" && (
+                                  <>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="movement">Mouvement</Label>
+                                      <Select
+                                        value={form.watch("movement")}
+                                        onValueChange={(value) => form.setValue("movement", value)}
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Sélectionnez un mouvement" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {watchProperties.movements.map((movement) => (
+                                            <SelectItem key={movement} value={movement}>
+                                              {movement}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="caliber">Calibre/Rouages</Label>
+                                      <Input
+                                        type="text"
+                                        id="caliber"
+                                        maxLength={100}
+                                        {...form.register("caliber")}
+                                      />
+                                      <p className="text-sm text-muted-foreground">
+                                        {form.watch("caliber")?.length || 0} / 100
+                                      </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="baseCaliber">Base Calibre</Label>
+                                      <Input
+                                        type="text"
+                                        id="baseCaliber"
+                                        maxLength={100}
+                                        {...form.register("baseCaliber")}
+                                      />
+                                      <p className="text-sm text-muted-foreground">
+                                        {form.watch("baseCaliber")?.length || 0} / 100
+                                      </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="powerReserve">Réserve de marche</Label>
+                                      <div className="flex gap-2">
+                                        <Input
+                                          type="number"
+                                          id="powerReserve"
+                                          {...form.register("powerReserve")}
+                                        />
+                                        <span className="flex items-center">h</span>
+                                      </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="frequency">Mouvement oscillatoire</Label>
+                                      <div className="flex gap-2">
+                                        <Input
+                                          type="number"
+                                          id="frequencyValue"
+                                          {...form.register("frequencyValue")}
+                                        />
+                                        <Select
+                                          value={form.watch("frequencyUnit")}
+                                          onValueChange={(value) => form.setValue("frequencyUnit", value)}
+                                        >
+                                          <SelectTrigger className="w-[100px]">
+                                            <SelectValue placeholder="Unité" />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            {accessoryProperties.frequencyUnits.map((unit) => (
+                                              <SelectItem key={unit} value={unit}>
+                                                {unit}
+                                              </SelectItem>
+                                            ))}
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="jewels">Nombre de pierres</Label>
+                                      <Input
+                                        type="number"
+                                        id="jewels"
+                                        {...form.register("jewels")}
+                                      />
+                                    </div>
+                                  </>
+                                )}
+
+                                {/* Champs spécifiques pour les Mouvements (pièces) */}
+                                {selectedType === "Mouvement (pièces)" && (
+                                  <>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="movement">Mouvement</Label>
+                                      <Select
+                                        value={form.watch("movement")}
+                                        onValueChange={(value) => form.setValue("movement", value)}
+                                      >
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Sélectionnez un mouvement" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          {watchProperties.movements.map((movement) => (
+                                            <SelectItem key={movement} value={movement}>
+                                              {movement}
+                                            </SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="caliber">Calibre/Rouages</Label>
+                                      <Input
+                                        type="text"
+                                        id="caliber"
+                                        maxLength={100}
+                                        {...form.register("caliber")}
+                                      />
+                                      <p className="text-sm text-muted-foreground">
+                                        {form.watch("caliber")?.length || 0} / 100
+                                      </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="baseCaliber">Base Calibre</Label>
+                                      <Input
+                                        type="text"
+                                        id="baseCaliber"
+                                        maxLength={100}
+                                        {...form.register("baseCaliber")}
+                                      />
+                                      <p className="text-sm text-muted-foreground">
+                                        {form.watch("baseCaliber")?.length || 0} / 100
+                                      </p>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="powerReserve">Réserve de marche</Label>
+                                      <div className="flex gap-2">
+                                        <Input
+                                          type="number"
+                                          id="powerReserve"
+                                          {...form.register("powerReserve")}
+                                        />
+                                        <span className="flex items-center">h</span>
+                                      </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                      <Label htmlFor="jewels">Nombre de pierres</Label>
+                                      <Input
+                                        type="number"
+                                        id="jewels"
+                                        {...form.register("jewels")}
+                                      />
+                                    </div>
+                                  </>
+                                )}
+
+                                {/* Champs spécifiques pour les Verres */}
+                                {selectedType === "Verre" && (
+                                  <div className="space-y-2">
+                                    <Label htmlFor="glassType">Type de verre</Label>
+                                    <Select
+                                      value={form.watch("glassType")}
+                                      onValueChange={(value) => form.setValue("glassType", value)}
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Sélectionnez un type de verre" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {accessoryProperties.glassTypes.map((type) => (
+                                          <SelectItem key={type} value={type}>
+                                            {type}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
-
-                          {/* Champs spécifiques pour les Cadrans */}
-                          {selectedType === "Cadran" && (
-                            <>
-                              <div className="space-y-2">
-                                <Label htmlFor="dialColor">Couleur du cadran</Label>
-                                <Select
-                                  value={form.watch("dialColor")}
-                                  onValueChange={(value) => form.setValue("dialColor", value)}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Sélectionnez une couleur" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {watchProperties.dialColors.map((color) => (
-                                      <SelectItem key={color} value={color}>
-                                        {color}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                  <Label htmlFor="dimensions.width">Diamètre</Label>
-                                  <Input
-                                    type="number"
-                                    id="dimensions.width"
-                                    placeholder="mm"
-                                    {...form.register("dimensions.width")}
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label htmlFor="dimensions.height">Épaisseur</Label>
-                                  <Input
-                                    type="number"
-                                    id="dimensions.height"
-                                    placeholder="mm"
-                                    {...form.register("dimensions.height")}
-                                  />
-                                </div>
-                              </div>
-                            </>
-                          )}
-
-                          {/* Champs spécifiques pour les Couronnes/Poussoirs */}
-                          {selectedType === "Couronne/Poussoir" && (
-                            <div className="space-y-2">
-                              <Label htmlFor="caliber">Calibre/Rouages</Label>
-                              <Input
-                                type="text"
-                                id="caliber"
-                                {...form.register("caliber")}
-                              />
-                            </div>
-                          )}
-
-                          {/* Champs spécifiques pour les Lunettes */}
-                          {selectedType === "Lunette" && (
-                            <>
-                              <div className="space-y-2">
-                                <Label htmlFor="lensMaterial">Matériau de la lunette</Label>
-                                <Select
-                                  value={form.watch("lensMaterial")}
-                                  onValueChange={(value) => form.setValue("lensMaterial", value)}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Sélectionnez un matériau" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {accessoryProperties.lensMaterials.map((material) => (
-                                      <SelectItem key={material} value={material}>
-                                        {material}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                  <Label htmlFor="dimensions.width">Diamètre</Label>
-                                  <Input
-                                    type="number"
-                                    id="dimensions.width"
-                                    placeholder="mm"
-                                    {...form.register("dimensions.width")}
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label htmlFor="dimensions.height">Épaisseur</Label>
-                                  <Input
-                                    type="number"
-                                    id="dimensions.height"
-                                    placeholder="mm"
-                                    {...form.register("dimensions.height")}
-                                  />
-                                </div>
-                              </div>
-                            </>
-                          )}
-
-                          {/* Champs spécifiques pour les Mouvements (complet) */}
-                          {selectedType === "Mouvement (complet)" && (
-                            <>
-                              <div className="space-y-2">
-                                <Label htmlFor="movement">Mouvement</Label>
-                                <Select
-                                  value={form.watch("movement")}
-                                  onValueChange={(value) => form.setValue("movement", value)}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Sélectionnez un mouvement" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {watchProperties.movements.map((movement) => (
-                                      <SelectItem key={movement} value={movement}>
-                                        {movement}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="caliber">Calibre/Rouages</Label>
-                                <Input
-                                  type="text"
-                                  id="caliber"
-                                  maxLength={100}
-                                  {...form.register("caliber")}
-                                />
-                                <p className="text-sm text-muted-foreground">
-                                  {form.watch("caliber")?.length || 0} / 100
-                                </p>
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="baseCaliber">Base Calibre</Label>
-                                <Input
-                                  type="text"
-                                  id="baseCaliber"
-                                  maxLength={100}
-                                  {...form.register("baseCaliber")}
-                                />
-                                <p className="text-sm text-muted-foreground">
-                                  {form.watch("baseCaliber")?.length || 0} / 100
-                                </p>
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="powerReserve">Réserve de marche</Label>
-                                <div className="flex gap-2">
-                                  <Input
-                                    type="number"
-                                    id="powerReserve"
-                                    {...form.register("powerReserve")}
-                                  />
-                                  <span className="flex items-center">h</span>
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="frequency">Mouvement oscillatoire</Label>
-                                <div className="flex gap-2">
-                                  <Input
-                                    type="number"
-                                    id="frequencyValue"
-                                    {...form.register("frequencyValue")}
-                                  />
-                                  <Select
-                                    value={form.watch("frequencyUnit")}
-                                    onValueChange={(value) => form.setValue("frequencyUnit", value)}
-                                  >
-                                    <SelectTrigger className="w-[100px]">
-                                      <SelectValue placeholder="Unité" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      {accessoryProperties.frequencyUnits.map((unit) => (
-                                        <SelectItem key={unit} value={unit}>
-                                          {unit}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="jewels">Nombre de pierres</Label>
-                                <Input
-                                  type="number"
-                                  id="jewels"
-                                  {...form.register("jewels")}
-                                />
-                              </div>
-                            </>
-                          )}
-
-                          {/* Champs spécifiques pour les Mouvements (pièces) */}
-                          {selectedType === "Mouvement (pièces)" && (
-                            <>
-                              <div className="space-y-2">
-                                <Label htmlFor="movement">Mouvement</Label>
-                                <Select
-                                  value={form.watch("movement")}
-                                  onValueChange={(value) => form.setValue("movement", value)}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Sélectionnez un mouvement" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {watchProperties.movements.map((movement) => (
-                                      <SelectItem key={movement} value={movement}>
-                                        {movement}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="caliber">Calibre/Rouages</Label>
-                                <Input
-                                  type="text"
-                                  id="caliber"
-                                  maxLength={100}
-                                  {...form.register("caliber")}
-                                />
-                                <p className="text-sm text-muted-foreground">
-                                  {form.watch("caliber")?.length || 0} / 100
-                                </p>
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="baseCaliber">Base Calibre</Label>
-                                <Input
-                                  type="text"
-                                  id="baseCaliber"
-                                  maxLength={100}
-                                  {...form.register("baseCaliber")}
-                                />
-                                <p className="text-sm text-muted-foreground">
-                                  {form.watch("baseCaliber")?.length || 0} / 100
-                                </p>
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="powerReserve">Réserve de marche</Label>
-                                <div className="flex gap-2">
-                                  <Input
-                                    type="number"
-                                    id="powerReserve"
-                                    {...form.register("powerReserve")}
-                                  />
-                                  <span className="flex items-center">h</span>
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="jewels">Nombre de pierres</Label>
-                                <Input
-                                  type="number"
-                                  id="jewels"
-                                  {...form.register("jewels")}
-                                />
-                              </div>
-                            </>
-                          )}
-
-                          {/* Champs spécifiques pour les Nettoyants, Outils et Remontoirs */}
-                          {(selectedType === "Nettoyant" || selectedType === "Outils" || selectedType === "Remontoir de montres") && (
-                            <div className="space-y-2">
-                              <Label htmlFor="year">Année de fabrication</Label>
-                              <Input
-                                type="number"
-                                id="year"
-                                {...form.register("year")}
-                              />
-                            </div>
-                          )}
-
-                          {/* Champs spécifiques pour les Verres */}
-                          {selectedType === "Verre" && (
-                            <div className="space-y-2">
-                              <Label htmlFor="glassType">Type de verre</Label>
-                              <Select
-                                value={form.watch("glassType")}
-                                onValueChange={(value) => form.setValue("glassType", value)}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Sélectionnez un type de verre" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {accessoryProperties.glassTypes.map((type) => (
-                                    <SelectItem key={type} value={type}>
-                                      {type}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   )}
 
                   {step === 2 && (
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold">État de l'accessoire</h3>
+                      <FormError error={form.formState.errors.condition?.message} isSubmitted={isStepSubmitted} />
                       <div className="grid gap-4">
                         <Card
                           className={`cursor-pointer transition-colors ${
@@ -781,6 +911,7 @@ export default function SellAccessoryPage() {
                   {step === 3 && (
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold">Photos de l'accessoire</h3>
+                      <FormError error={form.formState.errors.images?.message} isSubmitted={isStepSubmitted} />
                       <p className="text-sm text-muted-foreground mb-4">
                         Ajoutez jusqu'à 10 photos de votre accessoire. Formats acceptés : JPG, PNG, WEBP. Taille maximum : 5MB par photo.
                       </p>
@@ -821,8 +952,7 @@ export default function SellAccessoryPage() {
 
                   {step === 4 && (
                     <div className="space-y-6">
-                      <h3 className="text-lg font-semibold">Déterminez votre prix de vente</h3>
-                      
+                      <h3 className="text-lg font-semibold">Déterminez votre prix de vente</h3>                      
                       <div className="space-y-4">
                         <div>
                           <Label htmlFor="price">Prix de vente *</Label>
@@ -850,6 +980,7 @@ export default function SellAccessoryPage() {
                               )}
                             />
                           </div>
+                            <FormError error={form.formState.errors.price?.message} isSubmitted={isStepSubmitted} />
                         </div>
 
                         <div className="space-y-2">
@@ -870,9 +1001,7 @@ export default function SellAccessoryPage() {
                               <SelectItem value="10+">Plus de 10 jours ouvrés</SelectItem>
                             </SelectContent>
                           </Select>
-                          {isStepSubmitted && form.formState.errors.shippingDelay && (
-                            <p className="text-sm text-red-500">{form.formState.errors.shippingDelay.message}</p>
-                          )}
+                          <FormError error={form.formState.errors.shippingDelay?.message} isSubmitted={isStepSubmitted} />
                         </div>
 
                         <Card>
@@ -962,123 +1091,13 @@ export default function SellAccessoryPage() {
                     </div>
                   )}
 
-                  {step === 6 && (
-                    <div className="space-y-6">
-                      <h3 className="text-lg font-semibold">Récapitulatif</h3>
-                      
-                      <div className="space-y-4">
-                        <Card>
-                          <CardContent className="p-4">
-                            <div className="space-y-4">
-                              <div>
-                                <h4 className="font-medium mb-2">Type d'accessoire</h4>
-                                <p className="text-muted-foreground">{form.watch("type")}</p>
-                              </div>
-
-                              {selectedType === "Cadran" && (
-                                <>
-                                  <div>
-                                    <h4 className="font-medium mb-2">Année de fabrication</h4>
-                                    <p className="text-muted-foreground">
-                                      {form.watch("yearUnknown") ? "Inconnue" : form.watch("year")}
-                                    </p>
-                                  </div>
-
-                                  <div>
-                                    <h4 className="font-medium mb-2">Numéro de référence</h4>
-                                    <p className="text-muted-foreground">{form.watch("reference")}</p>
-                                  </div>
-
-                                  <div>
-                                    <h4 className="font-medium mb-2">Couleur du cadran</h4>
-                                    <p className="text-muted-foreground">{form.watch("dialColor")}</p>
-                                  </div>
-
-                                  <div>
-                                    <h4 className="font-medium mb-2">Dimensions</h4>
-                                    <p className="text-muted-foreground">
-                                      {form.watch("dimensions.width")} x {form.watch("dimensions.height")} mm
-                                    </p>
-                                  </div>
-
-                                  <div>
-                                    <h4 className="font-medium mb-2">Description</h4>
-                                    <p className="text-muted-foreground">{form.watch("description")}</p>
-                                  </div>
-                                </>
-                              )}
-
-                              {selectedType === "Bracelet" && (
-                                <>
-                                  <div>
-                                    <h4 className="font-medium mb-2">Année de fabrication</h4>
-                                    <p className="text-muted-foreground">
-                                      {form.watch("yearUnknown") ? "Inconnue" : form.watch("year")}
-                                    </p>
-                                  </div>
-
-                                  <div>
-                                    <h4 className="font-medium mb-2">Numéro de référence</h4>
-                                    <p className="text-muted-foreground">{form.watch("reference")}</p>
-                                  </div>
-
-                                  <div>
-                                    <h4 className="font-medium mb-2">Couleur du bracelet</h4>
-                                    <p className="text-muted-foreground">{form.watch("braceletColor")}</p>
-                                  </div>
-
-                                  <div>
-                                    <h4 className="font-medium mb-2">Matière du bracelet</h4>
-                                    <p className="text-muted-foreground">{form.watch("braceletMaterial")}</p>
-                                  </div>
-
-                                  <div>
-                                    <h4 className="font-medium mb-2">Dimensions</h4>
-                                    <div className="text-muted-foreground space-y-1">
-                                      <p>Largeur entrecorne : {form.watch("dimensions.lugWidth")} mm</p>
-                                      <p>Largeur boucle : {form.watch("dimensions.claspWidth")} mm</p>
-                                      <p>Longueur côté long : {form.watch("dimensions.braceletLongLength")} mm</p>
-                                      <p>Longueur côté court : {form.watch("dimensions.braceletShortLength")} mm</p>
-                                      <p>Épaisseur : {form.watch("dimensions.braceletThickness")} mm</p>
-                                    </div>
-                                  </div>
-                                </>
-                              )}
-
-                              <div>
-                                <h4 className="font-medium mb-2">État</h4>
-                                <p className="text-muted-foreground">
-                                  {form.watch("condition") === "new" ? "Neuf - Jamais porté" : "D'occasion"}
-                                </p>
-                              </div>
-
-                              <div>
-                                <h4 className="font-medium mb-2">Prix</h4>
-                                <p className="text-muted-foreground">
-                                  {form.watch("price")?.toLocaleString()} {form.watch("currency")}
-                                </p>
-                              </div>
-
-                              <div>
-                                <h4 className="font-medium mb-2">Délai d'envoi</h4>
-                                <p className="text-muted-foreground">
-                                  {form.watch("shippingDelay")} jours ouvrés
-                                </p>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </div>
-                  )}
-
                   <div className="flex justify-between items-center pt-6">
                     {step > 1 && (
                       <Button type="button" variant="outline" onClick={prevStep}>
                         Retour
                       </Button>
                     )}
-                    {step < 6 ? (
+                    {step < 5 ? (
                       <Button 
                         type="button" 
                         onClick={nextStep}
@@ -1155,18 +1174,24 @@ export default function SellAccessoryPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <h4 className="font-medium truncate">
-                      {form.watch("type") || "Type d'accessoire"}
+                    <h4 className="font-medium truncate" title={form.watch("title") || "Titre de l'annonce"}>
+                      {form.watch("title") || "Titre de l'annonce"}
                     </h4>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
+                    <p className="text-sm text-muted-foreground line-clamp-2" title={form.watch("description") || "Description de l'accessoire..."}>
                       {form.watch("description") || "Description de l'accessoire..."}
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-muted-foreground">Type</p>
+                      <p className="text-muted-foreground">Marque</p>
                       <p className="font-medium">
-                        {form.watch("type") || "-"}
+                        {brandsList.find(b => b.slug === form.watch("brand"))?.label || "-"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Modèle</p>
+                      <p className="font-medium">
+                        {selectedBrand && modelsList[selectedBrand as keyof typeof modelsList]?.find((m: any) => m.slug === form.watch("model"))?.label || "-"}
                       </p>
                     </div>
                     <div>
