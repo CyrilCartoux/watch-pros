@@ -40,7 +40,7 @@ interface PaginationInfo {
   itemsPerPage: number
 }
 
-export default function SellersPage() {
+export default function SellersListPage() {
   const [sellers, setSellers] = useState<Seller[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
