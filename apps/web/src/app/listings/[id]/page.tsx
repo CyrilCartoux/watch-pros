@@ -369,9 +369,13 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                       </div>
 
                       <div className="text-sm text-muted-foreground">
-                        <p>Vendeur : {(sellersData as SellersData)[listing.seller]?.name}</p>
-                        <p>Type : {(sellersData as SellersData)[listing.seller]?.type}</p>
-                        <p>Note : {(sellersData as SellersData)[listing.seller]?.stats.rating} ({(sellersData as SellersData)[listing.seller]?.stats.totalReviews} avis)</p>
+                        {listing.seller && (sellersData as SellersData)[listing.seller] && (
+                          <>
+                            <p>Vendeur : {(sellersData as SellersData)[listing.seller].name}</p>
+                            <p>Type : {(sellersData as SellersData)[listing.seller].type}</p>
+                            <p>Note : {(sellersData as SellersData)[listing.seller].stats.rating} ({(sellersData as SellersData)[listing.seller].stats.totalReviews} avis)</p>
+                          </>
+                        )}
                       </div>
                     </div>
                   )}

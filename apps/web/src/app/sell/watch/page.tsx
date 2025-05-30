@@ -453,14 +453,14 @@ export default function SellWatchPage() {
                                     key={model.slug}
                                     type="button"
                                     onClick={() => handleModelChange(model.slug)}
-                                    className={`relative aspect-[3/2] rounded-lg border-2 transition-colors ${
+                                    className={`relative aspect-[4/1] sm:aspect-[3/2] rounded-lg border-2 transition-colors ${
                                       form.watch("model") === model.slug
                                         ? "border-primary bg-primary/5"
                                         : "border-input hover:border-primary/50"
                                     }`}
                                   >
-                                    <div className="absolute inset-0 flex flex-col items-center justify-center p-1 sm:p-2">
-                                      <span className="text-[10px] sm:text-xs font-medium text-center line-clamp-2 break-words w-full px-0.5">
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center p-0.5 sm:p-2">
+                                      <span className="text-[10px] sm:text-xs font-medium text-center line-clamp-1 sm:line-clamp-2 break-words w-full px-0.5">
                                         {model.label}
                                       </span>
                                     </div>

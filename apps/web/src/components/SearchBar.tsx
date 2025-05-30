@@ -1,98 +1,182 @@
-'use client'
+"use client"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { Search } from "lucide-react"
-import React from "react"
+import { useState, useRef, useEffect } from "react"
+import { Search, X } from "lucide-react"
+import { Input } from "./ui/input"
+import { Button } from "./ui/button"
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "./ui/command"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { brandsList } from "@/data/brands-list"
+import { modelsList } from "@/data/models-list"
 
-const brands = [
-  "Rolex",
-  "Patek Philippe",
-  "Audemars Piguet",
-  "Omega",
-  "Cartier",
-  "Jaeger-LeCoultre",
-  "Vacheron Constantin",
-  "IWC",
-  "Panerai",
-  "Tudor"
-]
-
-const models = {
-  "Rolex": ["Submariner", "Daytona", "GMT-Master II", "Datejust", "Day-Date"],
-  "Patek Philippe": ["Nautilus", "Aquanaut", "Calatrava", "Grand Complications"],
-  "Audemars Piguet": ["Royal Oak", "Royal Oak Offshore", "Code 11.59"],
-  "Omega": ["Speedmaster", "Seamaster", "Constellation", "De Ville"],
-  "Cartier": ["Tank", "Santos", "Ballon Bleu", "Drive"],
-  "Jaeger-LeCoultre": ["Reverso", "Master Control", "Polaris", "Rendez-Vous"],
-  "Vacheron Constantin": ["Overseas", "Patrimony", "Traditionnelle", "Fiftysix"],
-  "IWC": ["Portugieser", "Pilot's Watch", "Portofino", "Aquatimer"],
-  "Panerai": ["Luminor", "Radiomir", "Submersible", "Luminor Due"],
-  "Tudor": ["Black Bay", "Pelagos", "Ranger", "1926"]
+interface SearchResult {
+  type: "brand" | "model"
+  label: string
+  brandSlug: string
+  modelSlug?: string
+  image?: string
 }
 
-export function SearchBar() {
-  const [selectedBrand, setSelectedBrand] = React.useState<string>("")
-  const [availableModels, setAvailableModels] = React.useState<string[]>([])
+interface SearchBarProps {
+  className?: string
+}
 
-  React.useEffect(() => {
-    if (selectedBrand) {
-      setAvailableModels(models[selectedBrand as keyof typeof models] || [])
-    } else {
-      setAvailableModels([])
+export function SearchBar({ className }: SearchBarProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const [search, setSearch] = useState("")
+  const [results, setResults] = useState<SearchResult[]>([])
+  const router = useRouter()
+  const inputRef = useRef<HTMLInputElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+
+  // Fermer le menu au clic extérieur
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
     }
-  }, [selectedBrand])
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
+
+  // Mettre à jour les résultats de recherche
+  useEffect(() => {
+    if (!search) {
+      setResults([])
+      return
+    }
+
+    const searchLower = search.toLowerCase()
+    const newResults: SearchResult[] = []
+
+    // Rechercher dans les marques
+    brandsList.forEach(brand => {
+      if (brand.label.toLowerCase().includes(searchLower)) {
+        newResults.push({
+          type: "brand",
+          label: brand.label,
+          brandSlug: brand.slug,
+          image: `/images/brands/${brand.slug}.png`
+        })
+      }
+    })
+
+    // Rechercher dans les modèles
+    Object.entries(modelsList).forEach(([brandSlug, models]) => {
+      const brand = brandsList.find(b => b.slug === brandSlug)
+      if (!brand) return
+
+      models.forEach((model: any) => {
+        // Vérifier si la recherche correspond à "marque modèle" ou juste "modèle"
+        const fullSearch = `${brand.label} ${model.label}`.toLowerCase()
+        if (fullSearch.includes(searchLower) || model.label.toLowerCase().includes(searchLower)) {
+          newResults.push({
+            type: "model",
+            label: `${brand.label} ${model.label}`,
+            brandSlug,
+            modelSlug: model.slug
+          })
+        }
+      })
+    })
+
+    // Trier les résultats : marques d'abord, puis modèles
+    newResults.sort((a, b) => {
+      if (a.type === b.type) {
+        return a.label.localeCompare(b.label)
+      }
+      return a.type === "brand" ? -1 : 1
+    })
+
+    setResults(newResults)
+  }, [search])
+
+  const handleSearch = (query: string) => {
+    if (!query) return
+    setSearch(query)
+    router.push(`/listings?query=${encodeURIComponent(query)}`)
+    setIsOpen(false)
+  }
 
   return (
-    <div className="w-full">
-      <div className="flex flex-col sm:flex-row gap-4 p-6 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 rounded-xl shadow-lg border border-border">
-        <div className="flex-1">
-          <Input
-            type="text"
-            placeholder="Search watches..."
-            className="w-full bg-background/50"
-          />
-        </div>
-        <div className="w-full sm:w-48">
-          <Select onValueChange={setSelectedBrand}>
-            <SelectTrigger className="bg-background/50">
-              <SelectValue placeholder="Select brand" />
-            </SelectTrigger>
-            <SelectContent>
-              {brands.map((brand) => (
-                <SelectItem key={brand} value={brand}>
-                  {brand}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="w-full sm:w-48">
-          <Select disabled={!selectedBrand}>
-            <SelectTrigger className="bg-background/50">
-              <SelectValue placeholder="Select model" />
-            </SelectTrigger>
-            <SelectContent>
-              {availableModels.map((model) => (
-                <SelectItem key={model} value={model}>
-                  {model}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <Button className="bg-primary hover:bg-primary/90">
-          <Search className="h-4 w-4 mr-2" />
-          Search
-        </Button>
+    <div className={`relative flex items-center gap-2 ${className}`}>
+      <div className="relative flex-1">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          ref={inputRef}
+          type="search"
+          placeholder="Rechercher une montre..."
+          className="pl-9 h-9 text-sm"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onFocus={() => setIsOpen(true)}
+          onClick={() => setIsOpen(true)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSearch(search)
+            }
+          }}
+        />
+        {search && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5"
+            onClick={() => setSearch("")}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
       </div>
+
+      {isOpen && (
+        <div ref={menuRef} className="absolute top-full left-0 right-0 mt-1 bg-popover rounded-md border shadow-md z-50">
+          <Command>
+            <CommandList>
+              {results.length === 0 && search && (
+                <CommandEmpty>Aucun résultat trouvé.</CommandEmpty>
+              )}
+
+              {results.length > 0 && (
+                <CommandGroup>
+                  {results.map((result, index) => (
+                    <button
+                      key={`${result.type}-${result.brandSlug}-${result.modelSlug || index}`}
+                      onClick={() => handleSearch(result.label)}
+                      className="flex w-full items-center gap-2 px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                    >
+                      {result.type === "brand" && result.image && (
+                        <div className="relative w-6 h-6">
+                          <Image
+                            src={result.image}
+                            alt={result.label}
+                            fill
+                            className="object-contain"
+                          />
+                        </div>
+                      )}
+                      <span>{result.label}</span>
+                    </button>
+                  ))}
+                </CommandGroup>
+              )}
+            </CommandList>
+          </Command>
+        </div>
+      )}
+
+      <Button
+        size="sm"
+        className="h-9"
+        onClick={() => handleSearch(search)}
+      >
+        Rechercher
+      </Button>
     </div>
   )
 } 
