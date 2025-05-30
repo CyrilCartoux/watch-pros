@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Upload, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import watchProperties from "@/data/watch-properties.json"
+import { dialColors, movements, cases, braceletMaterials, braceletColors, includedOptions } from "@/data/watch-properties"
 import { brandsList } from "@/data/brands-list"
 import { modelsList } from "@/data/models-list"
 import { watchConditions } from "@/data/watch-conditions"
@@ -59,36 +59,6 @@ const sellSchema = z.object({
   // Step 5: Documents
   documents: z.array(z.instanceof(File)).optional(),
 })
-
-const dialColors = watchProperties.dialColors;
-const movements = watchProperties.movements;
-const cases = watchProperties.cases;
-const braceletMaterials = watchProperties.braceletMaterials;
-const braceletColors = watchProperties.braceletColors;
-
-
-const includedOptions = [
-  {
-    id: "full-set",
-    title: "Coffret et papiers d'origine",
-    description: "La montre est livrée avec son coffret et ses papiers d'origine",
-  },
-  {
-    id: "box-only",
-    title: "Coffret d'origine",
-    description: "La montre est livrée uniquement avec son coffret d'origine",
-  },
-  {
-    id: "papers-only",
-    title: "Papiers d'origine",
-    description: "La montre est livrée uniquement avec ses papiers d'origine",
-  },
-  {
-    id: "watch-only",
-    title: "Pas d'autres accessoires",
-    description: "La montre est livrée seule, sans accessoires",
-  },
-]
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]

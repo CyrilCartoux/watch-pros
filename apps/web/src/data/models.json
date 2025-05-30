@@ -3,65 +3,65 @@
     {
       "brand": "Rolex",
       "name": "Datejust",
-      "description": "La montre par excellence, symbole d'élégance intemporelle",
+      "description": "The quintessential watch, a symbol of timeless elegance",
       "image": "/images/watches/rolex-datejust.jpg",
-      "price": "À partir de 8 500 €",
+      "price": "Starting at €8,500",
       "slug": "rolex-datejust"
     },
     {
       "brand": "Rolex",
       "name": "Submariner",
-      "description": "L'icône des montres de plongée, robuste et élégante",
+      "description": "The icon of diving watches, robust and elegant",
       "image": "/images/watches/rolex-submariner.jpg",
-      "price": "À partir de 9 500 €",
+      "price": "Starting at €9,500",
       "slug": "rolex-submariner"
     },
     {
       "brand": "Rolex",
       "name": "Daytona",
-      "description": "La chronographe légendaire des courses automobiles",
+      "description": "The legendary chronograph of motor racing",
       "image": "/images/watches/rolex-daytona.jpg",
-      "price": "À partir de 14 500 €",
+      "price": "Starting at €14,500",
       "slug": "rolex-daytona"
     },
     {
       "brand": "Omega",
       "name": "Speedmaster",
-      "description": "La Moonwatch, la première montre portée sur la Lune",
+      "description": "The Moonwatch, the first watch worn on the Moon",
       "image": "/images/watches/omega-speedmaster.jpg",
-      "price": "À partir de 6 500 €",
+      "price": "Starting at €6,500",
       "slug": "omega-speedmaster"
     },
     {
       "brand": "Audemars Piguet",
       "name": "Royal Oak",
-      "description": "L'icône du design horloger moderne",
+      "description": "The icon of modern watchmaking design",
       "image": "/images/watches/ap-royal-oak.jpg",
-      "price": "À partir de 25 000 €",
+      "price": "Starting at €25,000",
       "slug": "audemars-piguet-royal-oak"
     },
     {
       "brand": "Rolex",
       "name": "Day-Date",
-      "description": "La montre des présidents, symbole de prestige",
+      "description": "The presidents' watch, a symbol of prestige",
       "image": "/images/watches/rolex-day-date.jpg",
-      "price": "À partir de 35 000 €",
+      "price": "Starting at €35,000",
       "slug": "rolex-day-date"
     },
     {
       "brand": "Rolex",
       "name": "GMT-Master II",
-      "description": "La montre des voyageurs, affichage de deux fuseaux horaires",
+      "description": "The travelers' watch, displaying two time zones",
       "image": "/images/watches/rolex-gmt-master.jpg",
-      "price": "À partir de 10 500 €",
+      "price": "Starting at €10,500",
       "slug": "rolex-gmt-master-ii"
     },
     {
       "brand": "Patek Philippe",
       "name": "Nautilus",
-      "description": "L'icône du luxe sportif, design intemporel",
+      "description": "The icon of sporty luxury, timeless design",
       "image": "/images/watches/patek-nautilus.jpg",
-      "price": "À partir de 35 000 €",
+      "price": "Starting at €35,000",
       "slug": "patek-philippe-nautilus"
     }
   ],
@@ -69,122 +69,122 @@
     {
       "brand": "Omega",
       "name": "Seamaster",
-      "description": "La montre de plongée emblématique",
+      "description": "The iconic diving watch",
       "image": "/images/models/omega-seamaster.jpg",
-      "price": "À partir de 5 500 €",
+      "price": "Starting at €5,500",
       "slug": "omega-seamaster"
     },
     {
       "brand": "Breitling",
       "name": "Navitimer",
-      "description": "La montre des pilotes, chronographe légendaire",
+      "description": "The pilots' watch, legendary chronograph",
       "image": "/images/models/breitling-navitimer.jpg",
-      "price": "À partir de 7 500 €",
+      "price": "Starting at €7,500",
       "slug": "breitling-navitimer"
     },
     {
       "brand": "Rolex",
       "name": "Oyster Perpetual",
-      "description": "L'essence même de Rolex, élégance simple",
+      "description": "The very essence of Rolex, simple elegance",
       "image": "/images/models/rolex-oyster-perpetual.jpg",
-      "price": "À partir de 6 500 €",
+      "price": "Starting at €6,500",
       "slug": "rolex-oyster-perpetual"
     },
     {
       "brand": "Patek Philippe",
       "name": "Grand Complications",
-      "description": "Le summum de la complexité horlogère",
+      "description": "The pinnacle of watchmaking complexity",
       "image": "/images/models/patek-grand-complications.jpg",
-      "price": "À partir de 100 000 €",
+      "price": "Starting at €100,000",
       "slug": "patek-philippe-grand-complications"
     },
     {
       "brand": "Audemars Piguet",
       "name": "Royal Oak Offshore",
-      "description": "La version sportive de l'icône",
+      "description": "The sporty version of the icon",
       "image": "/images/models/ap-royal-oak-offshore.jpg",
-      "price": "À partir de 30 000 €",
+      "price": "Starting at €30,000",
       "slug": "audemars-piguet-royal-oak-offshore"
     },
     {
       "brand": "TAG Heuer",
       "name": "Carrera",
-      "description": "La chronographe sportive légendaire",
+      "description": "The legendary sports chronograph",
       "image": "/images/models/tag-heuer-carrera.jpg",
-      "price": "À partir de 4 500 €",
+      "price": "Starting at €4,500",
       "slug": "tag-heuer-carrera"
     },
     {
       "brand": "Panerai",
       "name": "Luminor",
-      "description": "L'icône italienne de la plongée",
+      "description": "The Italian diving icon",
       "image": "/images/models/panerai-luminor.jpg",
-      "price": "À partir de 7 500 €",
+      "price": "Starting at €7,500",
       "slug": "panerai-luminor"
     },
     {
       "brand": "Tudor",
       "name": "Black Bay",
-      "description": "L'héritage de Rolex à un prix accessible",
+      "description": "The Rolex heritage at an accessible price",
       "image": "/images/models/tudor-black-bay.jpg",
-      "price": "À partir de 3 500 €",
+      "price": "Starting at €3,500",
       "slug": "tudor-black-bay"
     },
     {
       "brand": "Rolex",
       "name": "Yacht-Master",
-      "description": "La montre des amateurs de voile",
+      "description": "The watch for sailing enthusiasts",
       "image": "/images/models/rolex-yacht-master.jpg",
-      "price": "À partir de 12 500 €",
+      "price": "Starting at €12,500",
       "slug": "rolex-yacht-master"
     },
     {
       "brand": "Patek Philippe",
       "name": "Calatrava",
-      "description": "L'élégance pure et simple",
+      "description": "Pure and simple elegance",
       "image": "/images/models/patek-calatrava.jpg",
-      "price": "À partir de 25 000 €",
+      "price": "Starting at €25,000",
       "slug": "patek-philippe-calatrava"
     },
     {
       "brand": "Hublot",
       "name": "Big Bang",
-      "description": "L'innovation et le design audacieux",
+      "description": "Innovation and bold design",
       "image": "/images/models/hublot-big-bang.jpg",
-      "price": "À partir de 15 000 €",
+      "price": "Starting at €15,000",
       "slug": "hublot-big-bang"
     },
     {
       "brand": "IWC",
       "name": "Portuguese",
-      "description": "L'élégance portugaise",
+      "description": "Portuguese elegance",
       "image": "/images/models/iwc-portuguese.jpg",
-      "price": "À partir de 8 500 €",
+      "price": "Starting at €8,500",
       "slug": "iwc-portuguese"
     },
     {
       "brand": "Rolex",
       "name": "Explorer II",
-      "description": "La montre des explorateurs",
+      "description": "The explorers' watch",
       "image": "/images/models/rolex-explorer-ii.jpg",
-      "price": "À partir de 9 500 €",
+      "price": "Starting at €9,500",
       "slug": "rolex-explorer-ii"
     },
     {
       "brand": "IWC",
       "name": "Pilot",
-      "description": "La montre des aviateurs",
+      "description": "The aviators' watch",
       "image": "/images/models/iwc-pilot.jpg",
-      "price": "À partir de 5 500 €",
+      "price": "Starting at €5,500",
       "slug": "iwc-pilot"
     },
     {
       "brand": "Zenith",
       "name": "El Primero",
-      "description": "Le chronographe haute fréquence",
+      "description": "The high-frequency chronograph",
       "image": "/images/models/zenith-el-primero.jpg",
-      "price": "À partir de 7 500 €",
+      "price": "Starting at €7,500",
       "slug": "zenith-el-primero"
     }
   ]
-} 
+}

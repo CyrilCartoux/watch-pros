@@ -12,8 +12,8 @@ import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Checkbox } from "@/components/ui/checkbox"
-import watchProperties from "@/data/watch-properties.json"
-import accessoryProperties from "@/data/accessory-properties.json"
+import { dialColors, movements} from "@/data/watch-properties"
+import { accessoryTypes, braceletColors, braceletMaterials, lensMaterials, frequencyUnits, glassTypes } from "@/data/accessory-properties"
 import { brandsList } from "@/data/brands-list"
 import { modelsList } from "@/data/models-list"
 import Image from "next/image"
@@ -352,7 +352,7 @@ export default function SellAccessoryPage() {
                             <SelectValue placeholder="Sélectionnez un type d'accessoire" />
                           </SelectTrigger>
                           <SelectContent>
-                            {accessoryProperties.accessoryTypes.map((type) => (
+                            {accessoryTypes.map((type) => (
                               <SelectItem key={type} value={type}>
                                 {type}
                               </SelectItem>
@@ -571,7 +571,7 @@ export default function SellAccessoryPage() {
                                           <SelectValue placeholder="Sélectionnez une couleur" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                          {watchProperties.dialColors.map((color) => (
+                                          {dialColors.map((color) => (
                                             <SelectItem key={color} value={color}>
                                               {color}
                                             </SelectItem>
@@ -615,7 +615,7 @@ export default function SellAccessoryPage() {
                                           <SelectValue placeholder="Sélectionnez un matériau" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                          {accessoryProperties.lensMaterials.map((material) => (
+                                          {lensMaterials.map((material) => (
                                             <SelectItem key={material} value={material}>
                                               {material}
                                             </SelectItem>
@@ -659,7 +659,7 @@ export default function SellAccessoryPage() {
                                           <SelectValue placeholder="Sélectionnez un mouvement" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                          {watchProperties.movements.map((movement) => (
+                                          {movements.map((movement) => (
                                             <SelectItem key={movement} value={movement}>
                                               {movement}
                                             </SelectItem>
@@ -718,7 +718,7 @@ export default function SellAccessoryPage() {
                                             <SelectValue placeholder="Unité" />
                                           </SelectTrigger>
                                           <SelectContent>
-                                            {accessoryProperties.frequencyUnits.map((unit) => (
+                                            {frequencyUnits.map((unit) => (
                                               <SelectItem key={unit} value={unit}>
                                                 {unit}
                                               </SelectItem>
@@ -751,7 +751,7 @@ export default function SellAccessoryPage() {
                                           <SelectValue placeholder="Sélectionnez un mouvement" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                          {watchProperties.movements.map((movement) => (
+                                          {movements.map((movement) => (
                                             <SelectItem key={movement} value={movement}>
                                               {movement}
                                             </SelectItem>
@@ -817,7 +817,7 @@ export default function SellAccessoryPage() {
                                         <SelectValue placeholder="Sélectionnez un type de verre" />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        {accessoryProperties.glassTypes.map((type) => (
+                                        {glassTypes.map((type) => (
                                           <SelectItem key={type} value={type}>
                                             {type}
                                           </SelectItem>

@@ -1,10 +1,10 @@
 export const watchConditions = [
-    { label: "Neuve (Jamais portée)", slug: "new" },
-    { label: "Comme neuve (Portée 1-2 fois)", slug: "like-new" },
-    { label: "Très bon état", slug: "very-good" },
-    { label: "Bon état (Usure légère)", slug: "good" },
-    { label: "État correct (Traces visibles)", slug: "fair" },
-    { label: "À réviser / Pièces à changer", slug: "needs-service" },
-    { label: "Pour pièces uniquement", slug: "for-parts" }
+    { label: "New (Never worn)", slug: "new" },
+    { label: "Like new (Worn 1-2 times)", slug: "like-new" },
+    { label: "Very good condition", slug: "very-good" },
+    { label: "Good condition (Light wear)", slug: "good" },
+    { label: "Fair condition (Visible traces)", slug: "fair" },
+    { label: "Needs service / Parts to change", slug: "needs-service" },
+    { label: "For parts only", slug: "for-parts" }
   ];
   

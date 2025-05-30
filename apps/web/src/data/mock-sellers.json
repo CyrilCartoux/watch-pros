@@ -1,0 +1,304 @@
+{
+  "sellers": [
+    {
+      "account": {
+        "companyName": "Luxury Timepieces",
+        "watchProsName": "Luxury Timepieces",
+        "companyStatus": "SAS",
+        "firstName": "Thomas",
+        "lastName": "Dubois",
+        "email": "thomas@luxurytimepieces.com",
+        "username": "luxury-timepieces",
+        "country": "fr",
+        "title": "mr",
+        "phonePrefix": "+33",
+        "phone": "0612345678",
+        "language": "fr"
+      },
+      "address": {
+        "street": "15 Avenue Montaigne",
+        "addressComplement": "Suite 302",
+        "postalCode": "75008",
+        "city": "Paris",
+        "fax": "",
+        "mobile": "612345678",
+        "website": "https://www.luxurytimepieces.com",
+        "siren": "SIRET123456789",
+        "taxId": "FISC123456",
+        "vatNumber": "FR12345678901",
+        "oss": false,
+        "country": "fr",
+        "faxPrefix": "",
+        "mobilePrefix": "+33"
+      },
+      "banking": {
+        "cardHolder": "THOMAS DUBOIS",
+        "cvc": "123",
+        "isAuthorized": true,
+        "accountHolder": "Luxury Timepieces SAS",
+        "sepaStreet": "15 Avenue Montaigne",
+        "sepaPostalCode": "75008",
+        "sepaCity": "Paris",
+        "bankName": "BNP Paribas",
+        "paymentMethod": "card",
+        "cardNumber": "4242 4242 4242 4242",
+        "expiryDate": "12/25",
+        "sepaCountry": "fr"
+      },
+      "documents": {
+        "idCardFront": {
+          "url": "https://example.com/id-front-1.jpg",
+          "type": "idCardFront"
+        },
+        "idCardBack": {
+          "url": "https://example.com/id-back-1.jpg",
+          "type": "idCardBack"
+        },
+        "proofOfAddress": {
+          "url": "https://example.com/address-1.jpg",
+          "type": "proofOfAddress"
+        }
+      }
+    },
+    {
+      "account": {
+        "companyName": "Horlogerie Suisse",
+        "watchProsName": "Horlogerie Suisse",
+        "companyStatus": "SARL",
+        "firstName": "Sophie",
+        "lastName": "Martin",
+        "email": "sophie@horlogeriesuisse.com",
+        "username": "horlogerie-suisse",
+        "country": "fr",
+        "title": "mrs",
+        "phonePrefix": "+33",
+        "phone": "0623456789",
+        "language": "fr"
+      },
+      "address": {
+        "street": "8 Rue de la Paix",
+        "addressComplement": "",
+        "postalCode": "75002",
+        "city": "Paris",
+        "fax": "",
+        "mobile": "623456789",
+        "website": "https://www.horlogeriesuisse.com",
+        "siren": "SIRET987654321",
+        "taxId": "FISC654321",
+        "vatNumber": "FR98765432109",
+        "oss": false,
+        "country": "fr",
+        "faxPrefix": "",
+        "mobilePrefix": "+33"
+      },
+      "banking": {
+        "cardHolder": "SOPHIE MARTIN",
+        "cvc": "456",
+        "isAuthorized": true,
+        "accountHolder": "Horlogerie Suisse SARL",
+        "sepaStreet": "8 Rue de la Paix",
+        "sepaPostalCode": "75002",
+        "sepaCity": "Paris",
+        "bankName": "Société Générale",
+        "paymentMethod": "card",
+        "cardNumber": "4242 4242 4242 4242",
+        "expiryDate": "03/26",
+        "sepaCountry": "fr"
+      },
+      "documents": {
+        "idCardFront": {
+          "url": "https://example.com/id-front-2.jpg",
+          "type": "idCardFront"
+        },
+        "idCardBack": {
+          "url": "https://example.com/id-back-2.jpg",
+          "type": "idCardBack"
+        },
+        "proofOfAddress": {
+          "url": "https://example.com/address-2.jpg",
+          "type": "proofOfAddress"
+        }
+      }
+    },
+    {
+      "account": {
+        "companyName": "Watch Collection",
+        "watchProsName": "Watch Collection",
+        "companyStatus": "SAS",
+        "firstName": "Pierre",
+        "lastName": "Lefebvre",
+        "email": "pierre@watchcollection.com",
+        "username": "watch-collection",
+        "country": "fr",
+        "title": "mr",
+        "phonePrefix": "+33",
+        "phone": "0634567890",
+        "language": "fr"
+      },
+      "address": {
+        "street": "25 Boulevard Haussmann",
+        "addressComplement": "3ème étage",
+        "postalCode": "75009",
+        "city": "Paris",
+        "fax": "",
+        "mobile": "634567890",
+        "website": "https://www.watchcollection.com",
+        "siren": "SIRET456789123",
+        "taxId": "FISC789123",
+        "vatNumber": "FR45678912345",
+        "oss": false,
+        "country": "fr",
+        "faxPrefix": "",
+        "mobilePrefix": "+33"
+      },
+      "banking": {
+        "cardHolder": "PIERRE LEFEBVRE",
+        "cvc": "789",
+        "isAuthorized": true,
+        "accountHolder": "Watch Collection SAS",
+        "sepaStreet": "25 Boulevard Haussmann",
+        "sepaPostalCode": "75009",
+        "sepaCity": "Paris",
+        "bankName": "Crédit Agricole",
+        "paymentMethod": "card",
+        "cardNumber": "4242 4242 4242 4242",
+        "expiryDate": "06/26",
+        "sepaCountry": "fr"
+      },
+      "documents": {
+        "idCardFront": {
+          "url": "https://example.com/id-front-3.jpg",
+          "type": "idCardFront"
+        },
+        "idCardBack": {
+          "url": "https://example.com/id-back-3.jpg",
+          "type": "idCardBack"
+        },
+        "proofOfAddress": {
+          "url": "https://example.com/address-3.jpg",
+          "type": "proofOfAddress"
+        }
+      }
+    },
+    {
+      "account": {
+        "companyName": "Time Masters",
+        "watchProsName": "Time Masters",
+        "companyStatus": "SAS",
+        "firstName": "Marie",
+        "lastName": "Bernard",
+        "email": "marie@timemasters.com",
+        "username": "time-masters",
+        "country": "fr",
+        "title": "mrs",
+        "phonePrefix": "+33",
+        "phone": "0645678901",
+        "language": "fr"
+      },
+      "address": {
+        "street": "12 Place Vendôme",
+        "addressComplement": "",
+        "postalCode": "75001",
+        "city": "Paris",
+        "fax": "",
+        "mobile": "645678901",
+        "website": "https://www.timemasters.com",
+        "siren": "SIRET789123456",
+        "taxId": "FISC123789",
+        "vatNumber": "FR78912345678",
+        "oss": false,
+        "country": "fr",
+        "faxPrefix": "",
+        "mobilePrefix": "+33"
+      },
+      "banking": {
+        "cardHolder": "MARIE BERNARD",
+        "cvc": "321",
+        "isAuthorized": true,
+        "accountHolder": "Time Masters SAS",
+        "sepaStreet": "12 Place Vendôme",
+        "sepaPostalCode": "75001",
+        "sepaCity": "Paris",
+        "bankName": "LCL",
+        "paymentMethod": "card",
+        "cardNumber": "4242 4242 4242 4242",
+        "expiryDate": "09/25",
+        "sepaCountry": "fr"
+      },
+      "documents": {
+        "idCardFront": {
+          "url": "https://example.com/id-front-4.jpg",
+          "type": "idCardFront"
+        },
+        "idCardBack": {
+          "url": "https://example.com/id-back-4.jpg",
+          "type": "idCardBack"
+        },
+        "proofOfAddress": {
+          "url": "https://example.com/address-4.jpg",
+          "type": "proofOfAddress"
+        }
+      }
+    },
+    {
+      "account": {
+        "companyName": "Luxury Watches",
+        "watchProsName": "Luxury Watches",
+        "companyStatus": "SARL",
+        "firstName": "Jean",
+        "lastName": "Moreau",
+        "email": "jean@luxurywatches.com",
+        "username": "luxury-watches",
+        "country": "fr",
+        "title": "mr",
+        "phonePrefix": "+33",
+        "phone": "0656789012",
+        "language": "fr"
+      },
+      "address": {
+        "street": "5 Rue du Faubourg Saint-Honoré",
+        "addressComplement": "Boutique 12",
+        "postalCode": "75008",
+        "city": "Paris",
+        "fax": "",
+        "mobile": "656789012",
+        "website": "https://www.luxurywatches.com",
+        "siren": "SIRET321654987",
+        "taxId": "FISC654987",
+        "vatNumber": "FR32165498765",
+        "oss": false,
+        "country": "fr",
+        "faxPrefix": "",
+        "mobilePrefix": "+33"
+      },
+      "banking": {
+        "cardHolder": "JEAN MOREAU",
+        "cvc": "654",
+        "isAuthorized": true,
+        "accountHolder": "Luxury Watches SARL",
+        "sepaStreet": "5 Rue du Faubourg Saint-Honoré",
+        "sepaPostalCode": "75008",
+        "sepaCity": "Paris",
+        "bankName": "HSBC",
+        "paymentMethod": "card",
+        "cardNumber": "4242 4242 4242 4242",
+        "expiryDate": "12/26",
+        "sepaCountry": "fr"
+      },
+      "documents": {
+        "idCardFront": {
+          "url": "https://example.com/id-front-5.jpg",
+          "type": "idCardFront"
+        },
+        "idCardBack": {
+          "url": "https://example.com/id-back-5.jpg",
+          "type": "idCardBack"
+        },
+        "proofOfAddress": {
+          "url": "https://example.com/address-5.jpg",
+          "type": "proofOfAddress"
+        }
+      }
+    }
+  ]
+} 

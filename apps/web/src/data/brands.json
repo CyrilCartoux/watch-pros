@@ -1,730 +1,730 @@
 {
   "rolex": {
     "name": "Rolex",
-    "slug": "rolex",
-    "description": "Rolex est la marque de montres de luxe par excellence, celle dont les classiques dictent la mode. Adulées dans le monde entier, les prix des montres Rolex ne cessent d'augmenter et vont souvent de pair avec investissement rentable.",
+    "slug": "rolex", 
+    "description": "Rolex is the ultimate luxury watch brand, whose classics dictate fashion. Adored worldwide, Rolex watch prices continue to rise and often go hand in hand with profitable investment.",
     "logo": "/images/brands/rolex.png",
     "overview": {
-      "title": "Une icône du luxe horloger",
+      "title": "An icon of luxury watchmaking",
       "content": [
-        "Rolex est la marque de montres de luxe par excellence, dont les modèles classiques dictent les tendances. La demande croissante et la production limitée contribuent à une hausse constante des prix, faisant des montres Rolex des investissements particulièrement intéressants.",
-        "La marque se distingue par son indépendance et sa discrétion : elle fabrique en interne la quasi-totalité de ses composants et maintient une communication très contrôlée."
+        "Rolex is the ultimate luxury watch brand, whose classic models set the trends. Growing demand and limited production contribute to steadily rising prices, making Rolex watches particularly interesting investments.",
+        "The brand stands out for its independence and discretion: it manufactures almost all of its components in-house and maintains very controlled communication."
       ]
     },
     "keyFeatures": [
-      "Design intemporel avec fort potentiel de plus-value",
-      "Production limitée garantissant la rareté",
-      "Fabrication intégrée de la plupart des composants",
-      "Certificat chronomètrique COSC pour chaque montre"
+      "Timeless design with strong appreciation potential",
+      "Limited production ensuring rarity",
+      "In-house manufacturing of most components",
+      "COSC chronometer certificate for each watch"
     ],
     "priceRange": {
-      "catalog": "Entre 5 500 € et 42 000 €",
-      "secondary": "Prix majorés de 20% à 100% selon les modèles"
+      "catalog": "Between €5,500 and €42,000",
+      "secondary": "Prices increased by 20% to 100% depending on models"
     },
     "featuredModels": [
       {
         "name": "Submariner",
-        "description": "La référence des montres de plongée, disponible avec ou sans date. Un design intemporel qui a défini le standard des montres de plongée.",
+        "description": "The reference for diving watches, available with or without date. A timeless design that set the standard for diving watches.",
         "image": "/images/watches/submariner.jpg",
-        "price": "À partir de 12,500 €",
+        "price": "Starting at €12,500",
         "features": [
-          "Étanche jusqu'à 300m",
-          "Lunette tournante unidirectionnelle",
-          "Mouvement automatique de manufacture"
+          "Water resistant to 300m",
+          "Unidirectional rotating bezel",
+          "In-house automatic movement"
         ]
       },
       {
         "name": "Daytona",
-        "description": "Le chronographe iconique, portant le nom du circuit légendaire de Daytona Beach. Un design Tricompax qui a fait sa renommée.",
+        "description": "The iconic chronograph, named after the legendary Daytona Beach circuit. A Tricompax design that made its reputation.",
         "image": "/images/watches/daytona.jpg",
-        "price": "À partir de 22,000 €",
+        "price": "Starting at €22,000",
         "features": [
-          "Chronographe précis à 1/8e de seconde",
-          "Lunette tachymétrique en céramique",
-          "Mouvement automatique avec réserve de marche de 72h"
+          "Precise chronograph to 1/8th of a second",
+          "Ceramic tachymeter bezel",
+          "Automatic movement with 72h power reserve"
         ]
       },
       {
         "name": "GMT-Master II",
-        "description": "La montre GMT par excellence, développée à l'origine pour les pilotes. Sa lunette bicolore est devenue un symbole de la marque.",
+        "description": "The ultimate GMT watch, originally developed for pilots. Its two-tone bezel has become a brand symbol.",
         "image": "/images/watches/gmt-master.jpg",
-        "price": "À partir de 13,000 €",
+        "price": "Starting at €13,000",
         "features": [
-          "Affichage de deux fuseaux horaires",
-          "Lunette Cerachrom bicolore",
-          "Mouvement automatique avec réserve de marche de 70h"
+          "Dual time zone display",
+          "Two-tone Cerachrom bezel",
+          "Automatic movement with 70h power reserve"
         ]
       }
     ],
     "history": {
-      "title": "Histoire de la Marque",
+      "title": "Brand History",
       "content": [
-        "Fondée en 1905 à Londres par Hans Wilsdorf et Alfred Davis, Rolex s'installe à Genève en 1919. La marque a révolutionné l'horlogerie avec des innovations majeures comme la première montre étanche (1926) et le premier mouvement automatique à rotor perpétuel (1931).",
-        "La couronne à cinq pointes, adoptée en 1925, est devenue le symbole de la marque. Rolex est restée indépendante depuis sa création, contrôlée par la Fondation Hans Wilsdorf qui finance des projets sociaux, environnementaux et culturels.",
-        "Aujourd'hui, Rolex est reconnue pour sa précision chronométrique, chaque montre étant certifiée par le COSC et testée en interne pour une précision de -2/+2 secondes par jour."
+        "Founded in 1905 in London by Hans Wilsdorf and Alfred Davis, Rolex moved to Geneva in 1919. The brand revolutionized watchmaking with major innovations such as the first waterproof watch (1926) and the first automatic movement with perpetual rotor (1931).",
+        "The five-pointed crown, adopted in 1925, has become the brand's symbol. Rolex has remained independent since its creation, controlled by the Hans Wilsdorf Foundation which funds social, environmental and cultural projects.",
+        "Today, Rolex is recognized for its chronometric precision, with each watch being COSC certified and internally tested for accuracy of -2/+2 seconds per day."
       ]
     }
   },
   "patek-philippe": {
     "name": "Patek Philippe",
     "slug": "patek-philippe",
-    "description": "Plus qu'aucune autre marque, Patek Philippe incarne la haute horlogerie. La manufacture genevoise réunit luxe, tradition et maîtrise artisanale de haut niveau. Les montres Patek Philippe sont des garde-temps d'exception de renommée internationale.",
+    "description": "More than any other brand, Patek Philippe embodies fine watchmaking. The Geneva manufacture combines luxury, tradition and high-level craftsmanship. Patek Philippe watches are exceptional timepieces of international renown.",
     "logo": "/images/brands/patek.png",
     "overview": {
-      "title": "Une marque indépendante et estimée",
+      "title": "An independent and esteemed brand",
       "content": [
-        "Patek Philippe est l'une des dernières marques horlogères genevoises de luxe à demeurer une entreprise familiale indépendante. C'est notamment pour cette raison que le fabricant jouit d'une excellente réputation, et pas uniquement auprès des professionnels. La quasi-totalité des composants de ses montres est conçue en interne par la marque et les amateurs de montres du monde entier aspirent à agrémenter leur collection d'une Patek Philippe.",
-        "La manufacture cultive un style de design avant tout traditionnel et revendique son caractère familial. Pour ses créations, Patek Philippe mise le plus souvent sur des métaux précieux tel l'or ou le platine. À l'encontre des catalogues des autres manufactures, celui de Patek ne comprend que quelques montres en acier inoxydable."
+        "Patek Philippe is one of the last luxury Geneva watch brands to remain an independent family business. This is one of the main reasons why the manufacturer enjoys an excellent reputation, and not just among professionals. Almost all of its watch components are designed in-house by the brand and watch enthusiasts worldwide aspire to add a Patek Philippe to their collection.",
+        "The manufacture cultivates a primarily traditional design style and claims its family character. For its creations, Patek Philippe mostly relies on precious metals such as gold or platinum. Unlike other manufacturers' catalogs, Patek's includes only a few stainless steel watches."
       ]
     },
     "keyFeatures": [
-      "Des montres de luxe symboles de prestige",
-      "Les modèles des collections Calatrava et Nautilus représentent d'excellents investissements",
-      "Boîtier en or 18 carats ou en platine 950",
-      "Très précises grâce aux calibres de manufacture ultra modernes",
-      "Inventeur de complications majeures comme le quantième annuel ou le double chronographe"
+      "Noble luxury watches symbolizing prestige",
+      "Calatrava and Nautilus collection models represent excellent investments",
+      "18-carat gold or 950 platinum case",
+      "Highly accurate thanks to ultra-modern manufacture calibers",
+      "Inventor of major complications like the annual calendar or split-seconds chronograph"
     ],
     "priceRange": {
-      "catalog": "Entre 8 500 € et 3 020 000 €",
-      "secondary": "Prix majorés de 50% à 500% selon les modèles"
+      "catalog": "Between €8,500 and €3,020,000",
+      "secondary": "Prices increased by 50% to 500% depending on models"
     },
     "featuredModels": [
       {
         "name": "Nautilus",
-        "description": "La collection sportive emblématique créée par Gérald Genta en 1976. Son design en forme de hublot est devenu une icône de l'horlogerie moderne.",
+        "description": "The iconic sports collection created by Gerald Genta in 1976. Its porthole-shaped design has become a modern watchmaking icon.",
         "image": "/images/watches/nautilus.jpg",
-        "price": "À partir de 153 000 €",
+        "price": "Starting at €153,000",
         "features": [
-          "Design emblématique en forme de hublot",
-          "Bracelet intégré articulé",
-          "Mouvement automatique de manufacture"
+          "Iconic porthole design",
+          "Integrated articulated bracelet",
+          "In-house automatic movement"
         ]
       },
       {
         "name": "Calatrava",
-        "description": "Le symbole de l'élégance et de la sobriété depuis 1932. Un design intemporel qui incarne l'excellence de la marque.",
+        "description": "The symbol of elegance and simplicity since 1932. A timeless design that embodies the brand's excellence.",
         "image": "/images/watches/calatrava.jpg",
-        "price": "À partir de 45 000 €",
+        "price": "Starting at €45,000",
         "features": [
-          "Design épuré et élégant",
-          "Construction plate et fine",
-          "Mouvement de manufacture"
+          "Clean and elegant design",
+          "Thin and flat construction",
+          "Manufacture movement"
         ]
       },
       {
         "name": "Aquanaut",
-        "description": "Une montre sportive moderne inspirée de la Nautilus, lancée en 1997. Son bracelet Tropical en matériau composite est une innovation unique.",
+        "description": "A modern sports watch inspired by the famous Nautilus Memovox model from 1968. Its Tropical composite material strap is a unique innovation.",
         "image": "/images/watches/aquanaut.jpg",
-        "price": "À partir de 62 000 €",
+        "price": "Starting at €62,000",
         "features": [
-          "Bracelet Tropical en matériau composite",
-          "Design moderne et arrondi",
-          "Résistant à l'eau et aux UV"
+          "Tropical composite material strap",
+          "Modern rounded design",
+          "Water and UV resistant"
         ]
       }
     ],
     "history": {
-      "title": "Histoire de la Marque",
+      "title": "Brand History",
       "content": [
-        "En 1839, l'horloger polonais en exil Antoni Patek débute la production de montres de poche à Genève, où il s'associe 6 ans plus tard à son confrère français Adrien Philippe. En 1844, Adrien Philippe invente la couronne de remontage, révolutionnant l'horlogerie. Depuis 1851, l'entreprise porte le nom Patek Philippe.",
-        "La marque a révolutionné l'horlogerie avec des innovations majeures : le premier double chronographe en 1902, la première montre-bracelet avec quantième annuel en 1925, et la première montre à quartz à circuit intégré en 1959.",
-        "L'entreprise est reprise par la famille Stern en 1932 et est dirigée par Thierry Stern depuis 2010. Chaque année, environ 68 000 montres sortent des ateliers Patek Philippe, toutes fabriquées avec une précision et un soin exceptionnels."
+        "In 1839, Polish watchmaker in exile Antoni Patek began producing pocket watches in Geneva, where he partnered with his French colleague Adrien Philippe 6 years later. In 1844, Adrien Philippe invented the crown winding system, revolutionizing watchmaking. Since 1851, the company has been called Patek Philippe.",
+        "The brand revolutionized watchmaking with major innovations: the first split-seconds chronograph in 1902, the first wristwatch with annual calendar in 1925, and the first quartz watch with integrated circuit in 1959.",
+        "The company was taken over by the Stern family in 1932 and has been led by Thierry Stern since 2010. Each year, approximately 68,000 watches leave Patek Philippe's workshops, all manufactured with exceptional precision and care."
       ]
     }
   },
   "audemars-piguet": {
     "name": "Audemars Piguet",
     "slug": "audemars-piguet",
-    "description": "Il émane des garde-temps Audemars Piguet une grande noblesse. La manufacture compte aussi à son catalogue des modèles compliqués munis d'un quantième perpétuel et d'un tourbillon. La Royal Oak est la montre la plus emblématique de la marque.",
+    "description": "Audemars Piguet timepieces exude great nobility. The manufacture also includes complicated models with perpetual calendar and tourbillon in its catalog. The Royal Oak is the brand's most emblematic watch.",
     "logo": "/images/brands/ap.png",
     "overview": {
-      "title": "Pionnière et révolutionnaire dans l'industrie horlogère",
+      "title": "Pioneer and revolutionary in the watch industry",
       "content": [
-        "Les montres d'Audemars Piguet font partie des montres les plus raffinées et les plus réputées au monde. Aux côtés de Patek Philippe et Vacheron Constantin, la manufacture vient former la trinité de la haute horlogerie suisse. Depuis sa création en 1875, l'entreprise a été transmise de génération en génération et elle est l'un des derniers fabricants de montres suisse à ne pas avoir été revendu à un autre directeur ou à un grand groupe.",
-        "Sortie tout droit de l'imagination de l'iconique designer Gérald Genta, la Royal Oak est le modèle le plus réputé et le plus convoité de la manufacture sise au Brassus. Présentée en 1972, elle a bouleversé l'univers de l'horlogerie de luxe et a surtout fait parler d'elle en raison de son prix : cette montre en acier imposante était en effet aussi onéreuse qu'une montre en or classique !"
+        "Audemars Piguet watches are among the most refined and reputable watches in the world. Alongside Patek Philippe and Vacheron Constantin, the manufacture forms the trinity of Swiss fine watchmaking. Since its creation in 1875, the company has been passed down from generation to generation and is one of the last Swiss watch manufacturers not to have been sold to another director or large group.",
+        "Born from the imagination of iconic designer Gerald Genta, the Royal Oak is the manufacture's most renowned and coveted model. Presented in 1972, it revolutionized the luxury watch world and especially made headlines due to its price: this imposing steel watch was as expensive as a classic gold watch!"
       ]
     },
     "keyFeatures": [
-      "Montres mécaniques de luxe particulièrement élaborées",
-      "Modèle Royal Oak : excellent investissement et fort potentiel de plus-value",
-      "Excellents calibres de manufacture",
-      "Finition parfaite",
-      "Large choix de modèles"
+      "Particularly elaborate luxury mechanical watches",
+      "Royal Oak model: excellent investment and strong appreciation potential",
+      "Excellent manufacture calibers",
+      "Perfect finishing",
+      "Wide choice of models"
     ],
     "priceRange": {
-      "catalog": "Entre 11 000 € et 802 000 €",
-      "secondary": "Prix majorés de 30% à 300% selon les modèles"
+      "catalog": "Between €11,000 and €802,000",
+      "secondary": "Prices increased by 30% to 300% depending on models"
     },
     "featuredModels": [
       {
         "name": "Royal Oak",
-        "description": "La montre sportive emblématique créée par Gérald Genta en 1972. Son design révolutionnaire avec sa lunette octogonale et ses vis apparentes a changé l'horlogerie de luxe.",
+        "description": "The iconic sports watch created by Gerald Genta in 1972. Its revolutionary design with octagonal bezel and visible screws changed luxury watchmaking.",
         "image": "/images/watches/royal-oak.jpg",
-        "price": "À partir de 30 000 €",
+        "price": "Starting at €30,000",
         "features": [
-          "Lunette octogonale aux bords biseautés",
-          "8 vis hexagonales apparentes",
-          "Bracelet intégré avec mailles étroites"
+          "Octagonal bezel with beveled edges",
+          "8 visible hexagonal screws",
+          "Integrated bracelet with narrow links"
         ]
       },
       {
         "name": "Royal Oak Offshore",
-        "description": "Une version plus sportive et imposante de la Royal Oak, lancée en 1993. Elle reprend les codes de la Royal Oak tout en proposant un design plus moderne et robuste.",
+        "description": "A more sporty and imposing version of the Royal Oak, launched in 1993. It takes the Royal Oak codes while offering a more modern and robust design.",
         "image": "/images/watches/royal-oak-offshore.jpg",
-        "price": "À partir de 25 000 €",
+        "price": "Starting at €25,000",
         "features": [
-          "Design plus imposant et sportif",
-          "Diamètres de 37 à 48 mm",
-          "Fonction chronographe intégrée"
+          "More imposing and sporty design",
+          "Diameters from 37 to 48 mm",
+          "Integrated chronograph function"
         ]
       },
       {
         "name": "Code 11.59",
-        "description": "Une collection innovante lancée en 2019 qui marie tradition et modernité. Elle combine des éléments de design classiques avec des innovations techniques.",
+        "description": "An innovative collection launched in 2019 that combines tradition and modernity. It combines classic design elements with technical innovations.",
         "image": "/images/watches/code-11-59.jpg",
-        "price": "À partir de 21 000 €",
+        "price": "Starting at €21,000",
         "features": [
-          "Design unique avec boîtier octogonal",
-          "Premier calibre chronographe intégré",
-          "Cadran avec index bâtons et chiffres"
+          "Unique design with octagonal case",
+          "First integrated chronograph caliber",
+          "Dial with stick indices and numerals"
         ]
       }
     ],
     "history": {
-      "title": "Histoire d'une manufacture d'exception",
+      "title": "History of an exceptional manufacture",
       "content": [
-        "Audemars Piguet est riche d'une histoire de plus de 140 ans. Jules-Louis Audemars fonde l'entreprise en 1875, juste après avoir terminé son apprentissage en tant que repasseur. La société est sise au Brassus, dans la vallée de Joux.",
-        "En 1881, Jules-Louis Audemars et Edward-Auguste Piguet fondent la société Audemars Piguet & Cie. Dès le début, ils se lancent dans la production de montres de poche compliquées, présentant leurs premières montres munies de quantième perpétuel, répétition minutes et fonction chronographe.",
-        "La manufacture a révolutionné l'horlogerie avec des innovations majeures comme la Royal Oak en 1972, la Royal Oak Offshore en 1993, et plus récemment la Code 11.59 en 2019. Aujourd'hui, Audemars Piguet continue d'innover tout en préservant son héritage familial et son savoir-faire artisanal."
+        "Audemars Piguet has a history spanning over 140 years. Jules-Louis Audemars founded the company in 1875, right after completing his apprenticeship as a repasseur. The company is located in Le Brassus, in the Vallée de Joux.",
+        "In 1881, Jules-Louis Audemars and Edward-Auguste Piguet founded Audemars Piguet & Cie. From the beginning, they started producing complicated pocket watches, presenting their first watches with perpetual calendar, minute repeater and chronograph function.",
+        "The manufacture revolutionized watchmaking with major innovations like the Royal Oak in 1972, the Royal Oak Offshore in 1993, and more recently the Code 11.59 in 2019. Today, Audemars Piguet continues to innovate while preserving its family heritage and artisanal expertise."
       ]
     }
   },
   "omega": {
     "name": "Omega",
     "slug": "omega",
-    "description": "Omega est synonyme de tradition, de précision et de progrès. Des créations telles que l'échappement Co-Axial, le Master Chronometer et la légendaire Speedmaster Professional Moonwatch renforcent la réputation d'excellence de la marque.",
+    "description": "Omega is synonymous with tradition, precision and progress. Creations such as the Co-Axial escapement, Master Chronometer and the legendary Speedmaster Professional Moonwatch reinforce the brand's reputation for excellence.",
     "logo": "/images/brands/omega.png",
     "overview": {
-      "title": "Innovation et tradition depuis 1848",
+      "title": "Innovation and tradition since 1848",
       "content": [
-        "Omega a vu le jour au milieu du XIXe siècle. Au cours de sa longue histoire, la marque a acquis la réputation d'une marque de montres fiables, précises et fonctionnelles. La manufacture de Bienne, en Suisse, est en outre considérée comme un moteur de l'innovation dans le domaine de la technique des calibres et de la recherche sur les matériaux.",
-        "Le catalogue d'Omega répertorie certaines des montres-bracelets les plus connues au monde. La Speedmaster Professional Moonwatch en est un parfait exemple : elle a participé aux premières missions lunaires à l'été 1969 après un processus de sélection très strict. Depuis près de 60 ans, les plongeurs professionnels et de loisir font confiance à la vaste collection Seamaster."
+        "Omega was born in the mid-19th century. Throughout its long history, the brand has earned a reputation for reliable, precise and functional watches. The Bienne manufacture in Switzerland is also considered a driving force for innovation in movement technology and materials research.",
+        "Omega's catalog lists some of the world's most famous wristwatches. The Speedmaster Professional Moonwatch is a perfect example: it participated in the first lunar missions in summer 1969 after a very strict selection process. For nearly 60 years, professional and recreational divers have trusted the extensive Seamaster collection."
       ]
     },
     "keyFeatures": [
-      "Des modèles cultes tels que la Speedmaster et la Seamaster",
-      "Calibre de haute qualité avec échappement Co-Axial et composants amagnétiques",
-      "Des matériaux innovants tels que l'or Canopus et l'O-Megasteel",
-      "Complications comme répétition minutes, heure universelle ou tourbillon"
+      "Iconic models such as the Speedmaster and Seamaster",
+      "High-quality caliber with Co-Axial escapement and antimagnetic components",
+      "Innovative materials such as Canopus gold and O-Megasteel",
+      "Complications like minute repeater, world time or tourbillon"
     ],
     "priceRange": {
-      "catalog": "Entre 2 900 € et 435 000 €",
-      "secondary": "Prix majorés de 20% à 200% selon les modèles"
+      "catalog": "Between €2,900 and €435,000",
+      "secondary": "Prices increased by 20% to 200% depending on models"
     },
     "featuredModels": [
       {
         "name": "Speedmaster Professional Moonwatch",
-        "description": "Le chronographe culte qui a foulé la Lune en 1969. Un design intemporel qui a défini le standard des chronographes sportifs.",
+        "description": "The cult chronograph that walked on the Moon in 1969. A timeless design that set the standard for sports chronographs.",
         "image": "/images/watches/speedmaster.jpg",
-        "price": "À partir de 6 200 €",
+        "price": "Starting at €6,200",
         "features": [
-          "Première montre sur la Lune",
-          "Chronographe manuel",
-          "Lunette tachymétrique"
+          "First watch on the Moon",
+          "Manual chronograph",
+          "Tachymeter bezel"
         ]
       },
       {
         "name": "Seamaster Diver 300M",
-        "description": "La montre de plongée emblématique portée par James Bond. Un design moderne avec valve à hélium et cadran ondulé.",
+        "description": "The iconic diving watch worn by James Bond. A modern design with helium valve and wave-patterned dial.",
         "image": "/images/watches/seamaster.jpg",
-        "price": "À partir de 4 600 €",
+        "price": "Starting at €4,600",
         "features": [
-          "Étanche jusqu'à 300m",
-          "Valve à hélium",
-          "Calibre Co-Axial"
+          "Water resistant to 300m",
+          "Helium valve",
+          "Co-Axial caliber"
         ]
       },
       {
         "name": "Aqua Terra",
-        "description": "Une montre polyvalente qui allie élégance et performance. Aussi à l'aise dans l'eau que sur terre.",
+        "description": "A versatile watch that combines elegance and performance. As comfortable in water as on land.",
         "image": "/images/watches/aqua-terra.jpg",
-        "price": "À partir de 2 900 €",
+        "price": "Starting at €2,900",
         "features": [
-          "Design versatile",
-          "Étanche jusqu'à 150m",
-          "Calibre Co-Axial"
+          "Versatile design",
+          "Water resistant to 150m",
+          "Co-Axial caliber"
         ]
       }
     ],
     "history": {
-      "title": "L'histoire d'Omega",
+      "title": "The history of Omega",
       "content": [
-        "L'histoire d'Omega remonte au XIXe siècle : le Suisse Louis Brandt a débuté la production de montres de poche en 1848 à La Chaux-de-Fonds. Plus tard, les fils Brandt décident de déménager l'entreprise à Bienne, son siège actuel. Le nom 'Omega' est officiellement enregistré en 1903, symbolisant la notion d'accomplissement.",
-        "En 1930, Omega s'associe à Tissot mais les deux marques continuent d'exister indépendamment. En 1983, les deux marques intègrent le groupe Swatch, dont Omega fait toujours partie aujourd'hui.",
-        "La marque a révolutionné l'horlogerie avec des innovations majeures comme l'échappement Co-Axial et le Master Chronometer. Elle est également connue pour ses collaborations historiques avec la NASA et James Bond."
+        "Omega's history dates back to the 19th century: Swiss Louis Brandt began producing pocket watches in 1848 in La Chaux-de-Fonds. Later, the Brandt sons decided to move the company to Bienne, its current headquarters. The name 'Omega' was officially registered in 1903, symbolizing the notion of accomplishment.",
+        "In 1930, Omega partnered with Tissot but both brands continued to exist independently. In 1983, both brands joined the Swatch Group, of which Omega is still part today.",
+        "The brand has revolutionized watchmaking with major innovations like the Co-Axial escapement and Master Chronometer. It is also known for its historic collaborations with NASA and James Bond."
       ]
     }
   },
   "cartier": {
     "name": "Cartier",
     "slug": "cartier",
-    "description": "Synonyme de luxe, de savoir-faire et d'expérience, Cartier incarne la perfection. Pionnière de l'art horloger depuis plus de 160 ans, la maison parisienne a notamment conçu la toute première montre d'aviateur.",
+    "description": "Synonymous with luxury, expertise and experience, Cartier embodies perfection. A pioneer in watchmaking for over 160 years, the Parisian house notably designed the very first pilot's watch.",
     "logo": "/images/brands/cartier.png",
     "overview": {
-      "title": "Cartier, inventrice de la montre-bracelet",
+      "title": "Cartier, inventor of the wristwatch",
       "content": [
-        "Cartier dispose d'une longue tradition horlogère et fait figure de référence en matière de design. Au début du XXe siècle, Cartier présente sa toute première montre à cadran rectangulaire ornée des chiffres romains de style Art déco caractéristiques de la marque.",
-        "Le modèle Santos, conçu spécialement pour le pilote brésilien Alberto Santos-Dumont en 1904, fait aujourd'hui partie des montres-bracelets les plus célèbres de Cartier. Il en va de même pour la Tank, introduite en 1917, qui est devenue une véritable icône du design au fil des décennies."
+        "Cartier has a long watchmaking tradition and is a reference in design. In the early 20th century, Cartier presented its first watch with a rectangular dial adorned with the brand's characteristic Art Deco Roman numerals.",
+        "The Santos model, specially designed for Brazilian pilot Alberto Santos-Dumont in 1904, is today one of Cartier's most famous wristwatches. The same goes for the Tank, introduced in 1917, which has become a true design icon over the decades."
       ]
     },
     "keyFeatures": [
-      "Design iconique avec chiffres romains Art déco",
-      "Première montre-bracelet de l'histoire",
-      "Savoir-faire joaillier exceptionnel",
-      "Collections emblématiques : Tank, Santos, Ballon Bleu"
+      "Iconic design with Art Deco Roman numerals",
+      "First wristwatch in history",
+      "Exceptional jewelry expertise",
+      "Iconic collections: Tank, Santos, Ballon Bleu"
     ],
     "priceRange": {
-      "catalog": "Entre 2 399 € et 136 350 €",
-      "secondary": "Prix majorés de 0% à 17% selon les modèles"
+      "catalog": "Between €2,399 and €136,350",
+      "secondary": "Prices increased by 0% to 17% depending on models"
     },
     "featuredModels": [
       {
         "name": "Tank de Cartier",
-        "description": "Une montre culte depuis plus de 100 ans, avec son boîtier rectangulaire et son design Art déco intemporel.",
+        "description": "A cult watch for over 100 years, with its rectangular case and timeless Art Deco design.",
         "image": "/images/watches/tank.jpg",
-        "price": "À partir de 2 399 €",
+        "price": "Starting at €2,399",
         "features": [
-          "Boîtier rectangulaire",
-          "Chiffres romains Art déco",
-          "Aiguilles glaive bleuies"
+          "Rectangular case",
+          "Art Deco Roman numerals",
+          "Blued sword hands"
         ]
       },
       {
         "name": "Santos de Cartier",
-        "description": "La première montre d'aviateur au monde, créée en 1904 pour Alberto Santos-Dumont.",
+        "description": "The world's first pilot's watch, created in 1904 for Alberto Santos-Dumont.",
         "image": "/images/watches/santos.jpg",
-        "price": "À partir de 6 000 €",
+        "price": "Starting at €6,000",
         "features": [
-          "Cadran rectangulaire",
-          "Lunette avec vis apparentes",
-          "Calibre de manufacture"
+          "Rectangular dial",
+          "Bezel with visible screws",
+          "Manufacture caliber"
         ]
       },
       {
         "name": "Ballon Bleu de Cartier",
-        "description": "Une montre ronde élégante avec sa couronne intégrée au boîtier et son cabochon en saphir bleu.",
+        "description": "An elegant round watch with its crown integrated into the case and blue sapphire cabochon.",
         "image": "/images/watches/ballon-bleu.jpg",
-        "price": "À partir de 4 500 €",
+        "price": "Starting at €4,500",
         "features": [
-          "Couronne intégrée avec cabochon",
-          "Design épuré et moderne",
-          "Disponible en plusieurs tailles"
+          "Integrated crown with cabochon",
+          "Clean and modern design",
+          "Available in multiple sizes"
         ]
       }
     ],
     "history": {
-      "title": "L'histoire de Cartier en bref",
+      "title": "Cartier's history in brief",
       "content": [
-        "Le joaillier et horloger traditionnel français est riche d'une histoire de plus de 160 ans. En 1847, Louis-François Cartier reprend à Paris la joaillerie de son maître d'apprentissage Adolphe Picard.",
-        "En 1874, son fils Alfred rejoint la société et développe le département horloger. Les fils de ce dernier, Louis, Pierre et Jacques, établissent la renommée internationale de Cartier avec des succursales à Paris, New York et Londres.",
-        "La maison a révolutionné l'horlogerie avec des innovations majeures comme la première montre-bracelet en 1888, la Santos en 1904, et la Tank en 1917. Aujourd'hui, Cartier fait partie du groupe Richemont et continue d'innover tout en préservant son héritage."
+        "The traditional French jeweler and watchmaker has a history spanning over 160 years. In 1847, Louis-François Cartier took over the jewelry business of his apprenticeship master Adolphe Picard in Paris.",
+        "In 1874, his son Alfred joined the company and developed the watchmaking department. His sons, Louis, Pierre and Jacques, established Cartier's international reputation with branches in Paris, New York and London.",
+        "The house revolutionized watchmaking with major innovations like the first wristwatch in 1888, the Santos in 1904, and the Tank in 1917. Today, Cartier is part of the Richemont group and continues to innovate while preserving its heritage."
       ]
     }
   },
   "jaeger-lecoultre": {
     "name": "Jaeger-LeCoultre",
     "slug": "jaeger-lecoultre",
-    "description": "La manufacture suisse de montres de luxe Jaeger-LeCoultre est reconnue dans le monde entier pour son excellence : montres habillées extrêmement plates ou modèles complexes munis de répétition minutes, quantième perpétuel ou tourbillon.",
+    "description": "The Swiss luxury watch manufacturer Jaeger-LeCoultre is recognized worldwide for its excellence: extremely thin dress watches or complex models with minute repeater, perpetual calendar or tourbillon.",
     "logo": "/images/brands/jlc.png",
     "overview": {
-      "title": "L'artisanat à la perfection",
+      "title": "Craftsmanship to perfection",
       "content": [
-        "Jaeger-LeCoultre est rarement une manufacture horlogère suisse qui aura initié autant d'innovations horlogères au cours de son histoire. Le fabricant relève même les défis techniques les plus complexes avec des créations comme le calibre à deux étages Duoplan et son descendant direct, le mouvement le plus petit au monde, le calibre 101.",
-        "La manufacture crée principalement des montres habillées au style classique et élégant pour homme et pour femme, avec des modèles emblématiques comme la Reverso au boîtier carré et la Master Ultra Thin extrêmement plate."
+        "Jaeger-LeCoultre is rarely a Swiss watch manufacturer that has initiated so many horological innovations throughout its history. The manufacturer even takes on the most complex technical challenges with creations like the two-tier Duoplan caliber and its direct descendant, the world's smallest movement, caliber 101.",
+        "The manufacture primarily creates classic and elegant dress watches for men and women, with iconic models like the square-cased Reverso and the extremely thin Master Ultra Thin."
       ]
     },
     "keyFeatures": [
-      "Montres de manufacture suisses nobles",
-      "Composants du calibre décorés à la main",
-      "Modèle réputé : Reverso avec boîtier réversible",
-      "Memovox avec fonction alarme"
+      "Noble Swiss manufacture watches",
+      "Hand-decorated movement components",
+      "Renowned model: Reverso with reversible case",
+      "Memovox with alarm function"
     ],
     "priceRange": {
-      "catalog": "Entre 3 300 € et 440 000 €",
-      "secondary": "Prix majorés de 0% à 30% selon les modèles"
+      "catalog": "Between €3,300 and €440,000",
+      "secondary": "Prices increased by 0% to 30% depending on models"
     },
     "featuredModels": [
       {
         "name": "Reverso",
-        "description": "Une icône au boîtier réversible, créée en 1931 pour les joueurs de polo. Le boîtier peut être retourné pour protéger le cadran.",
+        "description": "An icon with a reversible case, created in 1931 for polo players. The case can be turned over to protect the dial.",
         "image": "/images/watches/reverso.jpg",
-        "price": "À partir de 4 000 €",
+        "price": "Starting at €4,000",
         "features": [
-          "Boîtier réversible",
-          "Design Art déco",
-          "Face verso gravée ou émaillée"
+          "Reversible case",
+          "Art Deco design",
+          "Engraved or enameled reverse side"
         ]
       },
       {
         "name": "Master Ultra Thin",
-        "description": "La montre extra plate de la manufacture, inspirée d'un modèle de montre de gousset minimaliste de 1907.",
+        "description": "The manufacture's extra-thin watch, inspired by a minimalist pocket watch model from 1907.",
         "image": "/images/watches/master-ultra-thin.jpg",
-        "price": "À partir de 6 000 €",
+        "price": "Starting at €6,000",
         "features": [
-          "Épaisseur de seulement 7,5 mm",
-          "Design épuré",
-          "Calibre de manufacture"
+          "Only 7.5mm thick",
+          "Clean design",
+          "Manufacture caliber"
         ]
       },
       {
         "name": "Polaris",
-        "description": "Une collection sportive moderne inspirée du célèbre modèle Memovox Polaris de 1968.",
+        "description": "A modern sports collection inspired by the famous 1968 Memovox Polaris model.",
         "image": "/images/watches/polaris.jpg",
-        "price": "À partir de 6 500 €",
+        "price": "Starting at €6,500",
         "features": [
-          "Design sportif moderne",
-          "Disponible en acier et or",
-          "Fonction chronographe optionnelle"
+          "Modern sporty design",
+          "Available in steel and gold",
+          "Optional chronograph function"
         ]
       }
     ],
     "history": {
-      "title": "L'histoire d'une entreprise innovante",
+      "title": "The history of an innovative company",
       "content": [
-        "C'est en 1833 que les frères Charles-Antoine et François Ulysse LeCoultre fondèrent leur atelier. À ses débuts, LeCoultre fabriquait des roues d'engrenage et des machines pour la production d'engrenages.",
-        "En 1844, l'entreprise présenta le millionomètre, un appareil permettant de mesurer une unité de longueur d'un millième de millimètre, devenu l'appareil de mesure standard pour l'horlogerie de précision.",
-        "Au début du XXe siècle, le fabricant d'ébauches LeCoultre travaillait en collaboration avec l'horloger Edmond Jaeger, ce qui déboucha sur l'union des deux entreprises en 1937. Depuis 2000, l'entreprise appartient au groupe suisse Richemont."
+        "It was in 1833 that brothers Charles-Antoine and François Ulysse LeCoultre founded their workshop. In its early days, LeCoultre manufactured gear wheels and machines for gear production.",
+        "In 1844, the company presented the millionometer, a device for measuring a unit of length of one thousandth of a millimeter, which became the standard measuring device for precision watchmaking.",
+        "In the early 20th century, the movement manufacturer LeCoultre worked in collaboration with watchmaker Edmond Jaeger, which led to the union of the two companies in 1937. Since 2000, the company has belonged to the Swiss Richemont group."
       ]
     }
   },
   "richard-mille": {
     "name": "Richard Mille",
     "slug": "richard-mille",
-    "description": "Richard Mille est synonyme d'innovation et de haute technologie dans l'horlogerie. La marque est reconnue pour ses montres ultra-légères et résistantes, utilisant des matériaux de pointe comme le carbone, le titane et la céramique.",
+    "description": "Richard Mille is synonymous with innovation and high technology in watchmaking. The brand is recognized for its ultra-light and resistant watches, using cutting-edge materials like carbon, titanium and ceramic.",
     "logo": "/images/brands/richard-mille.png",
     "overview": {
-      "title": "L'innovation au service de la performance",
+      "title": "Innovation at the service of performance",
       "content": [
-        "Fondée en 2001, Richard Mille est une marque relativement jeune mais qui a révolutionné l'horlogerie de luxe en introduisant des matériaux et des techniques innovantes. Chaque montre est conçue comme une véritable machine de course, alliant légèreté et résistance.",
-        "La marque est particulièrement connue pour ses collaborations avec des sportifs de haut niveau et ses montres inspirées du monde de la Formule 1 et de l'aéronautique."
+        "Founded in 2001, Richard Mille is a relatively young brand but has revolutionized luxury watchmaking by introducing innovative materials and techniques. Each watch is designed like a true racing machine, combining lightness and resistance.",
+        "The brand is particularly known for its collaborations with top athletes and its watches inspired by the world of Formula 1 and aeronautics."
       ]
     },
     "keyFeatures": [
-      "Montres ultra-légères et résistantes",
-      "Utilisation de matériaux innovants",
-      "Design futuriste et reconnaissable",
-      "Collaborations avec des sportifs de haut niveau"
+      "Ultra-light and resistant watches",
+      "Use of innovative materials",
+      "Futuristic and recognizable design",
+      "Collaborations with top athletes"
     ],
     "priceRange": {
-      "catalog": "Entre 80 000 € et 2 000 000 €",
-      "secondary": "Prix majorés de 20% à 100% selon les modèles"
+      "catalog": "Between €80,000 and €2,000,000",
+      "secondary": "Prices increased by 20% to 100% depending on models"
     },
     "featuredModels": [
       {
         "name": "RM 011",
-        "description": "Un chronographe automatique emblématique avec son design caractéristique et sa grande lisibilité.",
+        "description": "An iconic automatic chronograph with its characteristic design and great readability.",
         "image": "/images/watches/rm-011.jpg",
-        "price": "À partir de 150 000 €",
+        "price": "Starting at €150,000",
         "features": [
-          "Chronographe flyback",
-          "Boîtier en carbone",
-          "Mouvement automatique"
+          "Flyback chronograph",
+          "Carbon case",
+          "Automatic movement"
         ]
       },
       {
         "name": "RM 27-01",
-        "description": "Une montre ultra-légère développée avec Rafael Nadal, capable de résister aux impacts du tennis professionnel.",
+        "description": "An ultra-light watch developed with Rafael Nadal, capable of withstanding professional tennis impacts.",
         "image": "/images/watches/rm-27-01.jpg",
-        "price": "À partir de 700 000 €",
+        "price": "Starting at €700,000",
         "features": [
-          "Poids total de 19g",
-          "Suspension du mouvement",
-          "Résistance aux chocs"
+          "Total weight of 19g",
+          "Movement suspension",
+          "Shock resistance"
         ]
       },
       {
         "name": "RM 35-01",
-        "description": "Une montre sportive avec son design caractéristique et sa grande résistance.",
+        "description": "A sports watch with its characteristic design and high resistance.",
         "image": "/images/watches/rm-35-01.jpg",
-        "price": "À partir de 100 000 €",
+        "price": "Starting at €100,000",
         "features": [
-          "Boîtier en carbone",
-          "Mouvement automatique",
-          "Design futuriste"
+          "Carbon case",
+          "Automatic movement",
+          "Futuristic design"
         ]
       }
     ],
     "history": {
-      "title": "Une marque visionnaire",
+      "title": "A visionary brand",
       "content": [
-        "Richard Mille a été fondée en 2001 par Richard Mille, un visionnaire de l'horlogerie qui a révolutionné l'industrie avec ses concepts innovants. La marque s'est rapidement fait connaître pour ses montres ultra-légères et résistantes.",
-        "Dès ses débuts, Richard Mille a collaboré avec des sportifs de haut niveau, notamment Rafael Nadal, pour créer des montres capables de résister aux conditions extrêmes du sport professionnel.",
-        "La marque continue d'innover en utilisant des matériaux de pointe et en développant des mécanismes uniques, tout en maintenant une production limitée pour garantir l'exclusivité de ses créations."
+        "Richard Mille was founded in 2001 by Richard Mille, a watchmaking visionary who revolutionized the industry with his innovative concepts. The brand quickly became known for its ultra-light and resistant watches.",
+        "From its beginnings, Richard Mille has collaborated with top athletes, notably Rafael Nadal, to create watches capable of withstanding extreme professional sports conditions.",
+        "The brand continues to innovate by using cutting-edge materials and developing unique mechanisms, while maintaining limited production to ensure the exclusivity of its creations."
       ]
     }
   },
   "tag-heuer": {
     "name": "Tag Heuer",
     "slug": "tag-heuer",
-    "description": "Tag Heuer est une marque suisse de montres de luxe reconnue pour ses chronographes sportifs et ses innovations dans le domaine de la précision. La marque est particulièrement associée au monde de la course automobile.",
+    "description": "Tag Heuer is a Swiss luxury watch brand recognized for its sports chronographs and innovations in precision timing. The brand is particularly associated with the world of motor racing.",
     "logo": "/images/brands/tag-heuer.png",
     "overview": {
-      "title": "L'excellence du chronographe sportif",
+      "title": "Excellence in sports chronographs",
       "content": [
-        "Tag Heuer est une marque emblématique dans le monde des chronographes sportifs. Depuis plus de 160 ans, elle a développé une expertise reconnue dans la mesure du temps précis, particulièrement dans le domaine de la course automobile.",
-        "La marque est connue pour ses innovations techniques, comme le premier chronographe précis au 1/100e de seconde, et ses collaborations avec des événements sportifs majeurs comme la Formule 1."
+        "Tag Heuer is an iconic brand in the world of sports chronographs. For over 160 years, it has developed recognized expertise in precise timing, particularly in motor racing.",
+        "The brand is known for its technical innovations, such as the first chronograph accurate to 1/100th of a second, and its collaborations with major sporting events like Formula 1."
       ]
     },
     "keyFeatures": [
-      "Chronographes de précision",
-      "Design sportif et moderne",
-      "Innovations techniques constantes",
-      "Collaborations avec le monde du sport"
+      "Precision chronographs",
+      "Modern and sporty design",
+      "Constant technical innovations",
+      "Collaborations with the sports world"
     ],
     "priceRange": {
-      "catalog": "Entre 1 500 € et 25 000 €",
-      "secondary": "Prix majorés de 0% à 30% selon les modèles"
+      "catalog": "Between €1,500 and €25,000",
+      "secondary": "Prices increased by 0% to 30% depending on models"
     },
     "featuredModels": [
       {
         "name": "Carrera",
-        "description": "Un chronographe emblématique créé en 1963, inspiré par les courses automobiles.",
+        "description": "An iconic chronograph created in 1963, inspired by motor racing.",
         "image": "/images/watches/carrera.jpg",
-        "price": "À partir de 3 000 €",
+        "price": "Starting at €3,000",
         "features": [
-          "Chronographe mécanique",
-          "Design intemporel",
-          "Légèreté et lisibilité"
+          "Mechanical chronograph",
+          "Timeless design",
+          "Lightness and readability"
         ]
       },
       {
         "name": "Monaco",
-        "description": "La première montre chronographe à boîtier carré étanche, rendue célèbre par Steve McQueen.",
+        "description": "The first water-resistant square-cased chronograph watch, made famous by Steve McQueen.",
         "image": "/images/watches/monaco.jpg",
-        "price": "À partir de 6 000 €",
+        "price": "Starting at €6,000",
         "features": [
-          "Boîtier carré étanche",
-          "Chronographe automatique",
-          "Design iconique"
+          "Water-resistant square case",
+          "Automatic chronograph",
+          "Iconic design"
         ]
       },
       {
         "name": "Autavia",
-        "description": "Un chronographe polyvalent inspiré des instruments de bord des avions et des voitures de course.",
+        "description": "A versatile chronograph inspired by aircraft and racing car dashboard instruments.",
         "image": "/images/watches/autavia.jpg",
-        "price": "À partir de 4 000 €",
+        "price": "Starting at €4,000",
         "features": [
-          "Lunette tournante bidirectionnelle",
-          "Chronographe automatique",
-          "Design rétro"
+          "Bidirectional rotating bezel",
+          "Automatic chronograph",
+          "Retro design"
         ]
       }
     ],
     "history": {
-      "title": "Une histoire d'innovation",
+      "title": "A history of innovation",
       "content": [
-        "Tag Heuer a été fondée en 1860 par Edouard Heuer à Saint-Imier, en Suisse. La marque s'est rapidement fait connaître pour ses innovations dans le domaine de la mesure du temps précis.",
-        "En 1887, Heuer invente le système d'embrayage oscillant pour les chronographes, une innovation majeure qui est toujours utilisée aujourd'hui. La marque a également été pionnière dans le développement des chronographes pour l'aviation et l'automobile.",
-        "Aujourd'hui, Tag Heuer continue d'innover tout en préservant son héritage dans le monde du sport et de la course automobile."
+        "Tag Heuer was founded in 1860 by Edouard Heuer in Saint-Imier, Switzerland. The brand quickly became known for its innovations in precise timing.",
+        "In 1887, Heuer invented the oscillating pinion system for chronographs, a major innovation that is still used today. The brand was also a pioneer in developing chronographs for aviation and automobiles.",
+        "Today, Tag Heuer continues to innovate while preserving its heritage in the world of sports and motor racing."
       ]
     }
   },
   "breitling": {
     "name": "Breitling",
     "slug": "breitling",
-    "description": "Breitling est une marque suisse de montres de luxe spécialisée dans les chronographes professionnels. La marque est particulièrement reconnue pour ses montres d'aviation et ses instruments de précision.",
+    "description": "Breitling is a Swiss luxury watch brand specializing in professional chronographs. The brand is particularly recognized for its aviation watches and precision instruments.",
     "logo": "/images/brands/breitling.png",
     "overview": {
-      "title": "L'expertise de l'aviation",
+      "title": "Aviation expertise",
       "content": [
-        "Breitling est une marque emblématique dans le monde de l'aviation. Depuis plus d'un siècle, elle fournit des instruments de précision aux pilotes et aux professionnels de l'aéronautique.",
-        "La marque est connue pour ses chronographes robustes et fiables, ainsi que pour ses innovations dans le domaine de la mesure du temps précis."
+        "Breitling is an iconic brand in the world of aviation. For over a century, it has provided precision instruments to pilots and aviation professionals.",
+        "The brand is known for its robust and reliable chronographs, as well as its innovations in precise timing."
       ]
     },
     "keyFeatures": [
-      "Chronographes professionnels",
-      "Expertise en aviation",
-      "Design robuste et fonctionnel",
-      "Certification COSC"
+      "Professional chronographs",
+      "Aviation expertise",
+      "Robust and functional design",
+      "COSC certification"
     ],
     "priceRange": {
-      "catalog": "Entre 3 000 € et 50 000 €",
-      "secondary": "Prix majorés de 0% à 20% selon les modèles"
+      "catalog": "Between €3,000 and €50,000",
+      "secondary": "Prices increased by 0% to 20% depending on models"
     },
     "featuredModels": [
       {
         "name": "Navitimer",
-        "description": "Le chronographe emblématique des pilotes, avec sa règle à calcul circulaire.",
+        "description": "The iconic pilots' chronograph, with its circular slide rule.",
         "image": "/images/watches/navitimer.jpg",
-        "price": "À partir de 8 000 €",
+        "price": "Starting at €8,000",
         "features": [
-          "Règle à calcul circulaire",
-          "Chronographe automatique",
-          "Design iconique"
+          "Circular slide rule",
+          "Automatic chronograph",
+          "Iconic design"
         ]
       },
       {
         "name": "Chronomat",
-        "description": "Un chronographe sportif polyvalent, apprécié pour sa robustesse et sa fiabilité.",
+        "description": "A versatile sports chronograph, appreciated for its robustness and reliability.",
         "image": "/images/watches/chronomat.jpg",
-        "price": "À partir de 6 000 €",
+        "price": "Starting at €6,000",
         "features": [
-          "Bracelet Rouleaux",
-          "Chronographe automatique",
-          "Design sportif"
+          "Rouleaux bracelet",
+          "Automatic chronograph",
+          "Sporty design"
         ]
       },
       {
         "name": "Superocean",
-        "description": "Une montre de plongée robuste et fiable, avec une étanchéité jusqu'à 2000m.",
+        "description": "A robust and reliable diving watch, water-resistant up to 2000m.",
         "image": "/images/watches/superocean.jpg",
-        "price": "À partir de 3 000 €",
+        "price": "Starting at €3,000",
         "features": [
-          "Étanchéité jusqu'à 2000m",
-          "Lunette unidirectionnelle",
-          "Design sportif"
+          "Water-resistant to 2000m",
+          "Unidirectional bezel",
+          "Sporty design"
         ]
       }
     ],
     "history": {
-      "title": "Une histoire d'innovation",
+      "title": "A history of innovation",
       "content": [
-        "Breitling a été fondée en 1884 par Léon Breitling à Saint-Imier, en Suisse. La marque s'est rapidement spécialisée dans la production de chronographes et d'instruments de précision pour l'aviation.",
-        "En 1915, Breitling invente le premier chronographe avec poussoir séparé, une innovation majeure dans l'horlogerie. La marque a également été pionnière dans le développement des montres-bracelets chronographes.",
-        "Aujourd'hui, Breitling continue d'innover tout en préservant son héritage dans le monde de l'aviation et des instruments de précision."
+        "Breitling was founded in 1884 by Léon Breitling in Saint-Imier, Switzerland. The brand quickly specialized in producing chronographs and precision instruments for aviation.",
+        "In 1915, Breitling invented the first chronograph with separate pusher, a major innovation in watchmaking. The brand was also a pioneer in developing chronograph wristwatches.",
+        "Today, Breitling continues to innovate while preserving its heritage in the world of aviation and precision instruments."
       ]
     }
   },
   "tudor": {
     "name": "Tudor",
-    "slug": "tudor",
-    "description": "Tudor est une marque suisse de montres de luxe créée par Rolex en 1926. La marque propose des montres robustes et fiables à des prix plus accessibles que sa maison mère, tout en partageant son savoir-faire.",
+    "slug": "tudor", 
+    "description": "Tudor is a Swiss luxury watch brand created by Rolex in 1926. The brand offers robust and reliable watches at more accessible prices than its parent company, while sharing its expertise.",
     "logo": "/images/brands/tudor.png",
     "overview": {
-      "title": "L'excellence à prix accessible",
+      "title": "Excellence at accessible prices",
       "content": [
-        "Tudor est née de la vision de Hans Wilsdorf, fondateur de Rolex, qui souhaitait créer une marque proposant des montres de qualité à des prix plus accessibles. La marque partage le savoir-faire de Rolex tout en développant sa propre identité.",
-        "Aujourd'hui, Tudor est reconnue pour ses montres robustes et fiables, particulièrement appréciées des plongeurs et des professionnels."
+        "Tudor was born from the vision of Hans Wilsdorf, founder of Rolex, who wanted to create a brand offering quality watches at more accessible prices. The brand shares Rolex's expertise while developing its own identity.",
+        "Today, Tudor is recognized for its robust and reliable watches, particularly appreciated by divers and professionals."
       ]
     },
     "keyFeatures": [
-      "Montres robustes et fiables",
-      "Design sportif et fonctionnel",
-      "Prix plus accessibles que Rolex",
-      "Mouvements de qualité"
+      "Robust and reliable watches",
+      "Sporty and functional design", 
+      "More accessible prices than Rolex",
+      "Quality movements"
     ],
     "priceRange": {
-      "catalog": "Entre 2 500 € et 15 000 €",
-      "secondary": "Prix majorés de 0% à 30% selon les modèles"
+      "catalog": "Between €2,500 and €15,000",
+      "secondary": "Prices increased by 0% to 30% depending on models"
     },
     "featuredModels": [
       {
         "name": "Black Bay",
-        "description": "Une collection de montres de plongée inspirée des modèles historiques de Tudor.",
+        "description": "A collection of diving watches inspired by Tudor's historical models.",
         "image": "/images/watches/black-bay.jpg",
-        "price": "À partir de 3 000 €",
+        "price": "Starting at €3,000",
         "features": [
-          "Étanchéité jusqu'à 200m",
-          "Lunette unidirectionnelle",
-          "Design rétro"
+          "Water resistant to 200m",
+          "Unidirectional bezel",
+          "Retro design"
         ]
       },
       {
         "name": "Pelagos",
-        "description": "Une montre de plongée technique avec boîtier en titane et valve à hélium.",
+        "description": "A technical diving watch with titanium case and helium valve.",
         "image": "/images/watches/pelagos.jpg",
-        "price": "À partir de 4 000 €",
+        "price": "Starting at €4,000",
         "features": [
-          "Boîtier en titane",
-          "Valve à hélium",
-          "Étanchéité jusqu'à 500m"
+          "Titanium case",
+          "Helium valve",
+          "Water resistant to 500m"
         ]
       },
       {
         "name": "Ranger",
-        "description": "Une montre de terrain robuste et fiable, inspirée des modèles militaires.",
+        "description": "A robust and reliable field watch, inspired by military models.",
         "image": "/images/watches/ranger.jpg",
-        "price": "À partir de 2 500 €",
+        "price": "Starting at €2,500",
         "features": [
-          "Design épuré",
-          "Mouvement automatique",
-          "Robustesse"
+          "Clean design",
+          "Automatic movement",
+          "Robustness"
         ]
       }
     ],
     "history": {
-      "title": "Une histoire liée à Rolex",
+      "title": "A history linked to Rolex",
       "content": [
-        "Tudor a été créée en 1926 par Hans Wilsdorf, fondateur de Rolex, avec l'objectif de proposer des montres de qualité à des prix plus accessibles. La marque a rapidement gagné en popularité grâce à sa fiabilité et son rapport qualité-prix.",
-        "Dans les années 1950, Tudor s'est fait connaître pour ses montres de plongée robustes, utilisées par les marines du monde entier. La marque a également été pionnière dans le développement des montres-bracelets chronographes.",
-        "Aujourd'hui, Tudor continue d'innover tout en préservant son héritage de robustesse et de fiabilité."
+        "Tudor was created in 1926 by Hans Wilsdorf, founder of Rolex, with the goal of offering quality watches at more accessible prices. The brand quickly gained popularity thanks to its reliability and value for money.",
+        "In the 1950s, Tudor became known for its robust diving watches, used by navies around the world. The brand was also a pioneer in the development of chronograph wristwatches.",
+        "Today, Tudor continues to innovate while preserving its heritage of robustness and reliability."
       ]
     }
   },
   "hublot": {
     "name": "Hublot",
     "slug": "hublot",
-    "description": "Hublot est une marque suisse de montres de luxe connue pour son design audacieux et ses innovations dans l'utilisation de matériaux. La marque est particulièrement reconnue pour sa fusion de matériaux traditionnels et modernes.",
+    "description": "Hublot is a Swiss luxury watch brand known for its bold design and innovations in material use. The brand is particularly recognized for its fusion of traditional and modern materials.",
     "logo": "/images/brands/hublot.png",
     "overview": {
-      "title": "L'art de la fusion",
+      "title": "The art of fusion",
       "content": [
-        "Hublot est une marque qui a révolutionné l'horlogerie avec son concept de 'fusion' entre matériaux traditionnels et modernes. Depuis sa création, la marque n'a cessé d'innover dans l'utilisation de nouveaux matériaux et techniques.",
-        "La marque est connue pour ses collaborations avec des artistes, des sportifs et des événements prestigieux, ainsi que pour son design audacieux et reconnaissable."
+        "Hublot is a brand that has revolutionized watchmaking with its concept of 'fusion' between traditional and modern materials. Since its creation, the brand has continuously innovated in the use of new materials and techniques.",
+        "The brand is known for its collaborations with artists, athletes and prestigious events, as well as for its bold and recognizable design."
       ]
     },
     "keyFeatures": [
-      "Design audacieux et moderne",
-      "Innovation dans les matériaux",
-      "Collaborations prestigieuses",
-      "Mouvements de haute qualité"
+      "Bold and modern design",
+      "Innovation in materials",
+      "Prestigious collaborations",
+      "High-quality movements"
     ],
     "priceRange": {
-      "catalog": "Entre 10 000 € et 500 000 €",
-      "secondary": "Prix majorés de 0% à 50% selon les modèles"
+      "catalog": "Between €10,000 and €500,000",
+      "secondary": "Prices increased by 0% to 50% depending on models"
     },
     "featuredModels": [
       {
         "name": "Big Bang",
-        "description": "La collection emblématique de Hublot, avec son design audacieux et ses matériaux innovants.",
+        "description": "Hublot's iconic collection, with its bold design and innovative materials.",
         "image": "/images/watches/big-bang.jpg",
-        "price": "À partir de 15 000 €",
+        "price": "Starting at €15,000",
         "features": [
-          "Design moderne",
-          "Matériaux innovants",
-          "Chronographe automatique"
+          "Modern design",
+          "Innovative materials",
+          "Automatic chronograph"
         ]
       },
       {
         "name": "Classic Fusion",
-        "description": "Une collection plus classique mais toujours avec l'ADN Hublot.",
+        "description": "A more classic collection but still with Hublot DNA.",
         "image": "/images/watches/classic-fusion.jpg",
-        "price": "À partir de 10 000 €",
+        "price": "Starting at €10,000",
         "features": [
-          "Design épuré",
-          "Élégance moderne",
-          "Mouvement automatique"
+          "Clean design",
+          "Modern elegance",
+          "Automatic movement"
         ]
       },
       {
         "name": "Spirit of Big Bang",
-        "description": "Une version tonneau de la Big Bang, avec un design encore plus audacieux.",
+        "description": "A tonneau version of the Big Bang, with an even bolder design.",
         "image": "/images/watches/spirit-of-big-bang.jpg",
-        "price": "À partir de 20 000 €",
+        "price": "Starting at €20,000",
         "features": [
-          "Design tonneau",
-          "Matériaux innovants",
-          "Chronographe automatique"
+          "Tonneau design",
+          "Innovative materials",
+          "Automatic chronograph"
         ]
       }
     ],
     "history": {
-      "title": "Une histoire d'innovation",
+      "title": "A history of innovation",
       "content": [
-        "Hublot a été fondée en 1980 par Carlo Crocco, qui a révolutionné l'horlogerie avec sa première montre combinant un boîtier en or et un bracelet en caoutchouc. Cette innovation a donné naissance au concept de 'fusion' qui caractérise la marque.",
-        "En 2004, Jean-Claude Biver rejoint Hublot et lance la collection Big Bang, qui propulse la marque au rang des grandes maisons horlogères. La marque continue d'innover avec des matériaux comme le Magic Gold, l'alliage d'or le plus dur au monde.",
-        "Aujourd'hui, Hublot est reconnue pour ses innovations constantes et ses collaborations prestigieuses dans le monde du sport, de l'art et de la culture."
+        "Hublot was founded in 1980 by Carlo Crocco, who revolutionized watchmaking with his first watch combining a gold case with a rubber strap. This innovation gave birth to the concept of 'fusion' that characterizes the brand.",
+        "In 2004, Jean-Claude Biver joined Hublot and launched the Big Bang collection, which propelled the brand to the ranks of great watchmaking houses. The brand continues to innovate with materials like Magic Gold, the hardest gold alloy in the world.",
+        "Today, Hublot is recognized for its constant innovations and prestigious collaborations in the world of sports, art and culture."
       ]
     }
   }
-} 
+}

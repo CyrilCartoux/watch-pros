@@ -17,21 +17,21 @@
         "image": "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=200&h=200&fit=crop"
       },
       "lastMessage": {
-        "content": "Bonjour, je suis intéressé par votre montre. Est-elle toujours disponible ?",
+        "content": "Hello, I'm interested in your watch. Is it still available?",
         "timestamp": "2024-03-20T14:30:00Z",
         "isRead": true
       },
       "messages": [
         {
           "id": 1,
-          "content": "Bonjour, je suis intéressé par votre montre. Est-elle toujours disponible ?",
+          "content": "Hello, I'm interested in your watch. Is it still available?",
           "timestamp": "2024-03-20T14:30:00Z",
           "senderId": 101,
           "isRead": true
         },
         {
           "id": 2,
-          "content": "Oui, elle est toujours disponible. Avez-vous des questions particulières ?",
+          "content": "Yes, it's still available. Do you have any specific questions?",
           "timestamp": "2024-03-20T14:32:00Z",
           "senderId": "currentUser",
           "isRead": true
@@ -55,28 +55,28 @@
         "image": "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=200&h=200&fit=crop"
       },
       "lastMessage": {
-        "content": "Merci pour votre réponse rapide...",
+        "content": "Thank you for your quick response...",
         "timestamp": "2024-03-19T10:15:00Z",
         "isRead": false
       },
       "messages": [
         {
           "id": 1,
-          "content": "Bonjour, je vois que vous vendez une Omega Seamaster. Est-ce que vous pourriez me donner plus de détails sur son état ?",
+          "content": "Hello, I see you're selling an Omega Seamaster. Could you give me more details about its condition?",
           "timestamp": "2024-03-19T10:00:00Z",
           "senderId": 102,
           "isRead": true
         },
         {
           "id": 2,
-          "content": "Bien sûr ! La montre est en excellent état, elle a été achetée en 2022 et n'a jamais été portée. Je peux vous envoyer des photos supplémentaires si vous le souhaitez.",
+          "content": "Of course! The watch is in excellent condition, it was purchased in 2022 and has never been worn. I can send you additional photos if you'd like.",
           "timestamp": "2024-03-19T10:10:00Z",
           "senderId": "currentUser",
           "isRead": true
         },
         {
           "id": 3,
-          "content": "Merci pour votre réponse rapide...",
+          "content": "Thank you for your quick response...",
           "timestamp": "2024-03-19T10:15:00Z",
           "senderId": 102,
           "isRead": false
@@ -84,4 +84,4 @@
       ]
     }
   ]
-} 
+}

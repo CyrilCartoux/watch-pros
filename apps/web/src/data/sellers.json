@@ -3,8 +3,8 @@
     "id": "da-vinci-watches",
     "name": "Da Vinci Watches",
     "logo": "/images/sellers/davinci.jpg",
-    "type": "Professionnel certifié",
-    "description": "Da Vinci Watches est une boutique spécialisée dans la vente de montres de luxe neuves et d'occasion. Notre expertise et notre passion pour l'horlogerie nous permettent de vous proposer une sélection rigoureuse de pièces authentiques.",
+    "type": "Certified Professional",
+    "description": "Da Vinci Watches is a boutique specialized in selling new and pre-owned luxury watches. Our expertise and passion for watchmaking allow us to offer you a rigorous selection of authentic timepieces.",
     "location": {
       "address": "19 rue Jean Mermoz",
       "city": "Paris",
@@ -15,7 +15,7 @@
       "phone": "+33 699912211",
       "mobile": "+33 7 77 77 88 88",
       "email": "contact@davinciwatches.com",
-      "languages": ["Français", "Anglais"]
+      "languages": ["French", "English"]
     },
     "business": {
       "vatNumber": "FR76847724408",
@@ -40,7 +40,7 @@
         "author": "Jean D.",
         "date": "2024-03-15",
         "rating": 5,
-        "comment": "Transaction parfaite, montre en excellent état comme décrit. Livraison rapide et sécurisée.",
+        "comment": "Perfect transaction, watch in excellent condition as described. Fast and secure delivery.",
         "verified": true
       },
       {
@@ -48,7 +48,7 @@
         "author": "Marie L.",
         "date": "2024-03-10",
         "rating": 5,
-        "comment": "Service client exceptionnel. Communication claire et professionnelle.",
+        "comment": "Exceptional customer service. Clear and professional communication.",
         "verified": true
       },
       {
@@ -56,7 +56,7 @@
         "author": "Pierre M.",
         "date": "2024-03-05",
         "rating": 5,
-        "comment": "Expertise remarquable, conseils pertinents. Je recommande vivement.",
+        "comment": "Remarkable expertise, relevant advice. I highly recommend.",
         "verified": true
       }
     ],
@@ -89,14 +89,14 @@
     "certifications": [
       {
         "name": "Trusted Seller",
-        "description": "Ce commerçant possède une boutique dans laquelle vous pouvez voir ses articles.",
+        "description": "This merchant has a physical store where you can view their items.",
         "icon": "shield-check"
       },
       {
-        "name": "Expert Horloger",
-        "description": "Expertise reconnue dans l'authentification et la restauration de montres de luxe.",
+        "name": "Watch Expert",
+        "description": "Recognized expertise in authentication and restoration of luxury watches.",
         "icon": "award"
       }
     ]
   }
-} 
+}

@@ -6,7 +6,7 @@ import { Card, CardContent } from "./ui/card"
 import { useState, useEffect, TouchEvent } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "./ui/button"
-import listingsData from "@/data/listings.json"
+import listingsData from "@/data/listings2.json"
 
 // Convert listings data to the format we need
 const listings = Object.entries(listingsData).map(([id, listing]) => ({
@@ -15,7 +15,7 @@ const listings = Object.entries(listingsData).map(([id, listing]) => ({
   reference: listing.reference,
   year: listing.year.toString(),
   price: listing.price.toLocaleString('fr-FR'),
-  condition: listing.condition.status,
+  condition: listing.condition,
   images: listing.images,
   href: `/listings/${id}`
 }))
