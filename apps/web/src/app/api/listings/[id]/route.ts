@@ -32,12 +32,10 @@ interface Seller {
   first_name: string;
   last_name: string;
   email: string;
-  username: string;
   country: string;
   title: string;
   phone_prefix: string;
   phone: string;
-  language: string;
   created_at: string;
   updated_at: string;
   seller_addresses: SellerAddress[];
@@ -100,12 +98,10 @@ export async function GET(
           first_name,
           last_name,
           email,
-          username,
           country,
           title,
           phone_prefix,
           phone,
-          language,
           created_at,
           updated_at,
           seller_addresses (
@@ -149,8 +145,8 @@ export async function GET(
       serialNumber: listing.serial_number,
       dialColor: listing.dial_color,
       diameter: {
-        min: listing.diameter_min.toString(),
-        max: listing.diameter_max.toString()
+        min: listing.diameter_min?.toString(),
+        max: listing.diameter_max?.toString()
       },
       movement: listing.movement,
       case: listing.case_material,
@@ -178,8 +174,7 @@ export async function GET(
         contact: {
           phone: `${listing.sellers.phone_prefix}${listing.sellers.phone}`,
           mobile: `${listing.sellers.phone_prefix}${listing.sellers.phone}`,
-          email: listing.sellers.email,
-          languages: [listing.sellers.language]
+          email: listing.sellers.email
         },
         business: {
           vatNumber: '', // TODO: Add VAT number field to sellers table

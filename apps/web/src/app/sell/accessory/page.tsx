@@ -1014,7 +1014,7 @@ export default function SellAccessoryPage() {
                                 </span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-muted-foreground">Sales commission (6.5%)</span>
+                                <span className="text-muted-foreground">Sales commission (0.5%)</span>
                                 <span className="font-medium">
                                   {(form.watch("price") * 0.065).toLocaleString()} {form.watch("currency")}
                                 </span>

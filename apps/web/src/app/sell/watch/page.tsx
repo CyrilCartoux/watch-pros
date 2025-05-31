@@ -237,7 +237,7 @@ export default function SellWatchPage() {
   }
 
   const calculateCommission = (price: number) => {
-    return price * 0.065
+    return price * 0.005
   }
 
   const calculateGain = (price: number) => {
@@ -936,7 +936,7 @@ export default function SellWatchPage() {
                                 </span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-muted-foreground">Sales commission (6.5%)</span>
+                                <span className="text-muted-foreground">Sales commission (0.5%)</span>
                                 <span className="font-medium">
                                   {calculateCommission(form.watch("price") || 0).toLocaleString()} {form.watch("currency")}
                                 </span>
@@ -948,18 +948,6 @@ export default function SellWatchPage() {
                                 </span>
                               </div>
                             </div>
-                          </CardContent>
-                        </Card>
-
-                        <Card>
-                          <CardContent className="p-4">
-                            <h4 className="font-medium mb-2">Our recommendation</h4>
-                            <p className="text-sm text-muted-foreground">
-                              Similar watches are offered and sold between €14,612 and €25,062.
-                              <button className="text-primary hover:underline ml-1">
-                                Learn more
-                              </button>
-                            </p>
                           </CardContent>
                         </Card>
                         <FormError error={form.formState.errors.price?.message} isSubmitted={isStepSubmitted} />

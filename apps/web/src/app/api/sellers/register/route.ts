@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import sharp from 'sharp'
 
 export const dynamic = 'force-dynamic'
 
@@ -56,6 +57,44 @@ interface RegisterSellerRequest {
 // File validation constants
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
+
+// Image optimization constants
+const MAX_WIDTH = 1200
+const MAX_HEIGHT = 1200
+const QUALITY = 80
+
+async function optimizeImage(file: File): Promise<Buffer> {
+  // Convert File to ArrayBuffer
+  const arrayBuffer = await file.arrayBuffer()
+  const buffer = Buffer.from(arrayBuffer)
+
+  // Optimize image
+  return sharp(buffer)
+    .resize(MAX_WIDTH, MAX_HEIGHT, {
+      fit: 'inside',
+      withoutEnlargement: true
+    })
+    .jpeg({ quality: QUALITY, progressive: true })
+    .toBuffer()
+}
+
+async function processFile(file: File): Promise<{ buffer: Buffer; contentType: string }> {
+  if (file.type === 'application/pdf') {
+    // For PDFs, just convert to buffer
+    const arrayBuffer = await file.arrayBuffer()
+    return {
+      buffer: Buffer.from(arrayBuffer),
+      contentType: 'application/pdf'
+    }
+  } else {
+    // For images, optimize them
+    const optimizedBuffer = await optimizeImage(file)
+    return {
+      buffer: optimizedBuffer,
+      contentType: 'image/jpeg'
+    }
+  }
+}
 
 function validateFile(file: File) {
   if (!file) {
@@ -134,19 +173,18 @@ export async function POST(request: Request) {
 
     for (const doc of documents) {
       try {
-        // Convert File to ArrayBuffer
-        const arrayBuffer = await doc.file.arrayBuffer()
-        const buffer = Buffer.from(arrayBuffer)
+        // Process file (optimize if image, keep as is if PDF)
+        const { buffer, contentType } = await processFile(doc.file)
 
         // Create a unique file name with extension
-        const fileExtension = doc.file.name.split('.').pop()
+        const fileExtension = doc.file.type === 'application/pdf' ? 'pdf' : 'jpg'
         const fileName = `${doc.user_id}/${doc.type}-${Date.now()}.${fileExtension}`
 
         // Upload file to storage
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('sellerdocuments')
           .upload(fileName, buffer, {
-            contentType: doc.file.type,
+            contentType,
             upsert: false,
             cacheControl: '3600'
           })
@@ -168,9 +206,10 @@ export async function POST(request: Request) {
         console.error(`Error processing document ${doc.type}:`, error)
         // If there's an error, try to clean up any uploaded files
         try {
+          const fileExtension = doc.file.type === 'application/pdf' ? 'pdf' : 'jpg'
           await supabase.storage
             .from('sellerdocuments')
-            .remove([`${doc.user_id}/${doc.type}-${Date.now()}`])
+            .remove([`${doc.user_id}/${doc.type}-${Date.now()}.${fileExtension}`])
         } catch (cleanupError) {
           console.error('Error cleaning up files:', cleanupError)
         }

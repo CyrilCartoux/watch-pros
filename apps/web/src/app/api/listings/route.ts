@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import sharp from 'sharp'
 
 interface ListingImage {
   url: string;
@@ -29,6 +30,27 @@ interface DatabaseListing {
   brands: Brand;
   models: Model;
   listing_images: ListingImage[];
+}
+
+// Constants for image optimization
+const MAX_WIDTH = 1200
+const MAX_HEIGHT = 1200
+const QUALITY = 80
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+
+async function optimizeImage(file: File): Promise<Buffer> {
+  // Convert File to ArrayBuffer
+  const arrayBuffer = await file.arrayBuffer()
+  const buffer = Buffer.from(arrayBuffer)
+
+  // Optimize image
+  return sharp(buffer)
+    .resize(MAX_WIDTH, MAX_HEIGHT, {
+      fit: 'inside',
+      withoutEnlargement: true
+    })
+    .jpeg({ quality: QUALITY, progressive: true })
+    .toBuffer()
 }
 
 export async function GET(request: Request) {
@@ -138,9 +160,13 @@ export async function POST(request: Request) {
   try {
     const supabase = await createClient()
     const formData = await request.formData()
+    console.log(formData)
 
     // Get the current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
+    console.log('Current user:', user)
+    console.log('User error:', userError)
+    
     if (userError || !user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -155,6 +181,9 @@ export async function POST(request: Request) {
       .eq('user_id', user.id)
       .single()
 
+    console.log('Seller data:', seller)
+    console.log('Seller error:', sellerError)
+    
     if (sellerError || !seller) {
       return NextResponse.json(
         { error: 'Seller account not found' },
@@ -206,6 +235,7 @@ export async function POST(request: Request) {
       .single()
 
     if (modelError || !modelData) {
+      console.log('Model error:', modelError)
       return NextResponse.json(
         { error: 'Model not found' },
         { status: 404 }
@@ -215,41 +245,45 @@ export async function POST(request: Request) {
     // Generate a unique reference_id
     const reference_id = `${brand}-${model}-${reference}-${Date.now()}`
 
+    // Log the data we're trying to insert
+    const listingData = {
+      reference_id,
+      seller_id: seller.id,
+      brand_id: brandData.id,
+      model_id: modelData.id,
+      reference,
+      title,
+      description: description || null,
+      year: year || null,
+      gender: gender || null,
+      serial_number: serialNumber || null,
+      dial_color: dialColor || null,
+      diameter_min: diameterMin ? parseInt(diameterMin) : null,
+      diameter_max: diameterMax ? parseInt(diameterMax) : null,
+      movement: movement || null,
+      case_material: caseMaterial || null,
+      bracelet_material: braceletMaterial || null,
+      bracelet_color: braceletColor || null,
+      included,
+      condition,
+      price,
+      currency,
+      shipping_delay: shippingDelay,
+      status: 'draft'
+    }
+
     // Create the listing
     const { data: listing, error: listingError } = await supabase
       .from('listings')
-      .insert({
-        reference_id,
-        seller_id: seller.id,
-        brand_id: brandData.id,
-        model_id: modelData.id,
-        reference,
-        title,
-        description: description || null,
-        year: year || null,
-        gender: gender || null,
-        serial_number: serialNumber || null,
-        dial_color: dialColor || null,
-        diameter_min: diameterMin ? parseInt(diameterMin) : null,
-        diameter_max: diameterMax ? parseInt(diameterMax) : null,
-        movement: movement || null,
-        case_material: caseMaterial || null,
-        bracelet_material: braceletMaterial || null,
-        bracelet_color: braceletColor || null,
-        included,
-        condition,
-        price,
-        currency,
-        shipping_delay: shippingDelay,
-        status: 'draft'
-      })
+      .insert(listingData)
       .select()
       .single()
 
     if (listingError) {
       console.error('Error creating listing:', listingError)
+      console.error('Full error details:', JSON.stringify(listingError, null, 2))
       return NextResponse.json(
-        { error: 'Failed to create listing' },
+        { error: 'Failed to create listing', details: listingError },
         { status: 500 }
       )
     }
@@ -258,27 +292,57 @@ export async function POST(request: Request) {
     const images = formData.getAll('images') as File[]
     if (images.length > 0) {
       const imageUploadPromises = images.map(async (image, index) => {
-        const fileExt = image.name.split('.').pop()
-        const imageFileName = `${listing.id}/${Date.now()}-${index}.${fileExt}`
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('listings')
-          .upload(imageFileName, image)
+        try {
+          // Validate image type
+          if (!ALLOWED_IMAGE_TYPES.includes(image.type)) {
+            throw new Error(`Invalid image type. Allowed types: ${ALLOWED_IMAGE_TYPES.join(', ')}`)
+          }
 
-        if (uploadError) {
-          throw uploadError
+          // Optimize image
+          const optimizedBuffer = await optimizeImage(image)
+
+          // Create a unique file name with extension
+          const fileExt = 'jpg' // We always convert to jpg for consistency
+          const imageFileName = `${listing.id}/${model}-${reference}-${index + 1}.${fileExt}`
+
+          // Upload optimized image to storage
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('listingimages')
+            .upload(imageFileName, optimizedBuffer, {
+              contentType: 'image/jpeg',
+              upsert: false,
+              cacheControl: '3600'
+            })
+
+          if (uploadError) {
+            console.error(`Error uploading image ${index}:`, uploadError)
+            throw new Error(`Failed to upload image ${index}: ${uploadError.message}`)
+          }
+
+          // Get the public URL
+          const { data: { publicUrl } } = supabase.storage
+            .from('listingimages')
+            .getPublicUrl(imageFileName)
+
+          return supabase
+            .from('listing_images')
+            .insert({
+              listing_id: listing.id,
+              url: publicUrl,
+              order_index: index
+            })
+        } catch (error) {
+          console.error(`Error processing image ${index}:`, error)
+          // If there's an error, try to clean up any uploaded files
+          try {
+            await supabase.storage
+              .from('listingimages')
+              .remove([`${listing.id}/${model}-${reference}-${index + 1}.jpg`])
+          } catch (cleanupError) {
+            console.error('Error cleaning up files:', cleanupError)
+          }
+          throw error
         }
-
-        const { data: publicUrl } = supabase.storage
-          .from('listings')
-          .getPublicUrl(imageFileName)
-
-        return supabase
-          .from('listing_images')
-          .insert({
-            listing_id: listing.id,
-            url: publicUrl.publicUrl,
-            order_index: index
-          })
       })
 
       await Promise.all(imageUploadPromises)
@@ -288,27 +352,53 @@ export async function POST(request: Request) {
     const documents = formData.getAll('documents') as File[]
     if (documents.length > 0) {
       const documentUploadPromises = documents.map(async (document) => {
-        const fileExt = document.name.split('.').pop()
-        const docFileName = `${listing.id}/documents/${Date.now()}-${document.name}`
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('listings')
-          .upload(docFileName, document)
+        try {
+          // Convert File to ArrayBuffer
+          const arrayBuffer = await document.arrayBuffer()
+          const buffer = Buffer.from(arrayBuffer)
 
-        if (uploadError) {
-          throw uploadError
+          // Create a unique file name with extension
+          const fileExtension = document.name.split('.').pop()
+          const fileName = `${listing.id}/documents/${document.name}`
+
+          // Upload file to storage
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('listingdocuments')
+            .upload(fileName, buffer, {
+              contentType: document.type,
+              upsert: false,
+              cacheControl: '3600'
+            })
+
+          if (uploadError) {
+            console.error(`Error uploading document:`, uploadError)
+            throw new Error(`Failed to upload document: ${uploadError.message}`)
+          }
+
+          // Get the public URL
+          const { data: { publicUrl } } = supabase.storage
+            .from('listingdocuments')
+            .getPublicUrl(fileName)
+
+          return supabase
+            .from('listing_documents')
+            .insert({
+              listing_id: listing.id,
+              document_type: fileExtension?.toUpperCase() || 'OTHER',
+              url: publicUrl
+            })
+        } catch (error) {
+          console.error(`Error processing document:`, error)
+          // If there's an error, try to clean up any uploaded files
+          try {
+            await supabase.storage
+              .from('listingdocuments')
+              .remove([`${listing.id}/documents/${document.name}`])
+          } catch (cleanupError) {
+            console.error('Error cleaning up files:', cleanupError)
+          }
+          throw error
         }
-
-        const { data: publicUrl } = supabase.storage
-          .from('listings')
-          .getPublicUrl(docFileName)
-
-        return supabase
-          .from('listing_documents')
-          .insert({
-            listing_id: listing.id,
-            document_type: fileExt?.toUpperCase() || 'OTHER',
-            url: publicUrl.publicUrl
-          })
       })
 
       await Promise.all(documentUploadPromises)

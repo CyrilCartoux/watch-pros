@@ -200,12 +200,10 @@ export interface Database {
           first_name: string
           last_name: string
           email: string
-          username: string
           country: string
           title: string
           phone_prefix: string
           phone: string
-          language: string
           created_at: string
           updated_at: string
         }
@@ -218,12 +216,10 @@ export interface Database {
           first_name: string
           last_name: string
           email: string
-          username: string
           country: string
           title: string
           phone_prefix: string
           phone: string
-          language: string
           created_at?: string
           updated_at?: string
         }
@@ -236,12 +232,10 @@ export interface Database {
           first_name?: string
           last_name?: string
           email?: string
-          username?: string
           country?: string
           title?: string
           phone_prefix?: string
           phone?: string
-          language?: string
           created_at?: string
           updated_at?: string
         }
