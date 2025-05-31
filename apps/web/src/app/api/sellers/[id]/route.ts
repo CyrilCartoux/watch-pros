@@ -48,11 +48,11 @@ interface Listing {
   brands: {
     slug: string
     label: string
-  }
+  }[]
   models: {
     slug: string
     label: string
-  }
+  }[]
   listing_images: {
     url: string
     order_index: number
@@ -119,7 +119,7 @@ export async function GET(
       )
     }
 
-    // Récupérer les annonces du vendeur
+    // Requête principale pour les annonces actives
     const { data: listings, error: listingsError } = await supabase
       .from('listings')
       .select(`
@@ -135,12 +135,21 @@ export async function GET(
         models (
           slug,
           label
+        ),
+        listing_images (
+          url,
+          order_index
         )
       `)
       .eq('seller_id', seller.id)
-      .eq('status', 'active')
       .order('created_at', { ascending: false })
       .limit(6)
+
+    console.log('Listings query:', {
+      seller_id: seller.id,
+      listings,
+      error: listingsError
+    })
 
     if (listingsError) {
       console.error('Error fetching listings:', listingsError)
@@ -179,15 +188,17 @@ export async function GET(
         bankName: seller.seller_banking[0].bank_name,
         paymentMethod: seller.seller_banking[0].payment_method
       } : null,
-      listings: listings?.map(listing => ({
-        id: listing.id,
-        brand: listing.brands.slug,
-        model: listing.models.slug,
-        reference: listing.reference,
-        price: listing.price,
-        currency: listing.currency,
-        image: `/images/placeholder.jpg` // Placeholder until listing_images table is recreated
-      })) || []
+      listings: listings?.map(listing => {
+        return {
+          id: listing.id,
+          brand: listing.brands?.[0]?.label || '',
+          model: listing.models?.[0]?.label || '',
+          reference: listing.reference,
+          price: listing.price,
+          currency: listing.currency,
+          image: listing.listing_images?.[0]?.url || '/images/placeholder.jpg'
+        }
+      }) || []
     }
 
     return NextResponse.json(transformedSeller)
