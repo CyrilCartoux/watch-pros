@@ -5,21 +5,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Heart, Share2, Shield, Clock, Package, Star, ChevronLeft, ChevronRight, CheckCircle2, MessageSquare, Bell, MapPin, Phone, Mail } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useState, useEffect, TouchEvent } from "react"
-import listingsData from "@/data/listings2.json"
-import brandsData from "@/data/brands.json"
-import sellersData from "@/data/sellers.json"
+import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { watchConditions } from "@/data/watch-conditions"
 
 interface ListingData {
@@ -33,12 +24,12 @@ interface ListingData {
   gender: string
   condition: string
   serialNumber: string
-  dialColor: string
+  dialColor: string | null
   diameter: {
     min: string
     max: string
   }
-  movement: string
+  movement: string | null
   case: string
   braceletMaterial: string
   braceletColor: string
@@ -47,54 +38,47 @@ interface ListingData {
   price: number
   currency: string
   shippingDelay: string
-  documents: any[]
-  seller?: string
-}
-
-interface SellerData {
-  id: string
-  name: string
-  logo: string
-  type: string
-  description: string
-  location: {
-    address: string
-    city: string
-    postalCode: string
-    country: string
-  }
-  contact: {
-    phone: string
-    mobile: string
-    email: string
-    languages: string[]
-  }
-  business: {
-    vatNumber: string
-    hasPhysicalStore: boolean
-    yearsOfExperience: number
-    specialties: string[]
-  }
-  stats: {
-    totalSales: number
-    rating: number
-    totalReviews: number
-    recommendationRate: number
-    ratings: {
-      shipping: number
-      description: number
-      communication: number
-    }
-  }
-  certifications: {
+  seller: {
+    id: string
     name: string
+    logo: string
+    type: string
     description: string
-    icon: string
-  }[]
-}
-
-interface SellersData {
-  [key: string]: SellerData
+    location: {
+      address: string
+      city: string
+      postalCode: string
+      country: string
+    }
+    contact: {
+      phone: string
+      mobile: string
+      email: string
+      languages: string[]
+    }
+    business: {
+      vatNumber: string
+      hasPhysicalStore: boolean
+      yearsOfExperience: number
+      specialties: string[]
+    }
+    stats: {
+      totalSales: number
+      rating: number
+      totalReviews: number
+      recommendationRate: number
+      ratings: {
+        shipping: number
+        description: number
+        communication: number
+      }
+    }
+    certifications: {
+      name: string
+      description: string
+      icon: string
+    }[]
+  } | null
 }
 
 export default function ListingPage({ params }: { params: { id: string } }) {
@@ -115,30 +99,28 @@ export default function ListingPage({ params }: { params: { id: string } }) {
   const [showNotificationTooltip, setShowNotificationTooltip] = useState(false)
   const [notifyPriceChange, setNotifyPriceChange] = useState(false)
   const [notifySale, setNotifySale] = useState(false)
+  const [listing, setListing] = useState<ListingData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX)
-  }
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX)
-  }
-
-  const onTouchEnd = () => {
-    if (touchStart - touchEnd > 75) {
-      setCurrentImage((prev) => (prev === listing.images.length - 1 ? 0 : prev + 1))
+  useEffect(() => {
+    const fetchListing = async () => {
+      try {
+        const response = await fetch(`/api/listings/${params.id}`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch listing')
+        }
+        const data = await response.json()
+        setListing(data)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setIsLoading(false)
+      }
     }
-    if (touchStart - touchEnd < -75) {
-      setCurrentImage((prev) => (prev === 0 ? listing.images.length - 1 : prev - 1))
-    }
-  }
 
-  const listing = listingsData[params.id as keyof typeof listingsData] as unknown as ListingData
-  if (!listing) {
-    return <div>Listing not found</div>
-  }
-
-  const brandInfo = brandsData[listing.brand.toLowerCase() as keyof typeof brandsData]
+    fetchListing()
+  }, [params.id])
 
   useEffect(() => {
     const checkMobile = () => {
@@ -151,16 +133,22 @@ export default function ListingPage({ params }: { params: { id: string } }) {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  const nextPopularModel = () => {
-    setCurrentPopularModel((prev) => 
-      prev === brandInfo.featuredModels.length - 1 ? 0 : prev + 1
-    )
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX)
   }
 
-  const prevPopularModel = () => {
-    setCurrentPopularModel((prev) => 
-      prev === 0 ? brandInfo.featuredModels.length - 1 : prev - 1
-    )
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const onTouchEnd = () => {
+    if (!listing) return
+    if (touchStart - touchEnd > 75) {
+      setCurrentImage((prev) => (prev === listing.images.length - 1 ? 0 : prev + 1))
+    }
+    if (touchStart - touchEnd < -75) {
+      setCurrentImage((prev) => (prev === 0 ? listing.images.length - 1 : prev - 1))
+    }
   }
 
   const handleSubmitOffer = async () => {
@@ -205,6 +193,50 @@ export default function ListingPage({ params }: { params: { id: string } }) {
     } finally {
       setIsSubmittingMessage(false)
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background py-8">
+        <div className="container">
+          <div className="animate-pulse space-y-8">
+            <div className="h-8 bg-muted rounded w-1/3"></div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <div className="aspect-square bg-muted rounded-lg"></div>
+                <div className="grid grid-cols-4 gap-2">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="aspect-square bg-muted rounded-lg"></div>
+                  ))}
+                </div>
+              </div>
+              <div className="space-y-6">
+                <div className="h-8 bg-muted rounded w-2/3"></div>
+                <div className="h-4 bg-muted rounded w-1/3"></div>
+                <div className="h-12 bg-muted rounded"></div>
+                <div className="h-32 bg-muted rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !listing) {
+    return (
+      <div className="min-h-screen bg-background py-8">
+        <div className="container">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">Error</h1>
+            <p className="text-muted-foreground">{error || 'Listing not found'}</p>
+            <Button className="mt-4" asChild>
+              <Link href="/listings">Back to listings</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -368,15 +400,13 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                         </p>
                       </div>
 
-                      <div className="text-sm text-muted-foreground">
-                        {listing.seller && (sellersData as SellersData)[listing.seller] && (
-                          <>
-                            <p>Seller: {(sellersData as SellersData)[listing.seller].name}</p>
-                            <p>Type: {(sellersData as SellersData)[listing.seller].type}</p>
-                            <p>Rating: {(sellersData as SellersData)[listing.seller].stats.rating} ({(sellersData as SellersData)[listing.seller].stats.totalReviews} reviews)</p>
-                          </>
-                        )}
-                      </div>
+                      {listing.seller && (
+                        <div className="text-sm text-muted-foreground">
+                          <p>Seller: {listing.seller.name}</p>
+                          <p>Type: {listing.seller.type}</p>
+                          <p>Rating: {listing.seller.stats.rating} ({listing.seller.stats.totalReviews} reviews)</p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -510,15 +540,15 @@ export default function ListingPage({ params }: { params: { id: string } }) {
             </div>
 
             {/* Seller Card */}
-            <Card>
-              <CardContent className="p-6">
-                {listing.seller && (sellersData as SellersData)[listing.seller] && (
+            {listing.seller && (
+              <Card>
+                <CardContent className="p-6">
                   <div className="space-y-4">
                     <div className="flex items-start gap-4">
                       <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary/20">
                         <Image
-                          src={(sellersData as SellersData)[listing.seller].logo}
-                          alt={`${(sellersData as SellersData)[listing.seller].name} logo`}
+                          src={listing.seller.logo}
+                          alt={`${listing.seller.name} logo`}
                           width={64}
                           height={64}
                           className="object-contain p-2"
@@ -527,13 +557,13 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
                           <div>
-                            <h3 className="font-semibold text-lg">{(sellersData as SellersData)[listing.seller].name}</h3>
-                            <p className="text-sm text-muted-foreground">{(sellersData as SellersData)[listing.seller].type}</p>
+                            <h3 className="font-semibold text-lg">{listing.seller.name}</h3>
+                            <p className="text-sm text-muted-foreground">{listing.seller.type}</p>
                           </div>
                           <div className="flex items-center gap-1">
                             <Star className="h-4 w-4 text-primary fill-primary" />
-                            <span className="font-medium">{(sellersData as SellersData)[listing.seller].stats.rating}</span>
-                            <span className="text-sm text-muted-foreground">({(sellersData as SellersData)[listing.seller].stats.totalReviews})</span>
+                            <span className="font-medium">{listing.seller.stats.rating}</span>
+                            <span className="text-sm text-muted-foreground">({listing.seller.stats.totalReviews})</span>
                           </div>
                         </div>
                       </div>
@@ -542,16 +572,16 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span>{(sellersData as SellersData)[listing.seller].location.city}, {(sellersData as SellersData)[listing.seller].location.country}</span>
+                        <span>{listing.seller.location.city}, {listing.seller.location.country}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span>{(sellersData as SellersData)[listing.seller].contact.phone}</span>
+                        <span>{listing.seller.contact.phone}</span>
                       </div>
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                      {(sellersData as SellersData)[listing.seller].certifications.map((cert, index) => (
+                      {listing.seller.certifications.map((cert, index) => (
                         <div key={index} className="flex items-center gap-1 px-2 py-1 bg-muted rounded-md text-xs">
                           <Shield className="h-3 w-3 text-primary" />
                           <span>{cert.name}</span>
@@ -560,16 +590,16 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                     </div>
 
                     <div className="pt-2">
-                      <Link href={`/sellers/${listing.seller}`}>
+                      <Link href={`/sellers/${listing.seller.id}`}>
                         <Button variant="outline" className="w-full">
                           View full profile
                         </Button>
                       </Link>
                     </div>
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Technical Details */}
             <div className="space-y-4">
@@ -584,7 +614,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Brand</dt>
-                      <dd>{brandInfo.name}</dd>
+                      <dd>{listing.brand}</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Model</dt>
@@ -630,92 +660,6 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </div>
-
-        {/* Brand Card */}
-        <div className="mt-8">
-          <Link href={`/brands/${brandInfo.slug}`}>
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary/20">
-                    <Image
-                      src={brandInfo.logo}
-                      alt={`${brandInfo.name} logo`}
-                      width={64}
-                      height={64}
-                      className="object-contain p-2"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold">{brandInfo.name}</h3>
-                    <p className="text-muted-foreground">Discover all models</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
-
-        {/* Popular Models Carousel */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-6">Other popular {brandInfo.name} watches</h2>
-          <div className="relative">
-            <div className="overflow-hidden">
-              <div className="flex transition-transform duration-300 ease-in-out" style={{ transform: `translateX(-${currentPopularModel * 100}%)` }}>
-                {brandInfo.featuredModels.map((model, index) => (
-                  <div key={index} className="w-full md:w-1/3 flex-shrink-0 px-2">
-                    <Card className="hover:shadow-lg transition-shadow">
-                      <div className="relative aspect-square">
-                        <Image
-                          src={model.image}
-                          alt={`${brandInfo.name} ${model.name}`}
-                          fill
-                          className="object-cover rounded-t-lg"
-                        />
-                      </div>
-                      <CardContent className="p-3">
-                        <h3 className="font-semibold text-sm">{model.name}</h3>
-                        <p className="text-xs text-muted-foreground line-clamp-2 mb-1">{model.description}</p>
-                        <p className="font-medium text-primary text-sm">{model.price}</p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Navigation Buttons */}
-            <Button
-              variant="outline"
-              size="icon"
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-10 h-10"
-              onClick={prevPopularModel}
-            >
-              <ChevronLeft className="h-6 w-6" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-10 h-10"
-              onClick={nextPopularModel}
-            >
-              <ChevronRight className="h-6 w-6" />
-            </Button>
-
-            {/* Dots Navigation */}
-            <div className="flex justify-center gap-2 mt-4">
-              {Array.from({ length: Math.ceil(brandInfo.featuredModels.length / (isMobile ? 1 : 3)) }).map((_, index) => (
-                <button
-                  key={index}
-                  className={`w-2 h-2 rounded-full transition-colors ${
-                    currentPopularModel === index ? "bg-primary" : "bg-muted"
-                  }`}
-                  onClick={() => setCurrentPopularModel(index)}
-                />
-              ))}
-            </div>
           </div>
         </div>
       </div>

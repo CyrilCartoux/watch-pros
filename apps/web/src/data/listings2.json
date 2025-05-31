@@ -1,162 +1,189 @@
 {
-  "O5FLZ2": {
-    "id": "O5FLZ2",
-    "brand": "rolex",
-    "model": "day-date",
-    "reference": "228235",
-    "title": "Rolex - Day-Date - 228235",
-    "description": "Rolex Day-Date 40 en or rose avec cadran Sundust. Full set avec boîte et papiers d'origine.",
-    "year": "2015",
-    "gender": "unisex",
-    "condition": "very-good",
-    "serialNumber": "",
-    "dialColor": null,
-    "diameter": {
-      "min": "40",
-      "max": "40"
+  "listings": [
+    {
+      "brand": "rolex",
+      "model": "day-date",
+      "reference": "228235",
+      "title": "Rolex - Day-Date - 228235",
+      "description": "Rolex Day-Date 40 en or rose avec cadran Sundust. Full set avec boîte et papiers d'origine.",
+      "year": "2015",
+      "gender": "unisex",
+      "condition": "very-good",
+      "serialNumber": "",
+      "dialColor": null,
+      "diameter": {
+        "min": "40",
+        "max": "40"
+      },
+      "movement": null,
+      "case": "Or rose",
+      "braceletMaterial": "Or rose",
+      "braceletColor": "Or",
+      "included": "full-set",
+      "images": [
+        "/images/listings/rolex-daydate-1.jpg",
+        "/images/listings/rolex-daydate-2.jpg",
+        "/images/listings/rolex-daydate-3.jpg"
+      ],
+      "price": 37900,
+      "currency": "EUR",
+      "shippingDelay": "1-2",
+      "documents": [],
+      "seller": "da-vinci-watches"
     },
-    "movement": null,
-    "case": "Or rose",
-    "braceletMaterial": "Or rose",
-    "braceletColor": "Or",
-    "included": "full-set",
-    "images": [
-      "/images/listings/rolex-daydate-1.jpg",
-      "/images/listings/rolex-daydate-2.jpg",
-      "/images/listings/rolex-daydate-3.jpg"
-    ],
-    "price": 37900,
-    "currency": "EUR",
-    "shippingDelay": "1-2",
-    "documents": [],
-    "seller": "da-vinci-watches"
-  },
-  "KKP2R2": {
-    "id": "KKP2R2",
-    "brand": "patek-philippe",
-    "model": "nautilus",
-    "reference": "5711/1A-010",
-    "title": "Patek Philippe - Nautilus - 5711/1A-010",
-    "description": "Patek Philippe Nautilus en acier avec cadran bleu. Full set avec boîte et papiers d'origine.",
-    "year": "2018",
-    "gender": "unisex",
-    "condition": "very-good",
-    "serialNumber": "",
-    "dialColor": "Bleu",
-    "diameter": {
-      "min": "40",
-      "max": "40"
+    {
+      "brand": "patek-philippe",
+      "model": "nautilus",
+      "reference": "5711/1A-010",
+      "title": "Patek Philippe - Nautilus - 5711/1A-010",
+      "description": "Patek Philippe Nautilus en acier avec cadran bleu. Full set avec boîte et papiers d'origine.",
+      "year": "2018",
+      "gender": "unisex",
+      "condition": "very-good",
+      "serialNumber": "",
+      "dialColor": "Bleu",
+      "diameter": {
+        "min": "40",
+        "max": "40"
+      },
+      "movement": "Automatique",
+      "case": "Acier",
+      "braceletMaterial": "Acier",
+      "braceletColor": "Acier",
+      "included": "watch-only",
+      "images": [
+        "/images/listings/nautilus-1.jpg",
+        "/images/listings/nautilus-2.jpg",
+        "/images/listings/nautilus-3.jpg"
+      ],
+      "price": 118882,
+      "currency": "EUR",
+      "shippingDelay": "3-5",
+      "documents": [],
+      "seller": "luxury-watches"
     },
-    "movement": "Automatique",
-    "case": "Acier",
-    "braceletMaterial": "Acier",
-    "braceletColor": "Acier",
-    "included": "watch-only",
-    "images": [
-      "/images/listings/nautilus-1.jpg",
-      "/images/listings/nautilus-2.jpg",
-      "/images/listings/nautilus-3.jpg"
-    ],
-    "price": 118882,
-    "currency": "EUR",
-    "shippingDelay": "3-5",
-    "documents": [],
-    "seller": "da-vinci-watches"
-  },
-  "O10U89": {
-    "id": "O10U89",
-    "brand": "audemars-piguet",
-    "model": "royal-oak",
-    "reference": "15500ST.OO.1220ST.03",
-    "title": "Audemars Piguet - Royal Oak - 15500ST.OO.1220ST.03",
-    "description": "Audemars Piguet Royal Oak Self Winding 41mm en acier avec cadran noir. Full set avec boîte, papiers et carte de garantie.",
-    "year": "2022",
-    "gender": "unisex",
-    "condition": "very-good",
-    "serialNumber": "",
-    "dialColor": "Noir",
-    "diameter": {
-      "min": "41",
-      "max": "41"
+    {
+      "brand": "audemars-piguet",
+      "model": "royal-oak",
+      "reference": "15500ST.OO.1220ST.03",
+      "title": "Audemars Piguet - Royal Oak - 15500ST.OO.1220ST.03",
+      "description": "Audemars Piguet Royal Oak Self Winding 41mm en acier avec cadran noir. Full set avec boîte, papiers et carte de garantie.",
+      "year": "2022",
+      "gender": "unisex",
+      "condition": "very-good",
+      "serialNumber": "",
+      "dialColor": "Noir",
+      "diameter": {
+        "min": "41",
+        "max": "41"
+      },
+      "movement": "Automatique",
+      "case": "Acier",
+      "braceletMaterial": "Acier",
+      "braceletColor": "Acier",
+      "included": "full-set",
+      "images": [
+        "/images/listings/royal-oak-1.jpg",
+        "/images/listings/royal-oak-2.jpg",
+        "/images/listings/royal-oak-3.jpg"
+      ],
+      "price": 42203,
+      "currency": "EUR",
+      "shippingDelay": "1-2",
+      "documents": [],
+      "seller": "time-masters"
     },
-    "movement": "Automatique",
-    "case": "Acier",
-    "braceletMaterial": "Acier",
-    "braceletColor": "Acier",
-    "included": "full-set",
-    "images": [
-      "/images/listings/royal-oak-1.jpg",
-      "/images/listings/royal-oak-2.jpg",
-      "/images/listings/royal-oak-3.jpg"
-    ],
-    "price": 42203,
-    "currency": "EUR",
-    "shippingDelay": "1-2",
-    "documents": [],
-            "seller": "da-vinci-watches"
-  },
-  "O31NX8": {
-    "id": "O31NX8",
-    "brand": "rolex",
-    "model": "submariner-date",
-    "reference": "126610LN",
-    "title": "Rolex - Submariner Date - 126610LN",
-    "description": "Rolex Submariner Date en acier avec lunette en céramique noire. Full set avec boîte et papiers d'origine.",
-    "year": "2025",
-    "gender": "unisex",
-    "condition": "new",
-    "serialNumber": "",
-    "dialColor": "Noir",
-    "diameter": {
-      "min": "41",
-      "max": "41"
+    {
+      "brand": "rolex",
+      "model": "submariner-date",
+      "reference": "126610LN",
+      "title": "Rolex - Submariner Date - 126610LN",
+      "description": "Rolex Submariner Date en acier avec lunette en céramique noire. Full set avec boîte et papiers d'origine.",
+      "year": "2025",
+      "gender": "unisex",
+      "condition": "new",
+      "serialNumber": "",
+      "dialColor": "Noir",
+      "diameter": {
+        "min": "41",
+        "max": "41"
+      },
+      "movement": "Automatique",
+      "case": "Acier",
+      "braceletMaterial": "Acier",
+      "braceletColor": "Acier",
+      "included": "full-set",
+      "images": [
+        "/images/listings/submariner-1.jpg",
+        "/images/listings/submariner-2.jpg",
+        "/images/listings/submariner-3.jpg",
+        "/images/listings/submariner-4.jpg"
+      ],
+      "price": 16211,
+      "currency": "EUR",
+      "shippingDelay": "1-2",
+      "documents": [],
+      "seller": "time-masters"
     },
-    "movement": "Automatique",
-    "case": "Acier",
-    "braceletMaterial": "Acier",
-    "braceletColor": "Acier",
-    "included": "full-set",
-    "images": [
-      "/images/listings/submariner-1.jpg",
-      "/images/listings/submariner-2.jpg",
-      "/images/listings/submariner-3.jpg",
-      "/images/listings/submariner-4.jpg"
-    ],
-    "price": 16211,
-    "currency": "EUR",
-    "shippingDelay": "1-2",
-    "documents": [],
-    "seller": "da-vinci-watches"
-  },
-  "M68346": {
-    "id": "M68346",
-    "brand": "omega",
-    "model": "speedmaster-professional-moonwatch",
-    "reference": "310.30.42.50.01.001",
-    "title": "Omega - Speedmaster Professional Moonwatch - 310.30.42.50.01.001",
-    "description": "Omega Speedmaster Professional Moonwatch en acier avec cadran noir. Full set avec boîte et papiers d'origine.",
-    "year": "2025",
-    "gender": "unisex",
-    "condition": "new",
-    "serialNumber": "",
-    "dialColor": "Noir",
-    "diameter": {
-      "min": "42",
-      "max": "42"
+    {
+      "brand": "omega",
+      "model": "speedmaster-professional-moonwatch",
+      "reference": "310.30.42.50.01.001",
+      "title": "Omega - Speedmaster Professional Moonwatch - 310.30.42.50.01.001",
+      "description": "Omega Speedmaster Professional Moonwatch en acier avec cadran noir. Full set avec boîte et papiers d'origine.",
+      "year": "2025",
+      "gender": "unisex",
+      "condition": "new",
+      "serialNumber": "",
+      "dialColor": "Noir",
+      "diameter": {
+        "min": "42",
+        "max": "42"
+      },
+      "movement": "Manuel",
+      "case": "Acier",
+      "braceletMaterial": "Acier",
+      "braceletColor": "Acier",
+      "included": "box-only",
+      "images": [
+        "/images/listings/speedmaster-1.jpg",
+        "/images/listings/speedmaster-2.jpg"
+      ],
+      "price": 6492,
+      "currency": "EUR",
+      "shippingDelay": "2-3",
+      "documents": [],
+      "seller": "horlogerie-suisse"
     },
-    "movement": "Manuel",
-    "case": "Acier",
-    "braceletMaterial": "Acier",
-    "braceletColor": "Acier",
-    "included": "box-only",
-    "images": [
-      "/images/listings/speedmaster-1.jpg",
-      "/images/listings/speedmaster-2.jpg"
-    ],
-    "price": 6492,
-    "currency": "EUR",
-    "shippingDelay": "2-3",
-    "documents": [],
-    "seller": "da-vinci-watches"
-  }
+    {
+      "brand": "rolex",
+      "model": "daytona",
+      "reference": "126500LN",
+      "title": "Rolex - Daytona - 126500LN",
+      "description": "Rolex Daytona 126500LN en acier avec cadran blanc. Full set avec boîte et papiers d'origine.",
+      "year": "2025",
+      "gender": "unisex",
+      "serialNumber": "SN20438",
+      "dialColor": "White",
+      "diameter": {
+        "min": "40",
+        "max": "40"
+      },
+      "movement": "Automatic",
+      "case": "Steel",
+      "braceletMaterial": "Steel",
+      "braceletColor": "Steel",
+      "included": "full-set",
+      "condition": "new",
+      "images": [
+        "/images/listings/daytona-1.jpg",
+        "/images/listings/daytona-2.jpg",
+        "/images/listings/daytona-3.jpg"
+      ],
+      "price": 28500,
+      "currency": "EUR",
+      "shippingDelay": "1-2",
+      "documents": []
+    }
+  ]
 }

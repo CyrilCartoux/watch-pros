@@ -248,29 +248,38 @@ export default function RegisterFormPage() {
         address: addressForm.getValues(),
         banking: bankingForm.getValues(),
         trusted: trustedForm.getValues(),
-        documents: documentsForm.getValues(),
+        documents: documentsForm.getValues()
       }
 
-      // Here you can send the data to your API
-      console.log("Form data:", formData)
+      // Create FormData for file upload
+      const submitData = new FormData()
+      submitData.append('account', JSON.stringify(formData.account))
+      submitData.append('address', JSON.stringify(formData.address))
+      submitData.append('banking', JSON.stringify(formData.banking))
+      submitData.append('trusted', JSON.stringify(formData.trusted))
+      submitData.append('idCardFront', formData.documents.idCardFront)
+      submitData.append('idCardBack', formData.documents.idCardBack)
+      submitData.append('proofOfAddress', formData.documents.proofOfAddress)
 
-      // Example of sending to an API
-      // const response = await fetch('/api/register', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(formData),
-      // })
+      // Send data to API
+      const response = await fetch('/api/sellers/register', {
+        method: 'POST',
+        body: submitData
+      })
 
-      // if (!response.ok) {
-      //   throw new Error('Error sending form')
-      // }
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.message || 'Error registering seller')
+      }
 
-      // Redirect after success
-      // window.location.href = '/register/success'
+      const result = await response.json()
+
+      // Redirect to success page
+      window.location.href = `/register/success?username=${result.seller.username}`
+
     } catch (error) {
       console.error("Error submitting form:", error)
+      // Here you could show an error message to the user
     }
   }
 
