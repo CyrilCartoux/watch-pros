@@ -20,12 +20,13 @@ interface Seller {
   first_name: string
   last_name: string
   email: string
-  username: string
   country: string
+  id_card_front_url: string
+  id_card_back_url: string
+  proof_of_address_url: string
   title: string
   phone_prefix: string
   phone: string
-  language: string
   created_at: string
   updated_at: string
   seller_addresses: SellerAddress[]
@@ -51,12 +52,10 @@ export async function GET(request: Request) {
         first_name,
         last_name,
         email,
-        username,
         country,
         title,
         phone_prefix,
         phone,
-        language,
         created_at,
         updated_at,
         seller_addresses (
@@ -87,12 +86,10 @@ export async function GET(request: Request) {
         firstName: seller.first_name,
         lastName: seller.last_name,
         email: seller.email,
-        username: seller.username,
         country: seller.country,
         title: seller.title,
         phonePrefix: seller.phone_prefix,
         phone: seller.phone,
-        language: seller.language
       },
       address: seller.seller_addresses?.[0] ? {
         street: seller.seller_addresses[0].street,

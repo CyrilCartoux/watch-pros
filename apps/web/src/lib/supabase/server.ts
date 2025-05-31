@@ -1,3 +1,4 @@
+import { Database } from '@/types/supabase'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
@@ -6,17 +7,11 @@ export async function createClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  // Logs de débogage
-  console.log('Environment variables check:')
-  console.log('- NEXT_PUBLIC_SUPABASE_URL:', supabaseUrl ? '✅ Set' : '❌ Missing')
-  console.log('- NEXT_PUBLIC_SUPABASE_ANON_KEY:', supabaseAnonKey ? '✅ Set' : '❌ Missing')
-  console.log('Current working directory:', process.cwd())
-
   if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error('Missing Supabase environment variables')
   }
 
-  return createServerClient(
+  return createServerClient<Database>(
     supabaseUrl,
     supabaseAnonKey,
     {

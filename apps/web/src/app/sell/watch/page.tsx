@@ -275,13 +275,48 @@ export default function SellWatchPage() {
   const onSubmit = async (data: any) => {
     setIsSubmitting(true)
     try {
-      console.log(data)
-      // TODO: Submit form data
-      // Simulate submission delay
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Create FormData to handle file uploads
+      const formData = new FormData()
+      
+      // Add all form fields to FormData
+      Object.keys(data).forEach(key => {
+        if (key === 'images' || key === 'documents') {
+          // Handle files separately
+          return
+        }
+        if (key === 'diameter') {
+          formData.append('diameter', JSON.stringify(data[key]))
+        } else {
+          formData.append(key, data[key])
+        }
+      })
+
+      // Add images
+      data.images.forEach((image: File) => {
+        formData.append('images', image)
+      })
+
+      // Add documents if any
+      if (data.documents?.length > 0) {
+        data.documents.forEach((doc: File) => {
+          formData.append('documents', doc)
+        })
+      }
+
+      // Send to API
+      const response = await fetch('/api/listings', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create listing')
+      }
+
       router.push("/sell/success")
     } catch (error) {
       console.error(error)
+      // TODO: Show error message to user
     } finally {
       setIsSubmitting(false)
     }

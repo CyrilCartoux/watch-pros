@@ -3,22 +3,22 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent } from "./ui/card"
-import { useState, useEffect, TouchEvent } from "react"
+import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "./ui/button"
-import listingsData from "@/data/listings2.json"
 
-// Convert listings data to the format we need
-const listings = Object.entries(listingsData).map(([id, listing]) => ({
-  id,
-  title: `${listing.brand} ${listing.model}`,
-  reference: listing.reference,
-  year: listing.year.toString(),
-  price: listing.price.toLocaleString('fr-FR'),
-  condition: listing.condition,
-  images: listing.images,
-  href: `/listings/${id}`
-}))
+interface Listing {
+  id: string
+  title: string
+  reference: string
+  year: string
+  price: number
+  currency: string
+  condition: string
+  images: string[]
+  brand: string
+  model: string
+}
 
 export function FeaturedListings() {
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -27,9 +27,31 @@ export function FeaturedListings() {
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [currentImageIndexes, setCurrentImageIndexes] = useState<{ [key: string]: number }>({})
+  const [listings, setListings] = useState<Listing[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   // Minimum swipe distance (in px)
   const minSwipeDistance = 50
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        const response = await fetch('/api/listings?limit=3')
+        if (!response.ok) {
+          throw new Error('Failed to fetch listings')
+        }
+        const data = await response.json()
+        setListings(data.listings)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchListings()
+  }, [])
 
   useEffect(() => {
     const checkMobile = () => {
@@ -115,7 +137,7 @@ export function FeaturedListings() {
     }
   }
 
-  const renderImageCarousel = (listing: typeof listings[0]) => {
+  const renderImageCarousel = (listing: Listing) => {
     const currentImageIndex = currentImageIndexes[listing.id] || 0
     const totalImages = listing.images.length
 
@@ -187,6 +209,50 @@ export function FeaturedListings() {
     )
   }
 
+  if (isLoading) {
+    return (
+      <section className="py-24 bg-background">
+        <div className="container">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold tracking-tight mb-4 text-foreground">
+              Featured Listings
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Discover our curated selection of exceptional timepieces from trusted dealers worldwide.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Card key={i} className="overflow-hidden">
+                <div className="aspect-square bg-muted animate-pulse" />
+                <CardContent className="p-4">
+                  <div className="h-6 bg-muted rounded animate-pulse mb-2" />
+                  <div className="h-4 bg-muted rounded animate-pulse mb-2" />
+                  <div className="h-4 bg-muted rounded animate-pulse" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  if (error) {
+    return (
+      <section className="py-24 bg-background">
+        <div className="container">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold tracking-tight mb-4 text-foreground">
+              Featured Listings
+            </h2>
+            <p className="text-muted-foreground">Failed to load featured listings</p>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section className="py-24 bg-background">
       <div className="container">
@@ -217,7 +283,7 @@ export function FeaturedListings() {
               >
                 {listings.map((listing) => (
                   <div key={listing.id} className="w-full flex-shrink-0 px-2">
-                    <Link href={listing.href}>
+                    <Link href={`/listings/${listing.id}`}>
                       <Card className="overflow-hidden transition-all hover:shadow-lg hover:border-primary/50">
                         {renderImageCarousel(listing)}
                         <CardContent className="p-4">
@@ -226,7 +292,7 @@ export function FeaturedListings() {
                             Ref. {listing.reference} • {listing.year}
                           </p>
                           <div className="flex items-center justify-between">
-                            <span className="font-medium text-primary">{listing.price} €</span>
+                            <span className="font-medium text-primary">{listing.price.toLocaleString()} {listing.currency}</span>
                             <span className="text-sm text-muted-foreground">
                               {listing.condition}
                             </span>
@@ -272,9 +338,9 @@ export function FeaturedListings() {
           </div>
         ) : (
           // Desktop Grid
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {listings.map((listing) => (
-              <Link key={listing.id} href={listing.href}>
+              <Link key={listing.id} href={`/listings/${listing.id}`}>
                 <Card className="overflow-hidden transition-all hover:shadow-lg hover:border-primary/50">
                   {renderImageCarousel(listing)}
                   <CardContent className="p-4">
@@ -283,7 +349,7 @@ export function FeaturedListings() {
                       Ref. {listing.reference} • {listing.year}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-primary">{listing.price} €</span>
+                      <span className="font-medium text-primary">{listing.price.toLocaleString()} {listing.currency}</span>
                       <span className="text-sm text-muted-foreground">
                         {listing.condition}
                       </span>

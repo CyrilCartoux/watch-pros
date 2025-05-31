@@ -58,7 +58,7 @@ export function Navbar() {
               <Link href="/sell">Sell</Link>
             </Button>
             <Button variant="ghost" size="sm" className="h-9 px-3" asChild>
-              <Link href="/sellers">View Sellers</Link>
+              <Link href="/sellers">Sellers</Link>
             </Button>
             <SearchBar className="w-64 lg:w-96" />
           </div>

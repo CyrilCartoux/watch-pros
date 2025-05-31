@@ -75,6 +75,15 @@ export async function POST(request: Request) {
   const supabase = await createClient()
   
   try {
+    // Get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     const formData = await request.formData()
 
     // Parse JSON data from form fields
@@ -102,24 +111,26 @@ export async function POST(request: Request) {
 
     if (registerError) throw registerError
 
-    // Upload documents to storage
+    // Upload documents to storage and get their URLs
     const documents = [
       {
         file: idCardFront,
         type: 'idCardFront',
-        seller_id: seller.id
+        user_id: user.id
       },
       {
         file: idCardBack,
         type: 'idCardBack',
-        seller_id: seller.id
+        user_id: user.id
       },
       {
         file: proofOfAddress,
         type: 'proofOfAddress',
-        seller_id: seller.id
+        user_id: user.id
       }
     ]
+
+    const documentUrls: Record<string, string> = {}
 
     for (const doc of documents) {
       try {
@@ -129,7 +140,7 @@ export async function POST(request: Request) {
 
         // Create a unique file name with extension
         const fileExtension = doc.file.name.split('.').pop()
-        const fileName = `${seller.id}/${doc.type}-${Date.now()}.${fileExtension}`
+        const fileName = `${doc.user_id}/${doc.type}-${Date.now()}.${fileExtension}`
 
         // Upload file to storage
         const { data: uploadData, error: uploadError } = await supabase.storage
@@ -150,32 +161,36 @@ export async function POST(request: Request) {
           .from('sellerdocuments')
           .getPublicUrl(fileName)
 
-        // Insert document record
-        const { error: documentError } = await supabase
-          .from('sellerdocuments')
-          .insert({
-            seller_id: seller.id,
-            document_type: doc.type,
-            url: publicUrl,
-            file_name: fileName
-          })
+        // Store the URL in our object
+        documentUrls[doc.type] = publicUrl
 
-        if (documentError) {
-          console.error(`Error inserting document record for ${doc.type}:`, documentError)
-          throw new Error(`Failed to save document record for ${doc.type}: ${documentError.message}`)
-        }
       } catch (error) {
         console.error(`Error processing document ${doc.type}:`, error)
         // If there's an error, try to clean up any uploaded files
         try {
           await supabase.storage
             .from('sellerdocuments')
-            .remove([`${seller.id}/${doc.type}-${Date.now()}`])
+            .remove([`${doc.user_id}/${doc.type}-${Date.now()}`])
         } catch (cleanupError) {
           console.error('Error cleaning up files:', cleanupError)
         }
         throw error
       }
+    }
+
+    // Update seller with document URLs
+    const { error: updateError } = await supabase
+      .from('sellers')
+      .update({
+        id_card_front_url: documentUrls.idCardFront,
+        id_card_back_url: documentUrls.idCardBack,
+        proof_of_address_url: documentUrls.proofOfAddress
+      })
+      .eq('id', seller.id)
+
+    if (updateError) {
+      console.error('Error updating seller with document URLs:', updateError)
+      throw new Error('Failed to update seller with document URLs')
     }
 
     return NextResponse.json({

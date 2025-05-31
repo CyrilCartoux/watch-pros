@@ -17,12 +17,10 @@ interface Seller {
     firstName: string
     lastName: string
     email: string
-    username: string
     country: string
     title: string
     phonePrefix: string
     phone: string
-    language: string
   }
   address: {
     street: string
@@ -138,7 +136,7 @@ export default function SellersListPage() {
             ))
           ) : (
             sellers.map((seller) => (
-              <Link key={seller.account.username} href={`/sellers/${seller.account.username}`}>
+              <Link key={seller.account.watchProsName} href={`/sellers/${seller.account.watchProsName}`}>
                 <Card className="h-full hover:shadow-lg transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4 mb-4">

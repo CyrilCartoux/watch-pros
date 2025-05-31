@@ -726,5 +726,995 @@
         "Today, Hublot is recognized for its constant innovations and prestigious collaborations in the world of sports, art and culture."
       ]
     }
+  },
+  "iwc": {
+    "name": "IWC",
+    "slug": "iwc",
+    "description": "IWC Schaffhausen is a Swiss luxury watch manufacturer known for its engineering excellence and innovative designs. The brand is particularly recognized for its pilot's watches and Portuguese collection.",
+    "logo": "/images/brands/iwc.png",
+    "overview": {
+      "title": "Engineering excellence since 1868",
+      "content": [
+        "IWC Schaffhausen has been crafting exceptional timepieces since 1868. The brand combines Swiss precision with innovative engineering to create watches that are both technically advanced and aesthetically pleasing.",
+        "IWC is particularly known for its pilot's watches, which have been trusted by aviators since the 1930s, and its Portuguese collection, which showcases the brand's expertise in complex movements."
+      ]
+    },
+    "keyFeatures": [
+      "Pioneering pilot's watches",
+      "Innovative engineering",
+      "Complex movements",
+      "Distinctive design language"
+    ],
+    "priceRange": {
+      "catalog": "Between €4,500 and €150,000",
+      "secondary": "Prices increased by 0% to 30% depending on models"
+    },
+    "featuredModels": [
+      {
+        "name": "Pilot's Watch",
+        "description": "A collection of robust and reliable pilot's watches with distinctive design elements.",
+        "image": "/images/watches/pilots-watch.jpg",
+        "price": "Starting at €4,500",
+        "features": [
+          "Robust design",
+          "High legibility",
+          "Anti-magnetic protection"
+        ]
+      },
+      {
+        "name": "Portuguese",
+        "description": "An elegant collection featuring complex movements and clean design.",
+        "image": "/images/watches/portuguese.jpg",
+        "price": "Starting at €7,000",
+        "features": [
+          "Clean design",
+          "Complex movements",
+          "Elegant aesthetics"
+        ]
+      },
+      {
+        "name": "Aquatimer",
+        "description": "A professional diving watch with innovative features and robust construction.",
+        "image": "/images/watches/aquatimer.jpg",
+        "price": "Starting at €5,000",
+        "features": [
+          "Water resistant to 300m",
+          "Rotating bezel",
+          "Robust construction"
+        ]
+      }
+    ],
+    "history": {
+      "title": "A legacy of innovation",
+      "content": [
+        "IWC was founded in 1868 by American watchmaker Florentine Ariosto Jones in Schaffhausen, Switzerland. The brand quickly gained recognition for its innovative engineering and high-quality movements.",
+        "Throughout its history, IWC has been known for its pilot's watches, which were developed in collaboration with the German Air Force in the 1930s. The brand has also been a pioneer in the development of complex movements and innovative materials.",
+        "Today, IWC continues to innovate while preserving its heritage of engineering excellence and distinctive design."
+      ]
+    }
+  },
+  "panerai": {
+    "name": "Panerai",
+    "slug": "panerai",
+    "description": "Panerai is an Italian luxury watch manufacturer known for its distinctive design and historical connection to the Italian Navy. The brand is particularly recognized for its large, bold watches with excellent legibility.",
+    "logo": "/images/brands/panerai.png",
+    "overview": {
+      "title": "Italian excellence in watchmaking",
+      "content": [
+        "Panerai has a rich history dating back to 1860, when it was founded in Florence, Italy. The brand gained prominence in the 1930s when it supplied the Italian Navy with precision instruments and watches.",
+        "Today, Panerai is known for its distinctive design language, characterized by large cases, bold numerals, and excellent legibility. The brand combines Italian design with Swiss watchmaking expertise."
+      ]
+    },
+    "keyFeatures": [
+      "Distinctive design",
+      "Historical significance",
+      "Excellent legibility",
+      "Robust construction"
+    ],
+    "priceRange": {
+      "catalog": "Between €5,000 and €100,000",
+      "secondary": "Prices increased by 0% to 40% depending on models"
+    },
+    "featuredModels": [
+      {
+        "name": "Luminor",
+        "description": "An iconic collection featuring the brand's signature crown protection device.",
+        "image": "/images/watches/luminor.jpg",
+        "price": "Starting at €5,000",
+        "features": [
+          "Crown protection device",
+          "Large case",
+          "Excellent legibility"
+        ]
+      },
+      {
+        "name": "Radiomir",
+        "description": "A collection inspired by the brand's historical models, with a clean and elegant design.",
+        "image": "/images/watches/radiomir.jpg",
+        "price": "Starting at €6,000",
+        "features": [
+          "Clean design",
+          "Historical inspiration",
+          "Elegant aesthetics"
+        ]
+      },
+      {
+        "name": "Submersible",
+        "description": "A professional diving watch with robust construction and excellent water resistance.",
+        "image": "/images/watches/submersible.jpg",
+        "price": "Starting at €7,000",
+        "features": [
+          "Water resistant to 300m",
+          "Unidirectional bezel",
+          "Robust construction"
+        ]
+      }
+    ],
+    "history": {
+      "title": "A history of innovation",
+      "content": [
+        "Panerai was founded in 1860 by Giovanni Panerai in Florence, Italy. The brand initially specialized in precision instruments for the Italian Navy.",
+        "In the 1930s, Panerai developed the Radiomir and Luminor watches, which were used by the Italian Navy's special forces. These watches featured innovative luminous materials for excellent legibility in low-light conditions.",
+        "Today, Panerai continues to innovate while preserving its heritage of distinctive design and historical significance."
+      ]
+    }
+  },
+  "longines": {
+    "name": "Longines",
+    "slug": "longines",
+    "description": "Longines is a Swiss luxury watch manufacturer known for its elegant designs and rich heritage. The brand is particularly recognized for its classic timepieces and historical connection to aviation and sports timing.",
+    "logo": "/images/brands/longines.png",
+    "overview": {
+      "title": "Elegance is an attitude",
+      "content": [
+        "Longines has been crafting elegant timepieces since 1832. The brand is known for its classic designs and rich heritage in aviation and sports timing.",
+        "Longines combines traditional watchmaking expertise with modern innovation to create watches that are both timeless and contemporary."
+      ]
+    },
+    "keyFeatures": [
+      "Elegant designs",
+      "Rich heritage",
+      "Sports timing expertise",
+      "Aviation connection"
+    ],
+    "priceRange": {
+      "catalog": "Between €1,000 and €10,000",
+      "secondary": "Prices increased by 0% to 20% depending on models"
+    },
+    "featuredModels": [
+      {
+        "name": "Master Collection",
+        "description": "A collection of elegant timepieces with classic design and high precision.",
+        "image": "/images/watches/master-collection.jpg",
+        "price": "Starting at €1,000",
+        "features": [
+          "Classic design",
+          "High precision",
+          "Elegant aesthetics"
+        ]
+      },
+      {
+        "name": "Conquest",
+        "description": "A sporty collection with modern design and robust construction.",
+        "image": "/images/watches/conquest.jpg",
+        "price": "Starting at €1,500",
+        "features": [
+          "Modern design",
+          "Robust construction",
+          "Sporty aesthetics"
+        ]
+      },
+      {
+        "name": "Heritage",
+        "description": "A collection inspired by the brand's historical models, with a vintage touch.",
+        "image": "/images/watches/heritage.jpg",
+        "price": "Starting at €2,000",
+        "features": [
+          "Historical inspiration",
+          "Vintage aesthetics",
+          "Classic design"
+        ]
+      }
+    ],
+    "history": {
+      "title": "A legacy of elegance",
+      "content": [
+        "Longines was founded in 1832 by Auguste Agassiz in Saint-Imier, Switzerland. The brand quickly gained recognition for its elegant designs and high-quality movements.",
+        "Throughout its history, Longines has been known for its involvement in aviation and sports timing. The brand has been the official timekeeper for numerous international sports events.",
+        "Today, Longines continues to innovate while preserving its heritage of elegance and precision."
+      ]
+    }
+  },
+  "zenith": {
+    "name": "Zenith",
+    "slug": "zenith",
+    "description": "Zenith is a Swiss luxury watch manufacturer known for its high-frequency movements and innovative designs. The brand is particularly recognized for its El Primero chronograph movement.",
+    "logo": "/images/brands/zenith.png",
+    "overview": {
+      "title": "Time to reach your star",
+      "content": [
+        "Zenith has been crafting exceptional timepieces since 1865. The brand is known for its high-frequency movements and innovative designs.",
+        "Zenith's El Primero chronograph movement, introduced in 1969, is one of the most accurate automatic chronograph movements ever produced."
+      ]
+    },
+    "keyFeatures": [
+      "High-frequency movements",
+      "Innovative designs",
+      "El Primero chronograph",
+      "Precision and reliability"
+    ],
+    "priceRange": {
+      "catalog": "Between €5,000 and €100,000",
+      "secondary": "Prices increased by 0% to 30% depending on models"
+    },
+    "featuredModels": [
+      {
+        "name": "El Primero",
+        "description": "An iconic chronograph featuring the brand's high-frequency movement.",
+        "image": "/images/watches/el-primero.jpg",
+        "price": "Starting at €5,000",
+        "features": [
+          "High-frequency movement",
+          "Chronograph function",
+          "Precision and reliability"
+        ]
+      },
+      {
+        "name": "Defy",
+        "description": "A modern collection with innovative materials and design.",
+        "image": "/images/watches/defy.jpg",
+        "price": "Starting at €7,000",
+        "features": [
+          "Innovative materials",
+          "Modern design",
+          "High-frequency movement"
+        ]
+      },
+      {
+        "name": "Pilot",
+        "description": "A collection inspired by aviation, with a classic and robust design.",
+        "image": "/images/watches/pilot.jpg",
+        "price": "Starting at €6,000",
+        "features": [
+          "Aviation inspiration",
+          "Robust design",
+          "High legibility"
+        ]
+      }
+    ],
+    "history": {
+      "title": "A history of innovation",
+      "content": [
+        "Zenith was founded in 1865 by Georges Favre-Jacot in Le Locle, Switzerland. The brand quickly gained recognition for its high-quality movements and innovative designs.",
+        "In 1969, Zenith introduced the El Primero chronograph movement, which is capable of measuring time to the nearest 1/10th of a second. This movement is still considered one of the most accurate automatic chronograph movements ever produced.",
+        "Today, Zenith continues to innovate while preserving its heritage of precision and reliability."
+      ]
+    }
+  },
+  "vacheron-constantin": {
+    "name": "Vacheron Constantin",
+    "slug": "vacheron-constantin",
+    "description": "Vacheron Constantin is one of the oldest and most prestigious watch manufacturers in the world. The brand is known for its exceptional craftsmanship, complex movements, and elegant designs.",
+    "logo": "/images/brands/vacheron-constantin.png",
+    "overview": {
+      "title": "One of not many",
+      "content": [
+        "Vacheron Constantin has been crafting exceptional timepieces since 1755. The brand is known for its exceptional craftsmanship, complex movements, and elegant designs.",
+        "Vacheron Constantin is one of the oldest watch manufacturers in continuous operation, and it has maintained its reputation for excellence throughout its long history."
+      ]
+    },
+    "keyFeatures": [
+      "Exceptional craftsmanship",
+      "Complex movements",
+      "Elegant designs",
+      "Rich heritage"
+    ],
+    "priceRange": {
+      "catalog": "Between €20,000 and €1,000,000",
+      "secondary": "Prices increased by 0% to 50% depending on models"
+    },
+    "featuredModels": [
+      {
+        "name": "Overseas",
+        "description": "A collection of elegant sports watches with a distinctive design.",
+        "image": "/images/watches/overseas.jpg",
+        "price": "Starting at €20,000",
+        "features": [
+          "Elegant design",
+          "Sports aesthetics",
+          "Complex movements"
+        ]
+      },
+      {
+        "name": "Patrimony",
+        "description": "A collection of classic timepieces with a clean and elegant design.",
+        "image": "/images/watches/patrimony.jpg",
+        "price": "Starting at €25,000",
+        "features": [
+          "Clean design",
+          "Classic aesthetics",
+          "Exceptional craftsmanship"
+        ]
+      },
+      {
+        "name": "Traditionnelle",
+        "description": "A collection inspired by the brand's historical models, with a traditional touch.",
+        "image": "/images/watches/traditionnelle.jpg",
+        "price": "Starting at €30,000",
+        "features": [
+          "Historical inspiration",
+          "Traditional aesthetics",
+          "Complex movements"
+        ]
+      }
+    ],
+    "history": {
+      "title": "A legacy of excellence",
+      "content": [
+        "Vacheron Constantin was founded in 1755 by Jean-Marc Vacheron in Geneva, Switzerland. The brand is one of the oldest watch manufacturers in continuous operation.",
+        "Throughout its history, Vacheron Constantin has been known for its exceptional craftsmanship and complex movements. The brand has created some of the most complicated watches ever produced.",
+        "Today, Vacheron Constantin continues to innovate while preserving its heritage of excellence and elegance."
+      ]
+    }
+  },
+  "seiko": {
+    "name": "Seiko",
+    "slug": "seiko",
+    "description": "Seiko is a Japanese watch manufacturer known for its innovation, precision, and value for money. The brand is particularly recognized for its quartz and mechanical movements.",
+    "logo": "/images/brands/seiko.png",
+    "overview": {
+      "title": "Innovation and precision",
+      "content": [
+        "Seiko has been crafting timepieces since 1881. The brand is known for its innovation, precision, and value for money.",
+        "Seiko revolutionized the watch industry in 1969 with the introduction of the first quartz watch, the Seiko Quartz Astron."
+      ]
+    },
+    "keyFeatures": [
+      "Innovation",
+      "Precision",
+      "Value for money",
+      "Diverse range of movements"
+    ],
+    "priceRange": {
+      "catalog": "Between €100 and €10,000",
+      "secondary": "Prices increased by 0% to 20% depending on models"
+    },
+    "featuredModels": [
+      {
+        "name": "Presage",
+        "description": "A collection of elegant timepieces with a focus on craftsmanship.",
+        "image": "/images/watches/presage.jpg",
+        "price": "Starting at €300",
+        "features": [
+          "Elegant design",
+          "Craftsmanship",
+          "Mechanical movements"
+        ]
+      },
+      {
+        "name": "Prospex",
+        "description": "A collection of professional sports watches with robust construction.",
+        "image": "/images/watches/prospex.jpg",
+        "price": "Starting at €500",
+        "features": [
+          "Robust construction",
+          "Sports aesthetics",
+          "Diverse range of movements"
+        ]
+      },
+      {
+        "name": "Astron",
+        "description": "A collection featuring Seiko's innovative GPS Solar technology.",
+        "image": "/images/watches/astron.jpg",
+        "price": "Starting at €1,000",
+        "features": [
+          "GPS Solar technology",
+          "Innovative design",
+          "High precision"
+        ]
+      }
+    ],
+    "history": {
+      "title": "A history of innovation",
+      "content": [
+        "Seiko was founded in 1881 by Kintaro Hattori in Tokyo, Japan. The brand quickly gained recognition for its innovation and precision.",
+        "In 1969, Seiko revolutionized the watch industry with the introduction of the first quartz watch, the Seiko Quartz Astron. This innovation led to the Quartz Crisis, which significantly impacted the Swiss watch industry.",
+        "Today, Seiko continues to innovate while offering a diverse range of movements, from quartz to mechanical, at various price points."
+      ]
+    }
+  },
+  "breguet": {
+    "name": "Breguet",
+    "slug": "breguet",
+    "description": "Breguet is a Swiss luxury watch manufacturer known for its historical significance and innovative designs. The brand is particularly recognized for its tourbillon and other complex movements.",
+    "logo": "/images/brands/breguet.png",
+    "overview": {
+      "title": "Innovation and tradition",
+      "content": [
+        "Breguet has been crafting exceptional timepieces since 1775. The brand is known for its historical significance and innovative designs.",
+        "Breguet's founder, Abraham-Louis Breguet, is credited with inventing the tourbillon, a device that improves the accuracy of mechanical watches."
+      ]
+    },
+    "keyFeatures": [
+      "Historical significance",
+      "Innovative designs",
+      "Complex movements",
+      "Tourbillon expertise"
+    ],
+    "priceRange": {
+      "catalog": "Between €10,000 and €500,000",
+      "secondary": "Prices increased by 0% to 40% depending on models"
+    },
+    "featuredModels": [
+      {
+        "name": "Classique",
+        "description": "A collection of elegant timepieces with a focus on tradition.",
+        "image": "/images/watches/classique.jpg",
+        "price": "Starting at €10,000",
+        "features": [
+          "Elegant design",
+          "Traditional aesthetics",
+          "Complex movements"
+        ]
+      },
+      {
+        "name": "Marine",
+        "description": "A collection inspired by the brand's historical connection to the French Navy.",
+        "image": "/images/watches/marine.jpg",
+        "price": "Starting at €15,000",
+        "features": [
+          "Maritime inspiration",
+          "Robust design",
+          "Complex movements"
+        ]
+      },
+      {
+        "name": "Type XX",
+        "description": "A collection of pilot's watches with a historical touch.",
+        "image": "/images/watches/type-xx.jpg",
+        "price": "Starting at €12,000",
+        "features": [
+          "Pilot's watch aesthetics",
+          "Historical inspiration",
+          "Robust construction"
+        ]
+      }
+    ],
+    "history": {
+      "title": "A legacy of innovation",
+      "content": [
+        "Breguet was founded in 1775 by Abraham-Louis Breguet in Paris, France. The brand quickly gained recognition for its innovative designs and complex movements.",
+        "Abraham-Louis Breguet is credited with inventing the tourbillon, a device that improves the accuracy of mechanical watches. The brand has also been known for its historical connection to the French Navy.",
+        "Today, Breguet continues to innovate while preserving its heritage of excellence and tradition."
+      ]
+    }
+  },
+  "chanel": {
+    "name": "Chanel",
+    "slug": "chanel",
+    "description": "Chanel is a French luxury fashion house known for its iconic designs and high-quality products. The brand's watch collection combines elegance with innovation.",
+    "logo": "/images/brands/chanel.png",
+    "overview": {
+      "title": "Elegance and innovation",
+      "content": [
+        "Chanel has been crafting luxury products since 1909. The brand's watch collection combines elegance with innovation.",
+        "Chanel's watches are known for their distinctive design, high-quality materials, and attention to detail."
+      ]
+    },
+    "keyFeatures": [
+      "Distinctive design",
+      "High-quality materials",
+      "Attention to detail",
+      "Elegant aesthetics"
+    ],
+    "priceRange": {
+      "catalog": "Between €5,000 and €100,000",
+      "secondary": "Prices increased by 0% to 30% depending on models"
+    },
+    "featuredModels": [
+      {
+        "name": "J12",
+        "description": "An iconic collection featuring a distinctive ceramic design.",
+        "image": "/images/watches/j12.jpg",
+        "price": "Starting at €5,000",
+        "features": [
+          "Ceramic design",
+          "Distinctive aesthetics",
+          "High-quality materials"
+        ]
+      },
+      {
+        "name": "Boy.Friend",
+        "description": "A collection of elegant timepieces with a modern touch.",
+        "image": "/images/watches/boy-friend.jpg",
+        "price": "Starting at €6,000",
+        "features": [
+          "Modern design",
+          "Elegant aesthetics",
+          "Attention to detail"
+        ]
+      },
+      {
+        "name": "Code Coco",
+        "description": "A collection inspired by the brand's iconic handbag, with a unique design.",
+        "image": "/images/watches/code-coco.jpg",
+        "price": "Starting at €7,000",
+        "features": [
+          "Unique design",
+          "Iconic inspiration",
+          "High-quality materials"
+        ]
+      }
+    ],
+    "history": {
+      "title": "A legacy of elegance",
+      "content": [
+        "Chanel was founded in 1909 by Coco Chanel in Paris, France. The brand quickly gained recognition for its iconic designs and high-quality products.",
+        "Chanel's watch collection was introduced in 1987 with the launch of the Première watch. The brand has since expanded its collection to include a diverse range of timepieces.",
+        "Today, Chanel continues to innovate while preserving its heritage of elegance and style."
+      ]
+    }
+  },
+  "bell-and-ross": {
+    "name": "Bell & Ross",
+    "slug": "bell-and-ross",
+    "description": "Bell & Ross is a French luxury watch manufacturer known for its aviation-inspired designs. The brand is particularly recognized for its square-cased watches and high legibility.",
+    "logo": "/images/brands/bell-and-ross.png",
+    "overview": {
+      "title": "Function shapes form",
+      "content": [
+        "Bell & Ross has been crafting aviation-inspired timepieces since 1992. The brand is known for its square-cased watches and high legibility.",
+        "Bell & Ross's watches are designed to meet the needs of professionals, particularly those in aviation and military fields."
+      ]
+    },
+    "keyFeatures": [
+      "Aviation-inspired designs",
+      "High legibility",
+      "Square-cased watches",
+      "Professional focus"
+    ],
+    "priceRange": {
+      "catalog": "Between €3,000 and €50,000",
+      "secondary": "Prices increased by 0% to 20% depending on models"
+    },
+    "featuredModels": [
+      {
+        "name": "BR 01",
+        "description": "An iconic collection featuring a distinctive square case.",
+        "image": "/images/watches/br-01.jpg",
+        "price": "Starting at €3,000",
+        "features": [
+          "Square case",
+          "High legibility",
+          "Aviation inspiration"
+        ]
+      },
+      {
+        "name": "BR 03",
+        "description": "A collection of professional timepieces with a focus on functionality.",
+        "image": "/images/watches/br-03.jpg",
+        "price": "Starting at €4,000",
+        "features": [
+          "Functional design",
+          "Professional aesthetics",
+          "High legibility"
+        ]
+      },
+      {
+        "name": "BR 05",
+        "description": "A collection of urban timepieces with a modern touch.",
+        "image": "/images/watches/br-05.jpg",
+        "price": "Starting at €5,000",
+        "features": [
+          "Modern design",
+          "Urban aesthetics",
+          "High legibility"
+        ]
+      }
+    ],
+    "history": {
+      "title": "A history of innovation",
+      "content": [
+        "Bell & Ross was founded in 1992 by Bruno Belamich and Carlos A. Rosillo in Paris, France. The brand quickly gained recognition for its aviation-inspired designs.",
+        "Bell & Ross's watches are designed to meet the needs of professionals, particularly those in aviation and military fields. The brand has collaborated with various military and aviation organizations.",
+        "Today, Bell & Ross continues to innovate while preserving its heritage of functionality and design."
+      ]
+    }
+  },
+  "grand-seiko": {
+    "name": "Grand Seiko",
+    "slug": "grand-seiko",
+    "description": "Grand Seiko is a Japanese luxury watch manufacturer known for its exceptional craftsmanship and precision. The brand is particularly recognized for its Spring Drive and Hi-Beat movements.",
+    "logo": "/images/brands/grand-seiko.png",
+    "overview": {
+      "title": "The nature of time",
+      "content": [
+        "Grand Seiko has been crafting exceptional timepieces since 1960. The brand is known for its exceptional craftsmanship and precision.",
+        "Grand Seiko's Spring Drive and Hi-Beat movements are renowned for their accuracy and reliability."
+      ]
+    },
+    "keyFeatures": [
+      "Exceptional craftsmanship",
+      "Precision",
+      "Spring Drive and Hi-Beat movements",
+      "Distinctive design"
+    ],
+    "priceRange": {
+      "catalog": "Between €5,000 and €50,000",
+      "secondary": "Prices increased by 0% to 30% depending on models"
+    },
+    "featuredModels": [
+      {
+        "name": "Spring Drive",
+        "description": "A collection featuring the brand's innovative Spring Drive movement.",
+        "image": "/images/watches/spring-drive.jpg",
+        "price": "Starting at €5,000",
+        "features": [
+          "Spring Drive movement",
+          "Exceptional precision",
+          "Distinctive design"
+        ]
+      },
+      {
+        "name": "Hi-Beat",
+        "description": "A collection featuring the brand's high-frequency Hi-Beat movement.",
+        "image": "/images/watches/hi-beat.jpg",
+        "price": "Starting at €6,000",
+        "features": [
+          "Hi-Beat movement",
+          "High precision",
+          "Elegant aesthetics"
+        ]
+      },
+      {
+        "name": "Heritage",
+        "description": "A collection inspired by the brand's historical models, with a vintage touch.",
+        "image": "/images/watches/heritage.jpg",
+        "price": "Starting at €7,000",
+        "features": [
+          "Historical inspiration",
+          "Vintage aesthetics",
+          "Exceptional craftsmanship"
+        ]
+      }
+    ],
+    "history": {
+      "title": "A legacy of excellence",
+      "content": [
+        "Grand Seiko was introduced in 1960 as a high-end line of Seiko watches. The brand quickly gained recognition for its exceptional craftsmanship and precision.",
+        "Grand Seiko's Spring Drive movement, introduced in 1999, combines the best of mechanical and quartz technology to achieve exceptional precision. The brand's Hi-Beat movement, introduced in 1968, is known for its high frequency and accuracy.",
+        "Today, Grand Seiko continues to innovate while preserving its heritage of excellence and precision."
+      ]
+    }
+  },
+  "blancpain": {
+    "name": "Blancpain",
+    "slug": "blancpain",
+    "description": "Blancpain is a Swiss luxury watch manufacturer known for its traditional craftsmanship and complex movements. The brand is particularly recognized for its Fifty Fathoms diving watch.",
+    "logo": "/images/brands/blancpain.png",
+    "overview": {
+      "title": "Innovation is our tradition",
+      "content": [
+        "Blancpain has been crafting exceptional timepieces since 1735. The brand is known for its traditional craftsmanship and complex movements.",
+        "Blancpain's Fifty Fathoms diving watch, introduced in 1953, is considered one of the first modern diving watches."
+      ]
+    },
+    "keyFeatures": [
+      "Traditional craftsmanship",
+      "Complex movements",
+      "Fifty Fathoms diving watch",
+      "Rich heritage"
+    ],
+    "priceRange": {
+      "catalog": "Between €10,000 and €500,000",
+      "secondary": "Prices increased by 0% to 40% depending on models"
+    },
+    "featuredModels": [
+      {
+        "name": "Fifty Fathoms",
+        "description": "An iconic diving watch with a rich history and robust design.",
+        "image": "/images/watches/fifty-fathoms.jpg",
+        "price": "Starting at €10,000",
+        "features": [
+          "Robust design",
+          "Diving functionality",
+          "Rich history"
+        ]
+      },
+      {
+        "name": "Villeret",
+        "description": "A collection of classic timepieces with a focus on tradition.",
+        "image": "/images/watches/villeret.jpg",
+        "price": "Starting at €15,000",
+        "features": [
+          "Classic design",
+          "Traditional aesthetics",
+          "Complex movements"
+        ]
+      },
+      {
+        "name": "L-evolution",
+        "description": "A collection featuring innovative materials and design.",
+        "image": "/images/watches/l-evolution.jpg",
+        "price": "Starting at €20,000",
+        "features": [
+          "Innovative materials",
+          "Modern design",
+          "Complex movements"
+        ]
+      }
+    ],
+    "history": {
+      "title": "A legacy of innovation",
+      "content": [
+        "Blancpain was founded in 1735 by Jehan-Jacques Blancpain in Villeret, Switzerland. The brand is one of the oldest watch manufacturers in continuous operation.",
+        "Throughout its history, Blancpain has been known for its traditional craftsmanship and complex movements. The brand's Fifty Fathoms diving watch, introduced in 1953, is considered one of the first modern diving watches.",
+        "Today, Blancpain continues to innovate while preserving its heritage of excellence and tradition."
+      ]
+    }
+  },
+  "maurice-lacroix": {
+    "name": "Maurice Lacroix",
+    "slug": "maurice-lacroix",
+    "description": "Maurice Lacroix is a Swiss luxury watch manufacturer known for its innovative designs and high-quality movements. The brand is particularly recognized for its Masterpiece collection.",
+    "logo": "/images/brands/maurice-lacroix.png",
+    "overview": {
+      "title": "Swiss Made Excellence",
+      "content": [
+        "Maurice Lacroix has been crafting exceptional timepieces since 1975. The brand is known for its innovative designs and high-quality movements.",
+        "Maurice Lacroix's Masterpiece collection showcases the brand's expertise in complex movements and innovative design."
+      ]
+    },
+    "keyFeatures": [
+      "Innovative designs",
+      "High-quality movements",
+      "Masterpiece collection",
+      "Swiss Made excellence"
+    ],
+    "priceRange": {
+      "catalog": "Between €1,000 and €20,000",
+      "secondary": "Prices increased by 0% to 20% depending on models"
+    },
+    "featuredModels": [
+      {
+        "name": "Masterpiece",
+        "description": "A collection showcasing the brand's expertise in complex movements.",
+        "image": "/images/watches/masterpiece.jpg",
+        "price": "Starting at €5,000",
+        "features": [
+          "Complex movements",
+          "Innovative design",
+          "High-quality craftsmanship"
+        ]
+      },
+      {
+        "name": "Aikon",
+        "description": "A collection of modern timepieces with a focus on design.",
+        "image": "/images/watches/aikon.jpg",
+        "price": "Starting at €1,000",
+        "features": [
+          "Modern design",
+          "High-quality materials",
+          "Swiss Made excellence"
+        ]
+      },
+      {
+        "name": "Pontos",
+        "description": "A collection of sporty timepieces with a focus on functionality.",
+        "image": "/images/watches/pontos.jpg",
+        "price": "Starting at €2,000",
+        "features": [
+          "Sporty design",
+          "Functional aesthetics",
+          "High-quality movements"
+        ]
+      }
+    ],
+    "history": {
+      "title": "A history of innovation",
+      "content": [
+        "Maurice Lacroix was founded in 1975 in Saignelégier, Switzerland. The brand quickly gained recognition for its innovative designs and high-quality movements.",
+        "Maurice Lacroix's Masterpiece collection, introduced in the 1990s, showcases the brand's expertise in complex movements and innovative design. The brand has since expanded its collection to include a diverse range of timepieces.",
+        "Today, Maurice Lacroix continues to innovate while preserving its heritage of Swiss Made excellence."
+      ]
+    }
+  },
+  "nomos": {
+    "name": "Nomos",
+    "slug": "nomos",
+    "description": "Nomos is a German luxury watch manufacturer known for its minimalist design and in-house movements. The brand is particularly recognized for its Bauhaus-inspired aesthetics.",
+    "logo": "/images/brands/nomos.png",
+    "overview": {
+      "title": "Timeless design",
+      "content": [
+        "Nomos has been crafting exceptional timepieces since 1990. The brand is known for its minimalist design and in-house movements.",
+        "Nomos's watches are inspired by the Bauhaus movement, emphasizing simplicity, functionality, and elegance."
+      ]
+    },
+    "keyFeatures": [
+      "Minimalist design",
+      "In-house movements",
+      "Bauhaus-inspired aesthetics",
+      "German craftsmanship"
+    ],
+    "priceRange": {
+      "catalog": "Between €1,500 and €10,000",
+      "secondary": "Prices increased by 0% to 20% depending on models"
+    },
+    "featuredModels": [
+      {
+        "name": "Tangente",
+        "description": "An iconic collection featuring a minimalist design and in-house movement.",
+        "image": "/images/watches/tangente.jpg",
+        "price": "Starting at €1,500",
+        "features": [
+          "Minimalist design",
+          "In-house movement",
+          "Bauhaus aesthetics"
+        ]
+      },
+      {
+        "name": "Orion",
+        "description": "A collection of elegant timepieces with a focus on simplicity.",
+        "image": "/images/watches/orion.jpg",
+        "price": "Starting at €2,000",
+        "features": [
+          "Elegant design",
+          "Simplicity",
+          "In-house movement"
+        ]
+      },
+      {
+        "name": "Ludwig",
+        "description": "A collection inspired by classical watchmaking, with a traditional touch.",
+        "image": "/images/watches/ludwig.jpg",
+        "price": "Starting at €2,500",
+        "features": [
+          "Classical inspiration",
+          "Traditional aesthetics",
+          "In-house movement"
+        ]
+      }
+    ],
+    "history": {
+      "title": "A legacy of design",
+      "content": [
+        "Nomos was founded in 1990 in Glashütte, Germany. The brand quickly gained recognition for its minimalist design and in-house movements.",
+        "Nomos's watches are inspired by the Bauhaus movement, emphasizing simplicity, functionality, and elegance. The brand has been producing its own movements since 2005.",
+        "Today, Nomos continues to innovate while preserving its heritage of design and craftsmanship."
+      ]
+    }
+  },
+  "ulysse-nardin": {
+    "name": "Ulysse Nardin",
+    "slug": "ulysse-nardin",
+    "description": "Ulysse Nardin is a Swiss luxury watch manufacturer known for its marine chronometers and innovative designs. The brand is particularly recognized for its Freak collection.",
+    "logo": "/images/brands/ulysse-nardin.png",
+    "overview": {
+      "title": "Innovation and tradition",
+      "content": [
+        "Ulysse Nardin has been crafting exceptional timepieces since 1846. The brand is known for its marine chronometers and innovative designs.",
+        "Ulysse Nardin's Freak collection, introduced in 2001, showcases the brand's expertise in innovative design and complex movements."
+      ]
+    },
+    "keyFeatures": [
+      "Marine chronometers",
+      "Innovative designs",
+      "Freak collection",
+      "Rich heritage"
+    ],
+    "priceRange": {
+      "catalog": "Between €5,000 and €200,000",
+      "secondary": "Prices increased by 0% to 30% depending on models"
+    },
+    "featuredModels": [
+      {
+        "name": "Freak",
+        "description": "An iconic collection featuring innovative design and complex movements.",
+        "image": "/images/watches/freak.jpg",
+        "price": "Starting at €50,000",
+        "features": [
+          "Innovative design",
+          "Complex movements",
+          "Distinctive aesthetics"
+        ]
+      },
+      {
+        "name": "Marine",
+        "description": "A collection inspired by the brand's historical marine chronometers.",
+        "image": "/images/watches/marine.jpg",
+        "price": "Starting at €10,000",
+        "features": [
+          "Marine inspiration",
+          "Traditional aesthetics",
+          "Complex movements"
+        ]
+      },
+      {
+        "name": "Diver",
+        "description": "A collection of professional diving watches with robust construction.",
+        "image": "/images/watches/diver.jpg",
+        "price": "Starting at €5,000",
+        "features": [
+          "Robust construction",
+          "Diving functionality",
+          "High legibility"
+        ]
+      }
+    ],
+    "history": {
+      "title": "A legacy of innovation",
+      "content": [
+        "Ulysse Nardin was founded in 1846 by Ulysse Nardin in Le Locle, Switzerland. The brand quickly gained recognition for its marine chronometers and innovative designs.",
+        "Throughout its history, Ulysse Nardin has been known for its marine chronometers, which were used by navies around the world. The brand's Freak collection, introduced in 2001, showcases its expertise in innovative design and complex movements.",
+        "Today, Ulysse Nardin continues to innovate while preserving its heritage of excellence and tradition."
+      ]
+    }
+  },
+  "glashutte-original": {
+    "name": "Glashütte Original",
+    "slug": "glashutte-original",
+    "description": "Glashütte Original is a German luxury watch manufacturer known for its traditional craftsmanship and complex movements. The brand is particularly recognized for its Senator and Pano collections.",
+    "logo": "/images/brands/glashutte-original.png",
+    "overview": {
+      "title": "German watchmaking excellence",
+      "content": [
+        "Glashütte Original has been crafting exceptional timepieces since 1845. The brand is known for its traditional craftsmanship and complex movements.",
+        "Glashütte Original's Senator and Pano collections showcase the brand's expertise in traditional watchmaking and innovative design."
+      ]
+    },
+    "keyFeatures": [
+      "Traditional craftsmanship",
+      "Complex movements",
+      "Senator and Pano collections",
+      "German excellence"
+    ],
+    "priceRange": {
+      "catalog": "Between €5,000 and €100,000",
+      "secondary": "Prices increased by 0% to 30% depending on models"
+    },
+    "featuredModels": [
+      {
+        "name": "Senator",
+        "description": "A collection of classic timepieces with a focus on tradition.",
+        "image": "/images/watches/senator.jpg",
+        "price": "Starting at €5,000",
+        "features": [
+          "Classic design",
+          "Traditional aesthetics",
+          "Complex movements"
+        ]
+      },
+      {
+        "name": "Pano",
+        "description": "A collection featuring innovative design and complex movements.",
+        "image": "/images/watches/pano.jpg",
+        "price": "Starting at €10,000",
+        "features": [
+          "Innovative design",
+          "Complex movements",
+          "Distinctive aesthetics"
+        ]
+      },
+      {
+        "name": "Sixties",
+        "description": "A collection inspired by the 1960s, with a vintage touch.",
+        "image": "/images/watches/sixties.jpg",
+        "price": "Starting at €7,000",
+        "features": [
+          "Vintage inspiration",
+          "Retro aesthetics",
+          "Traditional craftsmanship"
+        ]
+      }
+    ],
+    "history": {
+      "title": "A legacy of excellence",
+      "content": [
+        "Glashütte Original was founded in 1845 in Glashütte, Germany. The brand quickly gained recognition for its traditional craftsmanship and complex movements.",
+        "Throughout its history, Glashütte Original has been known for its traditional watchmaking and innovative design. The brand's Senator and Pano collections showcase its expertise in complex movements and distinctive aesthetics.",
+        "Today, Glashütte Original continues to innovate while preserving its heritage of German watchmaking excellence."
+      ]
+    }
   }
 }

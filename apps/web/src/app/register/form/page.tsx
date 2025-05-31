@@ -11,7 +11,7 @@ import { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { countries, titles, languages, phonePrefixes } from "@/data/form-options"
+import { countries, titles, phonePrefixes } from "@/data/form-options"
 
 // Constants for file validation
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -48,17 +48,6 @@ const accountSchema = z.object({
     .regex(/^\d+$/, "Phone number must contain only digits")
     .min(9, "Phone number must contain at least 9 digits")
     .max(15, "Phone number must not exceed 15 digits"),
-  username: z.string().min(1, "Username is required"),
-  password: z.string()
-    .min(8, "Password must contain at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain at least one special character"),
-  confirmPassword: z.string().min(1, "Password confirmation is required"),
-  language: z.string().min(1, "Language is required"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
-  path: ["confirmPassword"],
 })
 
 // Validation schema for address
@@ -68,8 +57,6 @@ const addressSchema = z.object({
   postalCode: z.string().min(1, "Postal code is required"),
   city: z.string().min(1, "City is required"),
   country: z.string().min(1, "Country is required"),
-  faxPrefix: z.string().optional(),
-  fax: z.string().optional(),
   mobilePrefix: z.string().min(1, "Mobile prefix is required"),
   mobile: z.string().min(1, "Mobile number is required"),
   website: z.string().url("Invalid URL").optional().or(z.literal("")),
@@ -104,23 +91,6 @@ const bankingSchema = z.object({
   message: "Please fill in all required fields",
 })
 
-// Validation schema for Trusted Checkout
-const trustedSchema = z.object({
-  accountHolder: z.string().min(1, "Account holder is required"),
-  iban: z.string().min(1, "IBAN is required"),
-  legalFirstName: z.string().min(1, "First name is required"),
-  legalLastName: z.string().min(1, "Last name is required"),
-  birthDate: z.string().min(1, "Birth date is required"),
-  nationality: z.string().min(1, "Nationality is required"),
-  residenceCountry: z.string().min(1, "Country of residence is required"),
-  returnName: z.string().min(1, "Name is required"),
-  returnStreet: z.string().min(1, "Street is required"),
-  returnComplement: z.string().optional(),
-  returnPostalCode: z.string().min(1, "Postal code is required"),
-  returnCity: z.string().min(1, "City is required"),
-  returnCountry: z.string().min(1, "Country is required"),
-})
-
 // Validation schema for documents
 const documentsSchema = z.object({
   idCardFront: z.custom<File>((file) => {
@@ -150,14 +120,12 @@ export default function RegisterFormPage() {
     account: false,
     address: false,
     banking: false,
-    trusted: false,
     documents: false,
   })
   const [isSubmitted, setIsSubmitted] = useState({
     account: false,
     address: false,
     banking: false,
-    trusted: false,
     documents: false,
   })
 
@@ -176,11 +144,6 @@ export default function RegisterFormPage() {
     mode: "onSubmit",
   })
 
-  const trustedForm = useForm({
-    resolver: zodResolver(trustedSchema),
-    mode: "onSubmit",
-  })
-
   const documentsForm = useForm({
     resolver: zodResolver(documentsSchema),
     mode: "onSubmit",
@@ -196,12 +159,10 @@ export default function RegisterFormPage() {
     //     return isFormValid.account
     //   case "banking":
     //     return isFormValid.account && isFormValid.address
-    //   case "trusted":
-    //     return isFormValid.account && isFormValid.address && isFormValid.banking
     //   case "documents":
-    //     return isFormValid.account && isFormValid.address && isFormValid.banking && isFormValid.trusted
+    //     return isFormValid.account && isFormValid.address && isFormValid.banking
     //   case "summary":
-    //     return isFormValid.account && isFormValid.address && isFormValid.banking && isFormValid.trusted
+    //     return isFormValid.account && isFormValid.address && isFormValid.banking
     //   default:
     //     return false
     // }
@@ -213,20 +174,18 @@ export default function RegisterFormPage() {
       const accountValid = await accountForm.trigger()
       const addressValid = await addressForm.trigger()
       const bankingValid = await bankingForm.trigger()
-      const trustedValid = await trustedForm.trigger()
       const documentsValid = await documentsForm.trigger()
 
       setIsFormValid({
         account: accountValid,
         address: addressValid,
         banking: bankingValid,
-        trusted: trustedValid,
         documents: documentsValid,
       })
     }
 
     validateForms()
-  }, [accountForm, addressForm, bankingForm, trustedForm, documentsForm])
+  }, [accountForm, addressForm, bankingForm, documentsForm])
 
   const handleSubmit = async () => {
     try {
@@ -234,10 +193,9 @@ export default function RegisterFormPage() {
       const isAccountValid = await accountForm.trigger()
       const isAddressValid = await addressForm.trigger()
       const isBankingValid = await bankingForm.trigger()
-      const isTrustedValid = await trustedForm.trigger()
       const isDocumentsValid = await documentsForm.trigger()
 
-      if (!isAccountValid || !isAddressValid || !isBankingValid || !isTrustedValid || !isDocumentsValid) {
+      if (!isAccountValid || !isAddressValid || !isBankingValid || !isDocumentsValid) {
         console.error("Some forms are not valid")
         return
       }
@@ -247,7 +205,6 @@ export default function RegisterFormPage() {
         account: accountForm.getValues(),
         address: addressForm.getValues(),
         banking: bankingForm.getValues(),
-        trusted: trustedForm.getValues(),
         documents: documentsForm.getValues()
       }
 
@@ -256,7 +213,6 @@ export default function RegisterFormPage() {
       submitData.append('account', JSON.stringify(formData.account))
       submitData.append('address', JSON.stringify(formData.address))
       submitData.append('banking', JSON.stringify(formData.banking))
-      submitData.append('trusted', JSON.stringify(formData.trusted))
       submitData.append('idCardFront', formData.documents.idCardFront)
       submitData.append('idCardBack', formData.documents.idCardBack)
       submitData.append('proofOfAddress', formData.documents.proofOfAddress)
@@ -275,7 +231,7 @@ export default function RegisterFormPage() {
       const result = await response.json()
 
       // Redirect to success page
-      window.location.href = `/register/success?username=${result.seller.username}`
+      window.location.href = `/register/success`
 
     } catch (error) {
       console.error("Error submitting form:", error)
@@ -317,17 +273,6 @@ export default function RegisterFormPage() {
         }
         if (isValid) {
           console.log("Banking form values:", bankingForm.getValues())
-          setCurrentTab("trusted")
-        }
-        break
-      case "trusted":
-        setIsSubmitted(prev => ({ ...prev, trusted: true }))
-        isValid = await trustedForm.trigger()
-        if (!isValid) {
-          console.log("Trusted form errors:", trustedForm.formState.errors)
-        }
-        if (isValid) {
-          console.log("Trusted form values:", trustedForm.getValues())
           setCurrentTab("documents")
         }
         break
@@ -358,11 +303,8 @@ export default function RegisterFormPage() {
       case "banking":
         setCurrentTab("address")
         break
-      case "trusted":
-        setCurrentTab("banking")
-        break
       case "documents":
-        setCurrentTab("trusted")
+        setCurrentTab("banking")
         break
       case "summary":
         setCurrentTab("documents")
@@ -438,14 +380,6 @@ export default function RegisterFormPage() {
             >
               <CreditCard className="w-4 h-4" />
               <span className="hidden sm:inline">Banking</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="trusted" 
-              className="flex items-center gap-2"
-              disabled={!isTabAccessible("trusted")}
-            >
-              <CreditCard className="w-4 h-4" />
-              <span className="hidden sm:inline">Trusted</span>
             </TabsTrigger>
             <TabsTrigger 
               value="documents" 
@@ -610,47 +544,6 @@ export default function RegisterFormPage() {
                         <FormError error={accountForm.formState.errors.phone?.message} isSubmitted={isSubmitted.account} />
                       </div>
                     </div>
-
-                    <div>
-                      <Label htmlFor="username">Username *</Label>
-                      <Input id="username" placeholder="Choose a username" {...accountForm.register("username")} />
-                      <FormError error={accountForm.formState.errors.username?.message} isSubmitted={isSubmitted.account} />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="password">Password *</Label>
-                      <Input id="password" type="password" placeholder="Create a password" {...accountForm.register("password")} />
-                      <FormError error={accountForm.formState.errors.password?.message} isSubmitted={isSubmitted.account} />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="confirmPassword">Repeat Password *</Label>
-                      <Input id="confirmPassword" type="password" placeholder="Confirm your password" {...accountForm.register("confirmPassword")} />
-                      <FormError error={accountForm.formState.errors.confirmPassword?.message} isSubmitted={isSubmitted.account} />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="language">Your Preferred Language *</Label>
-                      <Controller
-                        name="language"
-                        control={accountForm.control}
-                        render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select your language" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {languages.map((language) => (
-                                <SelectItem key={language.value} value={language.value}>
-                                  {language.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-                      <FormError error={accountForm.formState.errors.language?.message} isSubmitted={isSubmitted.account} />
-                    </div>
                   </div>
 
                   <div className="flex justify-between items-center pt-6">
@@ -727,34 +620,6 @@ export default function RegisterFormPage() {
                         )}
                       />
                       <FormError error={addressForm.formState.errors.country?.message} isSubmitted={isSubmitted.address} />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="fax">Fax</Label>
-                      <div className="flex gap-2">
-                        <Controller
-                          name="faxPrefix"
-                          control={addressForm.control}
-                          defaultValue=""
-                          render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Prefix" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {phonePrefixes.map((prefix) => (
-                                  <SelectItem key={prefix.value} value={prefix.value}>
-                                    {prefix.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
-                        <Input id="fax" placeholder="Fax number" className="flex-1" {...addressForm.register("fax")} />
-                      </div>
-                      <FormError error={addressForm.formState.errors.fax?.message} isSubmitted={isSubmitted.address} />
-                      <FormError error={addressForm.formState.errors.faxPrefix?.message} isSubmitted={isSubmitted.address} />
                     </div>
 
                     <div>
@@ -1124,218 +989,10 @@ export default function RegisterFormPage() {
 
                   <div className="p-4 bg-muted/50 rounded-lg hidden" id="sepaNote">
                     <p className="text-sm text-muted-foreground">
-                      Important note: To be validated, the SEPA direct debit requires your signature. Please print the SEPA mandate that will appear in the next step and send it back to us by fax/mail or upload it via the "Upload Documents" section.
+                      Important note: To be validated, the SEPA direct debit requires your signature. Please print the SEPA mandate that will appear in the next step and send it back to us by mail or upload it via the "Upload Documents" section.
                     </p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="trusted">
-            <Card>
-              <CardContent className="p-6">
-                <div className="mb-8">
-                  <h2 className="text-2xl font-semibold mb-2">Bank Details for Trusted Checkout</h2>
-                  <p className="text-muted-foreground">
-                    Trusted Checkout is the safest way to make purchases on Watch Pros. With Trusted Checkout, you gain the trust of potential buyers and increase your chances of selling.
-                  </p>
-                  <p className="text-muted-foreground mt-2">
-                    We need your bank details to transfer the money once the purchase is completed.
-                  </p>
-                </div>
-
-                <form onSubmit={(e) => {
-                  e.preventDefault()
-                  handleNext()
-                }} className="space-y-6">
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="trustedAccountHolder">Account Holder *</Label>
-                      <Input id="trustedAccountHolder" placeholder="Account holder name" {...trustedForm.register("accountHolder")} />
-                      <FormError error={trustedForm.formState.errors.accountHolder?.message} isSubmitted={isSubmitted.trusted} />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="trustedIban">IBAN *</Label>
-                      <Controller
-                        name="iban"
-                        control={trustedForm.control}
-                        render={({ field }) => (
-                          <Input
-                            {...field}
-                            id="trustedIban"
-                            placeholder="FR76 XXXX XXXX XXXX XXXX XXXX XXX"
-                            maxLength={34}
-                            onChange={(e) => {
-                              let value = e.target.value.replace(/\s/g, "").toUpperCase();
-                              let formatted = "";
-                              for (let i = 0; i < value.length; i++) {
-                                if (i > 0 && i % 4 === 0) {
-                                  formatted += " ";
-                                }
-                                formatted += value[i];
-                              }
-                              field.onChange(formatted);
-                            }}
-                          />
-                        )}
-                      />
-                      <FormError error={trustedForm.formState.errors.iban?.message} isSubmitted={isSubmitted.trusted} />
-                    </div>
-
-                    <div className="border-t pt-6">
-                      <h4 className="text-lg font-semibold mb-4">Legal Representative of the Company</h4>
-                      
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="legalFirstName">First Name *</Label>
-                          <Input id="legalFirstName" placeholder="First name" {...trustedForm.register("legalFirstName")} />
-                          <FormError error={trustedForm.formState.errors.legalFirstName?.message} isSubmitted={isSubmitted.trusted} />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="legalLastName">Last Name *</Label>
-                          <Input id="legalLastName" placeholder="Last name" {...trustedForm.register("legalLastName")} />
-                          <FormError error={trustedForm.formState.errors.legalLastName?.message} isSubmitted={isSubmitted.trusted} />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4 mt-4">
-                        <div>
-                          <Label htmlFor="birthDate">Date of Birth *</Label>
-                          <Input 
-                            id="birthDate" 
-                            type="date"
-                            className="w-full"
-                            {...trustedForm.register("birthDate")}
-                          />
-                          <FormError error={trustedForm.formState.errors.birthDate?.message} isSubmitted={isSubmitted.trusted} />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="nationality">Nationality *</Label>
-                          <Controller
-                            name="nationality"
-                            control={trustedForm.control}
-                            defaultValue=""
-                            render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {countries.map((country) => (
-                                    <SelectItem key={country.value} value={country.value}>
-                                      {country.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                          <FormError error={trustedForm.formState.errors.nationality?.message} isSubmitted={isSubmitted.trusted} />
-                        </div>
-                      </div>
-
-                      <div className="mt-4">
-                        <Label htmlFor="residenceCountry">Country of Residence *</Label>
-                        <Controller
-                          name="residenceCountry"
-                          control={trustedForm.control}
-                          defaultValue=""
-                          render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {countries.map((country) => (
-                                  <SelectItem key={country.value} value={country.value}>
-                                    {country.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
-                        <FormError error={trustedForm.formState.errors.residenceCountry?.message} isSubmitted={isSubmitted.trusted} />
-                      </div>
-                    </div>
-
-                    <div className="border-t pt-6">
-                      <h4 className="text-lg font-semibold mb-4">Return Address (if different from main address)</h4>
-                      
-                      <div>
-                        <Label htmlFor="returnName">Name *</Label>
-                        <Input id="returnName" placeholder="Name" {...trustedForm.register("returnName")} />
-                        <FormError error={trustedForm.formState.errors.returnName?.message} isSubmitted={isSubmitted.trusted} />
-                      </div>
-
-                      <div className="mt-4">
-                        <Label htmlFor="returnStreet">Street *</Label>
-                        <Input id="returnStreet" placeholder="Address" {...trustedForm.register("returnStreet")} />
-                        <FormError error={trustedForm.formState.errors.returnStreet?.message} isSubmitted={isSubmitted.trusted} />
-                      </div>
-
-                      <div className="mt-4">
-                        <Label htmlFor="returnComplement">Address Complement</Label>
-                        <Input id="returnComplement" placeholder="Apartment, suite, unit, etc." {...trustedForm.register("returnComplement")} />
-                        <FormError error={trustedForm.formState.errors.returnComplement?.message} isSubmitted={isSubmitted.trusted} />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4 mt-4">
-                        <div>
-                          <Label htmlFor="returnPostalCode">Postal Code *</Label>
-                          <Input id="returnPostalCode" placeholder="Postal code" {...trustedForm.register("returnPostalCode")} />
-                          <FormError error={trustedForm.formState.errors.returnPostalCode?.message} isSubmitted={isSubmitted.trusted} />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="returnCity">City *</Label>
-                          <Input id="returnCity" placeholder="City" {...trustedForm.register("returnCity")} />
-                          <FormError error={trustedForm.formState.errors.returnCity?.message} isSubmitted={isSubmitted.trusted} />
-                        </div>
-                      </div>
-
-                      <div className="mt-4">
-                        <Label htmlFor="returnCountry">Country *</Label>
-                        <Controller
-                          name="returnCountry"
-                          control={trustedForm.control}
-                          defaultValue=""
-                          render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {countries.map((country) => (
-                                  <SelectItem key={country.value} value={country.value}>
-                                    {country.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
-                        <FormError error={trustedForm.formState.errors.returnCountry?.message} isSubmitted={isSubmitted.trusted} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center pt-6">
-                    <p className="text-sm text-muted-foreground">* Required field</p>
-                    <div className="space-x-4">
-                      <Button type="button" variant="outline" size="lg" onClick={handleBack}>
-                        Back
-                      </Button>
-                      <Button type="submit" size="lg">
-                        Continue
-                      </Button>
-                    </div>
-                  </div>
-                </form>
               </CardContent>
             </Card>
           </TabsContent>
@@ -1486,24 +1143,24 @@ export default function RegisterFormPage() {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <h3 className="text-lg font-semibold">Professional Account</h3>
-                      <Button variant="outline" size="sm">Edit</Button>
+                      <Button variant="outline" size="sm" onClick={() => setCurrentTab("account")}>Edit</Button>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm text-muted-foreground">Company</p>
-                        <p className="font-medium">TEST TEST</p>
+                        <p className="font-medium">{accountForm.getValues("companyName")}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Watch Pros Name</p>
+                        <p className="font-medium">{accountForm.getValues("watchProsName")}</p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Email</p>
-                        <p className="font-medium">totoeeee@gmail.com</p>
+                        <p className="font-medium">{accountForm.getValues("email")}</p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Phone</p>
-                        <p className="font-medium">+33612457115</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Username</p>
-                        <p className="font-medium">test6ss</p>
+                        <p className="font-medium">+{accountForm.getValues("phonePrefix")}{accountForm.getValues("phone")}</p>
                       </div>
                     </div>
                   </div>
@@ -1520,147 +1177,128 @@ export default function RegisterFormPage() {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <h3 className="text-lg font-semibold">Company Information</h3>
-                      <Button variant="outline" size="sm">Edit</Button>
+                      <Button variant="outline" size="sm" onClick={() => setCurrentTab("address")}>Edit</Button>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm text-muted-foreground">Address</p>
-                        <p className="font-medium">TOTOTOOTOT</p>
-                        <p className="font-medium">13430 TREST</p>
-                        <p className="font-medium">France</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Fax</p>
-                        <p className="font-medium">--</p>
+                        <p className="font-medium">{addressForm.getValues("street")}</p>
+                        {addressForm.getValues("addressComplement") && (
+                          <p className="font-medium">{addressForm.getValues("addressComplement")}</p>
+                        )}
+                        <p className="font-medium">{addressForm.getValues("postalCode")} {addressForm.getValues("city")}</p>
+                        <p className="font-medium">{countries.find(c => c.value === addressForm.getValues("country"))?.label}</p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Mobile</p>
-                        <p className="font-medium">+33643343423</p>
+                        <p className="font-medium">+{addressForm.getValues("mobilePrefix")}{addressForm.getValues("mobile")}</p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Website</p>
-                        <p className="font-medium">--</p>
+                        <p className="font-medium">{addressForm.getValues("website") || "--"}</p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">Company Status</p>
-                        <p className="font-medium">Individual / Sole Proprietorship</p>
+                        <p className="font-medium">{accountForm.getValues("companyStatus")}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Your EU Tax ID Numbers</p>
-                        <p className="font-medium">***********020</p>
+                        <p className="text-sm text-muted-foreground">SIREN/SIRET</p>
+                        <p className="font-medium">{addressForm.getValues("siren")}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Tax ID</p>
+                        <p className="font-medium">{addressForm.getValues("taxId")}</p>
                       </div>
                       <div>
                         <p className="text-sm text-muted-foreground">VAT Number</p>
-                        <p className="font-medium">FR76847724408</p>
+                        <p className="font-medium">{addressForm.getValues("vatNumber")}</p>
                       </div>
+                      {addressForm.getValues("oss") && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">OSS Registration</p>
+                          <p className="font-medium">Yes</p>
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {/* Return Address */}
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Return Address</h3>
-                      <Button variant="outline" size="sm">Edit</Button>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Address</p>
-                      <p className="font-medium">TEST</p>
-                      <p className="font-medium">TOTOTOOTOT</p>
-                      <p className="font-medium">13430 TREST</p>
-                      <p className="font-medium">France</p>
-                    </div>
-                  </div>
-
-                  {/* Bank Details */}
+                  {/* Banking Details */}
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <h3 className="text-lg font-semibold">Your Bank Details</h3>
-                      <Button variant="outline" size="sm">Edit</Button>
+                      <Button variant="outline" size="sm" onClick={() => setCurrentTab("banking")}>Edit</Button>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <p className="text-sm text-muted-foreground">Payment Method</p>
-                        <p className="font-medium">Other Payment Method</p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          We will contact you shortly to arrange the payment method.
+                        <p className="font-medium">
+                          {bankingForm.getValues("paymentMethod") === "card" ? "Credit Card" : "SEPA Direct Debit"}
                         </p>
                       </div>
+                      {bankingForm.getValues("paymentMethod") === "card" ? (
+                        <>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Card Holder</p>
+                            <p className="font-medium">{bankingForm.getValues("cardHolder")}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Card Number</p>
+                            <p className="font-medium">**** **** **** {bankingForm.getValues("cardNumber")?.slice(-4)}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Expiry Date</p>
+                            <p className="font-medium">{bankingForm.getValues("expiryDate")}</p>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Account Holder</p>
+                            <p className="font-medium">{bankingForm.getValues("accountHolder")}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">IBAN</p>
+                            <p className="font-medium">**** **** **** {bankingForm.getValues("iban")?.slice(-4)}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">BIC</p>
+                            <p className="font-medium">{bankingForm.getValues("bic")}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-muted-foreground">Bank Name</p>
+                            <p className="font-medium">{bankingForm.getValues("bankName")}</p>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
-                  {/* Note */}
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground">
-                      You don't pay any subscription fee during the first 30 days. Only completed sales are subject to a sales commission. We will notify you by email 2 weeks before the end of the trial period and before sending the first invoice. Of course, you can cancel at any time before the end of the month.
-                    </p>
-                  </div>
-
-                  {/* Trusted Bank Details */}
+                  {/* Documents */}
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Your Bank Details</h3>
-                      <Button variant="outline" size="sm">Edit</Button>
+                      <h3 className="text-lg font-semibold">Uploaded Documents</h3>
+                      <Button variant="outline" size="sm" onClick={() => setCurrentTab("documents")}>Edit</Button>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-muted-foreground">Account Holder</p>
-                        <p className="font-medium">ZEDZED</p>
+                        <p className="text-sm text-muted-foreground">ID Card Front</p>
+                        <p className="font-medium">{documentsForm.getValues("idCardFront")?.name || "--"}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">IBAN</p>
-                        <p className="font-medium">************************597</p>
+                        <p className="text-sm text-muted-foreground">ID Card Back</p>
+                        <p className="font-medium">{documentsForm.getValues("idCardBack")?.name || "--"}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Payment is in</p>
-                        <p className="font-medium">EUR</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Company Status</p>
-                        <p className="font-medium">Individual / Sole Proprietorship</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Legal Representative</p>
-                        <p className="font-medium">TEST TEST</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Date of Birth</p>
-                        <p className="font-medium">02. January 1950</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Nationality</p>
-                        <p className="font-medium">France</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Country of Residence</p>
-                        <p className="font-medium">France</p>
+                        <p className="text-sm text-muted-foreground">Proof of Address</p>
+                        <p className="font-medium">{documentsForm.getValues("proofOfAddress")?.name || "--"}</p>
                       </div>
                     </div>
-                  </div>
-
-                  {/* Information Source */}
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">How did you hear about Watch Pros?</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Please choose one of the following options (optional):
-                    </p>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="search">Internet Search</SelectItem>
-                        <SelectItem value="friend">Friend / Acquaintance</SelectItem>
-                        <SelectItem value="social">Social Media</SelectItem>
-                        <SelectItem value="press">Press</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
 
                   <div className="flex justify-between items-center pt-6">
                     <p className="text-sm text-muted-foreground">* Required field</p>
                     <div className="space-x-4">
-                      <Button variant="outline" size="lg">
+                      <Button variant="outline" size="lg" onClick={handleBack}>
                         Back
                       </Button>
                       <Button 
@@ -1700,11 +1338,6 @@ export default function RegisterFormPage() {
                 isValid: bankingForm.formState.isValid,
                 errors: bankingForm.formState.errors,
                 values: bankingForm.getValues()
-              },
-              trusted: {
-                isValid: trustedForm.formState.isValid,
-                errors: trustedForm.formState.errors,
-                values: trustedForm.getValues()
               },
               documents: {
                 isValid: documentsForm.formState.isValid,
