@@ -128,14 +128,14 @@ export function ListingCard({ listing }: ListingCardProps) {
               <button
                 onClick={prevImage}
                 className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                aria-label="Image précédente"
+                aria-label="Previous image"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
               <button
                 onClick={nextImage}
                 className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                aria-label="Image suivante"
+                aria-label="Next image"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
@@ -153,7 +153,7 @@ export function ListingCard({ listing }: ListingCardProps) {
                     className={`w-2 h-2 rounded-full transition-colors ${
                       currentImage === index ? "bg-white" : "bg-white/50"
                     }`}
-                    aria-label={`Aller à l'image ${index + 1}`}
+                    aria-label={`Go to image ${index + 1}`}
                   />
                 ))}
               </div>
@@ -175,7 +175,7 @@ export function ListingCard({ listing }: ListingCardProps) {
                   {watchConditions.find(c => c.slug === listing.condition)?.label}
                 </span>
                 <span className="px-2 py-1 bg-muted rounded-md text-xs">
-                  {listing.shippingDelay} jours
+                  {listing.shippingDelay} days
                 </span>
               </div>
               <p className="text-xl font-bold mt-2">{listing.price.toLocaleString()} {listing.currency}</p>

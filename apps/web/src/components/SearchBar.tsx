@@ -30,7 +30,7 @@ export function SearchBar({ className }: SearchBarProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  // Fermer le menu au clic extérieur
+  // Close menu when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -44,7 +44,7 @@ export function SearchBar({ className }: SearchBarProps) {
     }
   }, [])
 
-  // Mettre à jour les résultats de recherche
+  // Update search results
   useEffect(() => {
     if (!search) {
       setResults([])
@@ -54,7 +54,7 @@ export function SearchBar({ className }: SearchBarProps) {
     const searchLower = search.toLowerCase()
     const newResults: SearchResult[] = []
 
-    // Rechercher dans les marques
+    // Search in brands
     brandsList.forEach(brand => {
       if (brand.label.toLowerCase().includes(searchLower)) {
         newResults.push({
@@ -66,13 +66,13 @@ export function SearchBar({ className }: SearchBarProps) {
       }
     })
 
-    // Rechercher dans les modèles
+    // Search in models
     Object.entries(modelsList).forEach(([brandSlug, models]) => {
       const brand = brandsList.find(b => b.slug === brandSlug)
       if (!brand) return
 
       models.forEach((model: any) => {
-        // Vérifier si la recherche correspond à "marque modèle" ou juste "modèle"
+        // Check if search matches "brand model" or just "model"
         const fullSearch = `${brand.label} ${model.label}`.toLowerCase()
         if (fullSearch.includes(searchLower) || model.label.toLowerCase().includes(searchLower)) {
           newResults.push({
@@ -85,7 +85,7 @@ export function SearchBar({ className }: SearchBarProps) {
       })
     })
 
-    // Trier les résultats : marques d'abord, puis modèles
+    // Sort results: brands first, then models
     newResults.sort((a, b) => {
       if (a.type === b.type) {
         return a.label.localeCompare(b.label)
@@ -110,7 +110,7 @@ export function SearchBar({ className }: SearchBarProps) {
         <Input
           ref={inputRef}
           type="search"
-          placeholder="Rechercher une montre..."
+          placeholder="Search for a watch..."
           className="pl-9 h-9 text-sm"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -139,7 +139,7 @@ export function SearchBar({ className }: SearchBarProps) {
           <Command>
             <CommandList>
               {results.length === 0 && search && (
-                <CommandEmpty>Aucun résultat trouvé.</CommandEmpty>
+                <CommandEmpty>No results found.</CommandEmpty>
               )}
 
               {results.length > 0 && (
@@ -175,8 +175,8 @@ export function SearchBar({ className }: SearchBarProps) {
         className="h-9"
         onClick={() => handleSearch(search)}
       >
-        Rechercher
+        Search
       </Button>
     </div>
   )
-} 
+}

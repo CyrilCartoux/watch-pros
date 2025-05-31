@@ -27,9 +27,9 @@ export function FeaturedModels() {
     <section className="py-8 md:py-16 bg-background">
       <div className="container">
         <div className="text-center mb-8 md:mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold mb-2 md:mb-4">Modèles Phares</h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-2 md:mb-4">Featured Models</h2>
           <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
-            Découvrez les modèles de montres les plus recherchés et leurs caractéristiques
+            Discover the most sought-after watch models and their characteristics
           </p>
         </div>
 
@@ -64,8 +64,8 @@ export function FeaturedModels() {
                         </TooltipTrigger>
                         <TooltipContent>
                           {notifications[model.slug] 
-                            ? "Désactiver les notifications" 
-                            : "Activer les notifications"}
+                            ? "Disable notifications" 
+                            : "Enable notifications"}
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -91,10 +91,10 @@ export function FeaturedModels() {
             href="/models" 
             className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-9 md:h-10 px-3 md:px-4 py-2"
           >
-            Voir tous les modèles
+            View all models
           </Link>
         </div>
       </div>
     </section>
   )
-} 
+}

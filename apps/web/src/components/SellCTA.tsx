@@ -11,8 +11,8 @@ interface SellCTAProps {
 
 export function SellCTA({ 
   className = "",
-  title = "Vous souhaitez vendre vos montres ?",
-  description = "Rejoignez notre communauté de vendeurs professionnels et développez votre activité à l'international"
+  title = "Want to sell your watches?",
+  description = "Join our community of professional sellers and grow your business internationally"
 }: SellCTAProps) {
   return (
     <section className={`py-16 bg-muted/50 ${className}`}>
@@ -33,15 +33,15 @@ export function SellCTA({
                     <TrendingUp className="w-6 h-6 text-primary" />
                   </div>
                   <div className="text-left">
-                    <h3 className="font-semibold text-lg">Vendeur professionnel</h3>
+                    <h3 className="font-semibold text-lg">Professional Seller</h3>
                     <p className="text-sm text-muted-foreground">
-                      Accès à notre plateforme B2B
+                      Access to our B2B platform
                     </p>
                   </div>
                 </div>
                 <Link href="/register">
                   <Button className="w-full">
-                    Créer un compte professionnel
+                    Create a professional account
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>
@@ -55,15 +55,15 @@ export function SellCTA({
                     <TrendingUp className="w-6 h-6 text-primary" />
                   </div>
                   <div className="text-left">
-                    <h3 className="font-semibold text-lg">Déjà inscrit ?</h3>
+                    <h3 className="font-semibold text-lg">Already registered?</h3>
                     <p className="text-sm text-muted-foreground">
-                      Publiez votre première annonce
+                      Post your first listing
                     </p>
                   </div>
                 </div>
                 <Link href="/sell">
                   <Button className="w-full">
-                    Mettre en vente une montre
+                    List a watch for sale
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>
@@ -74,4 +74,4 @@ export function SellCTA({
       </div>
     </section>
   )
-} 
+}

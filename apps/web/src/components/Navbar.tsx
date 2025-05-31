@@ -17,7 +17,7 @@ const navigation = [
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-  // TODO: Remplacer par un vrai compteur de notifications non lues
+  // TODO: Replace with real unread notifications counter
   const unreadNotifications = 3
 
   useEffect(() => {
@@ -52,13 +52,13 @@ export function Navbar() {
           {/* Main Navigation */}
           <div className="flex items-center gap-4 lg:gap-6">
             <Button variant="ghost" size="sm" className="h-9 px-3" asChild>
-              <Link href="/listings">Acheter</Link>
+              <Link href="/listings">Buy</Link>
             </Button>
             <Button variant="ghost" size="sm" className="h-9 px-3" asChild>
-              <Link href="/sell">Vendre</Link>
+              <Link href="/sell">Sell</Link>
             </Button>
             <Button variant="ghost" size="sm" className="h-9 px-3" asChild>
-              <Link href="/sellers">Voir les vendeurs</Link>
+              <Link href="/sellers">View Sellers</Link>
             </Button>
             <SearchBar className="w-64 lg:w-96" />
           </div>
@@ -82,13 +82,13 @@ export function Navbar() {
             <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
               <Link href="/cart">
                 <ShoppingCart className="h-4 w-4" />
-                <span className="sr-only">Panier</span>
+                <span className="sr-only">Cart</span>
               </Link>
             </Button>
             <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
               <Link href="/account">
                 <User className="h-4 w-4" />
-                <span className="sr-only">Mon compte</span>
+                <span className="sr-only">My Account</span>
               </Link>
             </Button>
           </div>
@@ -115,13 +115,13 @@ export function Navbar() {
             <SearchBar />
             <div className="flex flex-col gap-1">
               <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/listings" onClick={handleLinkClick}>Acheter</Link>
+                <Link href="/listings" onClick={handleLinkClick}>Buy</Link>
               </Button>
               <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/sell" onClick={handleLinkClick}>Vendre</Link>
+                <Link href="/sell" onClick={handleLinkClick}>Sell</Link>
               </Button>
               <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/sellers" onClick={handleLinkClick}>Voir les vendeurs</Link>
+                <Link href="/sellers" onClick={handleLinkClick}>View Sellers</Link>
               </Button>
             </div>
             <div className="flex flex-col gap-1 pt-3 border-t">
@@ -139,13 +139,13 @@ export function Navbar() {
               <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
                 <Link href="/cart" onClick={handleLinkClick} className="flex items-center gap-2">
                   <ShoppingCart className="h-4 w-4" />
-                  Panier
+                  Cart
                 </Link>
               </Button>
               <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
                 <Link href="/account" onClick={handleLinkClick} className="flex items-center gap-2">
                   <User className="h-4 w-4" />
-                  Mon compte
+                  My Account
                 </Link>
               </Button>
             </div>

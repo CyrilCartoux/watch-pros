@@ -67,16 +67,16 @@ export default function ModelsPage() {
   return (
     <main className="min-h-screen bg-background">
       <div className="container py-8">
-        <h1 className="text-3xl md:text-4xl font-bold mb-2">Modèles populaires</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-2">Popular Models</h1>
         <p className="text-muted-foreground mb-8">
-          Découvrez les modèles de montres les plus recherchés et leurs caractéristiques
+          Discover the most sought-after watch models and their features
         </p>
 
         {/* Search and Sort */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="flex-1">
             <Input
-              placeholder="Rechercher un modèle..."
+              placeholder="Search for a model..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full"
@@ -84,20 +84,20 @@ export default function ModelsPage() {
           </div>
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Trier par" />
+              <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="popularity">Popularité</SelectItem>
-              <SelectItem value="price-asc">Prix croissant</SelectItem>
-              <SelectItem value="price-desc">Prix décroissant</SelectItem>
+              <SelectItem value="popularity">Popularity</SelectItem>
+              <SelectItem value="price-asc">Price ascending</SelectItem>
+              <SelectItem value="price-desc">Price descending</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="featured">Modèles phares</TabsTrigger>
-            <TabsTrigger value="other">Autres modèles</TabsTrigger>
+            <TabsTrigger value="featured">Featured Models</TabsTrigger>
+            <TabsTrigger value="other">Other Models</TabsTrigger>
           </TabsList>
 
           <TabsContent value="featured">
@@ -132,8 +132,8 @@ export default function ModelsPage() {
                             </TooltipTrigger>
                             <TooltipContent>
                               {notifications[model.slug] 
-                                ? "Désactiver les notifications" 
-                                : "Activer les notifications"}
+                                ? "Disable notifications" 
+                                : "Enable notifications"}
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -187,8 +187,8 @@ export default function ModelsPage() {
                             </TooltipTrigger>
                             <TooltipContent>
                               {notifications[model.slug] 
-                                ? "Désactiver les notifications" 
-                                : "Activer les notifications"}
+                                ? "Disable notifications" 
+                                : "Enable notifications"}
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
@@ -213,4 +213,4 @@ export default function ModelsPage() {
       </div>
     </main>
   )
-} 
+}

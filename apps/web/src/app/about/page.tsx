@@ -8,36 +8,36 @@ import { motion } from "framer-motion"
 
 const problems = [
   {
-    title: "Coûts élevés des plateformes existantes",
-    description: "Les abonnements et commissions des plateformes actuelles représentent un coût significatif pour les professionnels.",
+    title: "High costs of existing platforms",
+    description: "Subscriptions and commissions from current platforms represent a significant cost for professionals.",
     icon: TrendingUp,
   },
   {
-    title: "Désorganisation des groupes WhatsApp",
-    description: "Pas de filtres, informations non structurées, disponibilité incertaine et perte de temps considérable.",
+    title: "Disorganization of WhatsApp groups",
+    description: "No filters, unstructured information, uncertain availability and considerable time waste.",
     icon: MessageSquare,
   },
   {
-    title: "Communication inefficace",
-    description: "Pas de moteur de recherche, pas d'historique ou de réputation fiable, échanges 1:1 chronophages.",
+    title: "Inefficient communication",
+    description: "No search engine, no reliable history or reputation, time-consuming 1:1 exchanges.",
     icon: Users,
   },
 ]
 
 const solutions = [
   {
-    title: "Plateforme B2B dédiée",
-    description: "Une solution professionnelle conçue spécifiquement pour les besoins des professionnels de l'horlogerie.",
+    title: "Dedicated B2B platform",
+    description: "A professional solution specifically designed for the needs of watch industry professionals.",
     icon: Shield,
   },
   {
-    title: "Gain de temps significatif",
-    description: "Recherche avancée, disponibilité en temps réel et communication intégrée pour optimiser vos échanges.",
+    title: "Significant time savings",
+    description: "Advanced search, real-time availability and integrated communication to optimize your exchanges.",
     icon: Clock,
   },
   {
-    title: "Communauté de confiance",
-    description: "Système de vérification et badges professionnels pour garantir la fiabilité des transactions.",
+    title: "Trusted community",
+    description: "Verification system and professional badges to ensure transaction reliability.",
     icon: Users,
   },
 ]
@@ -45,63 +45,63 @@ const solutions = [
 const stats = [
   {
     value: "70%",
-    label: "de temps gagné",
-    description: "sur la gestion des ventes",
+    label: "time saved",
+    description: "on sales management",
   },
   {
     value: "24h",
-    label: "de délai moyen",
-    description: "pour la vérification des annonces",
+    label: "average delay",
+    description: "for listing verification",
   },
   {
     value: "100%",
-    label: "des vendeurs",
-    description: "vérifiés professionnellement",
+    label: "of sellers",
+    description: "professionally verified",
   },
 ]
 
 const values = [
   {
     title: "Innovation",
-    description: "Nous repensons constamment notre plateforme pour offrir les meilleures solutions aux professionnels de l'horlogerie.",
+    description: "We constantly rethink our platform to offer the best solutions to watch industry professionals.",
     icon: Zap,
   },
   {
-    title: "Confiance",
-    description: "La sécurité et la fiabilité sont au cœur de notre démarche, avec un système de vérification rigoureux.",
+    title: "Trust",
+    description: "Security and reliability are at the heart of our approach, with a rigorous verification system.",
     icon: Shield,
   },
   {
-    title: "Efficacité",
-    description: "Notre objectif est de faire gagner du temps aux professionnels en automatisant les tâches chronophages.",
+    title: "Efficiency",
+    description: "Our goal is to save professionals time by automating time-consuming tasks.",
     icon: Target,
   },
   {
-    title: "Accessibilité",
-    description: "Nous rendons le commerce B2B des montres de luxe accessible à tous les professionnels, quelle que soit leur taille.",
+    title: "Accessibility",
+    description: "We make luxury watch B2B trade accessible to all professionals, regardless of their size.",
     icon: Globe,
   },
 ]
 
 const features = [
   {
-    title: "Recherche avancée",
-    description: "Filtrez par marque, modèle, état, pays et disponibilité immédiate.",
+    title: "Advanced search",
+    description: "Filter by brand, model, condition, country and immediate availability.",
     icon: Search,
   },
   {
-    title: "Alertes personnalisées",
-    description: "Recevez des notifications instantanées sur les modèles recherchés.",
+    title: "Custom alerts",
+    description: "Receive instant notifications for sought-after models.",
     icon: Bell,
   },
   {
-    title: "Communication intégrée",
-    description: "Échangez directement sur la plateforme ou via WhatsApp/Telegram.",
+    title: "Integrated communication",
+    description: "Exchange directly on the platform or via WhatsApp/Telegram.",
     icon: MessageSquare,
   },
   {
-    title: "Badges professionnels",
-    description: "Validez votre statut et gagnez la confiance des acheteurs.",
+    title: "Professional badges",
+    description: "Validate your status and gain buyers' trust.",
     icon: Award,
   },
 ]
@@ -119,21 +119,21 @@ export default function AboutPage() {
               transition={{ duration: 0.5 }}
             >
               <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 md:mb-6">
-                Notre Vision
+                Our Vision
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground mb-6 md:mb-8 px-4 md:px-0">
-                Révolutionner le commerce B2B des montres de luxe en offrant une plateforme professionnelle, efficace et accessible.
+                Revolutionizing luxury watch B2B trade by offering a professional, efficient and accessible platform.
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 px-4 md:px-0">
                 <Link href="/register" className="w-full sm:w-auto">
                   <Button size="lg" className="w-full sm:w-auto gap-2">
-                    Rejoindre Watch Pros
+                    Join Watch Pros
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
                 <Link href="/contact" className="w-full sm:w-auto">
                   <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2">
-                    Nous contacter
+                    Contact us
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
@@ -165,7 +165,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Problèmes */}
+      {/* Problems */}
       <section className="py-16 md:py-24">
         <div className="container px-4 md:px-6">
           <motion.div
@@ -176,10 +176,10 @@ export default function AboutPage() {
             className="text-center mb-12 md:mb-16"
           >
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-3 md:mb-4">
-              Les Défis du Marché
+              Market Challenges
             </h2>
             <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto px-4 md:px-0">
-              Nous avons identifié les principaux obstacles auxquels font face les professionnels de l'horlogerie.
+              We have identified the main obstacles faced by watch industry professionals.
             </p>
           </motion.div>
 
@@ -222,10 +222,10 @@ export default function AboutPage() {
             className="text-center mb-12 md:mb-16"
           >
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-3 md:mb-4">
-              Nos Solutions
+              Our Solutions
             </h2>
             <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto px-4 md:px-0">
-              Des réponses concrètes aux défis du marché, conçues pour les professionnels.
+              Concrete answers to market challenges, designed for professionals.
             </p>
           </motion.div>
 
@@ -268,10 +268,10 @@ export default function AboutPage() {
             className="text-center mb-12 md:mb-16"
           >
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-3 md:mb-4">
-              Fonctionnalités Clés
+              Key Features
             </h2>
             <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto px-4 md:px-0">
-              Des outils puissants pour optimiser votre activité.
+              Powerful tools to optimize your business.
             </p>
           </motion.div>
 
@@ -303,7 +303,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Valeurs */}
+      {/* Values */}
       <section className="py-16 md:py-24 bg-muted/30">
         <div className="container px-4 md:px-6">
           <motion.div
@@ -314,10 +314,10 @@ export default function AboutPage() {
             className="text-center mb-12 md:mb-16"
           >
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-3 md:mb-4">
-              Nos Valeurs
+              Our Values
             </h2>
             <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto px-4 md:px-0">
-              Les principes qui guident notre action au quotidien.
+              The principles that guide our daily actions.
             </p>
           </motion.div>
 
@@ -360,21 +360,21 @@ export default function AboutPage() {
             className="max-w-3xl mx-auto text-center"
           >
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-4 md:mb-6">
-              Prêt à rejoindre la révolution ?
+              Ready to join the revolution?
             </h2>
             <p className="text-sm md:text-base text-muted-foreground mb-6 md:mb-8 px-4 md:px-0">
-              Rejoignez la communauté de professionnels qui transforment déjà leur façon de faire du commerce.
+              Join the community of professionals who are already transforming the way they do business.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 px-4 md:px-0">
               <Link href="/register" className="w-full sm:w-auto">
                 <Button size="lg" className="w-full sm:w-auto gap-2">
-                  Créer mon compte
+                  Create my account
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
               <Link href="/contact" className="w-full sm:w-auto">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2">
-                  En savoir plus
+                  Learn more
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
@@ -384,4 +384,4 @@ export default function AboutPage() {
       </section>
     </main>
   )
-} 
+}

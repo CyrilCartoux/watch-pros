@@ -135,7 +135,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
 
   const listing = listingsData[params.id as keyof typeof listingsData] as unknown as ListingData
   if (!listing) {
-    return <div>Listing non trouvé</div>
+    return <div>Listing not found</div>
   }
 
   const brandInfo = brandsData[listing.brand.toLowerCase() as keyof typeof brandsData]
@@ -171,7 +171,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
       // TODO: Submit offer to backend
       await new Promise(resolve => setTimeout(resolve, 1000))
       setIsOfferSuccess(true)
-      // Fermer la modale après 2 secondes
+      // Close modal after 2 seconds
       setTimeout(() => {
         setIsOfferDialogOpen(false)
         setIsOfferSuccess(false)
@@ -193,7 +193,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
       // TODO: Submit message to backend
       await new Promise(resolve => setTimeout(resolve, 1000))
       setIsMessageSuccess(true)
-      // Fermer la modale après 2 secondes
+      // Close modal after 2 seconds
       setTimeout(() => {
         setIsContactDialogOpen(false)
         setIsMessageSuccess(false)
@@ -295,11 +295,11 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                     <div className="space-y-4">
                       <div className="flex items-center gap-2">
                         <Bell className="h-5 w-5 text-primary" />
-                        <p className="font-medium">Recevoir des notifications</p>
+                        <p className="font-medium">Receive notifications</p>
                       </div>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="price-change" className="text-sm">Changement de prix</Label>
+                          <Label htmlFor="price-change" className="text-sm">Price change</Label>
                           <Switch
                             id="price-change"
                             checked={notifyPriceChange}
@@ -307,7 +307,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                           />
                         </div>
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="sale" className="text-sm">Mise en vente</Label>
+                          <Label htmlFor="sale" className="text-sm">For sale</Label>
                           <Switch
                             id="sale"
                             checked={notifySale}
@@ -316,7 +316,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                         </div>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Vous recevrez un email pour chaque notification activée.
+                        You will receive an email for each activated notification.
                       </p>
                     </div>
                   </DialogContent>
@@ -338,42 +338,42 @@ export default function ListingPage({ params }: { params: { id: string } }) {
             <Dialog open={isContactDialogOpen} onOpenChange={setIsContactDialogOpen}>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Contacter le vendeur</DialogTitle>
+                  <DialogTitle>Contact seller</DialogTitle>
                   <DialogDescription>
-                    Envoyez un message au vendeur pour plus d'informations sur cette montre.
+                    Send a message to the seller for more information about this watch.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   {isMessageSuccess ? (
                     <div className="flex flex-col items-center justify-center py-8 space-y-4">
                       <CheckCircle2 className="w-16 h-16 text-primary animate-in zoom-in-50 duration-500" />
-                      <p className="text-lg font-medium text-center">Votre message a été envoyé avec succès !</p>
+                      <p className="text-lg font-medium text-center">Your message has been sent successfully!</p>
                       <p className="text-sm text-muted-foreground text-center">
-                        Le vendeur vous répondra dès que possible.
+                        The seller will respond as soon as possible.
                       </p>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="message">Votre message</Label>
+                        <Label htmlFor="message">Your message</Label>
                         <Textarea
                           id="message"
-                          placeholder="Bonjour, je suis intéressé par cette montre..."
+                          placeholder="Hello, I am interested in this watch..."
                           value={message}
                           onChange={(e) => setMessage(e.target.value)}
                           className="min-h-[150px]"
                         />
                         <p className="text-sm text-muted-foreground">
-                          {message.length} / 1000 caractères
+                          {message.length} / 1000 characters
                         </p>
                       </div>
 
                       <div className="text-sm text-muted-foreground">
                         {listing.seller && (sellersData as SellersData)[listing.seller] && (
                           <>
-                            <p>Vendeur : {(sellersData as SellersData)[listing.seller].name}</p>
-                            <p>Type : {(sellersData as SellersData)[listing.seller].type}</p>
-                            <p>Note : {(sellersData as SellersData)[listing.seller].stats.rating} ({(sellersData as SellersData)[listing.seller].stats.totalReviews} avis)</p>
+                            <p>Seller: {(sellersData as SellersData)[listing.seller].name}</p>
+                            <p>Type: {(sellersData as SellersData)[listing.seller].type}</p>
+                            <p>Rating: {(sellersData as SellersData)[listing.seller].stats.rating} ({(sellersData as SellersData)[listing.seller].stats.totalReviews} reviews)</p>
                           </>
                         )}
                       </div>
@@ -387,13 +387,13 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                         variant="outline"
                         onClick={() => setIsContactDialogOpen(false)}
                       >
-                        Annuler
+                        Cancel
                       </Button>
                       <Button
                         onClick={handleSubmitMessage}
                         disabled={!message.trim() || isSubmittingMessage}
                       >
-                        {isSubmittingMessage ? "Envoi..." : "Envoyer le message"}
+                        {isSubmittingMessage ? "Sending..." : "Send message"}
                       </Button>
                     </>
                   )}
@@ -405,18 +405,18 @@ export default function ListingPage({ params }: { params: { id: string } }) {
             <div className="space-y-4">
               <div className="space-y-2">
                 <p className="text-3xl font-bold">{listing.price.toLocaleString()} {listing.currency}</p>
-                <p className="text-muted-foreground">Livraison estimée : {listing.shippingDelay} jours ouvrés</p>
+                <p className="text-muted-foreground">Estimated delivery: {listing.shippingDelay} business days</p>
               </div>
               <div className="flex gap-3">
                 <Button className="flex-1 bg-primary hover:bg-primary/90">
-                  Acheter
+                  Buy
                 </Button>
                 <Button 
                   variant="outline" 
                   className="flex-1"
                   onClick={() => setIsOfferDialogOpen(true)}
                 >
-                  Faire une offre
+                  Make an offer
                 </Button>
               </div>
             </div>
@@ -425,24 +425,24 @@ export default function ListingPage({ params }: { params: { id: string } }) {
             <Dialog open={isOfferDialogOpen} onOpenChange={setIsOfferDialogOpen}>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Faire une offre</DialogTitle>
+                  <DialogTitle>Make an offer</DialogTitle>
                   <DialogDescription>
-                    Proposez un prix au vendeur pour cette montre. Le vendeur sera notifié de votre offre et pourra l'accepter ou la refuser.
+                    Propose a price to the seller for this watch. The seller will be notified of your offer and can accept or decline it.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   {isOfferSuccess ? (
                     <div className="flex flex-col items-center justify-center py-8 space-y-4">
                       <CheckCircle2 className="w-16 h-16 text-primary animate-in zoom-in-50 duration-500" />
-                      <p className="text-lg font-medium text-center">Votre offre a été envoyée avec succès !</p>
+                      <p className="text-lg font-medium text-center">Your offer has been sent successfully!</p>
                       <p className="text-sm text-muted-foreground text-center">
-                        Le vendeur sera notifié et pourra accepter ou refuser votre offre.
+                        The seller will be notified and can accept or decline your offer.
                       </p>
                     </div>
                   ) : (
                     <>
                       <div className="space-y-2">
-                        <Label htmlFor="offerAmount">Montant de l'offre (€)</Label>
+                        <Label htmlFor="offerAmount">Offer amount (€)</Label>
                         <Input
                           id="offerAmount"
                           type="number"
@@ -452,7 +452,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                         />
                       </div>
 
-                      {/* Suggestions de réduction */}
+                      {/* Discount suggestions */}
                       <div className="grid grid-cols-3 gap-2">
                         {[5, 10, 15].map((reduction) => (
                           <button
@@ -472,10 +472,10 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                       </div>
 
                       <div className="text-sm text-muted-foreground">
-                        <p>Prix demandé : {listing.price.toLocaleString()} €</p>
-                        <p>Votre offre : {Number(offerAmount).toLocaleString()} €</p>
+                        <p>Asking price: {listing.price.toLocaleString()} €</p>
+                        <p>Your offer: {Number(offerAmount).toLocaleString()} €</p>
                         <p className="font-medium text-primary">
-                          Différence : {(Number(offerAmount) - listing.price).toLocaleString()} €
+                          Difference: {(Number(offerAmount) - listing.price).toLocaleString()} €
                         </p>
                       </div>
                     </>
@@ -488,13 +488,13 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                         variant="outline"
                         onClick={() => setIsOfferDialogOpen(false)}
                       >
-                        Annuler
+                        Cancel
                       </Button>
                       <Button
                         onClick={handleSubmitOffer}
                         disabled={!offerAmount || isNaN(Number(offerAmount)) || isSubmittingOffer}
                       >
-                        {isSubmittingOffer ? "Envoi..." : "Envoyer l'offre"}
+                        {isSubmittingOffer ? "Sending..." : "Send offer"}
                       </Button>
                     </>
                   )}
@@ -505,7 +505,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
             {/* Status and Stats */}
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">
-                {watchConditions.find(c => c.slug === listing.condition)?.label} | Année de fabrication {listing.year} | {listing.included === "full-set" ? "Avec boîte et papiers d'origine" : listing.included}
+                {watchConditions.find(c => c.slug === listing.condition)?.label} | Manufacturing year {listing.year} | {listing.included === "full-set" ? "With original box and papers" : listing.included}
               </p>
             </div>
 
@@ -562,7 +562,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                     <div className="pt-2">
                       <Link href={`/sellers/${listing.seller}`}>
                         <Button variant="outline" className="w-full">
-                          Voir le profil complet
+                          View full profile
                         </Button>
                       </Link>
                     </div>
@@ -573,47 +573,47 @@ export default function ListingPage({ params }: { params: { id: string } }) {
 
             {/* Technical Details */}
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold">Détails</h2>
+              <h2 className="text-xl font-semibold">Details</h2>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-medium mb-2">Données de base</h3>
+                  <h3 className="font-medium mb-2">Basic data</h3>
                   <dl className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <dt className="text-muted-foreground">Code annonce</dt>
+                      <dt className="text-muted-foreground">Listing code</dt>
                       <dd>{listing.id}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-muted-foreground">Marque</dt>
+                      <dt className="text-muted-foreground">Brand</dt>
                       <dd>{brandInfo.name}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-muted-foreground">Modèle</dt>
+                      <dt className="text-muted-foreground">Model</dt>
                       <dd>{listing.model}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-muted-foreground">Numéro de référence</dt>
+                      <dt className="text-muted-foreground">Reference number</dt>
                       <dd>{listing.reference}</dd>
                     </div>
                   </dl>
                 </div>
 
                 <div>
-                  <h3 className="font-medium mb-2">Spécifications</h3>
+                  <h3 className="font-medium mb-2">Specifications</h3>
                   <dl className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <dt className="text-muted-foreground">Mouvement</dt>
+                      <dt className="text-muted-foreground">Movement</dt>
                       <dd>{listing.movement}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-muted-foreground">Boîtier</dt>
+                      <dt className="text-muted-foreground">Case</dt>
                       <dd>{listing.case}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-muted-foreground">Matière du bracelet</dt>
+                      <dt className="text-muted-foreground">Bracelet material</dt>
                       <dd>{listing.braceletMaterial}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-muted-foreground">Année de fabrication</dt>
+                      <dt className="text-muted-foreground">Manufacturing year</dt>
                       <dd>{listing.year}</dd>
                     </div>
                   </dl>
@@ -650,7 +650,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                   </div>
                   <div>
                     <h3 className="text-xl font-semibold">{brandInfo.name}</h3>
-                    <p className="text-muted-foreground">Découvrir tous les modèles</p>
+                    <p className="text-muted-foreground">Discover all models</p>
                   </div>
                 </div>
               </CardContent>
@@ -660,7 +660,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
 
         {/* Popular Models Carousel */}
         <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-6">Autres montres populaires de {brandInfo.name}</h2>
+          <h2 className="text-2xl font-bold mb-6">Other popular {brandInfo.name} watches</h2>
           <div className="relative">
             <div className="overflow-hidden">
               <div className="flex transition-transform duration-300 ease-in-out" style={{ transform: `translateX(-${currentPopularModel * 100}%)` }}>

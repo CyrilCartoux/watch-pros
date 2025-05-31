@@ -11,102 +11,75 @@ import { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { countries, titles, languages, phonePrefixes } from "@/data/form-options"
 
-const countries = [
-  { value: "fr", label: "France" },
-  { value: "be", label: "Belgique" },
-  { value: "ch", label: "Suisse" },
-  { value: "lu", label: "Luxembourg" },
-  { value: "de", label: "Allemagne" },
-]
-
-const titles = [
-  { value: "mr", label: "M." },
-  { value: "mrs", label: "Mme" },
-  { value: "ms", label: "Mlle" },
-]
-
-const languages = [
-  { value: "fr", label: "Français" },
-  { value: "en", label: "English" },
-  { value: "de", label: "Deutsch" },
-]
-
-const phonePrefixes = [
-  { value: "+33", label: "France (+33)" },
-  { value: "+32", label: "Belgique (+32)" },
-  { value: "+41", label: "Suisse (+41)" },
-  { value: "+352", label: "Luxembourg (+352)" },
-  { value: "+49", label: "Allemagne (+49)" },
-]
-
-// Constantes pour la validation des fichiers
+// Constants for file validation
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
 
-// Fonction de validation des fichiers
+// File validation function
 const validateFile = (file: File) => {
-  if (!file) return "Le fichier est requis";
+  if (!file) return "File is required";
   
   if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-    return "Format de fichier non accepté. Formats acceptés : JPG, PNG, PDF";
+    return "File format not accepted. Accepted formats: JPG, PNG, PDF";
   }
   
   if (file.size > MAX_FILE_SIZE) {
-    return "Le fichier est trop volumineux. Taille maximale : 5MB";
+    return "File is too large. Maximum size: 5MB";
   }
   
   return null;
 };
 
-// Schéma de validation pour le compte professionnel
+// Validation schema for professional account
 const accountSchema = z.object({
-  companyName: z.string().min(1, "Le nom de la société est requis"),
-  watchProsName: z.string().min(1, "Le nom sur Watch Pros est requis"),
-  companyStatus: z.string().min(1, "Le statut de l'entreprise est requis"),
-  country: z.string().min(1, "Le pays est requis"),
-  title: z.string().min(1, "La civilité est requise"),
-  firstName: z.string().min(1, "Le prénom est requis"),
-  lastName: z.string().min(1, "Le nom est requis"),
-  email: z.string().email("Email invalide"),
-  phonePrefix: z.string().min(1, "L'indicatif téléphonique est requis"),
+  companyName: z.string().min(1, "Company name is required"),
+  watchProsName: z.string().min(1, "Watch Pros name is required"),
+  companyStatus: z.string().min(1, "Company status is required"),
+  country: z.string().min(1, "Country is required"),
+  title: z.string().min(1, "Title is required"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email"),
+  phonePrefix: z.string().min(1, "Phone prefix is required"),
   phone: z.string()
-    .min(1, "Le téléphone est requis")
-    .regex(/^\d+$/, "Le numéro de téléphone doit contenir uniquement des chiffres")
-    .min(9, "Le numéro de téléphone doit contenir au moins 9 chiffres")
-    .max(15, "Le numéro de téléphone ne doit pas dépasser 15 chiffres"),
-  username: z.string().min(1, "Le nom d'utilisateur est requis"),
+    .min(1, "Phone number is required")
+    .regex(/^\d+$/, "Phone number must contain only digits")
+    .min(9, "Phone number must contain at least 9 digits")
+    .max(15, "Phone number must not exceed 15 digits"),
+  username: z.string().min(1, "Username is required"),
   password: z.string()
-    .min(8, "Le mot de passe doit contenir au moins 8 caractères")
-    .regex(/[A-Z]/, "Le mot de passe doit contenir au moins une majuscule")
-    .regex(/[a-z]/, "Le mot de passe doit contenir au moins une minuscule")
-    .regex(/[!@#$%^&*(),.?":{}|<>]/, "Le mot de passe doit contenir au moins un caractère spécial"),
-  confirmPassword: z.string().min(1, "La confirmation du mot de passe est requise"),
-  language: z.string().min(1, "La langue est requise"),
+    .min(8, "Password must contain at least 8 characters")
+    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+    .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain at least one special character"),
+  confirmPassword: z.string().min(1, "Password confirmation is required"),
+  language: z.string().min(1, "Language is required"),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Les mots de passe ne correspondent pas",
+  message: "Passwords do not match",
   path: ["confirmPassword"],
 })
 
-// Schéma de validation pour l'adresse
+// Validation schema for address
 const addressSchema = z.object({
-  street: z.string().min(1, "La rue est requise"),
+  street: z.string().min(1, "Street is required"),
   addressComplement: z.string().optional(),
-  postalCode: z.string().min(1, "Le code postal est requis"),
-  city: z.string().min(1, "La ville est requise"),
-  country: z.string().min(1, "Le pays est requis"),
+  postalCode: z.string().min(1, "Postal code is required"),
+  city: z.string().min(1, "City is required"),
+  country: z.string().min(1, "Country is required"),
   faxPrefix: z.string().optional(),
   fax: z.string().optional(),
-  mobilePrefix: z.string().min(1, "L'indicatif mobile est requis"),
-  mobile: z.string().min(1, "Le mobile est requis"),
-  website: z.string().url("URL invalide").optional().or(z.literal("")),
-  siren: z.string().min(1, "Le numéro SIREN/SIRET est requis"),
-  taxId: z.string().min(1, "Le numéro d'identification fiscale est requis"),
-  vatNumber: z.string().min(1, "Le numéro de TVA est requis"),
+  mobilePrefix: z.string().min(1, "Mobile prefix is required"),
+  mobile: z.string().min(1, "Mobile number is required"),
+  website: z.string().url("Invalid URL").optional().or(z.literal("")),
+  siren: z.string().min(1, "SIREN/SIRET number is required"),
+  taxId: z.string().min(1, "Tax ID number is required"),
+  vatNumber: z.string().min(1, "VAT number is required"),
   oss: z.boolean().optional(),
 })
 
-// Schéma de validation pour les coordonnées bancaires
+// Validation schema for banking details
 const bankingSchema = z.object({
   paymentMethod: z.enum(["card", "sepa"]),
   cardHolder: z.string().optional(),
@@ -128,43 +101,43 @@ const bankingSchema = z.object({
   }
   return true
 }, {
-  message: "Veuillez remplir tous les champs obligatoires",
+  message: "Please fill in all required fields",
 })
 
-// Schéma de validation pour Trusted Checkout
+// Validation schema for Trusted Checkout
 const trustedSchema = z.object({
-  accountHolder: z.string().min(1, "Le titulaire du compte est requis"),
-  iban: z.string().min(1, "L'IBAN est requis"),
-  legalFirstName: z.string().min(1, "Le prénom est requis"),
-  legalLastName: z.string().min(1, "Le nom est requis"),
-  birthDate: z.string().min(1, "La date de naissance est requise"),
-  nationality: z.string().min(1, "La nationalité est requise"),
-  residenceCountry: z.string().min(1, "Le pays de résidence est requis"),
-  returnName: z.string().min(1, "Le nom est requis"),
-  returnStreet: z.string().min(1, "La rue est requise"),
+  accountHolder: z.string().min(1, "Account holder is required"),
+  iban: z.string().min(1, "IBAN is required"),
+  legalFirstName: z.string().min(1, "First name is required"),
+  legalLastName: z.string().min(1, "Last name is required"),
+  birthDate: z.string().min(1, "Birth date is required"),
+  nationality: z.string().min(1, "Nationality is required"),
+  residenceCountry: z.string().min(1, "Country of residence is required"),
+  returnName: z.string().min(1, "Name is required"),
+  returnStreet: z.string().min(1, "Street is required"),
   returnComplement: z.string().optional(),
-  returnPostalCode: z.string().min(1, "Le code postal est requis"),
-  returnCity: z.string().min(1, "La ville est requise"),
-  returnCountry: z.string().min(1, "Le pays est requis"),
+  returnPostalCode: z.string().min(1, "Postal code is required"),
+  returnCity: z.string().min(1, "City is required"),
+  returnCountry: z.string().min(1, "Country is required"),
 })
 
-// Schéma de validation pour les documents
+// Validation schema for documents
 const documentsSchema = z.object({
   idCardFront: z.custom<File>((file) => {
     if (!file) return false;
     return validateFile(file as File) === null;
-  }, "Le recto de la pièce d'identité est requis"),
+  }, "Front of ID card is required"),
   idCardBack: z.custom<File>((file) => {
     if (!file) return false;
     return validateFile(file as File) === null;
-  }, "Le verso de la pièce d'identité est requis"),
+  }, "Back of ID card is required"),
   proofOfAddress: z.custom<File>((file) => {
     if (!file) return false;
     return validateFile(file as File) === null;
-  }, "Le justificatif de domicile est requis"),
+  }, "Proof of address is required"),
 })
 
-// Ajouter un composant pour afficher les erreurs
+// Add component to display errors
 const FormError = ({ error, isSubmitted }: { error?: string, isSubmitted: boolean }) => {
   if (!error || !isSubmitted) return null
   return <p className="text-sm text-red-500 mt-1">{error}</p>
@@ -213,7 +186,7 @@ export default function RegisterFormPage() {
     mode: "onSubmit",
   })
 
-  // Fonction pour vérifier si un onglet est accessible
+  // Function to check if a tab is accessible
   const isTabAccessible = (tab: string) => {
     return true;
     // switch (tab) {
@@ -234,7 +207,7 @@ export default function RegisterFormPage() {
     // }
   }
 
-  // Mettre à jour la validation des formulaires
+  // Update form validation
   useEffect(() => {
     const validateForms = async () => {
       const accountValid = await accountForm.trigger()
@@ -257,7 +230,7 @@ export default function RegisterFormPage() {
 
   const handleSubmit = async () => {
     try {
-      // Vérifier que tous les formulaires sont valides
+      // Check that all forms are valid
       const isAccountValid = await accountForm.trigger()
       const isAddressValid = await addressForm.trigger()
       const isBankingValid = await bankingForm.trigger()
@@ -265,11 +238,11 @@ export default function RegisterFormPage() {
       const isDocumentsValid = await documentsForm.trigger()
 
       if (!isAccountValid || !isAddressValid || !isBankingValid || !isTrustedValid || !isDocumentsValid) {
-        console.error("Certains formulaires ne sont pas valides")
+        console.error("Some forms are not valid")
         return
       }
 
-      // Récupérer toutes les valeurs
+      // Get all values
       const formData = {
         account: accountForm.getValues(),
         address: addressForm.getValues(),
@@ -278,10 +251,10 @@ export default function RegisterFormPage() {
         documents: documentsForm.getValues(),
       }
 
-      // Ici, vous pouvez envoyer les données à votre API
-      console.log("Données du formulaire :", formData)
+      // Here you can send the data to your API
+      console.log("Form data:", formData)
 
-      // Exemple d'envoi à une API
+      // Example of sending to an API
       // const response = await fetch('/api/register', {
       //   method: 'POST',
       //   headers: {
@@ -291,13 +264,13 @@ export default function RegisterFormPage() {
       // })
 
       // if (!response.ok) {
-      //   throw new Error('Erreur lors de l\'envoi du formulaire')
+      //   throw new Error('Error sending form')
       // }
 
-      // Redirection après succès
+      // Redirect after success
       // window.location.href = '/register/success'
     } catch (error) {
-      console.error("Erreur lors de la soumission du formulaire :", error)
+      console.error("Error submitting form:", error)
     }
   }
 
@@ -309,7 +282,7 @@ export default function RegisterFormPage() {
         setIsSubmitted(prev => ({ ...prev, account: true }))
         isValid = await accountForm.trigger()
         if (!isValid) {
-          console.log("Erreurs du formulaire compte:", accountForm.formState.errors)
+          console.log("Account form errors:", accountForm.formState.errors)
         }
         if (isValid) {
           console.log("Account form values:", accountForm.getValues())
@@ -320,7 +293,7 @@ export default function RegisterFormPage() {
         setIsSubmitted(prev => ({ ...prev, address: true }))
         isValid = await addressForm.trigger()
         if (!isValid) {
-          console.log("Erreurs du formulaire adresse:", addressForm.formState.errors)
+          console.log("Address form errors:", addressForm.formState.errors)
         }
         if (isValid) {
           console.log("Address form values:", addressForm.getValues())
@@ -331,7 +304,7 @@ export default function RegisterFormPage() {
         setIsSubmitted(prev => ({ ...prev, banking: true }))
         isValid = await bankingForm.trigger()
         if (!isValid) {
-          console.log("Erreurs du formulaire bancaire:", bankingForm.formState.errors)
+          console.log("Banking form errors:", bankingForm.formState.errors)
         }
         if (isValid) {
           console.log("Banking form values:", bankingForm.getValues())
@@ -342,7 +315,7 @@ export default function RegisterFormPage() {
         setIsSubmitted(prev => ({ ...prev, trusted: true }))
         isValid = await trustedForm.trigger()
         if (!isValid) {
-          console.log("Erreurs du formulaire trusted:", trustedForm.formState.errors)
+          console.log("Trusted form errors:", trustedForm.formState.errors)
         }
         if (isValid) {
           console.log("Trusted form values:", trustedForm.getValues())
@@ -353,7 +326,7 @@ export default function RegisterFormPage() {
         setIsSubmitted(prev => ({ ...prev, documents: true }))
         isValid = await documentsForm.trigger()
         if (!isValid) {
-          console.log("Erreurs du formulaire documents:", documentsForm.formState.errors)
+          console.log("Documents form errors:", documentsForm.formState.errors)
         }
         if (isValid) {
           console.log("Documents form values:", documentsForm.getValues())
@@ -416,10 +389,10 @@ export default function RegisterFormPage() {
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold tracking-tight mb-4">
-            Inscription professionnelle
+            Professional Registration
           </h1>
           <p className="text-muted-foreground text-lg">
-            Créez votre compte professionnel en quelques étapes simples
+            Create your professional account in a few simple steps
           </p>
         </div>
 
@@ -439,7 +412,7 @@ export default function RegisterFormPage() {
               disabled={!isTabAccessible("account")}
             >
               <Building2 className="w-4 h-4" />
-              <span className="hidden sm:inline">Compte</span>
+              <span className="hidden sm:inline">Account</span>
             </TabsTrigger>
             <TabsTrigger 
               value="address" 
@@ -447,7 +420,7 @@ export default function RegisterFormPage() {
               disabled={!isTabAccessible("address")}
             >
               <MapPin className="w-4 h-4" />
-              <span className="hidden sm:inline">Adresse</span>
+              <span className="hidden sm:inline">Address</span>
             </TabsTrigger>
             <TabsTrigger 
               value="banking" 
@@ -455,7 +428,7 @@ export default function RegisterFormPage() {
               disabled={!isTabAccessible("banking")}
             >
               <CreditCard className="w-4 h-4" />
-              <span className="hidden sm:inline">Bancaire</span>
+              <span className="hidden sm:inline">Banking</span>
             </TabsTrigger>
             <TabsTrigger 
               value="trusted" 
@@ -479,7 +452,7 @@ export default function RegisterFormPage() {
               disabled={!isTabAccessible("summary")}
             >
               <CheckCircle2 className="w-4 h-4" />
-              <span className="hidden sm:inline">Récapitulatif</span>
+              <span className="hidden sm:inline">Summary</span>
             </TabsTrigger>
           </TabsList>
 
@@ -487,9 +460,9 @@ export default function RegisterFormPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="mb-8">
-                  <h2 className="text-2xl font-semibold mb-2">Ouvrez votre compte professionnel</h2>
+                  <h2 className="text-2xl font-semibold mb-2">Open your professional account</h2>
                   <p className="text-muted-foreground">
-                    Nous nécessitons tout d'abord quelques informations essentielles sur votre entreprise. Vous pourrez ensuite enregistrer vos identifiants d'accès pour votre compte professionnel Watch Pros.
+                    First, we need some essential information about your company. You can then register your access credentials for your Watch Pros professional account.
                   </p>
                 </div>
 
@@ -499,33 +472,33 @@ export default function RegisterFormPage() {
                 }} className="space-y-6">
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="companyName">Nom de la société *</Label>
-                      <Input id="companyName" placeholder="Entrez le nom de votre société" {...accountForm.register("companyName")} />
+                      <Label htmlFor="companyName">Company Name *</Label>
+                      <Input id="companyName" placeholder="Enter your company name" {...accountForm.register("companyName")} />
                       <FormError error={accountForm.formState.errors.companyName?.message} isSubmitted={isSubmitted.account} />
                     </div>
 
                     <div>
-                      <Label htmlFor="watchProsName">Nom sur Watch Pros *</Label>
-                      <Input id="watchProsName" placeholder="Entrez le nom qui apparaîtra sur Watch Pros" {...accountForm.register("watchProsName")} />
+                      <Label htmlFor="watchProsName">Name on Watch Pros *</Label>
+                      <Input id="watchProsName" placeholder="Enter the name that will appear on Watch Pros" {...accountForm.register("watchProsName")} />
                       <FormError error={accountForm.formState.errors.watchProsName?.message} isSubmitted={isSubmitted.account} />
                     </div>
 
                     <div>
-                      <Label htmlFor="companyStatus">Statut de l'entreprise *</Label>
-                      <Input id="companyStatus" placeholder="Entrez le statut de votre entreprise" {...accountForm.register("companyStatus")} />
+                      <Label htmlFor="companyStatus">Company Status *</Label>
+                      <Input id="companyStatus" placeholder="Enter your company status" {...accountForm.register("companyStatus")} />
                       <FormError error={accountForm.formState.errors.companyStatus?.message} isSubmitted={isSubmitted.account} />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="country">Pays *</Label>
+                        <Label htmlFor="country">Country *</Label>
                         <Controller
                           name="country"
                           control={accountForm.control}
                           render={({ field }) => (
                             <Select onValueChange={field.onChange} value={field.value}>
                               <SelectTrigger>
-                                <SelectValue placeholder="Sélectionnez un pays" />
+                                <SelectValue placeholder="Select a country" />
                               </SelectTrigger>
                               <SelectContent>
                                 {countries.map((country) => (
@@ -541,14 +514,14 @@ export default function RegisterFormPage() {
                       </div>
 
                       <div>
-                        <Label htmlFor="title">Civilité *</Label>
+                        <Label htmlFor="title">Title *</Label>
                         <Controller
                           name="title"
                           control={accountForm.control}
                           render={({ field }) => (
                             <Select onValueChange={field.onChange} value={field.value}>
                               <SelectTrigger>
-                                <SelectValue placeholder="Sélectionnez" />
+                                <SelectValue placeholder="Select" />
                               </SelectTrigger>
                               <SelectContent>
                                 {titles.map((title) => (
@@ -566,26 +539,26 @@ export default function RegisterFormPage() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="firstName">Prénom *</Label>
-                        <Input id="firstName" placeholder="Prénom pour l'adresse de facturation" {...accountForm.register("firstName")} />
+                        <Label htmlFor="firstName">First Name *</Label>
+                        <Input id="firstName" placeholder="First name for billing address" {...accountForm.register("firstName")} />
                         <FormError error={accountForm.formState.errors.firstName?.message} isSubmitted={isSubmitted.account} />
                       </div>
 
                       <div>
-                        <Label htmlFor="lastName">Nom *</Label>
-                        <Input id="lastName" placeholder="Nom pour l'adresse de facturation" {...accountForm.register("lastName")} />
+                        <Label htmlFor="lastName">Last Name *</Label>
+                        <Input id="lastName" placeholder="Last name for billing address" {...accountForm.register("lastName")} />
                         <FormError error={accountForm.formState.errors.lastName?.message} isSubmitted={isSubmitted.account} />
                       </div>
                     </div>
 
                     <div>
-                      <Label htmlFor="email">Adresse e-mail *</Label>
-                      <Input id="email" type="email" placeholder="votre@email.com" {...accountForm.register("email")} />
+                      <Label htmlFor="email">Email Address *</Label>
+                      <Input id="email" type="email" placeholder="your@email.com" {...accountForm.register("email")} />
                       <FormError error={accountForm.formState.errors.email?.message} isSubmitted={isSubmitted.account} />
                     </div>
 
                     <div>
-                      <Label htmlFor="phone">Téléphone *</Label>
+                      <Label htmlFor="phone">Phone *</Label>
                       <div className="flex gap-2">
                         <Controller
                           name="phonePrefix"
@@ -594,7 +567,7 @@ export default function RegisterFormPage() {
                           render={({ field }) => (
                             <Select onValueChange={field.onChange} value={field.value}>
                               <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Indicatif" />
+                                <SelectValue placeholder="Prefix" />
                               </SelectTrigger>
                               <SelectContent>
                                 {phonePrefixes.map((prefix) => (
@@ -615,7 +588,7 @@ export default function RegisterFormPage() {
                             <Input
                               {...field}
                               id="phone"
-                              placeholder="Numéro de téléphone"
+                              placeholder="Phone number"
                               className="flex-1"
                               value={field.value || ""}
                               onChange={(e) => {
@@ -630,32 +603,32 @@ export default function RegisterFormPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="username">Nom d'utilisateur *</Label>
-                      <Input id="username" placeholder="Choisissez un nom d'utilisateur" {...accountForm.register("username")} />
+                      <Label htmlFor="username">Username *</Label>
+                      <Input id="username" placeholder="Choose a username" {...accountForm.register("username")} />
                       <FormError error={accountForm.formState.errors.username?.message} isSubmitted={isSubmitted.account} />
                     </div>
 
                     <div>
-                      <Label htmlFor="password">Mot de passe *</Label>
-                      <Input id="password" type="password" placeholder="Créez un mot de passe" {...accountForm.register("password")} />
+                      <Label htmlFor="password">Password *</Label>
+                      <Input id="password" type="password" placeholder="Create a password" {...accountForm.register("password")} />
                       <FormError error={accountForm.formState.errors.password?.message} isSubmitted={isSubmitted.account} />
                     </div>
 
                     <div>
-                      <Label htmlFor="confirmPassword">Répéter le mot de passe *</Label>
-                      <Input id="confirmPassword" type="password" placeholder="Confirmez votre mot de passe" {...accountForm.register("confirmPassword")} />
+                      <Label htmlFor="confirmPassword">Repeat Password *</Label>
+                      <Input id="confirmPassword" type="password" placeholder="Confirm your password" {...accountForm.register("confirmPassword")} />
                       <FormError error={accountForm.formState.errors.confirmPassword?.message} isSubmitted={isSubmitted.account} />
                     </div>
 
                     <div>
-                      <Label htmlFor="language">Votre langue de préférence *</Label>
+                      <Label htmlFor="language">Your Preferred Language *</Label>
                       <Controller
                         name="language"
                         control={accountForm.control}
                         render={({ field }) => (
                           <Select onValueChange={field.onChange} value={field.value}>
                             <SelectTrigger>
-                              <SelectValue placeholder="Sélectionnez votre langue" />
+                              <SelectValue placeholder="Select your language" />
                             </SelectTrigger>
                             <SelectContent>
                               {languages.map((language) => (
@@ -672,9 +645,9 @@ export default function RegisterFormPage() {
                   </div>
 
                   <div className="flex justify-between items-center pt-6">
-                    <p className="text-sm text-muted-foreground">* Champ obligatoire</p>
+                    <p className="text-sm text-muted-foreground">* Required field</p>
                     <Button type="submit" size="lg">
-                      Continuer
+                      Continue
                     </Button>
                   </div>
                 </form>
@@ -686,9 +659,9 @@ export default function RegisterFormPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="mb-8">
-                  <h2 className="text-2xl font-semibold mb-2">Autres informations sur l'entreprise</h2>
+                  <h2 className="text-2xl font-semibold mb-2">Other Company Information</h2>
                   <p className="text-muted-foreground">
-                    Indiquez maintenant l'adresse (du siège social) de votre entreprise telle qu'elle doit figurer sur les factures. Nous avons également besoin de votre numéro d'immatriculation au registre du commerce et de vos numéros d'identification fiscale.
+                    Now indicate your company's address (headquarters) as it should appear on invoices. We also need your business registration number and tax identification numbers.
                   </p>
                 </div>
 
@@ -698,33 +671,33 @@ export default function RegisterFormPage() {
                 }} className="space-y-6">
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="street">Rue *</Label>
-                      <Input id="street" placeholder="Entrez votre adresse" {...addressForm.register("street")} />
+                      <Label htmlFor="street">Street *</Label>
+                      <Input id="street" placeholder="Enter your address" {...addressForm.register("street")} />
                       <FormError error={addressForm.formState.errors.street?.message} isSubmitted={isSubmitted.address} />
                     </div>
 
                     <div>
-                      <Label htmlFor="addressComplement">Complément d'adresse</Label>
-                      <Input id="addressComplement" placeholder="Appartement, suite, unité, etc." {...addressForm.register("addressComplement")} />
+                      <Label htmlFor="addressComplement">Address Complement</Label>
+                      <Input id="addressComplement" placeholder="Apartment, suite, unit, etc." {...addressForm.register("addressComplement")} />
                       <FormError error={addressForm.formState.errors.addressComplement?.message} isSubmitted={isSubmitted.address} />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="postalCode">Code postal *</Label>
-                        <Input id="postalCode" placeholder="Code postal" {...addressForm.register("postalCode")} />
+                        <Label htmlFor="postalCode">Postal Code *</Label>
+                        <Input id="postalCode" placeholder="Postal code" {...addressForm.register("postalCode")} />
                         <FormError error={addressForm.formState.errors.postalCode?.message} isSubmitted={isSubmitted.address} />
                       </div>
 
                       <div>
-                        <Label htmlFor="city">Ville *</Label>
-                        <Input id="city" placeholder="Ville" {...addressForm.register("city")} />
+                        <Label htmlFor="city">City *</Label>
+                        <Input id="city" placeholder="City" {...addressForm.register("city")} />
                         <FormError error={addressForm.formState.errors.city?.message} isSubmitted={isSubmitted.address} />
                       </div>
                     </div>
 
                     <div>
-                      <Label htmlFor="country">Pays *</Label>
+                      <Label htmlFor="country">Country *</Label>
                       <Controller
                         name="country"
                         control={addressForm.control}
@@ -732,7 +705,7 @@ export default function RegisterFormPage() {
                         render={({ field }) => (
                           <Select onValueChange={field.onChange} value={field.value}>
                             <SelectTrigger>
-                              <SelectValue placeholder="Sélectionnez un pays" />
+                              <SelectValue placeholder="Select a country" />
                             </SelectTrigger>
                             <SelectContent>
                               {countries.map((country) => (
@@ -757,7 +730,7 @@ export default function RegisterFormPage() {
                           render={({ field }) => (
                             <Select onValueChange={field.onChange} value={field.value}>
                               <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Indicatif" />
+                                <SelectValue placeholder="Prefix" />
                               </SelectTrigger>
                               <SelectContent>
                                 {phonePrefixes.map((prefix) => (
@@ -769,7 +742,7 @@ export default function RegisterFormPage() {
                             </Select>
                           )}
                         />
-                        <Input id="fax" placeholder="Numéro de fax" className="flex-1" {...addressForm.register("fax")} />
+                        <Input id="fax" placeholder="Fax number" className="flex-1" {...addressForm.register("fax")} />
                       </div>
                       <FormError error={addressForm.formState.errors.fax?.message} isSubmitted={isSubmitted.address} />
                       <FormError error={addressForm.formState.errors.faxPrefix?.message} isSubmitted={isSubmitted.address} />
@@ -804,36 +777,36 @@ export default function RegisterFormPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="website">Site Internet</Label>
-                      <Input id="website" type="url" placeholder="https://www.votre-site.com" {...addressForm.register("website")} />
+                      <Label htmlFor="website">Website</Label>
+                      <Input id="website" type="url" placeholder="https://www.your-website.com" {...addressForm.register("website")} />
                       <FormError error={addressForm.formState.errors.website?.message} isSubmitted={isSubmitted.address} />
                     </div>
 
                     <div className="border-t pt-6">
-                      <h3 className="text-lg font-semibold mb-4">Numéros d'identification</h3>
+                      <h3 className="text-lg font-semibold mb-4">Identification Numbers</h3>
                       
                       <div className="space-y-4">
                         <div>
-                          <Label htmlFor="siren">Numéro SIREN ou SIRET *</Label>
-                          <Input id="siren" placeholder="Entrez votre numéro SIREN ou SIRET" {...addressForm.register("siren")} />
+                          <Label htmlFor="siren">SIREN or SIRET Number *</Label>
+                          <Input id="siren" placeholder="Enter your SIREN or SIRET number" {...addressForm.register("siren")} />
                           <FormError error={addressForm.formState.errors.siren?.message} isSubmitted={isSubmitted.address} />
                         </div>
 
                         <div>
-                          <Label htmlFor="taxId">Numéro d'identification fiscale *</Label>
-                          <Input id="taxId" placeholder="Entrez votre numéro d'identification fiscale" {...addressForm.register("taxId")} />
+                          <Label htmlFor="taxId">Tax ID Number *</Label>
+                          <Input id="taxId" placeholder="Enter your tax ID number" {...addressForm.register("taxId")} />
                           <FormError error={addressForm.formState.errors.taxId?.message} isSubmitted={isSubmitted.address} />
                           <p className="text-sm text-muted-foreground mt-1">
-                            Indiquez le numéro d'identification fiscale correspondant à l'emplacement de votre entreprise : France
+                            Enter the tax ID number corresponding to your company's location: France
                           </p>
                         </div>
 
                         <div>
-                          <Label htmlFor="vatNumber">Numéro de TVA *</Label>
-                          <Input id="vatNumber" placeholder="Entrez votre numéro de TVA" {...addressForm.register("vatNumber")} />
+                          <Label htmlFor="vatNumber">VAT Number *</Label>
+                          <Input id="vatNumber" placeholder="Enter your VAT number" {...addressForm.register("vatNumber")} />
                           <FormError error={addressForm.formState.errors.vatNumber?.message} isSubmitted={isSubmitted.address} />
                           <p className="text-sm text-muted-foreground mt-1">
-                            Indiquez le numéro de TVA correspondant à l'emplacement de votre entreprise : France
+                            Enter the VAT number corresponding to your company's location: France
                           </p>
                         </div>
 
@@ -845,7 +818,7 @@ export default function RegisterFormPage() {
                             {...addressForm.register("oss")}
                           />
                           <Label htmlFor="oss" className="text-sm">
-                            Je suis inscrit(e) au guichet unique (OSS)
+                            I am registered with the One-Stop Shop (OSS)
                           </Label>
                         </div>
                         <FormError error={addressForm.formState.errors.oss?.message} isSubmitted={isSubmitted.address} />
@@ -854,13 +827,13 @@ export default function RegisterFormPage() {
                   </div>
 
                   <div className="flex justify-between items-center pt-6">
-                    <p className="text-sm text-muted-foreground">* Champ obligatoire</p>
+                    <p className="text-sm text-muted-foreground">* Required field</p>
                     <div className="space-x-4">
                       <Button type="button" variant="outline" size="lg" onClick={handleBack}>
-                        Retour
+                        Back
                       </Button>
                       <Button type="submit" size="lg">
-                        Continuer
+                        Continue
                       </Button>
                     </div>
                   </div>
@@ -868,7 +841,7 @@ export default function RegisterFormPage() {
 
                 <div className="mt-6 p-4 bg-muted/50 rounded-lg">
                   <p className="text-sm text-muted-foreground">
-                    Remarque : Vos coordonnées seront affichées à côté de vos annonces et sur votre page d'accueil professionnelle.
+                    Note: Your contact information will be displayed next to your listings and on your professional homepage.
                   </p>
                 </div>
               </CardContent>
@@ -879,9 +852,9 @@ export default function RegisterFormPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="mb-8">
-                  <h2 className="text-2xl font-semibold mb-2">Veuillez saisir vos coordonnées bancaires</h2>
+                  <h2 className="text-2xl font-semibold mb-2">Please enter your banking details</h2>
                   <p className="text-muted-foreground">
-                    Vos données sont sécurisées grâce au dispositif PCI DSS (Payment Card Industry Data Security Standard) mis en place par Saferpay. Pour des raisons de sécurité, la somme de 1 euro sera bloquée mais pas débitée de votre compte bancaire. Ce processus sert à vérifier l'authenticité des données renseignées.
+                    Your data is secured through the PCI DSS (Payment Card Industry Data Security Standard) system implemented by Saferpay. For security reasons, 1 euro will be blocked but not debited from your bank account. This process serves to verify the authenticity of the provided data.
                   </p>
                 </div>
 
@@ -891,7 +864,7 @@ export default function RegisterFormPage() {
                 }} className="space-y-6">
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="paymentMethod">Moyen de paiement *</Label>
+                      <Label htmlFor="paymentMethod">Payment Method *</Label>
                       <Controller
                         name="paymentMethod"
                         control={bankingForm.control}
@@ -905,11 +878,11 @@ export default function RegisterFormPage() {
                             value={field.value}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Sélectionnez un moyen de paiement" />
+                              <SelectValue placeholder="Select a payment method" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="card">Carte bancaire</SelectItem>
-                              <SelectItem value="sepa">Prélèvement SEPA</SelectItem>
+                              <SelectItem value="card">Credit Card</SelectItem>
+                              <SelectItem value="sepa">SEPA Direct Debit</SelectItem>
                             </SelectContent>
                           </Select>
                         )}
@@ -917,11 +890,11 @@ export default function RegisterFormPage() {
                       <FormError error={bankingForm.formState.errors.paymentMethod?.message} isSubmitted={isSubmitted.banking} />
                     </div>
 
-                    {/* Formulaire Carte Bancaire */}
+                    {/* Credit Card Form */}
                     <div className="space-y-4" id="cardForm">
                       <div>
-                        <Label htmlFor="cardHolder">Titulaire de la carte *</Label>
-                        <Input id="cardHolder" placeholder="Nom tel qu'il apparaît sur la carte" {...bankingForm.register("cardHolder")} />
+                        <Label htmlFor="cardHolder">Cardholder Name *</Label>
+                        <Input id="cardHolder" placeholder="Name as it appears on card" {...bankingForm.register("cardHolder")} />
                         <FormError error={bankingForm.formState.errors.cardHolder?.message} isSubmitted={isSubmitted.banking} />
                       </div>
 
@@ -952,7 +925,7 @@ export default function RegisterFormPage() {
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="expiryDate">Date de validité *</Label>
+                          <Label htmlFor="expiryDate">Expiry Date *</Label>
                           <Controller
                             name="expiryDate"
                             control={bankingForm.control}
@@ -960,7 +933,7 @@ export default function RegisterFormPage() {
                               <Input
                                 {...field}
                                 id="expiryDate"
-                                placeholder="MM/AA"
+                                placeholder="MM/YY"
                                 maxLength={5}
                                 onChange={(e) => {
                                   let value = e.target.value.replace(/\D/g, "");
@@ -976,7 +949,7 @@ export default function RegisterFormPage() {
                         </div>
 
                         <div>
-                          <Label htmlFor="cvc">Code de vérification (CVC) *</Label>
+                          <Label htmlFor="cvc">Security Code (CVC) *</Label>
                           <Input 
                             id="cvc" 
                             placeholder="123"
@@ -997,42 +970,42 @@ export default function RegisterFormPage() {
                           required
                         />
                         <Label htmlFor="authorization" className="text-sm">
-                          Par la présente, j'autorise Watch pros GmbH, jusqu'à révocation, à débiter de ma carte bancaire les montants indiqués.
+                          I hereby authorize Watch Pros GmbH, until revoked, to debit the indicated amounts from my credit card.
                         </Label>
                       </div>
                       <FormError error={bankingForm.formState.errors.authorization?.message} isSubmitted={isSubmitted.banking} />
                     </div>
 
-                    {/* Formulaire SEPA */}
+                    {/* SEPA Form */}
                     <div className="space-y-4 hidden" id="sepaForm">
                       <div>
-                        <Label htmlFor="accountHolder">Titulaire du compte (si différent de l'entreprise)</Label>
-                        <Input id="accountHolder" placeholder="Nom du titulaire du compte" {...bankingForm.register("accountHolder")} />
+                        <Label htmlFor="accountHolder">Account Holder (if different from company)</Label>
+                        <Input id="accountHolder" placeholder="Account holder name" {...bankingForm.register("accountHolder")} />
                         <FormError error={bankingForm.formState.errors.accountHolder?.message} isSubmitted={isSubmitted.banking} />
                       </div>
 
                       <div>
-                        <Label htmlFor="sepaStreet">Rue *</Label>
-                        <Input id="sepaStreet" placeholder="Adresse de la banque" {...bankingForm.register("sepaStreet")} />
+                        <Label htmlFor="sepaStreet">Street *</Label>
+                        <Input id="sepaStreet" placeholder="Bank address" {...bankingForm.register("sepaStreet")} />
                         <FormError error={bankingForm.formState.errors.sepaStreet?.message} isSubmitted={isSubmitted.banking} />
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="sepaPostalCode">Code postal *</Label>
-                          <Input id="sepaPostalCode" placeholder="Code postal" {...bankingForm.register("sepaPostalCode")} />
+                          <Label htmlFor="sepaPostalCode">Postal Code *</Label>
+                          <Input id="sepaPostalCode" placeholder="Postal code" {...bankingForm.register("sepaPostalCode")} />
                           <FormError error={bankingForm.formState.errors.sepaPostalCode?.message} isSubmitted={isSubmitted.banking} />
                         </div>
 
                         <div>
-                          <Label htmlFor="sepaCity">Ville *</Label>
-                          <Input id="sepaCity" placeholder="Ville" {...bankingForm.register("sepaCity")} />
+                          <Label htmlFor="sepaCity">City *</Label>
+                          <Input id="sepaCity" placeholder="City" {...bankingForm.register("sepaCity")} />
                           <FormError error={bankingForm.formState.errors.sepaCity?.message} isSubmitted={isSubmitted.banking} />
                         </div>
                       </div>
 
                       <div>
-                        <Label htmlFor="sepaCountry">Pays *</Label>
+                        <Label htmlFor="sepaCountry">Country *</Label>
                         <Controller
                           name="sepaCountry"
                           control={bankingForm.control}
@@ -1040,7 +1013,7 @@ export default function RegisterFormPage() {
                           render={({ field }) => (
                             <Select onValueChange={field.onChange} value={field.value}>
                               <SelectTrigger>
-                                <SelectValue placeholder="Sélectionnez un pays" />
+                                <SelectValue placeholder="Select a country" />
                               </SelectTrigger>
                               <SelectContent>
                                 {countries.map((country) => (
@@ -1056,8 +1029,8 @@ export default function RegisterFormPage() {
                       </div>
 
                       <div>
-                        <Label htmlFor="bankName">Banque *</Label>
-                        <Input id="bankName" placeholder="Nom de votre banque" {...bankingForm.register("bankName")} />
+                        <Label htmlFor="bankName">Bank *</Label>
+                        <Input id="bankName" placeholder="Your bank name" {...bankingForm.register("bankName")} />
                         <FormError error={bankingForm.formState.errors.bankName?.message} isSubmitted={isSubmitted.banking} />
                       </div>
 
@@ -1113,13 +1086,13 @@ export default function RegisterFormPage() {
                   </div>
 
                   <div className="flex justify-between items-center pt-6">
-                    <p className="text-sm text-muted-foreground">* Champ obligatoire</p>
+                    <p className="text-sm text-muted-foreground">* Required field</p>
                     <div className="space-x-4">
                       <Button type="button" variant="outline" size="lg" onClick={handleBack}>
-                        Retour
+                        Back
                       </Button>
                       <Button type="submit" size="lg">
-                        Continuer
+                        Continue
                       </Button>
                     </div>
                   </div>
@@ -1136,13 +1109,13 @@ export default function RegisterFormPage() {
                   
                   <div className="p-4 bg-muted/50 rounded-lg">
                     <p className="text-sm text-muted-foreground text-center">
-                      Pour des raisons de sécurité, vous allez être redirigé(e) vers le site de votre banque.
+                      For security reasons, you will be redirected to your bank's website.
                     </p>
                   </div>
 
                   <div className="p-4 bg-muted/50 rounded-lg hidden" id="sepaNote">
                     <p className="text-sm text-muted-foreground">
-                      Remarque importante : Pour être validé, le prélèvement SEPA requiert votre signature. Merci de bien vouloir imprimer le mandat SEPA qui apparaîtra à la prochaine étape et nous le renvoyer par fax / courrier ou nous le transmettre via la rubrique "Charger des documents".
+                      Important note: To be validated, the SEPA direct debit requires your signature. Please print the SEPA mandate that will appear in the next step and send it back to us by fax/mail or upload it via the "Upload Documents" section.
                     </p>
                   </div>
                 </div>
@@ -1154,12 +1127,12 @@ export default function RegisterFormPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="mb-8">
-                  <h2 className="text-2xl font-semibold mb-2">Coordonnées bancaires pour Trusted Checkout</h2>
+                  <h2 className="text-2xl font-semibold mb-2">Bank Details for Trusted Checkout</h2>
                   <p className="text-muted-foreground">
-                    Trusted Checkout est le moyen le plus sûr de régler ses achats sur Watch pros. Grâce à Trusted Checkout, vous gagnez la confiance de vos acheteurs potentiels et augmentez ainsi vos chances de vendre.
+                    Trusted Checkout is the safest way to make purchases on Watch Pros. With Trusted Checkout, you gain the trust of potential buyers and increase your chances of selling.
                   </p>
                   <p className="text-muted-foreground mt-2">
-                    Nous avons besoin de vos coordonnées bancaires pour vous verser l'argent une fois l'achat conclu.
+                    We need your bank details to transfer the money once the purchase is completed.
                   </p>
                 </div>
 
@@ -1169,8 +1142,8 @@ export default function RegisterFormPage() {
                 }} className="space-y-6">
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="trustedAccountHolder">Titulaire du compte *</Label>
-                      <Input id="trustedAccountHolder" placeholder="Nom du titulaire du compte" {...trustedForm.register("accountHolder")} />
+                      <Label htmlFor="trustedAccountHolder">Account Holder *</Label>
+                      <Input id="trustedAccountHolder" placeholder="Account holder name" {...trustedForm.register("accountHolder")} />
                       <FormError error={trustedForm.formState.errors.accountHolder?.message} isSubmitted={isSubmitted.trusted} />
                     </div>
 
@@ -1203,25 +1176,25 @@ export default function RegisterFormPage() {
                     </div>
 
                     <div className="border-t pt-6">
-                      <h4 className="text-lg font-semibold mb-4">Représentant légal de l'entreprise</h4>
+                      <h4 className="text-lg font-semibold mb-4">Legal Representative of the Company</h4>
                       
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="legalFirstName">Prénom *</Label>
-                          <Input id="legalFirstName" placeholder="Prénom" {...trustedForm.register("legalFirstName")} />
+                          <Label htmlFor="legalFirstName">First Name *</Label>
+                          <Input id="legalFirstName" placeholder="First name" {...trustedForm.register("legalFirstName")} />
                           <FormError error={trustedForm.formState.errors.legalFirstName?.message} isSubmitted={isSubmitted.trusted} />
                         </div>
 
                         <div>
-                          <Label htmlFor="legalLastName">Nom *</Label>
-                          <Input id="legalLastName" placeholder="Nom" {...trustedForm.register("legalLastName")} />
+                          <Label htmlFor="legalLastName">Last Name *</Label>
+                          <Input id="legalLastName" placeholder="Last name" {...trustedForm.register("legalLastName")} />
                           <FormError error={trustedForm.formState.errors.legalLastName?.message} isSubmitted={isSubmitted.trusted} />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4 mt-4">
                         <div>
-                          <Label htmlFor="birthDate">Date de naissance *</Label>
+                          <Label htmlFor="birthDate">Date of Birth *</Label>
                           <Input 
                             id="birthDate" 
                             type="date"
@@ -1232,7 +1205,7 @@ export default function RegisterFormPage() {
                         </div>
 
                         <div>
-                          <Label htmlFor="nationality">Nationalité *</Label>
+                          <Label htmlFor="nationality">Nationality *</Label>
                           <Controller
                             name="nationality"
                             control={trustedForm.control}
@@ -1240,7 +1213,7 @@ export default function RegisterFormPage() {
                             render={({ field }) => (
                               <Select onValueChange={field.onChange} value={field.value}>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Sélectionnez" />
+                                  <SelectValue placeholder="Select" />
                                 </SelectTrigger>
                                 <SelectContent>
                                   {countries.map((country) => (
@@ -1257,7 +1230,7 @@ export default function RegisterFormPage() {
                       </div>
 
                       <div className="mt-4">
-                        <Label htmlFor="residenceCountry">Pays de résidence *</Label>
+                        <Label htmlFor="residenceCountry">Country of Residence *</Label>
                         <Controller
                           name="residenceCountry"
                           control={trustedForm.control}
@@ -1265,7 +1238,7 @@ export default function RegisterFormPage() {
                           render={({ field }) => (
                             <Select onValueChange={field.onChange} value={field.value}>
                               <SelectTrigger>
-                                <SelectValue placeholder="Sélectionnez" />
+                                <SelectValue placeholder="Select" />
                               </SelectTrigger>
                               <SelectContent>
                                 {countries.map((country) => (
@@ -1282,42 +1255,42 @@ export default function RegisterFormPage() {
                     </div>
 
                     <div className="border-t pt-6">
-                      <h4 className="text-lg font-semibold mb-4">Adresse de retour (si différente de l'adresse principale)</h4>
+                      <h4 className="text-lg font-semibold mb-4">Return Address (if different from main address)</h4>
                       
                       <div>
-                        <Label htmlFor="returnName">Nom *</Label>
-                        <Input id="returnName" placeholder="Nom" {...trustedForm.register("returnName")} />
+                        <Label htmlFor="returnName">Name *</Label>
+                        <Input id="returnName" placeholder="Name" {...trustedForm.register("returnName")} />
                         <FormError error={trustedForm.formState.errors.returnName?.message} isSubmitted={isSubmitted.trusted} />
                       </div>
 
                       <div className="mt-4">
-                        <Label htmlFor="returnStreet">Rue *</Label>
-                        <Input id="returnStreet" placeholder="Adresse" {...trustedForm.register("returnStreet")} />
+                        <Label htmlFor="returnStreet">Street *</Label>
+                        <Input id="returnStreet" placeholder="Address" {...trustedForm.register("returnStreet")} />
                         <FormError error={trustedForm.formState.errors.returnStreet?.message} isSubmitted={isSubmitted.trusted} />
                       </div>
 
                       <div className="mt-4">
-                        <Label htmlFor="returnComplement">Complément d'adresse</Label>
-                        <Input id="returnComplement" placeholder="Appartement, suite, unité, etc." {...trustedForm.register("returnComplement")} />
+                        <Label htmlFor="returnComplement">Address Complement</Label>
+                        <Input id="returnComplement" placeholder="Apartment, suite, unit, etc." {...trustedForm.register("returnComplement")} />
                         <FormError error={trustedForm.formState.errors.returnComplement?.message} isSubmitted={isSubmitted.trusted} />
                       </div>
 
                       <div className="grid grid-cols-2 gap-4 mt-4">
                         <div>
-                          <Label htmlFor="returnPostalCode">Code postal *</Label>
-                          <Input id="returnPostalCode" placeholder="Code postal" {...trustedForm.register("returnPostalCode")} />
+                          <Label htmlFor="returnPostalCode">Postal Code *</Label>
+                          <Input id="returnPostalCode" placeholder="Postal code" {...trustedForm.register("returnPostalCode")} />
                           <FormError error={trustedForm.formState.errors.returnPostalCode?.message} isSubmitted={isSubmitted.trusted} />
                         </div>
 
                         <div>
-                          <Label htmlFor="returnCity">Ville *</Label>
-                          <Input id="returnCity" placeholder="Ville" {...trustedForm.register("returnCity")} />
+                          <Label htmlFor="returnCity">City *</Label>
+                          <Input id="returnCity" placeholder="City" {...trustedForm.register("returnCity")} />
                           <FormError error={trustedForm.formState.errors.returnCity?.message} isSubmitted={isSubmitted.trusted} />
                         </div>
                       </div>
 
                       <div className="mt-4">
-                        <Label htmlFor="returnCountry">Pays *</Label>
+                        <Label htmlFor="returnCountry">Country *</Label>
                         <Controller
                           name="returnCountry"
                           control={trustedForm.control}
@@ -1325,7 +1298,7 @@ export default function RegisterFormPage() {
                           render={({ field }) => (
                             <Select onValueChange={field.onChange} value={field.value}>
                               <SelectTrigger>
-                                <SelectValue placeholder="Sélectionnez" />
+                                <SelectValue placeholder="Select" />
                               </SelectTrigger>
                               <SelectContent>
                                 {countries.map((country) => (
@@ -1343,13 +1316,13 @@ export default function RegisterFormPage() {
                   </div>
 
                   <div className="flex justify-between items-center pt-6">
-                    <p className="text-sm text-muted-foreground">* Champ obligatoire</p>
+                    <p className="text-sm text-muted-foreground">* Required field</p>
                     <div className="space-x-4">
                       <Button type="button" variant="outline" size="lg" onClick={handleBack}>
-                        Retour
+                        Back
                       </Button>
                       <Button type="submit" size="lg">
-                        Continuer
+                        Continue
                       </Button>
                     </div>
                   </div>
@@ -1362,9 +1335,9 @@ export default function RegisterFormPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="mb-8">
-                  <h2 className="text-2xl font-semibold mb-2">Documents requis</h2>
+                  <h2 className="text-2xl font-semibold mb-2">Required Documents</h2>
                   <p className="text-muted-foreground">
-                    Pour finaliser votre inscription, nous avons besoin de quelques documents officiels. Ces documents sont nécessaires pour vérifier votre identité et votre adresse.
+                    To complete your registration, we need some official documents. These documents are necessary to verify your identity and address.
                   </p>
                 </div>
 
@@ -1373,16 +1346,16 @@ export default function RegisterFormPage() {
                   handleNext()
                 }} className="space-y-6">
                   <div className="space-y-6">
-                    {/* Pièce d'identité */}
+                    {/* ID Document */}
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Pièce d'identité</h3>
+                      <h3 className="text-lg font-semibold">ID Document</h3>
                       <p className="text-sm text-muted-foreground">
-                        Veuillez fournir une copie de votre pièce d'identité (carte nationale d'identité, passeport ou permis de conduire).
+                        Please provide a copy of your ID document (national ID card, passport, or driver's license).
                       </p>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="idCardFront">Recto *</Label>
+                          <Label htmlFor="idCardFront">Front *</Label>
                           <Input
                             id="idCardFront"
                             type="file"
@@ -1403,12 +1376,12 @@ export default function RegisterFormPage() {
                           />
                           <FormError error={documentsForm.formState.errors.idCardFront?.message} isSubmitted={isSubmitted.documents} />
                           <p className="text-xs text-muted-foreground mt-1">
-                            Formats acceptés : JPG, PNG, PDF (max 5MB)
+                            Accepted formats: JPG, PNG, PDF (max 5MB)
                           </p>
                         </div>
 
                         <div>
-                          <Label htmlFor="idCardBack">Verso *</Label>
+                          <Label htmlFor="idCardBack">Back *</Label>
                           <Input
                             id="idCardBack"
                             type="file"
@@ -1429,17 +1402,17 @@ export default function RegisterFormPage() {
                           />
                           <FormError error={documentsForm.formState.errors.idCardBack?.message} isSubmitted={isSubmitted.documents} />
                           <p className="text-xs text-muted-foreground mt-1">
-                            Formats acceptés : JPG, PNG, PDF (max 5MB)
+                            Accepted formats: JPG, PNG, PDF (max 5MB)
                           </p>
                         </div>
                       </div>
                     </div>
 
-                    {/* Justificatif de domicile */}
+                    {/* Proof of Address */}
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Justificatif de domicile</h3>
+                      <h3 className="text-lg font-semibold">Proof of Address</h3>
                       <p className="text-sm text-muted-foreground">
-                        Veuillez fournir un justificatif de domicile datant de moins de 3 mois (facture d'électricité, de téléphone, quittance de loyer, etc.).
+                        Please provide a proof of address less than 3 months old (utility bill, phone bill, rent receipt, etc.).
                       </p>
 
                       <div>
@@ -1464,20 +1437,20 @@ export default function RegisterFormPage() {
                         />
                         <FormError error={documentsForm.formState.errors.proofOfAddress?.message} isSubmitted={isSubmitted.documents} />
                         <p className="text-xs text-muted-foreground mt-1">
-                          Formats acceptés : JPG, PNG, PDF (max 5MB)
+                          Accepted formats: JPG, PNG, PDF (max 5MB)
                         </p>
                       </div>
                     </div>
                   </div>
 
                   <div className="flex justify-between items-center pt-6">
-                    <p className="text-sm text-muted-foreground">* Champ obligatoire</p>
+                    <p className="text-sm text-muted-foreground">* Required field</p>
                     <div className="space-x-4">
                       <Button type="button" variant="outline" size="lg" onClick={handleBack}>
-                        Retour
+                        Back
                       </Button>
                       <Button type="submit" size="lg">
-                        Continuer
+                        Continue
                       </Button>
                     </div>
                   </div>
@@ -1485,7 +1458,7 @@ export default function RegisterFormPage() {
 
                 <div className="mt-6 p-4 bg-muted/50 rounded-lg">
                   <p className="text-sm text-muted-foreground">
-                    Vos documents seront traités de manière confidentielle et sécurisée. Ils ne seront utilisés que pour vérifier votre identité et votre adresse.
+                    Your documents will be processed confidentially and securely. They will only be used to verify your identity and address.
                   </p>
                 </div>
               </CardContent>
@@ -1496,53 +1469,53 @@ export default function RegisterFormPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="mb-8">
-                  <h2 className="text-2xl font-semibold mb-2">Récapitulatif</h2>
+                  <h2 className="text-2xl font-semibold mb-2">Summary</h2>
                 </div>
 
                 <div className="space-y-8">
-                  {/* Compte professionnel */}
+                  {/* Professional Account */}
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Compte professionnel</h3>
-                      <Button variant="outline" size="sm">Modifier</Button>
+                      <h3 className="text-lg font-semibold">Professional Account</h3>
+                      <Button variant="outline" size="sm">Edit</Button>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-muted-foreground">Entreprise</p>
+                        <p className="text-sm text-muted-foreground">Company</p>
                         <p className="font-medium">TEST TEST</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">E-mail</p>
+                        <p className="text-sm text-muted-foreground">Email</p>
                         <p className="font-medium">totoeeee@gmail.com</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Téléphone</p>
+                        <p className="text-sm text-muted-foreground">Phone</p>
                         <p className="font-medium">+33612457115</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Nom d'utilisateur</p>
+                        <p className="text-sm text-muted-foreground">Username</p>
                         <p className="font-medium">test6ss</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Forfait Professional */}
+                  {/* Professional Plan */}
                   <div className="p-4 bg-muted/50 rounded-lg">
-                    <h3 className="text-lg font-semibold mb-2">Votre forfait Professional</h3>
+                    <h3 className="text-lg font-semibold mb-2">Your Professional Plan</h3>
                     <p className="text-sm text-muted-foreground">
-                      Pendant la période d'essai de 30 jours, vous ne payez pas de tarif de base pour votre forfait Professional. Vous pouvez publier autant d'annonces que vous le souhaitez. Seules les ventes, que vous effectuez, sont sujettes à une commission de vente. Après la période d'essai, nous vous attribuerons automatiquement le forfait Professional le plus avantageux pour vous en fonction du nombre d'annonces de montres que vous avez publiées.
+                      During the 30-day trial period, you don't pay any base fee for your Professional plan. You can post as many listings as you want. Only completed sales are subject to a sales commission. After the trial period, we will automatically assign you the most advantageous Professional plan based on the number of watch listings you have published.
                     </p>
                   </div>
 
-                  {/* Données entreprise */}
+                  {/* Company Data */}
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Données concernant votre entreprise</h3>
-                      <Button variant="outline" size="sm">Modifier</Button>
+                      <h3 className="text-lg font-semibold">Company Information</h3>
+                      <Button variant="outline" size="sm">Edit</Button>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-muted-foreground">Adresse</p>
+                        <p className="text-sm text-muted-foreground">Address</p>
                         <p className="font-medium">TOTOTOOTOT</p>
                         <p className="font-medium">13430 TREST</p>
                         <p className="font-medium">France</p>
@@ -1556,32 +1529,32 @@ export default function RegisterFormPage() {
                         <p className="font-medium">+33643343423</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Site Internet</p>
+                        <p className="text-sm text-muted-foreground">Website</p>
                         <p className="font-medium">--</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Statut de l'entreprise</p>
-                        <p className="font-medium">Personne physique / Entrepreneur individuel</p>
+                        <p className="text-sm text-muted-foreground">Company Status</p>
+                        <p className="font-medium">Individual / Sole Proprietorship</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Vos numéros d'identification fiscale dans l'UE</p>
+                        <p className="text-sm text-muted-foreground">Your EU Tax ID Numbers</p>
                         <p className="font-medium">***********020</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Numéro de TVA intra-communautaire</p>
+                        <p className="text-sm text-muted-foreground">VAT Number</p>
                         <p className="font-medium">FR76847724408</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Adresse de retour */}
+                  {/* Return Address */}
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Adresse de retour</h3>
-                      <Button variant="outline" size="sm">Modifier</Button>
+                      <h3 className="text-lg font-semibold">Return Address</h3>
+                      <Button variant="outline" size="sm">Edit</Button>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Adresse</p>
+                      <p className="text-sm text-muted-foreground">Address</p>
                       <p className="font-medium">TEST</p>
                       <p className="font-medium">TOTOTOOTOT</p>
                       <p className="font-medium">13430 TREST</p>
@@ -1589,39 +1562,39 @@ export default function RegisterFormPage() {
                     </div>
                   </div>
 
-                  {/* Coordonnées bancaires */}
+                  {/* Bank Details */}
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Vos coordonnées bancaires</h3>
-                      <Button variant="outline" size="sm">Modifier</Button>
+                      <h3 className="text-lg font-semibold">Your Bank Details</h3>
+                      <Button variant="outline" size="sm">Edit</Button>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-muted-foreground">Moyen de paiement</p>
-                        <p className="font-medium">Autre moyen de paiement</p>
+                        <p className="text-sm text-muted-foreground">Payment Method</p>
+                        <p className="font-medium">Other Payment Method</p>
                         <p className="text-sm text-muted-foreground mt-1">
-                          Nous vous contacterons dans les plus brefs délais pour convenir avec vous du moyen de paiement.
+                          We will contact you shortly to arrange the payment method.
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Remarque */}
+                  {/* Note */}
                   <div className="p-4 bg-muted/50 rounded-lg">
                     <p className="text-sm text-muted-foreground">
-                      Vous ne payez pas de forfait pendant les 30 premiers jours. Seules les ventes abouties sont sujettes à une commission de vente. Nous vous avertirons par e-mail 2 semaines avant la fin de la période d'essai et avant l'envoi de la première facture. Bien entendu, vous pouvez résilier à tout moment avant la fin du mois.
+                      You don't pay any subscription fee during the first 30 days. Only completed sales are subject to a sales commission. We will notify you by email 2 weeks before the end of the trial period and before sending the first invoice. Of course, you can cancel at any time before the end of the month.
                     </p>
                   </div>
 
-                  {/* Coordonnées bancaires Trusted */}
+                  {/* Trusted Bank Details */}
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Vos coordonnées bancaires</h3>
-                      <Button variant="outline" size="sm">Modifier</Button>
+                      <h3 className="text-lg font-semibold">Your Bank Details</h3>
+                      <Button variant="outline" size="sm">Edit</Button>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-muted-foreground">Titulaire du compte</p>
+                        <p className="text-sm text-muted-foreground">Account Holder</p>
                         <p className="font-medium">ZEDZED</p>
                       </div>
                       <div>
@@ -1629,64 +1602,64 @@ export default function RegisterFormPage() {
                         <p className="font-medium">************************597</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Le paiement est en</p>
+                        <p className="text-sm text-muted-foreground">Payment is in</p>
                         <p className="font-medium">EUR</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Statut de l'entreprise</p>
-                        <p className="font-medium">Personne physique / Entrepreneur individuel</p>
+                        <p className="text-sm text-muted-foreground">Company Status</p>
+                        <p className="font-medium">Individual / Sole Proprietorship</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Représentant légal de l'entreprise</p>
+                        <p className="text-sm text-muted-foreground">Legal Representative</p>
                         <p className="font-medium">TEST TEST</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Date de naissance</p>
-                        <p className="font-medium">02. janvier 1950</p>
+                        <p className="text-sm text-muted-foreground">Date of Birth</p>
+                        <p className="font-medium">02. January 1950</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Nationalité</p>
+                        <p className="text-sm text-muted-foreground">Nationality</p>
                         <p className="font-medium">France</p>
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Pays de résidence</p>
+                        <p className="text-sm text-muted-foreground">Country of Residence</p>
                         <p className="font-medium">France</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Source d'information */}
+                  {/* Information Source */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Comment avez-vous entendu parler de Watch Pros ?</h3>
+                    <h3 className="text-lg font-semibold">How did you hear about Watch Pros?</h3>
                     <p className="text-sm text-muted-foreground">
-                      Veuillez choisir une des options suivantes (participation facultative) :
+                      Please choose one of the following options (optional):
                     </p>
                     <Select>
                       <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez" />
+                        <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="search">Recherche sur Internet</SelectItem>
-                        <SelectItem value="friend">Ami / Connaissance</SelectItem>
-                        <SelectItem value="social">Réseaux sociaux</SelectItem>
-                        <SelectItem value="press">Presse</SelectItem>
-                        <SelectItem value="other">Autre</SelectItem>
+                        <SelectItem value="search">Internet Search</SelectItem>
+                        <SelectItem value="friend">Friend / Acquaintance</SelectItem>
+                        <SelectItem value="social">Social Media</SelectItem>
+                        <SelectItem value="press">Press</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div className="flex justify-between items-center pt-6">
-                    <p className="text-sm text-muted-foreground">* Champ obligatoire</p>
+                    <p className="text-sm text-muted-foreground">* Required field</p>
                     <div className="space-x-4">
                       <Button variant="outline" size="lg">
-                        Retour
+                        Back
                       </Button>
                       <Button 
                         type="button" 
                         size="lg"
                         onClick={handleSubmit}
                       >
-                        Terminer l'inscription
+                        Complete Registration
                       </Button>
                     </div>
                   </div>
@@ -1697,13 +1670,13 @@ export default function RegisterFormPage() {
         </Tabs>
       </div>
 
-      {/* Ajouter un bouton de debug pour voir toutes les erreurs */}
+      {/* Add debug button to see all errors */}
       <div className="fixed bottom-4 right-4">
         <Button
           variant="outline"
           size="sm"
           onClick={() => {
-            console.log("État des formulaires :", {
+            console.log("Form States:", {
               account: {
                 isValid: accountForm.formState.isValid,
                 errors: accountForm.formState.errors,

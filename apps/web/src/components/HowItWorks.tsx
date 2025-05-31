@@ -5,33 +5,33 @@ import { BadgeCheck, Search, Bell, Shield, Clock, MessageSquare } from "lucide-r
 
 const features = [
   {
-    title: "Recherche avancée",
-    description: "Filtrez par marque, modèle, état, pays et disponibilité immédiate. Trouvez exactement ce que vous cherchez en quelques clics.",
+    title: "Advanced Search",
+    description: "Filter by brand, model, condition, country and immediate availability. Find exactly what you're looking for in just a few clicks.",
     icon: Search,
   },
   {
-    title: "Vérification des vendeurs",
-    description: "Système de notation et badges de confiance pour garantir la fiabilité des transactions. KYC professionnel pour tous les vendeurs.",
+    title: "Seller Verification",
+    description: "Rating system and trust badges to ensure transaction reliability. Professional KYC for all sellers.",
     icon: Shield,
   },
   {
-    title: "Alertes personnalisées",
-    description: "Recevez des notifications instantanées quand un modèle recherché devient disponible. Ne manquez plus aucune opportunité.",
+    title: "Custom Alerts",
+    description: "Receive instant notifications when a desired model becomes available. Never miss an opportunity again.",
     icon: Bell,
   },
   {
-    title: "Disponibilité en temps réel",
-    description: "Voir instantanément si une montre est disponible, sans perdre de temps en messages inutiles.",
+    title: "Real-time Availability",
+    description: "See instantly if a watch is available, without wasting time on unnecessary messages.",
     icon: Clock,
   },
   {
-    title: "Communication intégrée",
-    description: "Échangez directement sur la plateforme ou via WhatsApp/Telegram. Gardez un historique de toutes vos conversations.",
+    title: "Integrated Communication",
+    description: "Chat directly on the platform or via WhatsApp/Telegram. Keep a history of all your conversations.",
     icon: MessageSquare,
   },
   {
-    title: "Badges professionnels",
-    description: "Validez votre statut de professionnel et gagnez la confiance des acheteurs avec des badges de vérification.",
+    title: "Professional Badges",
+    description: "Validate your professional status and gain buyers' trust with verification badges.",
     icon: BadgeCheck,
   },
 ]
@@ -42,10 +42,10 @@ export function HowItWorks() {
       <div className="container">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight mb-4">
-            Pourquoi choisir Watch Pros ?
+            Why choose Watch Pros?
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Une plateforme conçue par des professionnels, pour les professionnels. Plus efficace que WhatsApp, plus accessible que Chrono24.
+            A platform designed by professionals, for professionals. More efficient than WhatsApp, more accessible than Chrono24.
           </p>
         </div>
 
@@ -69,4 +69,4 @@ export function HowItWorks() {
       </div>
     </section>
   )
-} 
+}

@@ -26,7 +26,7 @@ export default function ListingsPage() {
     )
   }
 
-  // Convertir les données de listings2.json au format attendu par ListingCard
+  // Convert listings2.json data to format expected by ListingCard
   const listings = Object.entries(listingsData).map(([id, listing]) => ({
     id,
     brand: listing.brand,
@@ -50,17 +50,17 @@ export default function ListingsPage() {
       <div className="container">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold">
-            {totalItems.toLocaleString()} annonces
+            {totalItems.toLocaleString()} listings
           </h1>
           <Select defaultValue="relevance">
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Trier par" />
+              <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="relevance">Pertinence</SelectItem>
-              <SelectItem value="popular">Populaire</SelectItem>
-              <SelectItem value="price-asc">Prix croissant</SelectItem>
-              <SelectItem value="price-desc">Prix décroissant</SelectItem>
+              <SelectItem value="relevance">Relevance</SelectItem>
+              <SelectItem value="popular">Popular</SelectItem>
+              <SelectItem value="price-asc">Price ascending</SelectItem>
+              <SelectItem value="price-desc">Price descending</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -83,7 +83,7 @@ export default function ListingsPage() {
             onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
           >
-            Précédent
+            Previous
           </Button>
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <Button
@@ -99,10 +99,10 @@ export default function ListingsPage() {
             onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
           >
-            Suivant
+            Next
           </Button>
         </div>
       </div>
     </main>
   )
-} 
+}

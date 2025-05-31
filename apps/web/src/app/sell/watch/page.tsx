@@ -17,21 +17,21 @@ import { brandsList } from "@/data/brands-list"
 import { modelsList } from "@/data/models-list"
 import { watchConditions } from "@/data/watch-conditions"
 
-// Ajouter un composant pour afficher les erreurs
+// Add a component to display errors
 const FormError = ({ error, isSubmitted }: { error?: string, isSubmitted: boolean }) => {
     if (!error || !isSubmitted) return null
     return <p className="text-sm text-red-500 mt-1">{error}</p>
 }
 
-// Schéma de validation pour le formulaire de vente
+// Validation schema for the sell form
 const sellSchema = z.object({
-  // Step 1: Informations de base
-  brand: z.string().min(1, "La marque est requise"),
-  model: z.string().min(1, "Le modèle est requis"),
-  reference: z.string().min(1, "Le numéro de référence est requis"),
-  title: z.string().min(1, "Le titre est requis").max(60, "Le titre ne doit pas dépasser 60 caractères"),
+  // Step 1: Basic Information
+  brand: z.string().min(1, "Brand is required"),
+  model: z.string().min(1, "Model is required"),
+  reference: z.string().min(1, "Reference number is required"),
+  title: z.string().min(1, "Title is required").max(60, "Title must not exceed 60 characters"),
   description: z.string().optional(),
-  year: z.string().min(1, "L'année est requise"),
+  year: z.string().min(1, "Year is required"),
   gender: z.string().optional(),
   serialNumber: z.string().optional(),
   dialColor: z.string().optional(),
@@ -44,17 +44,17 @@ const sellSchema = z.object({
   braceletMaterial: z.string().optional(),
   braceletColor: z.string().optional(),
   
-  // Step 2: Contenu de la livraison
-  included: z.string().min(1, "Veuillez sélectionner le contenu de la livraison"),
-  condition: z.string().min(1, "Veuillez sélectionner l'état de la montre"),
+  // Step 2: Delivery Contents
+  included: z.string().min(1, "Please select delivery contents"),
+  condition: z.string().min(1, "Please select watch condition"),
   
   // Step 3: Photos
-  images: z.array(z.instanceof(File)).min(1, "Au moins une photo est requise").max(10, "Maximum 10 photos"),
+  images: z.array(z.instanceof(File)).min(1, "At least one photo is required").max(10, "Maximum 10 photos"),
   
-  // Step 4: Prix
-  price: z.number().min(1, "Le prix est requis"),
+  // Step 4: Price
+  price: z.number().min(1, "Price is required"),
   currency: z.string().default("EUR"),
-  shippingDelay: z.string().min(1, "Le délai d'envoi est requis"),
+  shippingDelay: z.string().min(1, "Shipping delay is required"),
 
   // Step 5: Documents
   documents: z.array(z.instanceof(File)).optional(),
@@ -135,12 +135,12 @@ export default function SellWatchPage() {
     mode: "onChange",
   })
 
-  // Mettre à jour l'aperçu du titre quand le titre change
+  // Update title preview when title changes
   useEffect(() => {
     setPreviewTitle(form.watch("title"))
   }, [form.watch("title")])
 
-  // Auto-compléter le titre quand la marque, le modèle ou la référence change
+  // Auto-complete title when brand, model or reference changes
   useEffect(() => {
     const brand = brandsList.find(b => b.slug === form.watch("brand"))?.label
     const model = selectedBrand && modelsList[selectedBrand as keyof typeof modelsList]?.find((m: any) => m.slug === form.watch("model"))?.label
@@ -152,7 +152,7 @@ export default function SellWatchPage() {
     }
   }, [form.watch("brand"), form.watch("model"), form.watch("reference")])
 
-  // Validation des étapes
+  // Step validation
   const validateStep = async (stepNumber: number) => {
     let fieldsToValidate: (keyof z.infer<typeof sellSchema>)[] = []
 
@@ -199,28 +199,28 @@ export default function SellWatchPage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
     
-    // Validation des fichiers
+    // File validation
     const validFiles = files.filter(file => {
       if (file.size > MAX_FILE_SIZE) {
-        alert(`Le fichier ${file.name} est trop volumineux. Taille maximum: 5MB`)
+        alert(`File ${file.name} is too large. Maximum size: 5MB`)
         return false
       }
       if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-        alert(`Le fichier ${file.name} n'est pas un format d'image accepté. Formats acceptés: JPG, PNG, WEBP`)
+        alert(`File ${file.name} is not an accepted image format. Accepted formats: JPG, PNG, WEBP`)
         return false
       }
       return true
     })
 
     if (validFiles.length + selectedImages.length > 10) {
-      alert("Vous ne pouvez pas ajouter plus de 10 images")
+      alert("You cannot add more than 10 images")
       return
     }
 
     setSelectedImages(prev => [...prev, ...validFiles])
     form.setValue("images", [...selectedImages, ...validFiles])
 
-    // Création des previews
+    // Create previews
     validFiles.forEach(file => {
       const reader = new FileReader()
       reader.onloadend = () => {
@@ -277,7 +277,7 @@ export default function SellWatchPage() {
     try {
       console.log(data)
       // TODO: Submit form data
-      // Simuler un délai de soumission
+      // Simulate submission delay
       await new Promise(resolve => setTimeout(resolve, 1000))
       router.push("/sell/success")
     } catch (error) {
@@ -304,10 +304,10 @@ export default function SellWatchPage() {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-4 sm:mb-12">
           <h1 className="text-2xl sm:text-4xl font-bold tracking-tight mb-2 sm:mb-4">
-            Mettre en vente une montre
+            List a Watch for Sale
           </h1>
           <p className="text-muted-foreground text-sm sm:text-lg">
-            Complétez les informations ci-dessous pour créer votre annonce
+            Complete the information below to create your listing
           </p>
         </div>
 
@@ -341,29 +341,29 @@ export default function SellWatchPage() {
             ))}
           </div>
           <div className="flex justify-between text-sm text-muted-foreground px-2">
-            <span className="w-8 text-center">Infos</span>
-            <span className="w-8 text-center">Contenu</span>
+            <span className="w-8 text-center">Info</span>
+            <span className="w-8 text-center">Content</span>
             <span className="w-8 text-center">Photos</span>
-            <span className="w-8 text-center">Prix</span>
-            <span className="w-8 text-center">Documents</span>
+            <span className="w-8 text-center">Price</span>
+            <span className="w-8 text-center">Docs</span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Formulaire */}
+          {/* Form */}
           <div className="space-y-8">
             <Card>
               <CardContent className="p-6">
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   {step === 1 && (
                     <>
-                      {/* Sélection de la montre */}
+                      {/* Watch Selection */}
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">Sélectionnez votre montre</h3>
+                        <h3 className="text-lg font-semibold">Select your watch</h3>
                         
-                        {/* Marques populaires */}
+                        {/* Popular Brands */}
                         <div className="space-y-2">
-                          <Label>Marques populaires</Label>
+                          <Label>Popular Brands</Label>
                           <div className="grid grid-cols-5 sm:grid-cols-3 md:grid-cols-5 gap-1 sm:gap-2">
                             {popularBrands.map((brand) => (
                               <button
@@ -396,7 +396,7 @@ export default function SellWatchPage() {
                             render={({ field }) => (
                               <Select onValueChange={handleBrandChange} value={field.value}>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Sélectionnez une marque" />
+                                  <SelectValue placeholder="Select a brand" />
                                 </SelectTrigger>
                                 <SelectContent>
                                   {brandsList.map((brand) => (
@@ -411,10 +411,10 @@ export default function SellWatchPage() {
                           <FormError error={form.formState.errors.brand?.message} isSubmitted={isStepSubmitted} />
                         </div>
 
-                        {/* Modèles populaires */}
+                        {/* Popular Models */}
                         {selectedBrand && modelsList[selectedBrand as keyof typeof modelsList] && (
                           <div className="space-y-2">
-                            <Label>Modèles {brandsList.find(b => b.slug === selectedBrand)?.label}</Label>
+                            <Label>Models {brandsList.find(b => b.slug === selectedBrand)?.label}</Label>
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2">
                               {modelsList[selectedBrand as keyof typeof modelsList]
                                 .slice(0, 4)
@@ -451,7 +451,7 @@ export default function SellWatchPage() {
                                 disabled={!selectedBrand}
                               >
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Sélectionnez un modèle" />
+                                  <SelectValue placeholder="Select a model" />
                                 </SelectTrigger>
                                 <SelectContent>
                                   {selectedBrand && modelsList[selectedBrand as keyof typeof modelsList]?.map((model: any) => (
@@ -467,24 +467,24 @@ export default function SellWatchPage() {
                         </div>
 
                         <div>
-                          <Label htmlFor="reference">Numéro de référence *</Label>
+                          <Label htmlFor="reference">Reference Number *</Label>
                           <Input 
                             id="reference" 
-                            placeholder="ex: 18038" 
+                            placeholder="e.g. 18038" 
                             {...form.register("reference")} 
                           />
                           <FormError error={form.formState.errors.reference?.message} isSubmitted={isStepSubmitted} />
                         </div>
                       </div>
 
-                      {/* Titre de l'annonce */}
+                      {/* Listing Title */}
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">Titre de l'annonce</h3>
+                        <h3 className="text-lg font-semibold">Listing Title</h3>
                         <div>
-                          <Label htmlFor="title">Titre *</Label>
+                          <Label htmlFor="title">Title *</Label>
                           <Input 
                             id="title" 
-                            placeholder="Complétez le titre de l'annonce" 
+                            placeholder="Complete the listing title" 
                             maxLength={40}
                             {...form.register("title")}
                           />
@@ -495,10 +495,10 @@ export default function SellWatchPage() {
                         </div>
 
                         <div>
-                          <Label htmlFor="description">Description (facultatif)</Label>
+                          <Label htmlFor="description">Description (optional)</Label>
                           <Input 
                             id="description" 
-                            placeholder="Par exemple, set complet, édition spéciale" 
+                            placeholder="For example, complete set, special edition" 
                             maxLength={40}
                             {...form.register("description")}
                           />
@@ -509,14 +509,14 @@ export default function SellWatchPage() {
                         </div>
                       </div>
 
-                      {/* Détails de la montre - Toggle Section */}
+                      {/* Watch Details - Toggle Section */}
                       <div className="space-y-4">
                         <button
                           type="button"
                           onClick={() => setShowDetails(!showDetails)}
                           className="flex items-center justify-between w-full text-left"
                         >
-                          <h3 className="text-lg font-semibold">Détails de la montre (facultatif)</h3>
+                          <h3 className="text-lg font-semibold">Watch Details (optional)</h3>
                           {showDetails ? (
                             <ChevronUp className="h-5 w-5 text-muted-foreground" />
                           ) : (
@@ -527,29 +527,29 @@ export default function SellWatchPage() {
                         {showDetails && (
                           <div className="space-y-4 pt-4">
                             <div>
-                              <Label htmlFor="year">Année de fabrication (facultatif)</Label>
+                              <Label htmlFor="year">Manufacturing Year (optional)</Label>
                               <Input 
                                 id="year" 
-                                placeholder="ex: 2013" 
+                                placeholder="e.g. 2013" 
                                 {...form.register("year")}
                               />
                               <FormError error={form.formState.errors.year?.message} isSubmitted={isStepSubmitted} />
                             </div>
 
                             <div>
-                              <Label htmlFor="gender">Genre</Label>
+                              <Label htmlFor="gender">Gender</Label>
                               <Controller
                                 name="gender"
                                 control={form.control}
                                 render={({ field }) => (
                                   <Select onValueChange={field.onChange} value={field.value}>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Sélectionnez" />
+                                      <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                      <SelectItem value="unisex">Montre homme/Unisexe</SelectItem>
-                                      <SelectItem value="men">Montre homme</SelectItem>
-                                      <SelectItem value="women">Montre femme</SelectItem>
+                                      <SelectItem value="unisex">Men's Watch/Unisex</SelectItem>
+                                      <SelectItem value="men">Men's Watch</SelectItem>
+                                      <SelectItem value="women">Women's Watch</SelectItem>
                                     </SelectContent>
                                   </Select>
                                 )}
@@ -558,23 +558,23 @@ export default function SellWatchPage() {
                             </div>
 
                             <div>
-                              <Label htmlFor="serialNumber">Numéro de série (ne sera pas publié)</Label>
+                              <Label htmlFor="serialNumber">Serial Number (will not be published)</Label>
                               <Input 
                                 id="serialNumber" 
-                                placeholder="Numéro de série" 
+                                placeholder="Serial Number" 
                                 {...form.register("serialNumber")}
                               />
                             </div>
 
                             <div>
-                              <Label htmlFor="dialColor">Couleur du cadran (facultatif)</Label>
+                              <Label htmlFor="dialColor">Dial Color (optional)</Label>
                               <Controller
                                 name="dialColor"
                                 control={form.control}
                                 render={({ field }) => (
                                   <Select onValueChange={field.onChange} value={field.value}>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Sélectionnez" />
+                                      <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                     <SelectContent>
                                       {dialColors.map((color) => (
@@ -590,7 +590,7 @@ export default function SellWatchPage() {
                             </div>
 
                             <div>
-                              <Label>Diamètre (facultatif)</Label>
+                              <Label>Diameter (optional)</Label>
                               <div className="flex items-center gap-2">
                                 <Input 
                                   placeholder="Min" 
@@ -607,14 +607,14 @@ export default function SellWatchPage() {
                             </div>
 
                             <div>
-                              <Label htmlFor="movement">Mouvement (facultatif)</Label>
+                              <Label htmlFor="movement">Movement (optional)</Label>
                               <Controller
                                 name="movement"
                                 control={form.control}
                                 render={({ field }) => (
                                   <Select onValueChange={field.onChange} value={field.value}>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Sélectionnez" />
+                                      <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                     <SelectContent>
                                       {movements.map((movement) => (
@@ -630,14 +630,14 @@ export default function SellWatchPage() {
                             </div>
 
                             <div>
-                              <Label htmlFor="case">Boîtier (facultatif)</Label>
+                              <Label htmlFor="case">Case (optional)</Label>
                               <Controller
                                 name="case"
                                 control={form.control}
                                 render={({ field }) => (
                                   <Select onValueChange={field.onChange} value={field.value}>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Sélectionnez" />
+                                      <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                     <SelectContent>
                                       {cases.map((case_) => (
@@ -653,14 +653,14 @@ export default function SellWatchPage() {
                             </div>
 
                             <div>
-                              <Label htmlFor="braceletMaterial">Matière du bracelet (facultatif)</Label>
+                              <Label htmlFor="braceletMaterial">Bracelet Material (optional)</Label>
                               <Controller
                                 name="braceletMaterial"
                                 control={form.control}
                                 render={({ field }) => (
                                   <Select onValueChange={field.onChange} value={field.value}>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Sélectionnez" />
+                                      <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                     <SelectContent>
                                       {braceletMaterials.map((material) => (
@@ -676,14 +676,14 @@ export default function SellWatchPage() {
                             </div>
 
                             <div>
-                              <Label htmlFor="braceletColor">Couleur du bracelet (facultatif)</Label>
+                              <Label htmlFor="braceletColor">Bracelet Color (optional)</Label>
                               <Controller
                                 name="braceletColor"
                                 control={form.control}
                                 render={({ field }) => (
                                   <Select onValueChange={field.onChange} value={field.value}>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Sélectionnez" />
+                                      <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                     <SelectContent>
                                       {braceletColors.map((color) => (
@@ -706,9 +706,9 @@ export default function SellWatchPage() {
                   {step === 2 && (
                     <div className="space-y-8">
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">Contenu de la livraison</h3>
+                        <h3 className="text-lg font-semibold">Delivery Contents</h3>
                         <p className="text-sm text-muted-foreground mb-4">
-                          Sélectionnez ce qui sera inclus avec la montre *
+                          Select what will be included with the watch *
                         </p>
                         <FormError error={form.formState.errors.included?.message} isSubmitted={isStepSubmitted} />
                         <div className="grid gap-4">
@@ -751,9 +751,9 @@ export default function SellWatchPage() {
                       </div>
 
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">État de la montre</h3>
+                        <h3 className="text-lg font-semibold">Watch Condition</h3>
                         <p className="text-sm text-muted-foreground mb-4">
-                          Sélectionnez l'état de votre montre *
+                          Select the condition of your watch *
                         </p>
                         <FormError error={form.formState.errors.condition?.message} isSubmitted={isStepSubmitted} />
                         <div className="grid gap-4">
@@ -796,9 +796,9 @@ export default function SellWatchPage() {
 
                   {step === 3 && (
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Photos de la montre</h3>
+                      <h3 className="text-lg font-semibold">Watch Photos</h3>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Ajoutez jusqu'à 10 photos de votre montre. Formats acceptés : JPG, PNG, WEBP. Taille maximum : 5MB par photo.
+                        Add up to 10 photos of your watch. Accepted formats: JPG, PNG, WEBP. Maximum size: 5MB per photo.
                       </p>
 
                       <FormError error={form.formState.errors.images?.message} isSubmitted={isStepSubmitted} />
@@ -839,11 +839,11 @@ export default function SellWatchPage() {
 
                   {step === 4 && (
                     <div className="space-y-6">
-                      <h3 className="text-lg font-semibold">Déterminez votre prix de vente</h3>
+                      <h3 className="text-lg font-semibold">Set Your Sale Price</h3>
                       
                       <div className="space-y-4">
                         <div>
-                          <Label htmlFor="price">Prix de vente *</Label>
+                          <Label htmlFor="price">Sale Price *</Label>
                           <div className="flex gap-4">
                             <Input
                               id="price"
@@ -871,21 +871,21 @@ export default function SellWatchPage() {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="shippingDelay">Délai d'envoi *</Label>
+                          <Label htmlFor="shippingDelay">Shipping Time *</Label>
                           <Select
                             value={form.watch("shippingDelay")}
                             onValueChange={(value) => form.setValue("shippingDelay", value)}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Sélectionnez un délai d'envoi" />
+                              <SelectValue placeholder="Select shipping time" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="1-2">1-2 jours ouvrés</SelectItem>
-                              <SelectItem value="2-3">2-3 jours ouvrés</SelectItem>
-                              <SelectItem value="3-5">3-5 jours ouvrés</SelectItem>
-                              <SelectItem value="5-7">5-7 jours ouvrés</SelectItem>
-                              <SelectItem value="7-10">7-10 jours ouvrés</SelectItem>
-                              <SelectItem value="10+">Plus de 10 jours ouvrés</SelectItem>
+                              <SelectItem value="1-2">1-2 business days</SelectItem>
+                              <SelectItem value="2-3">2-3 business days</SelectItem>
+                              <SelectItem value="3-5">3-5 business days</SelectItem>
+                              <SelectItem value="5-7">5-7 business days</SelectItem>
+                              <SelectItem value="7-10">7-10 business days</SelectItem>
+                              <SelectItem value="10+">More than 10 business days</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormError error={form.formState.errors.shippingDelay?.message} isSubmitted={isStepSubmitted} />
@@ -895,19 +895,19 @@ export default function SellWatchPage() {
                           <CardContent className="p-4">
                             <div className="space-y-2">
                               <div className="flex justify-between">
-                                <span className="text-muted-foreground">Prix de vente</span>
+                                <span className="text-muted-foreground">Sale price</span>
                                 <span className="font-medium">
                                   {form.watch("price")?.toLocaleString()} {form.watch("currency")}
                                 </span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-muted-foreground">Commission de vente (6,5 %)</span>
+                                <span className="text-muted-foreground">Sales commission (6.5%)</span>
                                 <span className="font-medium">
                                   {calculateCommission(form.watch("price") || 0).toLocaleString()} {form.watch("currency")}
                                 </span>
                               </div>
                               <div className="flex justify-between pt-2 border-t">
-                                <span className="font-medium">Estimation de votre gain</span>
+                                <span className="font-medium">Estimated earnings</span>
                                 <span className="font-medium text-primary">
                                   {calculateGain(form.watch("price") || 0).toLocaleString()} {form.watch("currency")}
                                 </span>
@@ -918,11 +918,11 @@ export default function SellWatchPage() {
 
                         <Card>
                           <CardContent className="p-4">
-                            <h4 className="font-medium mb-2">Notre recommandation</h4>
+                            <h4 className="font-medium mb-2">Our recommendation</h4>
                             <p className="text-sm text-muted-foreground">
-                              Des montres similaires sont proposées et vendues entre 14 612 € et 25 062 €.
+                              Similar watches are offered and sold between €14,612 and €25,062.
                               <button className="text-primary hover:underline ml-1">
-                                En savoir plus
+                                Learn more
                               </button>
                             </p>
                           </CardContent>
@@ -934,9 +934,9 @@ export default function SellWatchPage() {
 
                   {step === 5 && (
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Documents importants</h3>
+                      <h3 className="text-lg font-semibold">Important Documents</h3>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Ajoutez des documents importants comme des factures, certificats d'authenticité, etc. Ces documents ne seront visibles que par l'acheteur final après la validation de la transaction.
+                        Add important documents such as invoices, certificates of authenticity, etc. These documents will only be visible to the final buyer after transaction validation.
                       </p>
 
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -973,11 +973,11 @@ export default function SellWatchPage() {
                               const files = Array.from(e.target.files || [])
                               const validFiles = files.filter(file => {
                                 if (file.size > 5 * 1024 * 1024) {
-                                  alert(`Le fichier ${file.name} est trop volumineux. Taille maximum: 5MB`)
+                                  alert(`File ${file.name} is too large. Maximum size: 5MB`)
                                   return false
                                 }
                                 if (![".pdf", ".jpg", ".jpeg", ".png"].some(ext => file.name.toLowerCase().endsWith(ext))) {
-                                  alert(`Le fichier ${file.name} n'est pas un format accepté. Formats acceptés: PDF, JPG, PNG`)
+                                  alert(`File ${file.name} is not an accepted format. Accepted formats: PDF, JPG, PNG`)
                                   return false
                                 }
                                 return true
@@ -994,7 +994,7 @@ export default function SellWatchPage() {
                   <div className="flex justify-between items-center pt-6">
                     {step > 1 && (
                       <Button type="button" variant="outline" onClick={prevStep}>
-                        Retour
+                        Back
                       </Button>
                     )}
                     {step < 5 ? (
@@ -1003,7 +1003,7 @@ export default function SellWatchPage() {
                         onClick={nextStep}
                         disabled={isSubmitting}
                       >
-                        {isSubmitting ? "Validation..." : "Continuer"}
+                        {isSubmitting ? "Validating..." : "Continue"}
                       </Button>
                     ) : (
                       <Button 
@@ -1011,7 +1011,7 @@ export default function SellWatchPage() {
                         onClick={handleSubmit}
                         disabled={isSubmitting}
                       >
-                        {isSubmitting ? "Publication..." : "Publier l'annonce"}
+                        {isSubmitting ? "Publishing..." : "Publish listing"}
                       </Button>
                     )}
                   </div>
@@ -1020,11 +1020,11 @@ export default function SellWatchPage() {
             </Card>
           </div>
 
-          {/* Aperçu */}
+          {/* Preview */}
           <div className="space-y-8">
             <Card className="sticky top-20">
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Aperçu</h3>
+                <h3 className="text-lg font-semibold mb-4">Preview</h3>
                 <div className="space-y-4">
                   <div className="relative">
                     <div className="relative aspect-square bg-muted rounded-lg overflow-hidden group">
@@ -1037,7 +1037,7 @@ export default function SellWatchPage() {
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <p className="text-muted-foreground">Image de la montre</p>
+                          <p className="text-muted-foreground">Watch image</p>
                         </div>
                       )}
                       
@@ -1047,14 +1047,14 @@ export default function SellWatchPage() {
                           <button
                             onClick={prevImage}
                             className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                            aria-label="Image précédente"
+                            aria-label="Previous image"
                           >
                             <ChevronLeft className="h-5 w-5" />
                           </button>
                           <button
                             onClick={nextImage}
                             className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                            aria-label="Image suivante"
+                            aria-label="Next image"
                           >
                             <ChevronRight className="h-5 w-5" />
                           </button>
@@ -1072,7 +1072,7 @@ export default function SellWatchPage() {
                                 className={`w-2 h-2 rounded-full transition-colors ${
                                   currentImage === index ? "bg-white" : "bg-white/50"
                                 }`}
-                                aria-label={`Aller à l'image ${index + 1}`}
+                                aria-label={`Go to image ${index + 1}`}
                               />
                             ))}
                           </div>
@@ -1081,46 +1081,46 @@ export default function SellWatchPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <h4 className="font-medium truncate" title={previewTitle || "Titre de l'annonce"}>
-                      {previewTitle || "Titre de l'annonce"}
+                    <h4 className="font-medium truncate" title={previewTitle || "Listing title"}>
+                      {previewTitle || "Listing title"}
                     </h4>
-                    <p className="text-sm text-muted-foreground line-clamp-2" title={form.watch("description") || "Description de la montre..."}>
-                      {form.watch("description") || "Description de la montre..."}
+                    <p className="text-sm text-muted-foreground line-clamp-2" title={form.watch("description") || "Watch description..."}>
+                      {form.watch("description") || "Watch description..."}
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-muted-foreground">Marque</p>
+                      <p className="text-muted-foreground">Brand</p>
                       <p className="font-medium">
                         {brandsList.find(b => b.slug === form.watch("brand"))?.label || "-"}
                       </p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Modèle</p>
+                      <p className="text-muted-foreground">Model</p>
                       <p className="font-medium">
                         {selectedBrand && modelsList[selectedBrand as keyof typeof modelsList]?.find((m: any) => m.slug === form.watch("model"))?.label || "-"}
                       </p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Référence</p>
+                      <p className="text-muted-foreground">Reference</p>
                       <p className="font-medium truncate" title={form.watch("reference") || "-"}>
                         {form.watch("reference") || "-"}
                       </p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Année</p>
+                      <p className="text-muted-foreground">Year</p>
                       <p className="font-medium truncate" title={form.watch("year") || "-"}>
                         {form.watch("year") || "-"}
                       </p>
                     </div>
                     <div className="space-y-2">
-                      <p className="text-muted-foreground">Délai d'envoi</p>
+                      <p className="text-muted-foreground">Shipping time</p>
                       <p className="font-medium">
-                        {form.watch("shippingDelay") ? `${form.watch("shippingDelay")} jours ouvrés` : "-"}
+                        {form.watch("shippingDelay") ? `${form.watch("shippingDelay")} business days` : "-"}
                       </p>
                     </div>
                     <div className="space-y-2">
-                      <p className="text-muted-foreground">État</p>
+                      <p className="text-muted-foreground">Condition</p>
                       <p className="font-medium">
                         {watchConditions.find(c => c.slug === form.watch("condition"))?.label || "-"}
                       </p>
@@ -1128,7 +1128,7 @@ export default function SellWatchPage() {
                   </div>
                   <div className="pt-4 border-t">
                     <div className="flex justify-between items-center">
-                      <p className="text-muted-foreground">Prix</p>
+                      <p className="text-muted-foreground">Price</p>
                       <p className="font-semibold text-lg">
                         {form.watch("price") ? `${form.watch("price").toLocaleString()} ${form.watch("currency")}` : "-"}
                       </p>

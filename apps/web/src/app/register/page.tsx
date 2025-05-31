@@ -11,14 +11,14 @@ export default function RegisterPage() {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold tracking-tight mb-4">
-            Inscription en tant que professionnel sur Watch Pros
+            Register as a Professional on Watch Pros
           </h1>
           <p className="text-muted-foreground text-lg">
-            Rejoignez notre communauté de professionnels et développez votre activité à l'international
+            Join our community of professionals and grow your business internationally
           </p>
         </div>
 
-        {/* Étapes d'inscription */}
+        {/* Registration Steps */}
         <div className="grid md:grid-cols-3 gap-6 mb-12">
           <Card>
             <CardContent className="p-6">
@@ -26,10 +26,10 @@ export default function RegisterPage() {
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <span className="text-primary font-semibold">1</span>
                 </div>
-                <h3 className="font-semibold text-lg">Créez votre compte professionnel</h3>
+                <h3 className="font-semibold text-lg">Create your professional account</h3>
               </div>
               <p className="text-muted-foreground">
-                Commencez tout d'abord par configurer vos identifiants d'accès à notre plateforme, soumettez-nous ensuite quelques données essentielles sur votre entreprise et enregistrez vos données bancaires.
+                Start by setting up your platform access credentials, then submit some essential information about your business and register your banking details.
               </p>
             </CardContent>
           </Card>
@@ -40,10 +40,10 @@ export default function RegisterPage() {
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <span className="text-primary font-semibold">2</span>
                 </div>
-                <h3 className="font-semibold text-lg">Complétez vos données</h3>
+                <h3 className="font-semibold text-lg">Complete your information</h3>
               </div>
               <p className="text-muted-foreground">
-                Avant de commencer, nous avons encore besoin de quelques documents sur vous et votre entreprise. Nous vérifions également ensemble quels numéros d'identification fiscale doivent être fournis.
+                Before starting, we need a few more documents about you and your business. We'll also check together which tax identification numbers need to be provided.
               </p>
             </CardContent>
           </Card>
@@ -54,45 +54,45 @@ export default function RegisterPage() {
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <span className="text-primary font-semibold">3</span>
                 </div>
-                <h3 className="font-semibold text-lg">Commencez votre période d'essai</h3>
+                <h3 className="font-semibold text-lg">Start your trial period</h3>
               </div>
               <p className="text-muted-foreground">
-                Une fois vos données et documents vérifiés, vous pourrez commencer votre période d'essai. Publiez des annonces et vendez vos montres dans le monde entier.
+                Once your data and documents are verified, you can start your trial period. Post listings and sell your watches worldwide.
               </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Informations légales */}
+        {/* Legal Information */}
         <div className="bg-muted/50 rounded-lg p-6 mb-12">
           <p className="text-muted-foreground mb-6">
-            La société Watch Pros étant basée en Allemagne, nous devons nous conformer à la législation européenne en vigueur. Cela signifie que nous avons besoin de certaines données sur votre entreprise. De cette manière, vous pourrez vous concentrer pleinement sur la vente de vos montres pendant votre période d'essai.
+            As Watch Pros is based in Germany, we must comply with current European legislation. This means we need certain information about your business. This way, you can focus entirely on selling your watches during your trial period.
           </p>
         </div>
 
-        {/* Documents requis */}
+        {/* Required Documents */}
         <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {/* Personne morale */}
+          {/* Legal Entity */}
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <Building2 className="w-5 h-5 text-primary" />
-                <h3 className="font-semibold text-lg">Personne morale</h3>
+                <h3 className="font-semibold text-lg">Legal Entity</h3>
               </div>
-              <p className="text-sm text-muted-foreground mb-4">Personne morale / Société de capitaux</p>
+              <p className="text-sm text-muted-foreground mb-4">Legal Entity / Corporation</p>
               <ul className="space-y-2">
                 {[
-                  "Numéro d'identification au registre du commerce",
-                  "Extrait de registre du commerce",
-                  "Numéro d'identification fiscale",
-                  "Numéro de TVA",
-                  "Coordonnées bancaires pour les paiements",
-                  "Justificatif de domicile",
-                  "Pièce d'identité",
-                  "Statut juridique",
+                  "Business registration number",
+                  "Business registration extract",
+                  "Tax identification number",
+                  "VAT number",
+                  "Bank details for payments",
+                  "Proof of address",
+                  "ID document",
+                  "Legal status",
                   "Chrono24 shareholder declaration",
-                  "DAC 7 : données requises",
-                  "Informations sur la TVA"
+                  "DAC 7: required data",
+                  "VAT information"
                 ].map((item, index) => (
                   <li key={index} className="flex items-center gap-2 text-sm">
                     <CheckCircle2 className="w-4 h-4 text-primary" />
@@ -103,24 +103,24 @@ export default function RegisterPage() {
             </CardContent>
           </Card>
 
-          {/* Personne physique */}
+          {/* Individual */}
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <User className="w-5 h-5 text-primary" />
-                <h3 className="font-semibold text-lg">Personne physique</h3>
+                <h3 className="font-semibold text-lg">Individual</h3>
               </div>
-              <p className="text-sm text-muted-foreground mb-4">Personne physique / Entrepreneur individuel</p>
+              <p className="text-sm text-muted-foreground mb-4">Individual / Sole Proprietor</p>
               <ul className="space-y-2">
                 {[
-                  "Numéro d'identification fiscale",
-                  "Numéro de TVA",
-                  "Coordonnées bancaires pour les paiements",
-                  "Justificatif de domicile",
-                  "Pièce d'identité",
-                  "Déclaration d'activité professionnelle",
-                  "DAC 7 : données requises",
-                  "Informations sur la TVA"
+                  "Tax identification number",
+                  "VAT number",
+                  "Bank details for payments",
+                  "Proof of address",
+                  "ID document",
+                  "Professional activity declaration",
+                  "DAC 7: required data",
+                  "VAT information"
                 ].map((item, index) => (
                   <li key={index} className="flex items-center gap-2 text-sm">
                     <CheckCircle2 className="w-4 h-4 text-primary" />
@@ -137,16 +137,16 @@ export default function RegisterPage() {
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-4">
               <AlertCircle className="w-5 h-5 text-primary" />
-              <h3 className="font-semibold text-lg">Conditions d'acceptation</h3>
+              <h3 className="font-semibold text-lg">Acceptance Conditions</h3>
             </div>
             <p className="text-muted-foreground mb-4">
-              Nous ne pouvons accepter votre inscription que si vous remplissez les conditions suivantes :
+              We can only accept your registration if you meet the following conditions:
             </p>
             <ul className="space-y-2">
               {[
-                "Vous avez un commerce déclaré ou une entreprise inscrite au registre du commerce",
-                "Votre inventaire comprend au moins 50 montres",
-                "50 de vos montres coûtent au moins 2 000 € chacune"
+                "You have a registered business or a company registered with the commercial register",
+                "Your inventory includes at least 50 watches",
+                "50 of your watches cost at least €2,000 each"
               ].map((item, index) => (
                 <li key={index} className="flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-primary" />
@@ -155,7 +155,7 @@ export default function RegisterPage() {
               ))}
             </ul>
             <p className="text-sm text-muted-foreground mt-4">
-              Veuillez noter que nous nous réservons le droit de refuser des inscriptions.
+              Please note that we reserve the right to refuse registrations.
             </p>
           </CardContent>
         </Card>
@@ -164,11 +164,11 @@ export default function RegisterPage() {
         <div className="text-center">
           <Link href="/register/form">
             <Button size="lg" className="px-8">
-              Créer mon compte
+              Create my account
             </Button>
           </Link>
         </div>
       </div>
     </main>
   )
-} 
+}

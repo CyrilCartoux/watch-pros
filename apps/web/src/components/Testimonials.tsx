@@ -12,21 +12,21 @@ import { Card, CardContent } from "./ui/card"
 
 const testimonials = [
   {
-    quote: "Watch Pros m'a permis de réduire de 70% le temps passé à gérer mes ventes. La recherche avancée et les alertes sont un vrai plus.",
+    quote: "Watch Pros helped me reduce the time spent managing my sales by 70%. The advanced search and alerts are a real plus.",
     author: "Thomas Dubois",
-    role: "Bijoutier",
+    role: "Jeweler",
     company: "Luxury Timepieces Paris"
   },
   {
-    quote: "Enfin une alternative sérieuse à Chrono24 ! Les badges de vérification et le KYC pro nous donnent une vraie crédibilité.",
+    quote: "Finally a serious alternative to Chrono24! The verification badges and professional KYC give us real credibility.",
     author: "Sophie Martin",
-    role: "Directrice",
+    role: "Director",
     company: "Horlogerie & Co"
   },
   {
-    quote: "La disponibilité en temps réel et la communication intégrée m'ont fait gagner des heures chaque semaine. Un must pour les professionnels.",
+    quote: "Real-time availability and integrated communication have saved me hours each week. A must for professionals.",
     author: "Marc Laurent",
-    role: "Marchand de montres",
+    role: "Watch Dealer",
     company: "Watch Collector Pro"
   }
 ]
@@ -37,10 +37,10 @@ export function Testimonials() {
       <div className="container">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold tracking-tight mb-4 text-foreground">
-            Ce qu'en disent les professionnels
+            What Professionals Say
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Découvrez comment Watch Pros transforme le quotidien des professionnels de l'horlogerie de luxe.
+            Discover how Watch Pros transforms the daily operations of luxury watch professionals.
           </p>
         </div>
 
@@ -57,7 +57,7 @@ export function Testimonials() {
                       <div className="mt-auto">
                         <p className="font-semibold text-foreground">{testimonial.author}</p>
                         <p className="text-sm text-muted-foreground">
-                          {testimonial.role} chez {testimonial.company}
+                          {testimonial.role} at {testimonial.company}
                         </p>
                       </div>
                     </CardContent>
@@ -75,4 +75,4 @@ export function Testimonials() {
       </div>
     </section>
   )
-} 
+}

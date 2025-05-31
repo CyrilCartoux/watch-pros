@@ -13,10 +13,10 @@ export default function SellPage() {
         <div className="container px-4 md:px-6">
           <div className="max-w-4xl mx-auto text-center">
             <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 md:mb-6">
-              Mettre en vente
+              List for Sale
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-6 md:mb-8 px-4 md:px-0">
-              Choisissez le type de produit que vous souhaitez vendre sur Watch Pros
+              Choose the type of product you want to sell on Watch Pros
             </p>
           </div>
         </div>
@@ -34,12 +34,12 @@ export default function SellPage() {
                     <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                       <Watch className="w-8 h-8 md:w-10 md:h-10 text-primary" />
                     </div>
-                    <h2 className="text-2xl font-bold mb-2">Montre</h2>
+                    <h2 className="text-2xl font-bold mb-2">Watch</h2>
                     <p className="text-muted-foreground mb-6">
-                      Mettez en vente votre montre de luxe. Notre plateforme vous permet de toucher une large communauté de passionnés et de professionnels.
+                      List your luxury watch for sale. Our platform allows you to reach a wide community of enthusiasts and professionals.
                     </p>
                     <Button size="lg" className="w-full">
-                      Vendre une montre
+                      Sell a watch
                     </Button>
                   </div>
                 </CardContent>
@@ -54,12 +54,12 @@ export default function SellPage() {
                     <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                       <Gift className="w-8 h-8 md:w-10 md:h-10 text-primary" />
                     </div>
-                    <h2 className="text-2xl font-bold mb-2">Accessoire</h2>
+                    <h2 className="text-2xl font-bold mb-2">Accessory</h2>
                     <p className="text-muted-foreground mb-6">
-                      Vendez vos accessoires horlogers : bracelets, boîtes, outils, etc. Une opportunité de toucher une clientèle ciblée.
+                      Sell your watch accessories: straps, boxes, tools, etc. An opportunity to reach a targeted customer base.
                     </p>
                     <Button size="lg" variant="outline" className="w-full">
-                      Vendre un accessoire
+                      Sell an accessory
                     </Button>
                   </div>
                 </CardContent>
@@ -74,25 +74,25 @@ export default function SellPage() {
         <div className="container px-4 md:px-6">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">
-              Pourquoi vendre sur Watch Pros ?
+              Why sell on Watch Pros?
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
               <div className="p-4">
-                <h3 className="font-semibold mb-2">Communauté ciblée</h3>
+                <h3 className="font-semibold mb-2">Targeted Community</h3>
                 <p className="text-muted-foreground text-sm">
-                  Accédez à une communauté de passionnés et de professionnels du monde de l'horlogerie.
+                  Access a community of watch enthusiasts and professionals.
                 </p>
               </div>
               <div className="p-4">
-                <h3 className="font-semibold mb-2">Processus sécurisé</h3>
+                <h3 className="font-semibold mb-2">Secure Process</h3>
                 <p className="text-muted-foreground text-sm">
-                  Bénéficiez d'un système de paiement sécurisé et d'une protection contre les fraudes.
+                  Benefit from a secure payment system and fraud protection.
                 </p>
               </div>
               <div className="p-4">
-                <h3 className="font-semibold mb-2">Support dédié</h3>
+                <h3 className="font-semibold mb-2">Dedicated Support</h3>
                 <p className="text-muted-foreground text-sm">
-                  Notre équipe est là pour vous accompagner tout au long du processus de vente.
+                  Our team is here to support you throughout the selling process.
                 </p>
               </div>
             </div>
@@ -101,4 +101,4 @@ export default function SellPage() {
       </section>
     </main>
   )
-} 
+}

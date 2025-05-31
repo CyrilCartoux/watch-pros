@@ -32,11 +32,11 @@ export default function SuccessPage() {
                 className="space-y-4"
               >
                 <h1 className="text-3xl font-bold tracking-tight">
-                  Votre compte a été créé avec succès !
+                  Your account has been created successfully!
                 </h1>
                 <p className="text-muted-foreground text-lg">
-                  Votre compte sera activé après vérification par notre équipe.
-                  Ce processus prend généralement moins de 24 heures.
+                  Your account will be activated after verification by our team.
+                  This process usually takes less than 24 hours.
                 </p>
               </motion.div>
 
@@ -47,24 +47,24 @@ export default function SuccessPage() {
                 className="space-y-4"
               >
                 <div className="bg-muted/50 rounded-lg p-4">
-                  <h2 className="font-semibold mb-2">Prochaines étapes :</h2>
+                  <h2 className="font-semibold mb-2">Next steps:</h2>
                   <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li>• Notre équipe vérifie vos documents et informations</li>
-                    <li>• Vous recevrez un email de confirmation une fois votre compte validé</li>
-                    <li>• Vous pourrez alors commencer à publier vos annonces</li>
-                    <li>• Pendant la période d'essai, vous pourrez publier jusqu'à 5 annonces</li>
+                    <li>• Our team verifies your documents and information</li>
+                    <li>• You will receive a confirmation email once your account is validated</li>
+                    <li>• You can then start publishing your listings</li>
+                    <li>• During the trial period, you can publish up to 5 listings</li>
                   </ul>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                   <Link href="/dashboard">
                     <Button variant="outline" className="w-full sm:w-auto">
-                      Retour au tableau de bord
+                      Back to dashboard
                     </Button>
                   </Link>
                   <Link href="/sell">
                     <Button className="w-full sm:w-auto">
-                      Commencer à vendre
+                      Start selling
                     </Button>
                   </Link>
                 </div>
@@ -75,4 +75,4 @@ export default function SuccessPage() {
       </div>
     </main>
   )
-} 
+}

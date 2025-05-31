@@ -10,7 +10,7 @@ import Link from "next/link"
 import { useState } from "react"
 import { Switch } from "@/components/ui/switch"
 
-// Mock data pour les notifications
+// Mock data for notifications
 const mockNotifications = {
   active: {
     listings: [
@@ -73,7 +73,7 @@ const mockNotifications = {
       id: 1,
       type: "price_update",
       title: "Rolex Submariner 2023",
-      message: "Le prix a baissé de 500€",
+      message: "Price dropped by €500",
       image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=200&h=200&fit=crop",
       date: "2024-03-20T10:30:00",
       read: false
@@ -82,7 +82,7 @@ const mockNotifications = {
       id: 2,
       type: "new_listing",
       title: "Omega Seamaster 300M",
-      message: "Une nouvelle annonce correspond à vos critères",
+      message: "A new listing matches your criteria",
       image: "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=200&h=200&fit=crop",
       date: "2024-03-19T15:45:00",
       read: true
@@ -91,7 +91,7 @@ const mockNotifications = {
       id: 3,
       type: "sold",
       title: "Rolex Submariner 2023",
-      message: "Cette montre a été vendue",
+      message: "This watch has been sold",
       image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=200&h=200&fit=crop",
       date: "2024-03-18T09:15:00",
       read: true
@@ -170,22 +170,22 @@ export default function NotificationsPage() {
   return (
     <div className="container py-4 md:py-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold">Centre de notifications</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">Notification Center</h1>
         <Button variant="outline" size="sm" onClick={markAllAsRead} className="w-full sm:w-auto">
-          Tout marquer comme lu
+          Mark all as read
         </Button>
       </div>
 
       <Tabs defaultValue="active" className="space-y-4 md:space-y-6">
         <TabsList className="w-full sm:w-auto">
-          <TabsTrigger value="active" className="flex-1 sm:flex-none">Alertes actives</TabsTrigger>
-          <TabsTrigger value="history" className="flex-1 sm:flex-none">Historique</TabsTrigger>
+          <TabsTrigger value="active" className="flex-1 sm:flex-none">Active Alerts</TabsTrigger>
+          <TabsTrigger value="history" className="flex-1 sm:flex-none">History</TabsTrigger>
         </TabsList>
 
         <TabsContent value="active" className="space-y-6 md:space-y-8">
-          {/* Alertes sur les annonces */}
+          {/* Listing Alerts */}
           <div>
-            <h2 className="text-xl md:text-2xl font-bold mb-4">Alertes sur les annonces</h2>
+            <h2 className="text-xl md:text-2xl font-bold mb-4">Listing Alerts</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
               {notifications.active.listings.map((listing) => (
                 <Card key={listing.id} className="hover:bg-muted/50 transition-colors">
@@ -218,7 +218,7 @@ export default function NotificationsPage() {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
-                              <span className="text-xs md:text-sm">Mises à jour de prix</span>
+                              <span className="text-xs md:text-sm">Price updates</span>
                             </div>
                             <Switch
                               checked={listing.notifications.priceUpdates}
@@ -228,7 +228,7 @@ export default function NotificationsPage() {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <ShoppingBag className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
-                              <span className="text-xs md:text-sm">Vendue</span>
+                              <span className="text-xs md:text-sm">Sold</span>
                             </div>
                             <Switch
                               checked={listing.notifications.sold}
@@ -244,9 +244,9 @@ export default function NotificationsPage() {
             </div>
           </div>
 
-          {/* Alertes sur les modèles */}
+          {/* Model Alerts */}
           <div>
-            <h2 className="text-xl md:text-2xl font-bold mb-4">Alertes sur les modèles</h2>
+            <h2 className="text-xl md:text-2xl font-bold mb-4">Model Alerts</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
               {notifications.active.models.map((model) => (
                 <Card key={model.id} className="hover:bg-muted/50 transition-colors">
@@ -269,7 +269,7 @@ export default function NotificationsPage() {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <Bell className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
-                              <span className="text-xs md:text-sm">Nouvelles annonces</span>
+                              <span className="text-xs md:text-sm">New listings</span>
                             </div>
                             <Switch
                               checked={model.notifications.newListings}
@@ -322,7 +322,7 @@ export default function NotificationsPage() {
                             onClick={() => markAsRead(notification.id)}
                           >
                             <CheckCircle2 className="h-4 w-4" />
-                            <span className="sr-only">Marquer comme lu</span>
+                            <span className="sr-only">Mark as read</span>
                           </Button>
                         )}
                         <Button
@@ -332,7 +332,7 @@ export default function NotificationsPage() {
                           onClick={() => removeNotification(notification.id)}
                         >
                           <XCircle className="h-4 w-4" />
-                          <span className="sr-only">Supprimer</span>
+                          <span className="sr-only">Delete</span>
                         </Button>
                       </div>
                     </div>
@@ -345,4 +345,4 @@ export default function NotificationsPage() {
       </Tabs>
     </div>
   )
-} 
+}

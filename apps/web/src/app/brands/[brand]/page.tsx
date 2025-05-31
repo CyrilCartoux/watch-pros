@@ -75,7 +75,7 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
   }
 
   if (!brandInfo) {
-    return <div>Marque non trouvée</div>
+    return <div>Brand not found</div>
   }
 
   return (
@@ -109,8 +109,8 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
           <div className="space-y-8 md:space-y-12">
             {/* Featured Models */}
             <div>
-              <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6">Modèles Phares</h2>
-              {/* Version Mobile - Carousel */}
+              <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6">Featured Models</h2>
+              {/* Mobile Version - Carousel */}
               <div className="md:hidden relative">
                 <div 
                   className="relative"
@@ -154,7 +154,7 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
                 </div>
               </div>
 
-              {/* Version Desktop - Grid */}
+              {/* Desktop Version - Grid */}
               <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {brandInfo.featuredModels.map((model, index) => (
                   <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -184,13 +184,13 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
 
             {/* Listings */}
             <div>
-              <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6">Annonces disponibles</h2>
+              <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6">Available Listings</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {/* Placeholder for listings */}
                 <Card className="bg-card">
                   <CardContent className="p-4 md:p-6">
                     <p className="text-muted-foreground">
-                      Les listings seront bientôt disponibles
+                      Listings will be available soon
                     </p>
                   </CardContent>
                 </Card>
@@ -203,11 +203,11 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
       {/* Blog Section */}
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold mb-8 text-foreground">À propos de {brandInfo.name}</h2>
+          <h2 className="text-3xl font-bold mb-8 text-foreground">About {brandInfo.name}</h2>
           
           {/* Key Features */}
           <div className="mb-12">
-            <h3 className="text-2xl font-semibold text-foreground mb-6">Points forts</h3>
+            <h3 className="text-2xl font-semibold text-foreground mb-6">Key Features</h3>
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
               {brandInfo.keyFeatures.map((feature, index) => (
                 <Card key={index} className="bg-card hover:shadow-md transition-shadow">
@@ -242,7 +242,7 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
             {/* Key Features List */}
             <div className="space-y-6">
               <div className="prose prose-lg max-w-none">
-                <h3 className="text-2xl font-semibold text-foreground mb-4">Caractéristiques</h3>
+                <h3 className="text-2xl font-semibold text-foreground mb-4">Features</h3>
                 <ul className="space-y-4 text-muted-foreground">
                   {brandInfo.keyFeatures.map((feature, index) => (
                     <li key={index} className="flex items-start">
@@ -257,14 +257,14 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
 
           {/* Price Range */}
           <div className="mt-12 bg-card p-6 rounded-lg border">
-            <h3 className="text-2xl font-semibold text-foreground mb-4">Gamme de prix</h3>
+            <h3 className="text-2xl font-semibold text-foreground mb-4">Price Range</h3>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <h4 className="font-medium text-foreground mb-2">Prix catalogue (2023)</h4>
+                <h4 className="font-medium text-foreground mb-2">Retail Price (2023)</h4>
                 <p className="text-muted-foreground">{brandInfo.priceRange.catalog}</p>
               </div>
               <div>
-                <h4 className="font-medium text-foreground mb-2">Marché secondaire</h4>
+                <h4 className="font-medium text-foreground mb-2">Secondary Market</h4>
                 <p className="text-muted-foreground">{brandInfo.priceRange.secondary}</p>
               </div>
             </div>
@@ -272,7 +272,7 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
 
           {/* Iconic Models */}
           <div className="mt-12 space-y-8">
-            <h3 className="text-2xl font-semibold text-foreground">Modèles Emblématiques</h3>
+            <h3 className="text-2xl font-semibold text-foreground">Iconic Models</h3>
             <div className="grid gap-6 md:grid-cols-2">
               {brandInfo.featuredModels.map((model, index) => (
                 <div key={index} className="bg-card p-6 rounded-lg border">

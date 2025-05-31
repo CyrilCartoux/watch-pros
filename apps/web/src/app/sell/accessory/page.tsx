@@ -18,28 +18,28 @@ import { brandsList } from "@/data/brands-list"
 import { modelsList } from "@/data/models-list"
 import Image from "next/image"
 
-// Ajouter un composant pour afficher les erreurs
+// Add a component to display errors
 const FormError = ({ error, isSubmitted }: { error?: string, isSubmitted: boolean }) => {
     if (!error || !isSubmitted) return null
     return <p className="text-sm text-red-500 mt-1">{error}</p>
 }
 
-// Schéma de validation pour le formulaire d'accessoire
+// Validation schema for the accessory form
 const accessorySchema = z.object({
-  // Champs communs
-  type: z.string().min(1, "Le type d'accessoire est requis"),
-  brand: z.string().min(1, "La marque est requise"),
-  model: z.string().min(1, "Le modèle est requis"),
-  title: z.string().min(1, "Le titre est requis").max(60, "Le titre ne doit pas dépasser 60 caractères"),
+  // Common fields
+  type: z.string().min(1, "Accessory type is required"),
+  brand: z.string().min(1, "Brand is required"),
+  model: z.string().min(1, "Model is required"),
+  title: z.string().min(1, "Title is required").max(60, "Title must not exceed 60 characters"),
   year: z.string().optional(),
   yearUnknown: z.boolean().default(false),
   reference: z.string().optional(),
   description: z.string().optional(),
-  condition: z.string().min(1, "L'état est requis"),
-  images: z.array(z.instanceof(File)).min(1, "Au moins une photo est requise").max(10, "Maximum 10 photos"),
-  price: z.number().min(1, "Le prix est requis"),
+  condition: z.string().min(1, "Condition is required"),
+  images: z.array(z.instanceof(File)).min(1, "At least one photo is required").max(10, "Maximum 10 photos"),
+  price: z.number().min(1, "Price is required"),
   currency: z.string().default("EUR"),
-  shippingDelay: z.string().min(1, "Le délai d'envoi est requis"),
+  shippingDelay: z.string().min(1, "Shipping delay is required"),
   documents: z.array(z.instanceof(File)).optional(),
   
   // Dimensions
@@ -53,7 +53,7 @@ const accessorySchema = z.object({
     braceletThickness: z.string().optional(),
   }).optional(),
   
-  // Champs spécifiques aux accessoires
+  // Accessory specific fields
   claspType: z.string().optional(),
   claspMaterial: z.string().optional(),
   caseType: z.string().optional(),
@@ -157,7 +157,7 @@ export default function SellAccessoryPage() {
     mode: "onChange",
   })
 
-  // Auto-compléter le titre quand le type, la marque ou le modèle change
+  // Auto-complete title when type, brand or model changes
   useEffect(() => {
     const type = form.watch("type")
     const brand = brandsList.find(b => b.slug === form.watch("brand"))?.label
@@ -169,14 +169,14 @@ export default function SellAccessoryPage() {
     }
   }, [form.watch("type"), form.watch("brand"), form.watch("model")])
 
-  // Validation des étapes
+  // Step validation
   const validateStep = async (stepNumber: number) => {
     let fieldsToValidate: (keyof z.infer<typeof accessorySchema>)[] = []
 
     switch (stepNumber) {
       case 1:
         fieldsToValidate = ["type", "brand", "model", "title"]
-        if (selectedType === "Cadran") {
+        if (selectedType === "Dial") {
           fieldsToValidate.push("year", "reference", "dialColor", "dimensions")
         }
         break
@@ -216,28 +216,28 @@ export default function SellAccessoryPage() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
     
-    // Validation des fichiers
+    // File validation
     const validFiles = files.filter(file => {
       if (file.size > 5 * 1024 * 1024) {
-        alert(`Le fichier ${file.name} est trop volumineux. Taille maximum: 5MB`)
+        alert(`File ${file.name} is too large. Maximum size: 5MB`)
         return false
       }
       if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-        alert(`Le fichier ${file.name} n'est pas un format d'image accepté. Formats acceptés: JPG, PNG, WEBP`)
+        alert(`File ${file.name} is not an accepted image format. Accepted formats: JPG, PNG, WEBP`)
         return false
       }
       return true
     })
 
     if (validFiles.length + selectedImages.length > 10) {
-      alert("Vous ne pouvez pas ajouter plus de 10 images")
+      alert("You cannot add more than 10 images")
       return
     }
 
     setSelectedImages(prev => [...prev, ...validFiles])
     form.setValue("images", [...selectedImages, ...validFiles])
 
-    // Création des previews
+    // Create previews
     validFiles.forEach(file => {
       const reader = new FileReader()
       reader.onloadend = () => {
@@ -288,10 +288,10 @@ export default function SellAccessoryPage() {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-4 sm:mb-12">
           <h1 className="text-2xl sm:text-4xl font-bold tracking-tight mb-2 sm:mb-4">
-            Mettre en vente un accessoire
+            List an Accessory for Sale
           </h1>
           <p className="text-muted-foreground text-sm sm:text-lg">
-            Complétez les informations ci-dessous pour créer votre annonce
+            Complete the information below to create your listing
           </p>
         </div>
 
@@ -326,30 +326,30 @@ export default function SellAccessoryPage() {
           </div>
           <div className="flex justify-between text-sm text-muted-foreground px-2">
             <span className="w-8 text-center">Type</span>
-            <span className="w-8 text-center">État</span>
+            <span className="w-8 text-center">Condition</span>
             <span className="w-8 text-center">Photos</span>
-            <span className="w-8 text-center">Prix</span>
+            <span className="w-8 text-center">Price</span>
             <span className="w-8 text-center">Documents</span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Formulaire */}
+          {/* Form */}
           <div className="space-y-8">
             <Card>
               <CardContent className="p-6">
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   {step === 1 && (
                     <div className="space-y-6">
-                      {/* Type d'accessoire */}
+                      {/* Accessory type */}
                       <div className="space-y-2">
-                        <Label htmlFor="type">Type d'accessoire *</Label>
+                        <Label htmlFor="type">Accessory type *</Label>
                         <Select
                           value={selectedType}
                           onValueChange={handleTypeChange}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Sélectionnez un type d'accessoire" />
+                            <SelectValue placeholder="Select an accessory type" />
                           </SelectTrigger>
                           <SelectContent>
                             {accessoryTypes.map((type) => (
@@ -362,9 +362,9 @@ export default function SellAccessoryPage() {
                         <FormError error={form.formState.errors.type?.message} isSubmitted={isStepSubmitted} />
                       </div>
 
-                      {/* Marques populaires */}
+                      {/* Popular brands */}
                       <div className="space-y-2">
-                        <Label>Marques populaires</Label>
+                        <Label>Popular brands</Label>
                         <div className="grid grid-cols-5 sm:grid-cols-3 md:grid-cols-5 gap-1 sm:gap-2">
                           {popularBrands.map((brand) => (
                             <button
@@ -396,7 +396,7 @@ export default function SellAccessoryPage() {
                             render={({ field }) => (
                               <Select onValueChange={handleBrandChange} value={field.value}>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Sélectionnez une marque" />
+                                  <SelectValue placeholder="Select a brand" />
                                 </SelectTrigger>
                                 <SelectContent>
                                   {brandsList.map((brand) => (
@@ -411,10 +411,10 @@ export default function SellAccessoryPage() {
                           <FormError error={form.formState.errors.brand?.message} isSubmitted={isStepSubmitted} />
                         </div>
 
-                      {/* Modèles populaires */}
+                      {/* Popular models */}
                       {selectedBrand && modelsList[selectedBrand as keyof typeof modelsList] && (
                         <div className="space-y-2">
-                          <Label>Modèles {brandsList.find(b => b.slug === selectedBrand)?.label}</Label>
+                          <Label>Models {brandsList.find(b => b.slug === selectedBrand)?.label}</Label>
                           <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2">
                             {modelsList[selectedBrand as keyof typeof modelsList]
                               .slice(0, 4)
@@ -450,7 +450,7 @@ export default function SellAccessoryPage() {
                                 disabled={!selectedBrand}
                               >
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Sélectionnez un modèle" />
+                                  <SelectValue placeholder="Select a model" />
                                 </SelectTrigger>
                                 <SelectContent>
                                   {selectedBrand && modelsList[selectedBrand as keyof typeof modelsList]?.map((model: any) => (
@@ -465,14 +465,14 @@ export default function SellAccessoryPage() {
                           <FormError error={form.formState.errors.model?.message} isSubmitted={isStepSubmitted} />
                         </div>
     
-                      {/* Titre de l'annonce */}
+                      {/* Listing title */}
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold">Titre de l'annonce</h3>
+                        <h3 className="text-lg font-semibold">Listing title</h3>
                         <div>
-                          <Label htmlFor="title">Titre *</Label>
+                          <Label htmlFor="title">Title *</Label>
                           <Input 
                             id="title" 
-                            placeholder="Complétez le titre de l'annonce" 
+                            placeholder="Complete the listing title" 
                             maxLength={40}
                             {...form.register("title")}
                           />
@@ -483,7 +483,7 @@ export default function SellAccessoryPage() {
                         </div>
                       </div>
 
-                      {/* Description - Pour tous les types */}
+                      {/* Description - For all types */}
                       <div className="space-y-2">
                         <Label htmlFor="description">Description</Label>
                         <Input
@@ -497,14 +497,14 @@ export default function SellAccessoryPage() {
                         </p>
                       </div>
 
-                      {/* Détails supplémentaires - Toggle Section */}
+                      {/* Additional details - Toggle Section */}
                       <div className="space-y-4">
                         <button
                           type="button"
                           onClick={() => setShowDetails(!showDetails)}
                           className="flex items-center justify-between w-full text-left"
                         >
-                          <h3 className="text-lg font-semibold">Plus d'informations (facultatif)</h3>
+                          <h3 className="text-lg font-semibold">More information (optional)</h3>
                           {showDetails ? (
                             <ChevronUp className="h-5 w-5 text-muted-foreground" />
                           ) : (
@@ -514,10 +514,10 @@ export default function SellAccessoryPage() {
 
                         {showDetails && (
                           <div className="space-y-4 pt-4">
-                            {/* Année - Toujours affichée */}
+                            {/* Year - Always shown */}
                             <div className="space-y-2">
                               <div className="flex items-center justify-between">
-                                <Label htmlFor="year">Année de fabrication</Label>
+                                <Label htmlFor="year">Manufacturing year</Label>
                                 <div className="flex items-center space-x-2">
                                   <Checkbox
                                     id="yearUnknown"
@@ -529,21 +529,21 @@ export default function SellAccessoryPage() {
                                       }
                                     }}
                                   />
-                                  <Label htmlFor="yearUnknown" className="text-sm">Année inconnue</Label>
+                                  <Label htmlFor="yearUnknown" className="text-sm">Unknown year</Label>
                                 </div>
                               </div>
                               {!form.watch("yearUnknown") && (
                                 <Input
                                   type="number"
                                   id="year"
-                                  placeholder="par ex. 2013"
+                                  placeholder="e.g. 2013"
                                   {...form.register("year")}
                                 />
                               )}
                             </div>
                             
                             <div className="space-y-2">
-                              <Label htmlFor="reference">Numéro de référence</Label>
+                              <Label htmlFor="reference">Reference number</Label>
                               <Input
                                 type="text"
                                 id="reference"
@@ -555,20 +555,20 @@ export default function SellAccessoryPage() {
                               </p>
                             </div>
 
-                            {/* Champs spécifiques en fonction du type d'accessoire */}
+                            {/* Specific fields based on accessory type */}
                             {selectedType && (
                               <div className="space-y-4">
-                                {/* Champs spécifiques pour les Cadrans */}
-                                {selectedType === "Cadran" && (
+                                {/* Fields specific to Dials */}
+                                {selectedType === "Dial" && (
                                   <>
                                     <div className="space-y-2">
-                                      <Label htmlFor="dialColor">Couleur du cadran</Label>
+                                      <Label htmlFor="dialColor">Dial color</Label>
                                       <Select
                                         value={form.watch("dialColor")}
                                         onValueChange={(value) => form.setValue("dialColor", value)}
                                       >
                                         <SelectTrigger>
-                                          <SelectValue placeholder="Sélectionnez une couleur" />
+                                          <SelectValue placeholder="Select a color" />
                                         </SelectTrigger>
                                         <SelectContent>
                                           {dialColors.map((color) => (
@@ -581,7 +581,7 @@ export default function SellAccessoryPage() {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                       <div className="space-y-2">
-                                        <Label htmlFor="dimensions.width">Diamètre</Label>
+                                        <Label htmlFor="dimensions.width">Diameter</Label>
                                         <Input
                                           type="number"
                                           id="dimensions.width"
@@ -590,7 +590,7 @@ export default function SellAccessoryPage() {
                                         />
                                       </div>
                                       <div className="space-y-2">
-                                        <Label htmlFor="dimensions.height">Épaisseur</Label>
+                                        <Label htmlFor="dimensions.height">Thickness</Label>
                                         <Input
                                           type="number"
                                           id="dimensions.height"
@@ -602,17 +602,17 @@ export default function SellAccessoryPage() {
                                   </>
                                 )}
 
-                                {/* Champs spécifiques pour les Lunettes */}
-                                {selectedType === "Lunette" && (
+                                {/* Fields specific to Bezels */}
+                                {selectedType === "Bezel" && (
                                   <>
                                     <div className="space-y-2">
-                                      <Label htmlFor="lensMaterial">Matériau de la lunette</Label>
+                                      <Label htmlFor="lensMaterial">Bezel material</Label>
                                       <Select
                                         value={form.watch("lensMaterial")}
                                         onValueChange={(value) => form.setValue("lensMaterial", value)}
                                       >
                                         <SelectTrigger>
-                                          <SelectValue placeholder="Sélectionnez un matériau" />
+                                          <SelectValue placeholder="Select a material" />
                                         </SelectTrigger>
                                         <SelectContent>
                                           {lensMaterials.map((material) => (
@@ -625,7 +625,7 @@ export default function SellAccessoryPage() {
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                       <div className="space-y-2">
-                                        <Label htmlFor="dimensions.width">Diamètre</Label>
+                                        <Label htmlFor="dimensions.width">Diameter</Label>
                                         <Input
                                           type="number"
                                           id="dimensions.width"
@@ -634,7 +634,7 @@ export default function SellAccessoryPage() {
                                         />
                                       </div>
                                       <div className="space-y-2">
-                                        <Label htmlFor="dimensions.height">Épaisseur</Label>
+                                        <Label htmlFor="dimensions.height">Thickness</Label>
                                         <Input
                                           type="number"
                                           id="dimensions.height"
@@ -646,17 +646,17 @@ export default function SellAccessoryPage() {
                                   </>
                                 )}
 
-                                {/* Champs spécifiques pour les Mouvements (complet) */}
-                                {selectedType === "Mouvement (complet)" && (
+                                {/* Fields specific to Movements (complete) */}
+                                {selectedType === "Movement (complete)" && (
                                   <>
                                     <div className="space-y-2">
-                                      <Label htmlFor="movement">Mouvement</Label>
+                                      <Label htmlFor="movement">Movement</Label>
                                       <Select
                                         value={form.watch("movement")}
                                         onValueChange={(value) => form.setValue("movement", value)}
                                       >
                                         <SelectTrigger>
-                                          <SelectValue placeholder="Sélectionnez un mouvement" />
+                                          <SelectValue placeholder="Select a movement" />
                                         </SelectTrigger>
                                         <SelectContent>
                                           {movements.map((movement) => (
@@ -668,7 +668,7 @@ export default function SellAccessoryPage() {
                                       </Select>
                                     </div>
                                     <div className="space-y-2">
-                                      <Label htmlFor="caliber">Calibre/Rouages</Label>
+                                      <Label htmlFor="caliber">Caliber/Gears</Label>
                                       <Input
                                         type="text"
                                         id="caliber"
@@ -680,7 +680,7 @@ export default function SellAccessoryPage() {
                                       </p>
                                     </div>
                                     <div className="space-y-2">
-                                      <Label htmlFor="baseCaliber">Base Calibre</Label>
+                                      <Label htmlFor="baseCaliber">Base Caliber</Label>
                                       <Input
                                         type="text"
                                         id="baseCaliber"
@@ -692,7 +692,7 @@ export default function SellAccessoryPage() {
                                       </p>
                                     </div>
                                     <div className="space-y-2">
-                                      <Label htmlFor="powerReserve">Réserve de marche</Label>
+                                      <Label htmlFor="powerReserve">Power reserve</Label>
                                       <div className="flex gap-2">
                                         <Input
                                           type="number"
@@ -703,7 +703,7 @@ export default function SellAccessoryPage() {
                                       </div>
                                     </div>
                                     <div className="space-y-2">
-                                      <Label htmlFor="frequency">Mouvement oscillatoire</Label>
+                                      <Label htmlFor="frequency">Oscillating movement</Label>
                                       <div className="flex gap-2">
                                         <Input
                                           type="number"
@@ -715,7 +715,7 @@ export default function SellAccessoryPage() {
                                           onValueChange={(value) => form.setValue("frequencyUnit", value)}
                                         >
                                           <SelectTrigger className="w-[100px]">
-                                            <SelectValue placeholder="Unité" />
+                                            <SelectValue placeholder="Unit" />
                                           </SelectTrigger>
                                           <SelectContent>
                                             {frequencyUnits.map((unit) => (
@@ -728,7 +728,7 @@ export default function SellAccessoryPage() {
                                       </div>
                                     </div>
                                     <div className="space-y-2">
-                                      <Label htmlFor="jewels">Nombre de pierres</Label>
+                                      <Label htmlFor="jewels">Number of jewels</Label>
                                       <Input
                                         type="number"
                                         id="jewels"
@@ -738,17 +738,17 @@ export default function SellAccessoryPage() {
                                   </>
                                 )}
 
-                                {/* Champs spécifiques pour les Mouvements (pièces) */}
-                                {selectedType === "Mouvement (pièces)" && (
+                                {/* Fields specific to Movements (parts) */}
+                                {selectedType === "Movement (parts)" && (
                                   <>
                                     <div className="space-y-2">
-                                      <Label htmlFor="movement">Mouvement</Label>
+                                      <Label htmlFor="movement">Movement</Label>
                                       <Select
                                         value={form.watch("movement")}
                                         onValueChange={(value) => form.setValue("movement", value)}
                                       >
                                         <SelectTrigger>
-                                          <SelectValue placeholder="Sélectionnez un mouvement" />
+                                          <SelectValue placeholder="Select a movement" />
                                         </SelectTrigger>
                                         <SelectContent>
                                           {movements.map((movement) => (
@@ -760,7 +760,7 @@ export default function SellAccessoryPage() {
                                       </Select>
                                     </div>
                                     <div className="space-y-2">
-                                      <Label htmlFor="caliber">Calibre/Rouages</Label>
+                                      <Label htmlFor="caliber">Caliber/Gears</Label>
                                       <Input
                                         type="text"
                                         id="caliber"
@@ -772,7 +772,7 @@ export default function SellAccessoryPage() {
                                       </p>
                                     </div>
                                     <div className="space-y-2">
-                                      <Label htmlFor="baseCaliber">Base Calibre</Label>
+                                      <Label htmlFor="baseCaliber">Base Caliber</Label>
                                       <Input
                                         type="text"
                                         id="baseCaliber"
@@ -784,7 +784,7 @@ export default function SellAccessoryPage() {
                                       </p>
                                     </div>
                                     <div className="space-y-2">
-                                      <Label htmlFor="powerReserve">Réserve de marche</Label>
+                                      <Label htmlFor="powerReserve">Power Reserve</Label>
                                       <div className="flex gap-2">
                                         <Input
                                           type="number"
@@ -795,7 +795,7 @@ export default function SellAccessoryPage() {
                                       </div>
                                     </div>
                                     <div className="space-y-2">
-                                      <Label htmlFor="jewels">Nombre de pierres</Label>
+                                      <Label htmlFor="jewels">Number of jewels</Label>
                                       <Input
                                         type="number"
                                         id="jewels"
@@ -805,16 +805,16 @@ export default function SellAccessoryPage() {
                                   </>
                                 )}
 
-                                {/* Champs spécifiques pour les Verres */}
-                                {selectedType === "Verre" && (
+                                {/* Fields specific to Glass */}
+                                {selectedType === "Glass" && (
                                   <div className="space-y-2">
-                                    <Label htmlFor="glassType">Type de verre</Label>
+                                    <Label htmlFor="glassType">Glass type</Label>
                                     <Select
                                       value={form.watch("glassType")}
                                       onValueChange={(value) => form.setValue("glassType", value)}
                                     >
                                       <SelectTrigger>
-                                        <SelectValue placeholder="Sélectionnez un type de verre" />
+                                        <SelectValue placeholder="Select a glass type" />
                                       </SelectTrigger>
                                       <SelectContent>
                                         {glassTypes.map((type) => (
@@ -836,7 +836,7 @@ export default function SellAccessoryPage() {
 
                   {step === 2 && (
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">État de l'accessoire</h3>
+                      <h3 className="text-lg font-semibold">Accessory condition</h3>
                       <FormError error={form.formState.errors.condition?.message} isSubmitted={isStepSubmitted} />
                       <div className="grid gap-4">
                         <Card
@@ -863,9 +863,9 @@ export default function SellAccessoryPage() {
                                 )}
                               </div>
                               <div>
-                                <h4 className="font-medium">Neuf - Jamais porté</h4>
+                                <h4 className="font-medium">New - Never worn</h4>
                                 <p className="text-sm text-muted-foreground">
-                                  L'accessoire est dans son état d'origine, jamais utilisé
+                                  The accessory is in its original condition, never used
                                 </p>
                               </div>
                             </div>
@@ -896,9 +896,9 @@ export default function SellAccessoryPage() {
                                 )}
                               </div>
                               <div>
-                                <h4 className="font-medium">D'occasion</h4>
+                                <h4 className="font-medium">Used</h4>
                                 <p className="text-sm text-muted-foreground">
-                                  L'accessoire a été utilisé mais est en bon état
+                                  The accessory has been used but is in good condition
                                 </p>
                               </div>
                             </div>
@@ -910,10 +910,10 @@ export default function SellAccessoryPage() {
 
                   {step === 3 && (
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Photos de l'accessoire</h3>
+                      <h3 className="text-lg font-semibold">Accessory photos</h3>
                       <FormError error={form.formState.errors.images?.message} isSubmitted={isStepSubmitted} />
                       <p className="text-sm text-muted-foreground mb-4">
-                        Ajoutez jusqu'à 10 photos de votre accessoire. Formats acceptés : JPG, PNG, WEBP. Taille maximum : 5MB par photo.
+                        Add up to 10 photos of your accessory. Accepted formats: JPG, PNG, WEBP. Maximum size: 5MB per photo.
                       </p>
 
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -952,10 +952,10 @@ export default function SellAccessoryPage() {
 
                   {step === 4 && (
                     <div className="space-y-6">
-                      <h3 className="text-lg font-semibold">Déterminez votre prix de vente</h3>                      
+                      <h3 className="text-lg font-semibold">Set your selling price</h3>                      
                       <div className="space-y-4">
                         <div>
-                          <Label htmlFor="price">Prix de vente *</Label>
+                          <Label htmlFor="price">Selling price *</Label>
                           <div className="flex gap-4">
                             <Input
                               id="price"
@@ -984,21 +984,21 @@ export default function SellAccessoryPage() {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="shippingDelay">Délai d'envoi *</Label>
+                          <Label htmlFor="shippingDelay">Shipping delay *</Label>
                           <Select
                             value={form.watch("shippingDelay")}
                             onValueChange={(value) => form.setValue("shippingDelay", value)}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Sélectionnez un délai d'envoi" />
+                              <SelectValue placeholder="Select a shipping delay" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="1-2">1-2 jours ouvrés</SelectItem>
-                              <SelectItem value="2-3">2-3 jours ouvrés</SelectItem>
-                              <SelectItem value="3-5">3-5 jours ouvrés</SelectItem>
-                              <SelectItem value="5-7">5-7 jours ouvrés</SelectItem>
-                              <SelectItem value="7-10">7-10 jours ouvrés</SelectItem>
-                              <SelectItem value="10+">Plus de 10 jours ouvrés</SelectItem>
+                              <SelectItem value="1-2">1-2 business days</SelectItem>
+                              <SelectItem value="2-3">2-3 business days</SelectItem>
+                              <SelectItem value="3-5">3-5 business days</SelectItem>
+                              <SelectItem value="5-7">5-7 business days</SelectItem>
+                              <SelectItem value="7-10">7-10 business days</SelectItem>
+                              <SelectItem value="10+">More than 10 business days</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormError error={form.formState.errors.shippingDelay?.message} isSubmitted={isStepSubmitted} />
@@ -1008,19 +1008,19 @@ export default function SellAccessoryPage() {
                           <CardContent className="p-4">
                             <div className="space-y-2">
                               <div className="flex justify-between">
-                                <span className="text-muted-foreground">Prix de vente</span>
+                                <span className="text-muted-foreground">Selling price</span>
                                 <span className="font-medium">
                                   {form.watch("price")?.toLocaleString()} {form.watch("currency")}
                                 </span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-muted-foreground">Commission de vente (6,5 %)</span>
+                                <span className="text-muted-foreground">Sales commission (6.5%)</span>
                                 <span className="font-medium">
                                   {(form.watch("price") * 0.065).toLocaleString()} {form.watch("currency")}
                                 </span>
                               </div>
                               <div className="flex justify-between pt-2 border-t">
-                                <span className="font-medium">Estimation de votre gain</span>
+                                <span className="font-medium">Estimated earnings</span>
                                 <span className="font-medium text-primary">
                                   {(form.watch("price") * 0.935).toLocaleString()} {form.watch("currency")}
                                 </span>
@@ -1034,9 +1034,9 @@ export default function SellAccessoryPage() {
 
                   {step === 5 && (
                     <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Documents importants</h3>
+                      <h3 className="text-lg font-semibold">Important documents</h3>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Ajoutez des documents importants comme des factures, certificats d'authenticité, etc. Ces documents ne seront visibles que par l'acheteur final après la validation de la transaction.
+                        Add important documents such as invoices, certificates of authenticity, etc. These documents will only be visible to the final buyer after transaction validation.
                       </p>
 
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -1073,11 +1073,11 @@ export default function SellAccessoryPage() {
                               const files = Array.from(e.target.files || [])
                               const validFiles = files.filter(file => {
                                 if (file.size > 5 * 1024 * 1024) {
-                                  alert(`Le fichier ${file.name} est trop volumineux. Taille maximum: 5MB`)
+                                  alert(`File ${file.name} is too large. Maximum size: 5MB`)
                                   return false
                                 }
                                 if (![".pdf", ".jpg", ".jpeg", ".png"].some(ext => file.name.toLowerCase().endsWith(ext))) {
-                                  alert(`Le fichier ${file.name} n'est pas un format accepté. Formats acceptés: PDF, JPG, PNG`)
+                                  alert(`File ${file.name} is not an accepted format. Accepted formats: PDF, JPG, PNG`)
                                   return false
                                 }
                                 return true
@@ -1094,7 +1094,7 @@ export default function SellAccessoryPage() {
                   <div className="flex justify-between items-center pt-6">
                     {step > 1 && (
                       <Button type="button" variant="outline" onClick={prevStep}>
-                        Retour
+                        Back
                       </Button>
                     )}
                     {step < 5 ? (
@@ -1103,7 +1103,7 @@ export default function SellAccessoryPage() {
                         onClick={nextStep}
                         disabled={isSubmitting}
                       >
-                        {isSubmitting ? "Validation..." : "Continuer"}
+                        {isSubmitting ? "Validating..." : "Continue"}
                       </Button>
                     ) : (
                       <Button 
@@ -1111,7 +1111,7 @@ export default function SellAccessoryPage() {
                         onClick={form.handleSubmit(onSubmit)}
                         disabled={isSubmitting}
                       >
-                        {isSubmitting ? "Publication..." : "Publier l'annonce"}
+                        {isSubmitting ? "Publishing..." : "Publish listing"}
                       </Button>
                     )}
                   </div>
@@ -1120,11 +1120,11 @@ export default function SellAccessoryPage() {
             </Card>
           </div>
 
-          {/* Aperçu */}
+          {/* Preview */}
           <div className="space-y-8">
             <Card className="sticky top-20">
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">Aperçu</h3>
+                <h3 className="text-lg font-semibold mb-4">Preview</h3>
                 <div className="space-y-4">
                   <div className="relative">
                     <div className="relative aspect-square bg-muted rounded-lg overflow-hidden group">
@@ -1136,7 +1136,7 @@ export default function SellAccessoryPage() {
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <p className="text-muted-foreground">Image de l'accessoire</p>
+                          <p className="text-muted-foreground">Accessory image</p>
                         </div>
                       )}
                       
@@ -1145,14 +1145,14 @@ export default function SellAccessoryPage() {
                           <button
                             onClick={() => setCurrentImage(prev => prev === 0 ? imagePreviews.length - 1 : prev - 1)}
                             className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                            aria-label="Image précédente"
+                            aria-label="Previous image"
                           >
                             <ChevronLeft className="h-5 w-5" />
                           </button>
                           <button
                             onClick={() => setCurrentImage(prev => prev === imagePreviews.length - 1 ? 0 : prev + 1)}
                             className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
-                            aria-label="Image suivante"
+                            aria-label="Next image"
                           >
                             <ChevronRight className="h-5 w-5" />
                           </button>
@@ -1165,7 +1165,7 @@ export default function SellAccessoryPage() {
                                 className={`w-2 h-2 rounded-full transition-colors ${
                                   currentImage === index ? "bg-white" : "bg-white/50"
                                 }`}
-                                aria-label={`Aller à l'image ${index + 1}`}
+                                aria-label={`Go to image ${index + 1}`}
                               />
                             ))}
                           </div>
@@ -1174,42 +1174,42 @@ export default function SellAccessoryPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <h4 className="font-medium truncate" title={form.watch("title") || "Titre de l'annonce"}>
-                      {form.watch("title") || "Titre de l'annonce"}
+                    <h4 className="font-medium truncate" title={form.watch("title") || "Listing title"}>
+                      {form.watch("title") || "Listing title"}
                     </h4>
-                    <p className="text-sm text-muted-foreground line-clamp-2" title={form.watch("description") || "Description de l'accessoire..."}>
-                      {form.watch("description") || "Description de l'accessoire..."}
+                    <p className="text-sm text-muted-foreground line-clamp-2" title={form.watch("description") || "Accessory description..."}>
+                      {form.watch("description") || "Accessory description..."}
                     </p>
                   </div>
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-muted-foreground">Marque</p>
+                      <p className="text-muted-foreground">Brand</p>
                       <p className="font-medium">
                         {brandsList.find(b => b.slug === form.watch("brand"))?.label || "-"}
                       </p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Modèle</p>
+                      <p className="text-muted-foreground">Model</p>
                       <p className="font-medium">
                         {selectedBrand && modelsList[selectedBrand as keyof typeof modelsList]?.find((m: any) => m.slug === form.watch("model"))?.label || "-"}
                       </p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground">État</p>
+                      <p className="text-muted-foreground">Condition</p>
                       <p className="font-medium">
-                        {form.watch("condition") === "new" ? "Neuf" : form.watch("condition") === "used" ? "D'occasion" : "-"}
+                        {form.watch("condition") === "new" ? "New" : form.watch("condition") === "used" ? "Used" : "-"}
                       </p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Délai d'envoi</p>
+                      <p className="text-muted-foreground">Shipping delay</p>
                       <p className="font-medium">
-                        {form.watch("shippingDelay") ? `${form.watch("shippingDelay")} jours ouvrés` : "-"}
+                        {form.watch("shippingDelay") ? `${form.watch("shippingDelay")} business days` : "-"}
                       </p>
                     </div>
                   </div>
                   <div className="pt-4 border-t">
                     <div className="flex justify-between items-center">
-                      <p className="text-muted-foreground">Prix</p>
+                      <p className="text-muted-foreground">Price</p>
                       <p className="font-semibold text-lg">
                         {form.watch("price") ? `${form.watch("price").toLocaleString()} ${form.watch("currency")}` : "-"}
                       </p>
