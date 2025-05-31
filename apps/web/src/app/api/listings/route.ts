@@ -3,8 +3,12 @@ import { NextResponse } from 'next/server'
 import sharp from 'sharp'
 
 interface ListingImage {
+  id: string;
+  listing_id: string;
   url: string;
   order_index: number;
+  created_at: string;
+  updated_at: string;
 }
 
 interface Brand {
@@ -324,13 +328,27 @@ export async function POST(request: Request) {
             .from('listingimages')
             .getPublicUrl(imageFileName)
 
-          return supabase
+          // Insert into listing_images table
+          const { data: imageData, error: imageError } = await supabase
             .from('listing_images')
             .insert({
               listing_id: listing.id,
               url: publicUrl,
               order_index: index
             })
+            .select()
+            .single()
+
+          if (imageError) {
+            console.error(`Error inserting image record ${index}:`, imageError)
+            // Clean up the uploaded file if database insert fails
+            await supabase.storage
+              .from('listingimages')
+              .remove([imageFileName])
+            throw new Error(`Failed to create image record ${index}: ${imageError.message}`)
+          }
+
+          return imageData
         } catch (error) {
           console.error(`Error processing image ${index}:`, error)
           // If there's an error, try to clean up any uploaded files
@@ -345,7 +363,32 @@ export async function POST(request: Request) {
         }
       })
 
-      await Promise.all(imageUploadPromises)
+      try {
+        await Promise.all(imageUploadPromises)
+      } catch (error) {
+        console.error('Error uploading images:', error)
+        // If any image upload fails, delete the listing and all uploaded images
+        try {
+          // Delete all images from storage
+          const imageFiles = images.map((_, index) => 
+            `${listing.id}/${model}-${reference}-${index + 1}.jpg`
+          )
+          await supabase.storage
+            .from('listingimages')
+            .remove(imageFiles)
+
+          // Delete the listing
+          await supabase
+            .from('listings')
+            .delete()
+            .eq('id', listing.id)
+
+          throw new Error('Failed to upload images: ' + (error as Error).message)
+        } catch (cleanupError) {
+          console.error('Error cleaning up after failed upload:', cleanupError)
+          throw new Error('Failed to upload images and cleanup failed')
+        }
+      }
     }
 
     // Handle document uploads

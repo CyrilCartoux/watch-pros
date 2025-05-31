@@ -42,6 +42,15 @@ interface Seller {
     bankName: string
     paymentMethod: string
   } | null
+  listings: {
+    id: string
+    brand: string
+    model: string
+    reference: string
+    price: number
+    currency: string
+    image: string
+  }[]
 }
 
 // Mock data for statistics and ratings
@@ -187,14 +196,16 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
   }
 
   const nextListing = () => {
+    if (!seller?.listings.length) return
     setCurrentListing((prev) => 
-      prev === mockFeaturedListings.length - 1 ? 0 : prev + 1
+      prev === seller.listings.length - 1 ? 0 : prev + 1
     )
   }
 
   const prevListing = () => {
+    if (!seller?.listings.length) return
     setCurrentListing((prev) => 
-      prev === 0 ? mockFeaturedListings.length - 1 : prev - 1
+      prev === 0 ? seller.listings.length - 1 : prev - 1
     )
   }
 
@@ -442,51 +453,63 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
         {/* Best Current Offers */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold mb-6">Best Current Offers</h2>
-          <div className="relative">
-            <div className="overflow-hidden">
-              <div className="flex transition-transform duration-300 ease-in-out" style={{ transform: `translateX(-${currentListing * 100}%)` }}>
-                {mockFeaturedListings.map((listing) => (
-                  <div key={listing.id} className="w-full md:w-1/3 flex-shrink-0 px-2">
-                    <Link href={`/listings/${listing.id}`}>
-                      <Card className="hover:shadow-lg transition-shadow">
-                        <div className="relative aspect-square">
-                          <Image
-                            src={listing.image}
-                            alt={`${listing.brand} ${listing.model}`}
-                            fill
-                            className="object-cover rounded-t-lg"
-                          />
-                        </div>
-                        <CardContent className="p-4">
-                          <h3 className="font-semibold">{listing.brand} {listing.model}</h3>
-                          <p className="text-sm text-muted-foreground mb-2">Ref. {listing.reference}</p>
-                          <p className="font-medium text-primary">{listing.price.toLocaleString()} €</p>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  </div>
-                ))}
+          {seller.listings.length > 0 ? (
+            <div className="relative">
+              <div className="overflow-hidden">
+                <div className="flex transition-transform duration-300 ease-in-out" style={{ transform: `translateX(-${currentListing * 100}%)` }}>
+                  {seller.listings.map((listing) => (
+                    <div key={listing.id} className="w-full md:w-1/3 flex-shrink-0 px-2">
+                      <Link href={`/listings/${listing.id}`}>
+                        <Card className="hover:shadow-lg transition-shadow">
+                          <div className="relative aspect-square">
+                            <Image
+                              src={listing.image}
+                              alt={`${listing.brand} ${listing.model}`}
+                              fill
+                              className="object-cover rounded-t-lg"
+                            />
+                          </div>
+                          <CardContent className="p-4">
+                            <h3 className="font-semibold">{listing.brand} {listing.model}</h3>
+                            <p className="text-sm text-muted-foreground mb-2">Ref. {listing.reference}</p>
+                            <p className="font-medium text-primary">{listing.price.toLocaleString()} {listing.currency}</p>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
               </div>
+              
+              {/* Navigation Buttons - Only show if there are multiple listings */}
+              {seller.listings.length > 1 && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-10 h-10"
+                    onClick={prevListing}
+                  >
+                    <ChevronLeft className="h-6 w-6" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-10 h-10"
+                    onClick={nextListing}
+                  >
+                    <ChevronRight className="h-6 w-6" />
+                  </Button>
+                </>
+              )}
             </div>
-            
-            {/* Navigation Buttons */}
-            <Button
-              variant="outline"
-              size="icon"
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-10 h-10"
-              onClick={prevListing}
-            >
-              <ChevronLeft className="h-6 w-6" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-10 h-10"
-              onClick={nextListing}
-            >
-              <ChevronRight className="h-6 w-6" />
-            </Button>
-          </div>
+          ) : (
+            <Card>
+              <CardContent className="p-6 text-center">
+                <p className="text-muted-foreground">No active listings at the moment</p>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Contact Dialog */}

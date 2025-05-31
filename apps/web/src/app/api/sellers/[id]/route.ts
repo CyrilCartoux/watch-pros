@@ -39,6 +39,26 @@ interface Seller {
   seller_banking: SellerBanking[]
 }
 
+interface Listing {
+  id: string
+  title: string
+  price: number
+  currency: string
+  reference: string
+  brands: {
+    slug: string
+    label: string
+  }
+  models: {
+    slug: string
+    label: string
+  }
+  listing_images: {
+    url: string
+    order_index: number
+  }[]
+}
+
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
@@ -99,6 +119,37 @@ export async function GET(
       )
     }
 
+    // Récupérer les annonces du vendeur
+    const { data: listings, error: listingsError } = await supabase
+      .from('listings')
+      .select(`
+        id,
+        title,
+        price,
+        currency,
+        reference,
+        brands (
+          slug,
+          label
+        ),
+        models (
+          slug,
+          label
+        )
+      `)
+      .eq('seller_id', seller.id)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(6)
+
+    if (listingsError) {
+      console.error('Error fetching listings:', listingsError)
+      return NextResponse.json(
+        { error: 'Failed to fetch listings' },
+        { status: 500 }
+      )
+    }
+
     // Transformer les données pour correspondre à la structure attendue
     const transformedSeller = {
       account: {
@@ -127,7 +178,16 @@ export async function GET(
         cardHolder: seller.seller_banking[0].card_holder,
         bankName: seller.seller_banking[0].bank_name,
         paymentMethod: seller.seller_banking[0].payment_method
-      } : null
+      } : null,
+      listings: listings?.map(listing => ({
+        id: listing.id,
+        brand: listing.brands.slug,
+        model: listing.models.slug,
+        reference: listing.reference,
+        price: listing.price,
+        currency: listing.currency,
+        image: `/images/placeholder.jpg` // Placeholder until listing_images table is recreated
+      })) || []
     }
 
     return NextResponse.json(transformedSeller)
