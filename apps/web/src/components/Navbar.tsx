@@ -2,10 +2,19 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Menu, ShoppingCart, User, Bell } from "lucide-react"
+import { Menu, ShoppingCart, User, Bell, LogOut, Heart, MessageSquare, LayoutDashboard, MoreHorizontal } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { Badge } from "./ui/badge"
 import { SearchBar } from "./SearchBar"
+import { useAuth } from "@/contexts/AuthContext"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const navigation = [
   { name: "Brands", href: "/brands" },
@@ -15,6 +24,7 @@ const navigation = [
 ]
 
 export function Navbar() {
+  const { user, signOut } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   // TODO: Replace with real unread notifications counter
@@ -85,12 +95,63 @@ export function Navbar() {
                 <span className="sr-only">Cart</span>
               </Link>
             </Button>
-            <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
-              <Link href="/account">
-                <User className="h-4 w-4" />
-                <span className="sr-only">My Account</span>
-              </Link>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9">
+                  <User className="h-4 w-4" />
+                  <span className="sr-only">Account</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                {user ? (
+                  <>
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/account?tab=dashboard" className="flex items-center">
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/account?tab=messages" className="flex items-center">
+                        <MessageSquare className="mr-2 h-4 w-4" />
+                        Messages
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/account?tab=favorites" className="flex items-center">
+                        <Heart className="mr-2 h-4 w-4" />
+                        Favorites
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/account" className="flex items-center">
+                        <MoreHorizontal className="mr-2 h-4 w-4" />
+                        More
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem 
+                      className="text-red-600 focus:text-red-600"
+                      onClick={() => signOut()}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href="/auth" className="flex items-center">
+                        <User className="mr-2 h-4 w-4" />
+                        Login / Signup
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 

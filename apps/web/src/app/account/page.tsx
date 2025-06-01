@@ -14,16 +14,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useState } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
+import { useEffect } from "react"
 
 export default function AccountPage() {
-  const [activeTab, setActiveTab] = useState("dashboard")
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const tab = searchParams.get('tab') || 'dashboard'
+
+  const handleTabChange = (value: string) => {
+    router.push(`/account?tab=${value}`)
+  }
 
   return (
     <div className="container py-4 md:py-8">
       <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">My Account</h1>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
+      <Tabs value={tab} onValueChange={handleTabChange} className="space-y-4 md:space-y-6">
         {/* Mobile Tabs */}
         <div className="md:hidden flex items-center gap-2 overflow-x-auto pb-2">
           <TabsList className="grid w-full grid-cols-3">
@@ -46,15 +53,15 @@ export default function AccountPage() {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setActiveTab("reviews")}>
+              <DropdownMenuItem onClick={() => handleTabChange("reviews")}>
                 <Star className="h-4 w-4 mr-2" />
                 Reviews
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setActiveTab("sales")}>
+              <DropdownMenuItem onClick={() => handleTabChange("sales")}>
                 <ShoppingBag className="h-4 w-4 mr-2" />
                 Sales
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setActiveTab("settings")}>
+              <DropdownMenuItem onClick={() => handleTabChange("settings")}>
                 <Settings className="h-4 w-4 mr-2" />
                 Settings
               </DropdownMenuItem>

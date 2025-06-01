@@ -11,19 +11,28 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+interface ListingImage {
+  id: string
+  url: string
+  order_index: number
+}
+
 interface ListingCardProps {
   listing: {
     id: string
-    brand: string
-    model: string
-    reference: string
+    reference_id: string
     title: string
-    year: string
+    reference: string
+    year: string | null
     condition: string
     price: number
     currency: string
-    shippingDelay: string
-    images: string[]
+    shipping_delay: string
+    listing_images: ListingImage[]
+    models: {
+      slug: string
+      label: string
+    } | null
   }
 }
 
@@ -34,6 +43,9 @@ export function ListingCard({ listing }: ListingCardProps) {
   const [notifications, setNotifications] = useState<Record<string, boolean>>({})
 
   const minSwipeDistance = 50
+  console.log('listing', listing)
+  const images = listing.listing_images || []
+  const hasImages = images.length > 0
 
   const toggleNotification = (id: string) => {
     setNotifications(prev => ({
@@ -45,13 +57,15 @@ export function ListingCard({ listing }: ListingCardProps) {
   const nextImage = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setCurrentImage((prev) => (prev === listing.images.length - 1 ? 0 : prev + 1))
+    if (!hasImages) return
+    setCurrentImage((prev) => (prev === images.length - 1 ? 0 : prev + 1))
   }
 
   const prevImage = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setCurrentImage((prev) => (prev === 0 ? listing.images.length - 1 : prev - 1))
+    if (!hasImages) return
+    setCurrentImage((prev) => (prev === 0 ? images.length - 1 : prev - 1))
   }
 
   const onTouchStart = (e: TouchEvent) => {
@@ -64,17 +78,17 @@ export function ListingCard({ listing }: ListingCardProps) {
   }
 
   const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return
+    if (!touchStart || !touchEnd || !hasImages) return
 
     const distance = touchStart - touchEnd
     const isLeftSwipe = distance > minSwipeDistance
     const isRightSwipe = distance < -minSwipeDistance
 
     if (isLeftSwipe) {
-      setCurrentImage((prev) => (prev === listing.images.length - 1 ? 0 : prev + 1))
+      setCurrentImage((prev) => (prev === images.length - 1 ? 0 : prev + 1))
     }
     if (isRightSwipe) {
-      setCurrentImage((prev) => (prev === 0 ? listing.images.length - 1 : prev - 1))
+      setCurrentImage((prev) => (prev === 0 ? images.length - 1 : prev - 1))
     }
   }
 
@@ -87,12 +101,18 @@ export function ListingCard({ listing }: ListingCardProps) {
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
         >
-          <Image
-            src={listing.images[currentImage]}
-            alt={listing.title}
-            fill
-            className="object-cover"
-          />
+          {hasImages ? (
+            <Image
+              src={images[currentImage].url}
+              alt={listing.title}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <span className="text-muted-foreground">No image available</span>
+            </div>
+          )}
           
           {/* Notification Button */}
           <div className="absolute top-2 right-2">
@@ -123,7 +143,7 @@ export function ListingCard({ listing }: ListingCardProps) {
           </div>
           
           {/* Navigation Buttons - Only show if there are multiple images */}
-          {listing.images.length > 1 && (
+          {hasImages && images.length > 1 && (
             <>
               <button
                 onClick={prevImage}
@@ -142,7 +162,7 @@ export function ListingCard({ listing }: ListingCardProps) {
 
               {/* Dots Navigation */}
               <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-                {listing.images.map((_, index) => (
+                {images.map((_, index) => (
                   <button
                     key={index}
                     onClick={(e) => {
@@ -168,14 +188,16 @@ export function ListingCard({ listing }: ListingCardProps) {
             {/* Tags and Price */}
             <div className="flex flex-col gap-2">
               <div className="flex flex-wrap gap-2">
-                <span className="px-2 py-1 bg-muted rounded-md text-xs">
-                  {listing.year}
-                </span>
+                {listing.year && (
+                  <span className="px-2 py-1 bg-muted rounded-md text-xs">
+                    {listing.year}
+                  </span>
+                )}
                 <span className="px-2 py-1 bg-muted rounded-md text-xs">
                   {watchConditions.find(c => c.slug === listing.condition)?.label}
                 </span>
                 <span className="px-2 py-1 bg-muted rounded-md text-xs">
-                  {listing.shippingDelay} days
+                  {listing.shipping_delay} days
                 </span>
               </div>
               <p className="text-xl font-bold mt-2">{listing.price.toLocaleString()} {listing.currency}</p>

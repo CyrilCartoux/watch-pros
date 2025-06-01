@@ -51,6 +51,7 @@ interface DatabaseListing {
   price: number;
   currency: string;
   shipping_delay: string;
+  listing_type: string;
   gender: string;
   serial_number: string;
   dial_color: string | null;
@@ -159,6 +160,7 @@ export async function GET(
       price: listing.price,
       currency: listing.currency,
       shippingDelay: listing.shipping_delay,
+      listing_type: listing.listing_type,
       seller: listing.sellers ? {
         id: listing.sellers.id,
         name: listing.sellers.company_name || listing.sellers.watch_pros_name,

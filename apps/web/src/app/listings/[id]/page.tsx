@@ -79,6 +79,8 @@ interface ListingData {
       icon: string
     }[]
   } | null
+  listing_type: string
+  type: string
 }
 
 export default function ListingPage({ params }: { params: { id: string } }) {
@@ -535,7 +537,22 @@ export default function ListingPage({ params }: { params: { id: string } }) {
             {/* Status and Stats */}
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">
-                {watchConditions.find(c => c.slug === listing.condition)?.label} | Manufacturing year {listing.year} | {listing.included === "full-set" ? "With original box and papers" : listing.included}
+                {listing.listing_type === "watch" ? (
+                  <>
+                    {watchConditions.find(c => c.slug === listing.condition)?.label} | 
+                    Manufacturing year {listing.year} | 
+                    {listing.included === "full-set" ? "With original box and papers" : 
+                     listing.included === "box-only" ? "With original box" :
+                     listing.included === "papers-only" ? "With original papers" :
+                     "Watch only"}
+                  </>
+                ) : (
+                  <>
+                    {listing.condition === "new" ? "New - Never worn" : "Used"} | 
+                    {listing.year && `Manufacturing year ${listing.year} | `}
+                    {listing.type}
+                  </>
+                )}
               </p>
             </div>
 
@@ -590,7 +607,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
                     </div>
 
                     <div className="pt-2">
-                      <Link href={`/sellers/${listing.seller.id}`}>
+                      <Link href={`/sellers/${listing.seller.name}`}>
                         <Button variant="outline" className="w-full">
                           View full profile
                         </Button>

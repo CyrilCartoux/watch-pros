@@ -43,6 +43,7 @@ const sellSchema = z.object({
   case: z.string().optional(),
   braceletMaterial: z.string().optional(),
   braceletColor: z.string().optional(),
+  listing_type: z.string().default("watch"),
   
   // Step 2: Delivery Contents
   included: z.string().min(1, "Please select delivery contents"),
@@ -131,6 +132,7 @@ export default function SellWatchPage() {
       currency: "EUR",
       shippingDelay: "",
       documents: [],
+      listing_type: "watch",
     },
     mode: "onChange",
   })

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import sharp from 'sharp'
 
 interface ListingImage {
@@ -31,9 +32,19 @@ interface DatabaseListing {
   price: number;
   currency: string;
   shipping_delay: string;
+  listing_type: string;
   brands: Brand;
   models: Model;
   listing_images: ListingImage[];
+  seller: {
+    id: string;
+    name: string;
+    logo: string;
+    type: string;
+  } | null;
+  type: string;
+  dialColor: string | null;
+  included: string;
 }
 
 // Constants for image optimization
@@ -64,99 +75,127 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '12')
     const sort = searchParams.get('sort') || 'created_at'
     const order = searchParams.get('order') || 'desc'
+    const search = searchParams.get('search') || ''
+    
+    // Filter parameters
     const brand = searchParams.get('brand')
+    const brand_id = searchParams.get('brand_id')
     const model = searchParams.get('model')
+    const model_id = searchParams.get('model_id')
+    const reference = searchParams.get('reference')
+    const seller = searchParams.get('seller')
+    const year = searchParams.get('year')
+    const dialColor = searchParams.get('dialColor')
+    const condition = searchParams.get('condition')
+    const included = searchParams.get('included')
     const minPrice = searchParams.get('minPrice')
     const maxPrice = searchParams.get('maxPrice')
-    const condition = searchParams.get('condition')
+    const shippingDelay = searchParams.get('shippingDelay')
+    const listingType = searchParams.get('listingType')
 
     const supabase = await createClient()
 
-    // Build the query
+    // Start building the query
     let query = supabase
       .from('listings')
       .select(`
         *,
-        brands (
+        brands!brand_id (
           slug,
           label
         ),
-        models (
+        models!model_id (
           slug,
           label
         ),
         listing_images (
+          id,
           url,
           order_index
+        ),
+        seller:sellers (
+          id,
+          company_name,
+          watch_pros_name
         )
       `, { count: 'exact' })
 
-    // Add filters
-    if (brand) {
-      query = query.eq('brands.slug', brand)
-    }
-    if (model) {
-      query = query.eq('models.slug', model)
-    }
-    if (minPrice) {
-      query = query.gte('price', minPrice)
-    }
-    if (maxPrice) {
-      query = query.lte('price', maxPrice)
-    }
-    if (condition) {
-      query = query.eq('condition', condition)
+    // Apply text search if search term exists
+    if (search) {
+      query = query.textSearch('title', search, {
+        type: 'websearch',
+        config: 'english'
+      })
     }
 
-    // Add sorting
+    // Apply filters
+    if (brand_id) query = query.eq('brand_id', brand_id)
+    else if (brand) query = query.eq('brand_id', brand)
+    if (model_id) query = query.eq('model_id', model_id)
+    else if (model) query = query.eq('model_id', model)
+    if (reference) query = query.eq('reference', reference)
+    if (seller) query = query.eq('seller_id', seller)
+    if (year) query = query.eq('year', year)
+    if (dialColor) query = query.eq('dial_color', dialColor)
+    if (condition) query = query.eq('condition', condition)
+    if (included) query = query.eq('included', included)
+    if (listingType) query = query.eq('listing_type', listingType)
+    if (shippingDelay) query = query.eq('shipping_delay', shippingDelay)
+
+    // Apply price range if provided
+    if (minPrice) query = query.gte('price', parseInt(minPrice))
+    if (maxPrice) query = query.lte('price', parseInt(maxPrice))
+
+    // Apply sorting
     query = query.order(sort, { ascending: order === 'asc' })
 
-    // Add pagination
+    // Apply pagination
     const from = (page - 1) * limit
     const to = from + limit - 1
     query = query.range(from, to)
+
+    // Log all query parameters
+    console.log('Query parameters:', {
+      search,
+      brand,
+      brand_id,
+      model,
+      model_id,
+      reference,
+      seller,
+      year,
+      dialColor,
+      condition,
+      included,
+      listingType,
+      shippingDelay,
+      minPrice,
+      maxPrice,
+      sort,
+      order,
+      from,
+      to,
+      page,
+      limit
+    })
 
     const { data: listings, error, count } = await query
 
     if (error) {
       console.error('Error fetching listings:', error)
-      return NextResponse.json(
-        { error: 'Error fetching listings' },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: 'Failed to fetch listings' }, { status: 500 })
     }
 
-    // Transform the data to match the frontend format
-    const transformedListings = (listings as DatabaseListing[]).map(listing => ({
-      id: listing.id,
-      brand: listing.brands.slug,
-      model: listing.models.slug,
-      reference: listing.reference,
-      title: listing.title,
-      description: listing.description,
-      year: listing.year,
-      condition: listing.condition,
-      price: listing.price,
-      currency: listing.currency,
-      shippingDelay: listing.shipping_delay,
-      images: listing.listing_images
-        .sort((a, b) => a.order_index - b.order_index)
-        .map(img => img.url)
-    }))
-
     return NextResponse.json({
-      listings: transformedListings,
-      total: count,
+      listings,
+      total: count || 0,
       page,
       limit,
       totalPages: Math.ceil((count || 0) / limit)
     })
   } catch (error) {
     console.error('Error in listings API:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -216,6 +255,7 @@ export async function POST(request: Request) {
     const price = parseFloat(formData.get('price') as string)
     const currency = formData.get('currency') as string || 'EUR'
     const shippingDelay = formData.get('shippingDelay') as string
+    const listingType = formData.get('listing_type') as string
 
     // Get brand and model IDs
     const { data: brandData, error: brandError } = await supabase
@@ -273,6 +313,7 @@ export async function POST(request: Request) {
       price,
       currency,
       shipping_delay: shippingDelay,
+      listing_type: listingType,
       status: 'draft'
     }
 
@@ -307,7 +348,7 @@ export async function POST(request: Request) {
 
           // Create a unique file name with extension
           const fileExt = 'jpg' // We always convert to jpg for consistency
-          const imageFileName = `${listing.id}/${model}-${reference}-${index + 1}.${fileExt}`
+          const imageFileName = `${listing.id}/${model}-${reference}-${listingType}-${index + 1}.${fileExt}`
 
           // Upload optimized image to storage
           const { data: uploadData, error: uploadError } = await supabase.storage
@@ -355,7 +396,7 @@ export async function POST(request: Request) {
           try {
             await supabase.storage
               .from('listingimages')
-              .remove([`${listing.id}/${model}-${reference}-${index + 1}.jpg`])
+              .remove([`${listing.id}/${model}-${reference}-${listingType}-${index + 1}.jpg`])
           } catch (cleanupError) {
             console.error('Error cleaning up files:', cleanupError)
           }
@@ -371,7 +412,7 @@ export async function POST(request: Request) {
         try {
           // Delete all images from storage
           const imageFiles = images.map((_, index) => 
-            `${listing.id}/${model}-${reference}-${index + 1}.jpg`
+            `${listing.id}/${model}-${reference}-${listingType}-${index + 1}.jpg`
           )
           await supabase.storage
             .from('listingimages')

@@ -7,6 +7,12 @@ import { useState, useEffect } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "./ui/button"
 
+interface ListingImage {
+  id: string
+  url: string
+  order_index: number
+}
+
 interface Listing {
   id: string
   title: string
@@ -15,7 +21,7 @@ interface Listing {
   price: number
   currency: string
   condition: string
-  images: string[]
+  listing_images: ListingImage[]
   brand: string
   model: string
 }
@@ -139,7 +145,7 @@ export function FeaturedListings() {
 
   const renderImageCarousel = (listing: Listing) => {
     const currentImageIndex = currentImageIndexes[listing.id] || 0
-    const totalImages = listing.images.length
+    const totalImages = listing.listing_images?.length || 0
 
     return (
       <div className="relative group">
@@ -149,12 +155,18 @@ export function FeaturedListings() {
           onTouchMove={onImageTouchMove}
           onTouchEnd={() => onImageTouchEnd(listing.id, totalImages)}
         >
+          {totalImages > 0 ? (
           <Image
-            src={listing.images[currentImageIndex]}
+              src={listing.listing_images[currentImageIndex].url}
             alt={listing.title}
             fill
             className="object-cover transition-transform duration-300"
           />
+          ) : (
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <span className="text-muted-foreground">No image available</span>
+            </div>
+          )}
           
           {/* Image Navigation Buttons */}
           {totalImages > 1 && (
@@ -187,7 +199,7 @@ export function FeaturedListings() {
           {/* Image Dots */}
           {totalImages > 1 && (
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
-              {listing.images.map((_, index) => (
+              {listing.listing_images.map((_, index) => (
                 <button
                   key={index}
                   className={`w-1.5 h-1.5 rounded-full transition-colors ${

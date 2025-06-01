@@ -14,18 +14,21 @@ export interface Database {
           id: string
           slug: string
           label: string
+          popular: boolean
           created_at: string
         }
         Insert: {
           id?: string
           slug: string
           label: string
+          popular: boolean
           created_at?: string
         }
         Update: {
           id?: string
           slug?: string
           label?: string
+          popular?: boolean
           created_at?: string
         }
       }
@@ -35,6 +38,7 @@ export interface Database {
           brand_id: string
           slug: string
           label: string
+          popular: boolean
           created_at: string
         }
         Insert: {
@@ -42,6 +46,7 @@ export interface Database {
           brand_id: string
           slug: string
           label: string
+          popular: boolean
           created_at?: string
         }
         Update: {
@@ -49,6 +54,7 @@ export interface Database {
           brand_id?: string
           slug?: string
           label?: string
+          popular?: boolean
           created_at?: string
         }
       }

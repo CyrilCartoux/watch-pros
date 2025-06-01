@@ -41,6 +41,7 @@ const accessorySchema = z.object({
   currency: z.string().default("EUR"),
   shippingDelay: z.string().min(1, "Shipping delay is required"),
   documents: z.array(z.instanceof(File)).optional(),
+  listing_type: z.string().default("accessory"),
   
   // Dimensions
   dimensions: z.object({
@@ -153,6 +154,7 @@ export default function SellAccessoryPage() {
       frequencyValue: "",
       jewels: "",
       glassType: "",
+      listing_type: "accessory",
     },
     mode: "onChange",
   })
@@ -176,9 +178,6 @@ export default function SellAccessoryPage() {
     switch (stepNumber) {
       case 1:
         fieldsToValidate = ["type", "brand", "model", "title"]
-        if (selectedType === "Dial") {
-          fieldsToValidate.push("year", "reference", "dialColor", "dimensions")
-        }
         break
       case 2:
         fieldsToValidate = ["condition"]
@@ -272,12 +271,48 @@ export default function SellAccessoryPage() {
   const onSubmit = async (data: any) => {
     setIsSubmitting(true)
     try {
-      console.log(data)
-      // TODO: Submit form data
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Create FormData to handle file uploads
+      const formData = new FormData()
+      
+      // Add all form fields to FormData
+      Object.keys(data).forEach(key => {
+        if (key === 'images' || key === 'documents') {
+          // Handle files separately
+          return
+        }
+        if (key === 'dimensions') {
+          formData.append('dimensions', JSON.stringify(data[key]))
+        } else {
+          formData.append(key, data[key])
+        }
+      })
+
+      // Add images
+      data.images.forEach((image: File) => {
+        formData.append('images', image)
+      })
+
+      // Add documents if any
+      if (data.documents?.length > 0) {
+        data.documents.forEach((doc: File) => {
+          formData.append('documents', doc)
+        })
+      }
+
+      // Send to API
+      const response = await fetch('/api/listings', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to create listing')
+      }
+
       router.push("/sell/success")
     } catch (error) {
       console.error(error)
+      // TODO: Show error message to user
     } finally {
       setIsSubmitting(false)
     }
@@ -464,6 +499,20 @@ export default function SellAccessoryPage() {
                           />
                           <FormError error={form.formState.errors.model?.message} isSubmitted={isStepSubmitted} />
                         </div>
+
+                        <div className="space-y-2">
+                              <Label htmlFor="reference">Reference number</Label>
+                              <Input
+                                type="text"
+                                id="reference"
+                                maxLength={250}
+                                {...form.register("reference")}
+                              />
+                              <p className="text-sm text-muted-foreground">
+                                {form.watch("reference")?.length || 0} / 250
+                              </p>
+                              <FormError error={form.formState.errors.reference?.message} isSubmitted={isStepSubmitted} />
+                            </div>
     
                       {/* Listing title */}
                       <div className="space-y-4">
@@ -540,19 +589,6 @@ export default function SellAccessoryPage() {
                                   {...form.register("year")}
                                 />
                               )}
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor="reference">Reference number</Label>
-                              <Input
-                                type="text"
-                                id="reference"
-                                maxLength={250}
-                                {...form.register("reference")}
-                              />
-                              <p className="text-sm text-muted-foreground">
-                                {form.watch("reference")?.length || 0} / 250
-                              </p>
                             </div>
 
                             {/* Specific fields based on accessory type */}
