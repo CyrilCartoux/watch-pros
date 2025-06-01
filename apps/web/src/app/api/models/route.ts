@@ -18,6 +18,8 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const brandId = searchParams.get("brand_id")
+    const popular = searchParams.get("popular")
+    const slugs = searchParams.get("slugs")?.split(",")
 
     if (!brandId) {
       return NextResponse.json(
@@ -33,17 +35,37 @@ export async function GET(request: Request) {
       now - modelsCache.timestamp < CACHE_DURATION * 1000 &&
       modelsCache.data[brandId]
     ) {
-      return NextResponse.json({ models: modelsCache.data[brandId] })
+      let filteredModels = modelsCache.data[brandId]
+
+      // Apply filters if needed
+      if (popular === "true") {
+        filteredModels = filteredModels.filter((model) => model.popular)
+      }
+      if (slugs) {
+        filteredModels = filteredModels.filter((model) => slugs.includes(model.slug))
+      }
+
+      return NextResponse.json({ models: filteredModels })
     }
 
     // If cache is invalid or empty, fetch from database
     const supabase = await createClient()
 
-    const { data: models, error } = await supabase
+    let query = supabase
       .from("models")
       .select("*")
       .eq("brand_id", brandId)
       .order("label", { ascending: true })
+
+    // Apply filters if needed
+    if (popular === "true") {
+      query = query.eq("popular", true)
+    }
+    if (slugs) {
+      query = query.in("slug", slugs)
+    }
+
+    const { data: models, error } = await query
 
     if (error) {
       throw error

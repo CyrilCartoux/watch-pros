@@ -14,21 +14,45 @@ let brandsCache: {
   timestamp: 0
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url)
+    const popular = searchParams.get("popular")
+    const slugs = searchParams.get("slugs")?.split(",")
+
     // Check if cache is valid
     const now = Date.now()
     if (brandsCache.data && now - brandsCache.timestamp < CACHE_DURATION * 1000) {
-      return NextResponse.json({ brands: brandsCache.data })
+      let filteredBrands = brandsCache.data
+
+      // Apply filters if needed
+      if (popular === "true") {
+        filteredBrands = filteredBrands.filter((brand) => brand.popular)
+      }
+      if (slugs) {
+        filteredBrands = filteredBrands.filter((brand) => slugs.includes(brand.slug))
+      }
+
+      return NextResponse.json({ brands: filteredBrands })
     }
 
     // If cache is invalid or empty, fetch from database
     const supabase = await createClient()
 
-    const { data: brands, error } = await supabase
+    let query = supabase
       .from("brands")
       .select("*")
       .order("label", { ascending: true })
+
+    // Apply filters if needed
+    if (popular === "true") {
+      query = query.eq("popular", true)
+    }
+    if (slugs) {
+      query = query.in("slug", slugs)
+    }
+
+    const { data: brands, error } = await query
 
     if (error) {
       throw error
