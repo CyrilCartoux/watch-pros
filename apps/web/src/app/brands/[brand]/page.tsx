@@ -13,6 +13,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import { ListingCard } from "@/components/ListingCard"
+import { Button } from "@/components/ui/button"
 
 interface BrandData {
   name: string
@@ -189,9 +190,13 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
                 {/* Placeholder for listings */}
                 <Card className="bg-card">
                   <CardContent className="p-4 md:p-6">
-                    <p className="text-muted-foreground">
-                      Listings will be available soon
-                    </p>
+                    <div className="flex flex-col items-center">
+                      <Button asChild size="lg">
+                        <Link href={`/listings?brand=${params.brand}`}>
+                          Voir les listings
+                        </Link>
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               </div>

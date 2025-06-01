@@ -66,8 +66,6 @@ export async function GET(
   try {
     const supabase = await createClient()
 
-    console.log(params.id)
-
     // Récupérer le vendeur avec ses relations
     const { data: seller, error: sellerError } = await supabase
       .from('sellers')
@@ -144,12 +142,6 @@ export async function GET(
       .eq('seller_id', seller.id)
       .order('created_at', { ascending: false })
       .limit(6)
-
-    console.log('Listings query:', {
-      seller_id: seller.id,
-      listings,
-      error: listingsError
-    })
 
     if (listingsError) {
       console.error('Error fetching listings:', listingsError)

@@ -154,31 +154,6 @@ export async function GET(request: Request) {
     const to = from + limit - 1
     query = query.range(from, to)
 
-    // Log all query parameters
-    console.log('Query parameters:', {
-      search,
-      brand,
-      brand_id,
-      model,
-      model_id,
-      reference,
-      seller,
-      year,
-      dialColor,
-      condition,
-      included,
-      listingType,
-      shippingDelay,
-      minPrice,
-      maxPrice,
-      sort,
-      order,
-      from,
-      to,
-      page,
-      limit
-    })
-
     const { data: listings, error, count } = await query
 
     if (error) {
@@ -203,12 +178,9 @@ export async function POST(request: Request) {
   try {
     const supabase = await createClient()
     const formData = await request.formData()
-    console.log(formData)
 
     // Get the current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
-    console.log('Current user:', user)
-    console.log('User error:', userError)
     
     if (userError || !user) {
       return NextResponse.json(
@@ -224,9 +196,6 @@ export async function POST(request: Request) {
       .eq('user_id', user.id)
       .single()
 
-    console.log('Seller data:', seller)
-    console.log('Seller error:', sellerError)
-    
     if (sellerError || !seller) {
       return NextResponse.json(
         { error: 'Seller account not found' },
@@ -279,7 +248,6 @@ export async function POST(request: Request) {
       .single()
 
     if (modelError || !modelData) {
-      console.log('Model error:', modelError)
       return NextResponse.json(
         { error: 'Model not found' },
         { status: 404 }

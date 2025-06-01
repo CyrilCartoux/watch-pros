@@ -155,9 +155,9 @@ export default function ListingsPage() {
   const itemsPerPage = 12
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     watch: true,
-    condition: true,
-    price: true,
-    shipping: true,
+    condition: false,
+    price: false,
+    shipping: false,
   })
   const [isLoadingModels, setIsLoadingModels] = useState(false)
 
@@ -437,22 +437,14 @@ export default function ListingsPage() {
 
   const renderFilters = () => (
     <div className="space-y-6 h-[calc(100vh-8rem)] overflow-y-auto pl-2 pr-2">
-      <div className="space-y-4">
+      {/* <div className="space-y-4">
         <h2 className="font-semibold">Search</h2>
         <Input
           placeholder="Search listings..."
           value={tempFilters.search}
           onChange={(e) => handleFilterChange("search", e.target.value)}
         />
-      </div>
-
-      <Button 
-        variant="outline" 
-        className="w-full"
-        onClick={handleClearFilters}
-      >
-        Clear all filters
-      </Button>
+      </div> */}
 
       <div className="space-y-2">
         <div className="grid grid-cols-2 gap-2">
@@ -884,11 +876,11 @@ export default function ListingsPage() {
 
         {/* Filters Modal */}
         <Dialog open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
-          <DialogContent className="sm:max-w-[600px] h-[100dvh] sm:h-auto p-0 sm:p-6 gap-0 sm:gap-6">
-            <DialogHeader className="p-6 sm:p-0">
+          <DialogContent className="sm:max-w-[600px] h-[calc(100dvh-4rem)] sm:h-auto p-0 sm:p-6 gap-0 sm:gap-6">
+            <DialogHeader className="p-4 sm:p-0">
               <DialogTitle>Filters</DialogTitle>
             </DialogHeader>
-            <div className="h-[calc(100dvh-5rem)] sm:h-auto overflow-y-auto px-6 sm:px-0">
+            <div className="h-[calc(100%-8rem)] sm:h-auto overflow-y-auto px-4 sm:px-0">
               {renderFilters()}
             </div>
             <div className="fixed sm:static bottom-0 left-0 right-0 p-4 sm:p-0 bg-background border-t sm:border-0 flex gap-2 sm:gap-4">

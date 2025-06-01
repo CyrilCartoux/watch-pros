@@ -43,7 +43,6 @@ export function ListingCard({ listing }: ListingCardProps) {
   const [notifications, setNotifications] = useState<Record<string, boolean>>({})
 
   const minSwipeDistance = 50
-  console.log('listing', listing)
   const images = listing.listing_images || []
   const hasImages = images.length > 0
 
