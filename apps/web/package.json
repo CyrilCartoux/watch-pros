@@ -44,5 +44,6 @@
   },
   "overrides": {
     "sharp": "^0.34.2"
-  }
+  },
+  "packageManager": "pnpm@8.15.4"
 }

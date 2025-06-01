@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm install --include=optional sharp && next build",
-  "installCommand": "npm install",
+  "buildCommand": "pnpm install && pnpm build",
+  "installCommand": "pnpm install",
   "framework": "nextjs"
 } 
