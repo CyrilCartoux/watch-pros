@@ -138,7 +138,7 @@ export default function SellAccessoryPage() {
       price: 0,
       currency: "EUR",
       shippingDelay: "",
-      documents: [],
+      documents: [] as File[],
       claspType: "",
       claspMaterial: "",
       caseType: "",
@@ -234,7 +234,7 @@ export default function SellAccessoryPage() {
     }
 
     setSelectedImages(prev => [...prev, ...validFiles])
-    form.setValue("images", [...selectedImages, ...validFiles])
+    form.setValue("images", [...selectedImages, ...validFiles] as never[])
 
     // Create previews
     validFiles.forEach(file => {
@@ -249,7 +249,7 @@ export default function SellAccessoryPage() {
   const removeImage = (index: number) => {
     setSelectedImages(prev => prev.filter((_, i) => i !== index))
     setImagePreviews(prev => prev.filter((_, i) => i !== index))
-    form.setValue("images", selectedImages.filter((_, i) => i !== index))
+    form.setValue("images", selectedImages.filter((_, i) => i !== index) as never[])
   }
 
   const nextStep = async () => {
@@ -394,7 +394,7 @@ export default function SellAccessoryPage() {
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormError error={form.formState.errors.type?.message} isSubmitted={isStepSubmitted} />
+                        <FormError error={form.formState.errors.type?.message as string} isSubmitted={isStepSubmitted} />
                       </div>
 
                       {/* Popular brands */}
@@ -443,7 +443,7 @@ export default function SellAccessoryPage() {
                               </Select>
                             )}
                           />
-                          <FormError error={form.formState.errors.brand?.message} isSubmitted={isStepSubmitted} />
+                          <FormError error={form.formState.errors.brand?.message as string} isSubmitted={isStepSubmitted} />
                         </div>
 
                       {/* Popular models */}
@@ -497,7 +497,7 @@ export default function SellAccessoryPage() {
                               </Select>
                             )}
                           />
-                          <FormError error={form.formState.errors.model?.message} isSubmitted={isStepSubmitted} />
+                          <FormError error={form.formState.errors.model?.message as string} isSubmitted={isStepSubmitted} />
                         </div>
 
                         <div className="space-y-2">
@@ -511,7 +511,7 @@ export default function SellAccessoryPage() {
                               <p className="text-sm text-muted-foreground">
                                 {form.watch("reference")?.length || 0} / 250
                               </p>
-                              <FormError error={form.formState.errors.reference?.message} isSubmitted={isStepSubmitted} />
+                              <FormError error={form.formState.errors.reference?.message as string} isSubmitted={isStepSubmitted} />
                             </div>
     
                       {/* Listing title */}
@@ -528,7 +528,7 @@ export default function SellAccessoryPage() {
                           <p className="text-sm text-muted-foreground mt-1">
                             {form.watch("title")?.length || 0} / 40
                           </p>
-                          <FormError error={form.formState.errors.title?.message} isSubmitted={isStepSubmitted} />
+                          <FormError error={form.formState.errors.title?.message as string} isSubmitted={isStepSubmitted} />
                         </div>
                       </div>
 
@@ -544,6 +544,7 @@ export default function SellAccessoryPage() {
                         <p className="text-sm text-muted-foreground">
                           {form.watch("description")?.length || 0} / 250
                         </p>
+                        <FormError error={form.formState.errors.description?.message as string} isSubmitted={isStepSubmitted} />
                       </div>
 
                       {/* Additional details - Toggle Section */}

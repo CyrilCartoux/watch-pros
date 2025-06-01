@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import sharp from 'sharp'
 
+export const dynamic = 'force-dynamic'
+
 interface ListingImage {
   id: string;
   listing_id: string;

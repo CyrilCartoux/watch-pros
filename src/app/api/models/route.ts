@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { cookies } from "next/headers"
 
+export const dynamic = 'force-dynamic'
+
 // Cache duration in seconds
 const CACHE_DURATION = 60 * 60 // 1 hour
 

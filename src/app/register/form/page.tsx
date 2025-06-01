@@ -417,19 +417,19 @@ export default function RegisterFormPage() {
                     <div>
                       <Label htmlFor="companyName">Company Name *</Label>
                       <Input id="companyName" placeholder="Enter your company name" {...accountForm.register("companyName")} />
-                      <FormError error={accountForm.formState.errors.companyName?.message} isSubmitted={isSubmitted.account} />
+                      <FormError error={accountForm.formState.errors.companyName?.message as string} isSubmitted={isSubmitted.account} />
                     </div>
 
                     <div>
                       <Label htmlFor="watchProsName">Name on Watch Pros *</Label>
                       <Input id="watchProsName" placeholder="Enter the name that will appear on Watch Pros" {...accountForm.register("watchProsName")} />
-                      <FormError error={accountForm.formState.errors.watchProsName?.message} isSubmitted={isSubmitted.account} />
+                      <FormError error={accountForm.formState.errors.watchProsName?.message as string} isSubmitted={isSubmitted.account} />
                     </div>
 
                     <div>
                       <Label htmlFor="companyStatus">Company Status *</Label>
                       <Input id="companyStatus" placeholder="Enter your company status" {...accountForm.register("companyStatus")} />
-                      <FormError error={accountForm.formState.errors.companyStatus?.message} isSubmitted={isSubmitted.account} />
+                      <FormError error={accountForm.formState.errors.companyStatus?.message as string} isSubmitted={isSubmitted.account} />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -453,7 +453,7 @@ export default function RegisterFormPage() {
                             </Select>
                           )}
                         />
-                        <FormError error={accountForm.formState.errors?.country?.message} isSubmitted={isSubmitted.account} />
+                        <FormError error={accountForm.formState.errors?.country?.message as string} isSubmitted={isSubmitted.account} />
                       </div>
 
                       <div>
@@ -476,7 +476,7 @@ export default function RegisterFormPage() {
                             </Select>
                           )}
                         />
-                        <FormError error={accountForm.formState.errors.title?.message} isSubmitted={isSubmitted.account} />
+                        <FormError error={accountForm.formState.errors.title?.message as string} isSubmitted={isSubmitted.account} />
                       </div>
                     </div>
 
@@ -484,20 +484,20 @@ export default function RegisterFormPage() {
                       <div>
                         <Label htmlFor="firstName">First Name *</Label>
                         <Input id="firstName" placeholder="First name for billing address" {...accountForm.register("firstName")} />
-                        <FormError error={accountForm.formState.errors.firstName?.message} isSubmitted={isSubmitted.account} />
+                        <FormError error={accountForm.formState.errors.firstName?.message as string} isSubmitted={isSubmitted.account} />
                       </div>
 
                       <div>
                         <Label htmlFor="lastName">Last Name *</Label>
                         <Input id="lastName" placeholder="Last name for billing address" {...accountForm.register("lastName")} />
-                        <FormError error={accountForm.formState.errors.lastName?.message} isSubmitted={isSubmitted.account} />
+                        <FormError error={accountForm.formState.errors.lastName?.message as string} isSubmitted={isSubmitted.account} />
                       </div>
                     </div>
 
                     <div>
                       <Label htmlFor="email">Email Address *</Label>
                       <Input id="email" type="email" placeholder="your@email.com" {...accountForm.register("email")} />
-                      <FormError error={accountForm.formState.errors.email?.message} isSubmitted={isSubmitted.account} />
+                      <FormError error={accountForm.formState.errors.email?.message as string} isSubmitted={isSubmitted.account} />
                     </div>
 
                     <div>
@@ -522,7 +522,7 @@ export default function RegisterFormPage() {
                             </Select>
                           )}
                         />
-                        <FormError error={accountForm.formState.errors.phonePrefix?.message} isSubmitted={isSubmitted.account} />
+                        <FormError error={accountForm.formState.errors.phonePrefix?.message as string} isSubmitted={isSubmitted.account} />
                         <Controller
                           name="phone"
                           control={accountForm.control}
@@ -541,7 +541,7 @@ export default function RegisterFormPage() {
                             />
                           )}
                         />
-                        <FormError error={accountForm.formState.errors.phone?.message} isSubmitted={isSubmitted.account} />
+                        <FormError error={accountForm.formState.errors.phone?.message as string} isSubmitted={isSubmitted.account} />
                       </div>
                     </div>
                   </div>
@@ -575,26 +575,26 @@ export default function RegisterFormPage() {
                     <div>
                       <Label htmlFor="street">Street *</Label>
                       <Input id="street" placeholder="Enter your address" {...addressForm.register("street")} />
-                      <FormError error={addressForm.formState.errors.street?.message} isSubmitted={isSubmitted.address} />
+                      <FormError error={addressForm.formState.errors.street?.message as string} isSubmitted={isSubmitted.address} />
                     </div>
 
                     <div>
                       <Label htmlFor="addressComplement">Address Complement</Label>
                       <Input id="addressComplement" placeholder="Apartment, suite, unit, etc." {...addressForm.register("addressComplement")} />
-                      <FormError error={addressForm.formState.errors.addressComplement?.message} isSubmitted={isSubmitted.address} />
+                      <FormError error={addressForm.formState.errors.addressComplement?.message as string} isSubmitted={isSubmitted.address} />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="postalCode">Postal Code *</Label>
                         <Input id="postalCode" placeholder="Postal code" {...addressForm.register("postalCode")} />
-                        <FormError error={addressForm.formState.errors.postalCode?.message} isSubmitted={isSubmitted.address} />
+                        <FormError error={addressForm.formState.errors.postalCode?.message as string} isSubmitted={isSubmitted.address} />
                       </div>
 
                       <div>
                         <Label htmlFor="city">City *</Label>
                         <Input id="city" placeholder="City" {...addressForm.register("city")} />
-                        <FormError error={addressForm.formState.errors.city?.message} isSubmitted={isSubmitted.address} />
+                        <FormError error={addressForm.formState.errors.city?.message as string} isSubmitted={isSubmitted.address} />
                       </div>
                     </div>
 
@@ -619,7 +619,7 @@ export default function RegisterFormPage() {
                           </Select>
                         )}
                       />
-                      <FormError error={addressForm.formState.errors.country?.message} isSubmitted={isSubmitted.address} />
+                      <FormError error={addressForm.formState.errors.country?.message as string} isSubmitted={isSubmitted.address} />
                     </div>
 
                     <div>
@@ -646,14 +646,13 @@ export default function RegisterFormPage() {
                         />
                         <Input id="mobile" placeholder="Numéro de mobile" className="flex-1" {...addressForm.register("mobile")} />
                       </div>
-                      <FormError error={addressForm.formState.errors.mobile?.message} isSubmitted={isSubmitted.address} />
-                      <FormError error={addressForm.formState.errors.mobilePrefix?.message} isSubmitted={isSubmitted.address} />
+                      <FormError error={addressForm.formState.errors.mobile?.message as string} isSubmitted={isSubmitted.address} />
                     </div>
 
                     <div>
                       <Label htmlFor="website">Website</Label>
                       <Input id="website" type="url" placeholder="https://www.your-website.com" {...addressForm.register("website")} />
-                      <FormError error={addressForm.formState.errors.website?.message} isSubmitted={isSubmitted.address} />
+                      <FormError error={addressForm.formState.errors.website?.message as string} isSubmitted={isSubmitted.address} />
                     </div>
 
                     <div className="border-t pt-6">
@@ -663,13 +662,13 @@ export default function RegisterFormPage() {
                         <div>
                           <Label htmlFor="siren">SIREN or SIRET Number *</Label>
                           <Input id="siren" placeholder="Enter your SIREN or SIRET number" {...addressForm.register("siren")} />
-                          <FormError error={addressForm.formState.errors.siren?.message} isSubmitted={isSubmitted.address} />
+                          <FormError error={addressForm.formState.errors.siren?.message as string} isSubmitted={isSubmitted.address} />
                         </div>
 
                         <div>
                           <Label htmlFor="taxId">Tax ID Number *</Label>
                           <Input id="taxId" placeholder="Enter your tax ID number" {...addressForm.register("taxId")} />
-                          <FormError error={addressForm.formState.errors.taxId?.message} isSubmitted={isSubmitted.address} />
+                          <FormError error={addressForm.formState.errors.taxId?.message as string} isSubmitted={isSubmitted.address} />
                           <p className="text-sm text-muted-foreground mt-1">
                             Enter the tax ID number corresponding to your company's location: France
                           </p>
@@ -678,7 +677,7 @@ export default function RegisterFormPage() {
                         <div>
                           <Label htmlFor="vatNumber">VAT Number *</Label>
                           <Input id="vatNumber" placeholder="Enter your VAT number" {...addressForm.register("vatNumber")} />
-                          <FormError error={addressForm.formState.errors.vatNumber?.message} isSubmitted={isSubmitted.address} />
+                          <FormError error={addressForm.formState.errors.vatNumber?.message as string} isSubmitted={isSubmitted.address} />
                           <p className="text-sm text-muted-foreground mt-1">
                             Enter the VAT number corresponding to your company's location: France
                           </p>
@@ -695,7 +694,7 @@ export default function RegisterFormPage() {
                             I am registered with the One-Stop Shop (OSS)
                           </Label>
                         </div>
-                        <FormError error={addressForm.formState.errors.oss?.message} isSubmitted={isSubmitted.address} />
+                        <FormError error={addressForm.formState.errors.oss?.message as string} isSubmitted={isSubmitted.address} />
                       </div>
                     </div>
                   </div>
@@ -761,7 +760,7 @@ export default function RegisterFormPage() {
                           </Select>
                         )}
                       />
-                      <FormError error={bankingForm.formState.errors.paymentMethod?.message} isSubmitted={isSubmitted.banking} />
+                      <FormError error={bankingForm.formState.errors.paymentMethod?.message as string} isSubmitted={isSubmitted.banking} />
                     </div>
 
                     {/* Credit Card Form */}
@@ -769,7 +768,7 @@ export default function RegisterFormPage() {
                       <div>
                         <Label htmlFor="cardHolder">Cardholder Name *</Label>
                         <Input id="cardHolder" placeholder="Name as it appears on card" {...bankingForm.register("cardHolder")} />
-                        <FormError error={bankingForm.formState.errors.cardHolder?.message} isSubmitted={isSubmitted.banking} />
+                        <FormError error={bankingForm.formState.errors.cardHolder?.message as string} isSubmitted={isSubmitted.banking} />
                       </div>
 
                       <Controller
@@ -795,7 +794,7 @@ export default function RegisterFormPage() {
                           />
                         )}
                       />
-                      <FormError error={bankingForm.formState.errors.cardNumber?.message} isSubmitted={isSubmitted.banking} />
+                      <FormError error={bankingForm.formState.errors.cardNumber?.message as string} isSubmitted={isSubmitted.banking} />
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -819,7 +818,7 @@ export default function RegisterFormPage() {
                               />
                             )}
                           />
-                          <FormError error={bankingForm.formState.errors.expiryDate?.message} isSubmitted={isSubmitted.banking} />
+                          <FormError error={bankingForm.formState.errors.expiryDate?.message as string} isSubmitted={isSubmitted.banking} />
                         </div>
 
                         <div>
@@ -831,7 +830,7 @@ export default function RegisterFormPage() {
                             type="password"
                             {...bankingForm.register("cvc")}
                           />
-                          <FormError error={bankingForm.formState.errors.cvc?.message} isSubmitted={isSubmitted.banking} />
+                          <FormError error={bankingForm.formState.errors.cvc?.message as string} isSubmitted={isSubmitted.banking} />
                         </div>
                       </div>
 
@@ -847,7 +846,7 @@ export default function RegisterFormPage() {
                           I hereby authorize Watch Pros GmbH, until revoked, to debit the indicated amounts from my credit card.
                         </Label>
                       </div>
-                      <FormError error={bankingForm.formState.errors.authorization?.message} isSubmitted={isSubmitted.banking} />
+                      <FormError error={bankingForm.formState.errors.authorization?.message as string} isSubmitted={isSubmitted.banking} />
                     </div>
 
                     {/* SEPA Form */}
@@ -855,26 +854,26 @@ export default function RegisterFormPage() {
                       <div>
                         <Label htmlFor="accountHolder">Account Holder (if different from company)</Label>
                         <Input id="accountHolder" placeholder="Account holder name" {...bankingForm.register("accountHolder")} />
-                        <FormError error={bankingForm.formState.errors.accountHolder?.message} isSubmitted={isSubmitted.banking} />
+                        <FormError error={bankingForm.formState.errors.accountHolder?.message as string} isSubmitted={isSubmitted.banking} />
                       </div>
 
                       <div>
                         <Label htmlFor="sepaStreet">Street *</Label>
                         <Input id="sepaStreet" placeholder="Bank address" {...bankingForm.register("sepaStreet")} />
-                        <FormError error={bankingForm.formState.errors.sepaStreet?.message} isSubmitted={isSubmitted.banking} />
+                        <FormError error={bankingForm.formState.errors.sepaStreet?.message as string} isSubmitted={isSubmitted.banking} />
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor="sepaPostalCode">Postal Code *</Label>
                           <Input id="sepaPostalCode" placeholder="Postal code" {...bankingForm.register("sepaPostalCode")} />
-                          <FormError error={bankingForm.formState.errors.sepaPostalCode?.message} isSubmitted={isSubmitted.banking} />
+                          <FormError error={bankingForm.formState.errors.sepaPostalCode?.message as string} isSubmitted={isSubmitted.banking} />
                         </div>
 
                         <div>
                           <Label htmlFor="sepaCity">City *</Label>
                           <Input id="sepaCity" placeholder="City" {...bankingForm.register("sepaCity")} />
-                          <FormError error={bankingForm.formState.errors.sepaCity?.message} isSubmitted={isSubmitted.banking} />
+                          <FormError error={bankingForm.formState.errors.sepaCity?.message as string} isSubmitted={isSubmitted.banking} />
                         </div>
                       </div>
 
@@ -899,13 +898,13 @@ export default function RegisterFormPage() {
                             </Select>
                           )}
                         />
-                        <FormError error={bankingForm.formState.errors.sepaCountry?.message} isSubmitted={isSubmitted.banking} />
+                        <FormError error={bankingForm.formState.errors.sepaCountry?.message as string} isSubmitted={isSubmitted.banking} />
                       </div>
 
                       <div>
                         <Label htmlFor="bankName">Bank *</Label>
                         <Input id="bankName" placeholder="Your bank name" {...bankingForm.register("bankName")} />
-                        <FormError error={bankingForm.formState.errors.bankName?.message} isSubmitted={isSubmitted.banking} />
+                        <FormError error={bankingForm.formState.errors.bankName?.message as string} isSubmitted={isSubmitted.banking} />
                       </div>
 
                       <div>
@@ -933,7 +932,7 @@ export default function RegisterFormPage() {
                             />
                           )}
                         />
-                        <FormError error={bankingForm.formState.errors.iban?.message} isSubmitted={isSubmitted.banking} />
+                        <FormError error={bankingForm.formState.errors.iban?.message as string} isSubmitted={isSubmitted.banking} />
                       </div>
 
                       <div>
@@ -954,7 +953,7 @@ export default function RegisterFormPage() {
                             />
                           )}
                         />
-                        <FormError error={bankingForm.formState.errors.bic?.message} isSubmitted={isSubmitted.banking} />
+                        <FormError error={bankingForm.formState.errors.bic?.message as string} isSubmitted={isSubmitted.banking} />
                       </div>
                     </div>
                   </div>
@@ -1040,7 +1039,7 @@ export default function RegisterFormPage() {
                             }}
                             className="cursor-pointer"
                           />
-                          <FormError error={documentsForm.formState.errors.idCardFront?.message} isSubmitted={isSubmitted.documents} />
+                          <FormError error={documentsForm.formState.errors.idCardFront?.message as string} isSubmitted={isSubmitted.documents} />
                           <p className="text-xs text-muted-foreground mt-1">
                             Accepted formats: JPG, PNG, PDF (max 5MB)
                           </p>
@@ -1066,7 +1065,7 @@ export default function RegisterFormPage() {
                             }}
                             className="cursor-pointer"
                           />
-                          <FormError error={documentsForm.formState.errors.idCardBack?.message} isSubmitted={isSubmitted.documents} />
+                          <FormError error={documentsForm.formState.errors.idCardBack?.message as string} isSubmitted={isSubmitted.documents} />
                           <p className="text-xs text-muted-foreground mt-1">
                             Accepted formats: JPG, PNG, PDF (max 5MB)
                           </p>
@@ -1101,7 +1100,7 @@ export default function RegisterFormPage() {
                           }}
                           className="cursor-pointer"
                         />
-                        <FormError error={documentsForm.formState.errors.proofOfAddress?.message} isSubmitted={isSubmitted.documents} />
+                        <FormError error={documentsForm.formState.errors.proofOfAddress?.message as string} isSubmitted={isSubmitted.documents} />
                         <p className="text-xs text-muted-foreground mt-1">
                           Accepted formats: JPG, PNG, PDF (max 5MB)
                         </p>

@@ -131,7 +131,7 @@ export default function SellWatchPage() {
       price: 0,
       currency: "EUR",
       shippingDelay: "",
-      documents: [],
+      documents: [] as File[],
       listing_type: "watch",
     },
     mode: "onChange",
@@ -220,7 +220,7 @@ export default function SellWatchPage() {
     }
 
     setSelectedImages(prev => [...prev, ...validFiles])
-    form.setValue("images", [...selectedImages, ...validFiles])
+    form.setValue("images", [...selectedImages, ...validFiles] as never[])
 
     // Create previews
     validFiles.forEach(file => {
@@ -235,7 +235,7 @@ export default function SellWatchPage() {
   const removeImage = (index: number) => {
     setSelectedImages(prev => prev.filter((_, i) => i !== index))
     setImagePreviews(prev => prev.filter((_, i) => i !== index))
-    form.setValue("images", selectedImages.filter((_, i) => i !== index))
+    form.setValue("images", selectedImages.filter((_, i) => i !== index) as never[])
   }
 
   const calculateCommission = (price: number) => {
@@ -445,7 +445,7 @@ export default function SellWatchPage() {
                               </Select>
                             )}
                           />
-                          <FormError error={form.formState.errors.brand?.message} isSubmitted={isStepSubmitted} />
+                          <FormError error={form.formState.errors.brand?.message as string} isSubmitted={isStepSubmitted} />
                         </div>
 
                         {/* Popular Models */}
@@ -500,7 +500,7 @@ export default function SellWatchPage() {
                               </Select>
                             )}
                           />
-                          <FormError error={form.formState.errors.model?.message} isSubmitted={isStepSubmitted} />
+                          <FormError error={form.formState.errors.model?.message as string} isSubmitted={isStepSubmitted} />
                         </div>
 
                         <div>
@@ -510,7 +510,7 @@ export default function SellWatchPage() {
                             placeholder="e.g. 18038" 
                             {...form.register("reference")} 
                           />
-                          <FormError error={form.formState.errors.reference?.message} isSubmitted={isStepSubmitted} />
+                          <FormError error={form.formState.errors.reference?.message as string} isSubmitted={isStepSubmitted} />
                         </div>
                       </div>
 
@@ -528,7 +528,7 @@ export default function SellWatchPage() {
                           <p className="text-sm text-muted-foreground mt-1">
                             {form.watch("title")?.length || 0} / 40
                           </p>
-                          <FormError error={form.formState.errors.title?.message} isSubmitted={isStepSubmitted} />
+                          <FormError error={form.formState.errors.title?.message as string} isSubmitted={isStepSubmitted} />
                         </div>
 
                         <div>
@@ -542,7 +542,7 @@ export default function SellWatchPage() {
                           <p className="text-sm text-muted-foreground mt-1">
                             {form.watch("description")?.length || 0} / 40
                           </p>
-                          <FormError error={form.formState.errors.description?.message} isSubmitted={isStepSubmitted} />
+                          <FormError error={form.formState.errors.description?.message as string} isSubmitted={isStepSubmitted} />
                         </div>
                       </div>
 
@@ -570,7 +570,7 @@ export default function SellWatchPage() {
                                 placeholder="e.g. 2013" 
                                 {...form.register("year")}
                               />
-                              <FormError error={form.formState.errors.year?.message} isSubmitted={isStepSubmitted} />
+                              <FormError error={form.formState.errors.year?.message as string} isSubmitted={isStepSubmitted} />
                             </div>
 
                             <div>
@@ -591,7 +591,7 @@ export default function SellWatchPage() {
                                   </Select>
                                 )}
                               />
-                              <FormError error={form.formState.errors.gender?.message} isSubmitted={isStepSubmitted} />
+                              <FormError error={form.formState.errors.gender?.message as string} isSubmitted={isStepSubmitted} />
                             </div>
 
                             <div>
@@ -623,7 +623,7 @@ export default function SellWatchPage() {
                                   </Select>
                                 )}
                               />
-                              <FormError error={form.formState.errors.dialColor?.message} isSubmitted={isStepSubmitted} />
+                              <FormError error={form.formState.errors.dialColor?.message as string} isSubmitted={isStepSubmitted} />
                             </div>
 
                             <div>
@@ -640,7 +640,7 @@ export default function SellWatchPage() {
                                 />
                                 <span className="text-muted-foreground">mm</span>
                               </div>
-                              <FormError error={form.formState.errors.diameter?.min?.message || form.formState.errors.diameter?.max?.message} isSubmitted={isStepSubmitted} />
+                              <FormError error={form.formState.errors.diameter?.min?.message as string || form.formState.errors.diameter?.max?.message as string} isSubmitted={isStepSubmitted} />
                             </div>
 
                             <div>
@@ -663,7 +663,7 @@ export default function SellWatchPage() {
                                   </Select>
                                 )}
                               />
-                              <FormError error={form.formState.errors.movement?.message} isSubmitted={isStepSubmitted} />
+                              <FormError error={form.formState.errors.movement?.message as string} isSubmitted={isStepSubmitted} />
                             </div>
 
                             <div>
@@ -686,7 +686,7 @@ export default function SellWatchPage() {
                                   </Select>
                                 )}
                               />
-                              <FormError error={form.formState.errors.case?.message} isSubmitted={isStepSubmitted} />
+                              <FormError error={form.formState.errors.case?.message as string} isSubmitted={isStepSubmitted} />
                             </div>
 
                             <div>
@@ -709,7 +709,7 @@ export default function SellWatchPage() {
                                   </Select>
                                 )}
                               />
-                              <FormError error={form.formState.errors.braceletMaterial?.message} isSubmitted={isStepSubmitted} />
+                              <FormError error={form.formState.errors.braceletMaterial?.message as string} isSubmitted={isStepSubmitted} />
                             </div>
 
                             <div>
@@ -732,7 +732,7 @@ export default function SellWatchPage() {
                                   </Select>
                                 )}
                               />
-                              <FormError error={form.formState.errors.braceletColor?.message} isSubmitted={isStepSubmitted} />
+                              <FormError error={form.formState.errors.braceletColor?.message as string} isSubmitted={isStepSubmitted} />
                             </div>
                           </div>
                         )}
@@ -747,7 +747,7 @@ export default function SellWatchPage() {
                         <p className="text-sm text-muted-foreground mb-4">
                           Select what will be included with the watch *
                         </p>
-                        <FormError error={form.formState.errors.included?.message} isSubmitted={isStepSubmitted} />
+                        <FormError error={form.formState.errors.included?.message as string} isSubmitted={isStepSubmitted} />
                         <div className="grid gap-4">
                           {includedOptions.map((option) => (
                             <Card
@@ -792,7 +792,7 @@ export default function SellWatchPage() {
                         <p className="text-sm text-muted-foreground mb-4">
                           Select the condition of your watch *
                         </p>
-                        <FormError error={form.formState.errors.condition?.message} isSubmitted={isStepSubmitted} />
+                        <FormError error={form.formState.errors.condition?.message as string} isSubmitted={isStepSubmitted} />
                         <div className="grid gap-4">
                           {watchConditions.map((condition) => (
                             <Card
@@ -838,7 +838,7 @@ export default function SellWatchPage() {
                         Add up to 10 photos of your watch. Accepted formats: JPG, PNG, WEBP. Maximum size: 5MB per photo.
                       </p>
 
-                      <FormError error={form.formState.errors.images?.message} isSubmitted={isStepSubmitted} />
+                      <FormError error={form.formState.errors.images?.message as string} isSubmitted={isStepSubmitted} />
                       
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                         {imagePreviews.map((preview, index) => (
@@ -925,7 +925,7 @@ export default function SellWatchPage() {
                               <SelectItem value="10+">More than 10 business days</SelectItem>
                             </SelectContent>
                           </Select>
-                          <FormError error={form.formState.errors.shippingDelay?.message} isSubmitted={isStepSubmitted} />
+                          <FormError error={form.formState.errors.shippingDelay?.message as string} isSubmitted={isStepSubmitted} />
                         </div>
 
                         <Card>
@@ -952,7 +952,7 @@ export default function SellWatchPage() {
                             </div>
                           </CardContent>
                         </Card>
-                        <FormError error={form.formState.errors.price?.message} isSubmitted={isStepSubmitted} />
+                        <FormError error={form.formState.errors.price?.message as string} isSubmitted={isStepSubmitted} />
                       </div>
                     </div>
                   )}
