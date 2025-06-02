@@ -402,6 +402,96 @@ export interface Database {
           updated_at?: string
         }
       }
+      seller_reviews: {
+        Row: {
+          id: string
+          seller_id: string
+          reviewer_id: string
+          rating: number
+          comment: string
+          created_at: string
+          updated_at: string
+          is_verified: boolean
+          listing_id: string | null
+        }
+        Insert: {
+          id?: string
+          seller_id: string
+          reviewer_id: string
+          rating: number
+          comment: string
+          created_at?: string
+          updated_at?: string
+          is_verified?: boolean
+          listing_id?: string | null
+        }
+        Update: {
+          id?: string
+          seller_id?: string
+          reviewer_id?: string
+          rating?: number
+          comment?: string
+          created_at?: string
+          updated_at?: string
+          is_verified?: boolean
+          listing_id?: string | null
+        }
+      }
+      seller_approvals: {
+        Row: {
+          id: string
+          seller_id: string
+          approver_id: string
+          created_at: string
+          updated_at: string
+          is_verified: boolean
+        }
+        Insert: {
+          id?: string
+          seller_id: string
+          approver_id: string
+          created_at?: string
+          updated_at?: string
+          is_verified?: boolean
+        }
+        Update: {
+          id?: string
+          seller_id?: string
+          approver_id?: string
+          created_at?: string
+          updated_at?: string
+          is_verified?: boolean
+        }
+      }
+      seller_stats: {
+        Row: {
+          id: string
+          seller_id: string
+          total_reviews: number
+          average_rating: number
+          total_approvals: number
+          verified_approvals: number
+          last_updated: string
+        }
+        Insert: {
+          id?: string
+          seller_id: string
+          total_reviews?: number
+          average_rating?: number
+          total_approvals?: number
+          verified_approvals?: number
+          last_updated?: string
+        }
+        Update: {
+          id?: string
+          seller_id?: string
+          total_reviews?: number
+          average_rating?: number
+          total_approvals?: number
+          verified_approvals?: number
+          last_updated?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

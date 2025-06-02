@@ -970,18 +970,6 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
                               {form.watch('price')?.toLocaleString()} {form.watch('currency')}
                             </span>
                           </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Sales commission (0.5%)</span>
-                            <span className="font-medium">
-                              {(form.watch('price') * 0.065).toLocaleString()} {form.watch('currency')}
-                            </span>
-                          </div>
-                          <div className="flex justify-between pt-2 border-t">
-                            <span className="font-medium">Estimated earnings</span>
-                            <span className="font-medium text-primary">
-                              {(form.watch('price') * 0.935).toLocaleString()} {form.watch('currency')}
-                            </span>
-                          </div>
                         </div>
                       </CardContent>
                     </Card>

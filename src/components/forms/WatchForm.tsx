@@ -255,14 +255,6 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
     form.setValue("images", selectedImages.filter((_, i) => i !== index) as never[])
   }
 
-  const calculateCommission = (price: number) => {
-    return price * 0.005
-  }
-
-  const calculateGain = (price: number) => {
-    return price - calculateCommission(price)
-  }
-
   const nextStep = async () => {
     const isValid = await validateStep(step)
 
@@ -839,18 +831,6 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                             <span className="text-muted-foreground">Sale price</span>
                             <span className="font-medium">
                               {form.watch("price")?.toLocaleString()} {form.watch("currency")}
-                            </span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Sales commission (0.5%)</span>
-                            <span className="font-medium">
-                              {calculateCommission(form.watch("price") || 0).toLocaleString()} {form.watch("currency")}
-                            </span>
-                          </div>
-                          <div className="flex justify-between pt-2 border-t">
-                            <span className="font-medium">Estimated earnings</span>
-                            <span className="font-medium text-primary">
-                              {calculateGain(form.watch("price") || 0).toLocaleString()} {form.watch("currency")}
                             </span>
                           </div>
                         </div>

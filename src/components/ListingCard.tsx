@@ -91,6 +91,9 @@ export function ListingCard({ listing }: ListingCardProps) {
     }
   }
 
+  // Get condition label
+  const conditionLabel = watchConditions.find(c => c.slug === listing.condition)?.label
+
   return (
     <Link href={`/listings/${listing.id}`}>
       <Card className="overflow-hidden hover:shadow-lg transition-all h-full flex flex-col">
@@ -105,6 +108,7 @@ export function ListingCard({ listing }: ListingCardProps) {
               src={images[currentImage].url}
               alt={listing.title}
               fill
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
               className="object-cover"
             />
           ) : (
@@ -192,12 +196,16 @@ export function ListingCard({ listing }: ListingCardProps) {
                     {listing.year}
                   </span>
                 )}
-                <span className="px-2 py-1 bg-muted rounded-md text-xs">
-                  {watchConditions.find(c => c.slug === listing.condition)?.label}
-                </span>
-                <span className="px-2 py-1 bg-muted rounded-md text-xs">
-                  {listing.shipping_delay} days
-                </span>
+                {conditionLabel && (
+                  <span className="px-2 py-1 bg-muted rounded-md text-xs">
+                    {conditionLabel}
+                  </span>
+                )}
+                {listing.shipping_delay && (
+                  <span className="px-2 py-1 bg-muted rounded-md text-xs">
+                    {listing.shipping_delay} days
+                  </span>
+                )}
               </div>
               <p className="text-xl font-bold mt-2">{listing.price.toLocaleString()} {listing.currency}</p>
             </div>

@@ -153,6 +153,7 @@ export async function GET(
 
     // Transformer les données pour correspondre à la structure attendue
     const transformedSeller = {
+      id: seller.id,
       account: {
         companyName: seller.company_name,
         watchProsName: seller.watch_pros_name,
