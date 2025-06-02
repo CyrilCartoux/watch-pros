@@ -1,13 +1,14 @@
 "use client"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { BarChart, MessageSquare, Star, Heart, ShoppingBag, Settings, MoreHorizontal } from "lucide-react"
+import { BarChart, MessageSquare, Star, Heart, ShoppingBag, Settings, MoreHorizontal, List } from "lucide-react"
 import { DashboardTab } from "@/components/account/DashboardTab"
 import { MessagesTab } from "@/components/account/MessagesTab"
 import { ReviewsTab } from "@/components/account/ReviewsTab"
 import { FavoritesTab } from "@/components/account/FavoritesTab"
 import { SalesTab } from "@/components/account/SalesTab"
 import { SettingsTab } from "@/components/account/SettingsTab"
+import MyListings from "@/components/account/MyListings"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,6 +54,10 @@ export default function AccountPage() {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleTabChange("listings")}>
+                <List className="h-4 w-4 mr-2" />
+                My Listings
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleTabChange("reviews")}>
                 <Star className="h-4 w-4 mr-2" />
                 Reviews
@@ -71,7 +76,7 @@ export default function AccountPage() {
 
         {/* Desktop Tabs */}
         <div className="hidden md:block">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <BarChart className="h-4 w-4" />
               Dashboard
@@ -79,6 +84,10 @@ export default function AccountPage() {
             <TabsTrigger value="messages" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
               Messages
+            </TabsTrigger>
+            <TabsTrigger value="listings" className="flex items-center gap-2">
+              <List className="h-4 w-4" />
+              My Listings
             </TabsTrigger>
             <TabsTrigger value="reviews" className="flex items-center gap-2">
               <Star className="h-4 w-4" />
@@ -107,6 +116,11 @@ export default function AccountPage() {
         {/* Messages Tab */}
         <TabsContent value="messages" className="h-[calc(100vh-12rem)]">
           <MessagesTab />
+        </TabsContent>
+
+        {/* Listings Tab */}
+        <TabsContent value="listings">
+          <MyListings />
         </TabsContent>
 
         {/* Reviews Tab */}

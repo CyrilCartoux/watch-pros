@@ -207,4 +207,60 @@ export async function GET(
       { status: 500 }
     )
   }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const supabase = await createClient()
+
+    // Get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Get the seller associated with the user
+    const { data: seller, error: sellerError } = await supabase
+      .from('sellers')
+      .select('id')
+      .eq('user_id', user.id)
+      .single()
+
+    if (sellerError || !seller) {
+      return NextResponse.json(
+        { error: 'Seller not found' },
+        { status: 404 }
+      )
+    }
+
+    // Delete the listing
+    const { error: deleteError } = await supabase
+      .from('listings')
+      .delete()
+      .eq('id', params.id)
+      .eq('seller_id', seller.id)
+
+    if (deleteError) {
+      console.error('Error deleting listing:', deleteError)
+      return NextResponse.json(
+        { error: 'Failed to delete listing' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Error in delete listing API:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
 } 
