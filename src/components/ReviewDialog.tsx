@@ -30,12 +30,26 @@ export function ReviewDialog({
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState("")
   const [hoveredRating, setHoveredRating] = useState(0)
+  const [isSuccess, setIsSuccess] = useState(false)
 
   const handleSubmit = async () => {
     if (rating === 0) return
-    await onSubmit({ rating, comment })
-    setRating(0)
-    setComment("")
+    
+    try {
+      await onSubmit({ rating, comment })
+      setIsSuccess(true)
+      
+      // Attendre 5 secondes avant de fermer
+      await new Promise(resolve => setTimeout(resolve, 15000))
+      
+      // Réinitialiser et fermer
+      setIsSuccess(false)
+      setRating(0)
+      setComment("")
+      onClose()
+    } catch (error) {
+      console.error('Error submitting review:', error)
+    }
   }
 
   return (
@@ -51,7 +65,18 @@ export function ReviewDialog({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {rating === 0 ? (
+          {isSuccess ? (
+            <div className="flex flex-col items-center justify-center py-8 space-y-4">
+              <div className="relative">
+                <CheckCircle2 className="w-16 h-16 text-primary animate-in zoom-in-50 duration-500" />
+                <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
+              </div>
+              <p className="text-lg font-medium text-center">Your review has been submitted successfully!</p>
+              <p className="text-sm text-muted-foreground text-center">
+                Thank you for sharing your experience.
+              </p>
+            </div>
+          ) : (
             <div className="space-y-6">
               {/* Overall Rating */}
               <div className="space-y-2">
@@ -96,22 +121,11 @@ export function ReviewDialog({
                 </p>
               </div>
             </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-8 space-y-4">
-              <div className="relative">
-                <CheckCircle2 className="w-16 h-16 text-primary animate-in zoom-in-50 duration-500" />
-                <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse" />
-              </div>
-              <p className="text-lg font-medium text-center">Your review has been submitted successfully!</p>
-              <p className="text-sm text-muted-foreground text-center">
-                Thank you for sharing your experience.
-              </p>
-            </div>
           )}
         </div>
 
         <DialogFooter>
-          {rating === 0 && (
+          {!isSuccess && (
             <>
               <Button
                 variant="outline"

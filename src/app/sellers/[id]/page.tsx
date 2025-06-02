@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Star, Shield, Award, MapPin, Phone, Mail, Globe, Building2, Clock, ChevronLeft, ChevronRight, MessageSquare, CheckCircle2 } from "lucide-react"
+import { Star, Shield, Award, MapPin, Phone, Mail, Globe, Building2, Clock, ChevronLeft, ChevronRight, MessageSquare, CheckCircle2, ThumbsUp } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -11,8 +11,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useAuth } from "@/contexts/AuthContext"
+import { ReviewDialog } from "@/components/ReviewDialog"
 
 interface Seller {
+  id: string
   account: {
     companyName: string
     watchProsName: string
@@ -51,6 +54,11 @@ interface Seller {
     currency: string
     image: string
   }[]
+}
+
+interface ReviewData {
+  rating: number
+  comment: string
 }
 
 // Mock data for statistics and ratings
@@ -135,6 +143,11 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
   const [seller, setSeller] = useState<Seller | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false)
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false)
+  const [isApproved, setIsApproved] = useState(false)
+  const [isSubmittingApproval, setIsSubmittingApproval] = useState(false)
+  const { user } = useAuth()
   
   useEffect(() => {
     const fetchSeller = async () => {
@@ -229,6 +242,38 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
     }
   }
 
+  const handleApproveSeller = async () => {
+    if (!user || !seller?.id) return
+
+    setIsSubmittingApproval(true)
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      setIsApproved(true)
+    } catch (error) {
+      console.error('Error approving seller:', error)
+    } finally {
+      setIsSubmittingApproval(false)
+    }
+  }
+
+  const handleSubmitReview = async (review: ReviewData) => {
+    if (!user || !seller?.id) return
+
+    setIsSubmittingReview(true)
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      // Refresh reviews after submission
+      // TODO: Implement refresh reviews logic
+    } catch (error) {
+      console.error('Error submitting review:', error)
+    } finally {
+      setIsSubmittingReview(false)
+      setIsReviewDialogOpen(false)
+    }
+  }
+
   return (
     <main className="min-h-screen bg-background py-8">
       <div className="container">
@@ -253,6 +298,27 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                     <span className="text-xs md:text-sm text-muted-foreground">({mockStats.totalReviews} reviews)</span>
                   </div>
                   <Badge variant="secondary" className="text-xs md:text-sm">{mockStats.recommendationRate}% recommend</Badge>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                  <Button
+                    onClick={() => setIsReviewDialogOpen(true)}
+                    className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
+                    disabled={isSubmittingReview}
+                  >
+                    <Star className="h-4 w-4 mr-2" />
+                    {isSubmittingReview ? "Submitting..." : "Write a Review"}
+                  </Button>
+                  <Button
+                    variant={isApproved ? "default" : "outline"}
+                    onClick={handleApproveSeller}
+                    disabled={isApproved || isSubmittingApproval}
+                    className="gap-2"
+                  >
+                    <ThumbsUp className="h-4 w-4" />
+                    {isSubmittingApproval ? "Submitting..." : isApproved ? "Approved" : "I approve this seller"}
+                  </Button>
                 </div>
               </div>
             </div>
@@ -574,6 +640,16 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Review Dialog */}
+        <ReviewDialog
+          isOpen={isReviewDialogOpen}
+          onClose={() => setIsReviewDialogOpen(false)}
+          onSubmit={handleSubmitReview}
+          isSubmitting={isSubmittingReview}
+          title={`Review ${seller.account.companyName}`}
+          description="Share your experience with this seller. Your review will help other buyers make informed decisions."
+        />
       </div>
     </main>
   )
