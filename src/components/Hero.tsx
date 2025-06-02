@@ -8,16 +8,6 @@ import { ArrowRight } from "lucide-react"
 export function Hero() {
   return (
     <section className="relative pt-12 md:pt-16 min-h-[500px] md:h-[600px] flex items-center justify-center">
-      {/* Background image with overlay */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: "url('/images/hero-bg.jpg')",
-        }}
-      >
-        <div className="absolute inset-0 bg-secondary/30" />
-      </div>
-
       {/* Content */}
       <div className="relative container px-4 md:px-6 text-center">
         <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 md:mb-6">

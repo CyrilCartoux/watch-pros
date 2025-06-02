@@ -41,6 +41,7 @@ export function FeaturedBrands() {
                     src={brand.logo}
                     alt={brand.name}
                     fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 16vw"
                     className="object-contain filter grayscale group-hover:grayscale-0 transition-all"
                   />
                 </div>

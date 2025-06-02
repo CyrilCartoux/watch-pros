@@ -83,7 +83,13 @@ interface ListingData {
   type: string
 }
 
-export default function ListingPage({ params }: { params: { id: string } }) {
+interface Props {
+  params: {
+    id: string
+  }
+}
+
+export default function ListingPage({ params }: Props) {
   const [currentImage, setCurrentImage] = useState(0)
   const [isFavorite, setIsFavorite] = useState(false)
   const [currentPopularModel, setCurrentPopularModel] = useState(0)
