@@ -51,22 +51,50 @@ export async function POST(
   try {
     const supabase = await createClient()
 
-    // Vérifier l'authentification
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
+    // Vérifier si le vendeur existe
+    const { data: seller, error: sellerError } = await supabase
+      .from('sellers')
+      .select('id')
+      .eq('id', params.id)
+      .single()
+
+    if (sellerError || !seller) {
+      console.error('Seller error:', sellerError)
+      return NextResponse.json(
+        { error: 'Seller not found' },
+        { status: 404 }
+      )
+    }
+
+    // Récupérer l'utilisateur actuel
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+
+    if (userError || !user) {
+      console.error('User error:', userError)
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       )
     }
 
-    // Vérifier si l'utilisateur a déjà approuvé le vendeur
-    const { data: existingApproval } = await supabase
+    console.log('User ID:', user.id)
+    console.log('Seller ID:', params.id)
+
+    // Vérifier si l'utilisateur a déjà approuvé ce vendeur
+    const { data: existingApproval, error: checkError } = await supabase
       .from('seller_approvals')
       .select('id')
       .eq('seller_id', params.id)
       .eq('approver_id', user.id)
       .single()
+
+    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows returned
+      console.error('Error checking existing approval:', checkError)
+      return NextResponse.json(
+        { error: 'Failed to check existing approval' },
+        { status: 500 }
+      )
+    }
 
     if (existingApproval) {
       return NextResponse.json(
@@ -75,19 +103,26 @@ export async function POST(
       )
     }
 
-    // Créer l'approbation
+    // Créer l'approval avec les données complètes
     const { data: approval, error: approvalError } = await supabase
       .from('seller_approvals')
       .insert({
         seller_id: params.id,
         approver_id: user.id,
-        is_verified: false // À implémenter : vérification si l'approbateur a fait un achat
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       })
       .select()
       .single()
 
     if (approvalError) {
       console.error('Error creating approval:', approvalError)
+      console.error('Error details:', {
+        code: approvalError.code,
+        message: approvalError.message,
+        details: approvalError.details,
+        hint: approvalError.hint
+      })
       return NextResponse.json(
         { error: 'Failed to create approval' },
         { status: 500 }
@@ -113,8 +148,8 @@ export async function DELETE(
     const supabase = await createClient()
 
     // Vérifier l'authentification
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    if (userError || !user) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

@@ -54,6 +54,7 @@ interface Seller {
     currency: string
     image: string
   }[]
+  isApproved: boolean
 }
 
 interface ReviewData {
@@ -158,6 +159,7 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
         }
         const data = await response.json()
         setSeller(data)
+        setIsApproved(data.isApproved)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
@@ -247,11 +249,24 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
 
     setIsSubmittingApproval(true)
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const method = isApproved ? 'DELETE' : 'POST'
+      const response = await fetch(`/api/sellers/${seller.id}/approvals`, {
+        method,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
 
-      setIsApproved(true)
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || `Failed to ${isApproved ? 'remove' : 'add'} approval`)
+      }
+
+      setIsApproved(!isApproved)
     } catch (error) {
-      console.error('Error approving seller:', error)
+      console.error('Error managing approval:', error)
+      alert(error instanceof Error ? error.message : 'Failed to manage approval')
     } finally {
       setIsSubmittingApproval(false)
     }
@@ -313,11 +328,15 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                   <Button
                     variant={isApproved ? "default" : "outline"}
                     onClick={handleApproveSeller}
-                    disabled={isApproved || isSubmittingApproval}
+                    disabled={isSubmittingApproval}
                     className="gap-2"
                   >
                     <ThumbsUp className="h-4 w-4" />
-                    {isSubmittingApproval ? "Submitting..." : isApproved ? "Approved" : "I approve this seller"}
+                    {isSubmittingApproval 
+                      ? "Processing..." 
+                      : isApproved 
+                        ? "Approved by you ✓" 
+                        : "I approve this seller"}
                   </Button>
                 </div>
               </div>

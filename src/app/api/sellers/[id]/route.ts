@@ -117,6 +117,22 @@ export async function GET(
       )
     }
 
+    // Récupérer l'utilisateur actuel
+    const { data: { user } } = await supabase.auth.getUser()
+
+    // Vérifier si l'utilisateur a approuvé ce vendeur
+    let isApproved = false
+    if (user) {
+      const { data: approval } = await supabase
+        .from('seller_approvals')
+        .select('id')
+        .eq('seller_id', seller.id)
+        .eq('approver_id', user.id)
+        .single()
+
+      isApproved = !!approval
+    }
+
     // Requête principale pour les annonces actives
     const { data: listings, error: listingsError } = await supabase
       .from('listings')
@@ -191,7 +207,8 @@ export async function GET(
           currency: listing.currency,
           image: listing.listing_images?.[0]?.url || '/images/placeholder.jpg'
         }
-      }) || []
+      }) || [],
+      isApproved
     }
 
     return NextResponse.json(transformedSeller)
