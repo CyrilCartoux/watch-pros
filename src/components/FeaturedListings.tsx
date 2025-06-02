@@ -158,9 +158,10 @@ export function FeaturedListings() {
           {totalImages > 0 ? (
           <Image
               src={listing.listing_images[currentImageIndex].url}
-            alt={listing.title}
-            fill
-            className="object-cover transition-transform duration-300"
+              alt={listing.title}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+              className="object-cover transition-transform duration-300"
           />
           ) : (
             <div className="w-full h-full bg-muted flex items-center justify-center">

@@ -69,7 +69,7 @@
     "name": "Patek Philippe",
     "slug": "patek-philippe",
     "description": "More than any other brand, Patek Philippe embodies fine watchmaking. The Geneva manufacture combines luxury, tradition and high-level craftsmanship. Patek Philippe watches are exceptional timepieces of international renown.",
-    "logo": "/images/brands/patek.png",
+    "logo": "/images/brands/patek-philippe.png",
     "overview": {
       "title": "An independent and esteemed brand",
       "content": [
@@ -136,7 +136,7 @@
     "name": "Audemars Piguet",
     "slug": "audemars-piguet",
     "description": "Audemars Piguet timepieces exude great nobility. The manufacture also includes complicated models with perpetual calendar and tourbillon in its catalog. The Royal Oak is the brand's most emblematic watch.",
-    "logo": "/images/brands/ap.png",
+    "logo": "/images/brands/audemars-piguet.png",
     "overview": {
       "title": "Pioneer and revolutionary in the watch industry",
       "content": [

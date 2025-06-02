@@ -1,5 +1,27 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import sharp from 'sharp'
+
+// Constants for image optimization
+const MAX_WIDTH = 1200
+const MAX_HEIGHT = 1200
+const QUALITY = 80
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+
+async function optimizeImage(file: File): Promise<Buffer> {
+  // Convert File to ArrayBuffer
+  const arrayBuffer = await file.arrayBuffer()
+  const buffer = Buffer.from(arrayBuffer)
+
+  // Optimize image
+  return sharp(buffer)
+    .resize(MAX_WIDTH, MAX_HEIGHT, {
+      fit: 'inside',
+      withoutEnlargement: true
+    })
+    .jpeg({ quality: QUALITY, progressive: true })
+    .toBuffer()
+}
 
 interface ListingImage {
   url: string;
@@ -134,6 +156,7 @@ export async function GET(
 
     // Transform the data to match the frontend format
     const transformedListing = {
+      accessory_type: listing.accessory_type,
       id: listing.id,
       brand: listing.brands.slug,
       model: listing.models.slug,
@@ -258,6 +281,363 @@ export async function DELETE(
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error in delete listing API:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const supabase = await createClient()
+    const formData = await request.formData()
+
+    // Get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Get the seller associated with the user
+    const { data: seller, error: sellerError } = await supabase
+      .from('sellers')
+      .select('id')
+      .eq('user_id', user.id)
+      .single()
+
+    if (sellerError || !seller) {
+      return NextResponse.json(
+        { error: 'Seller not found' },
+        { status: 404 }
+      )
+    }
+
+    // Verify that the listing belongs to the seller
+    const { data: existingListing, error: listingError } = await supabase
+      .from('listings')
+      .select('*')
+      .eq('id', params.id)
+      .eq('seller_id', seller.id)
+      .single()
+
+    if (listingError || !existingListing) {
+      return NextResponse.json(
+        { error: 'Listing not found or unauthorized' },
+        { status: 404 }
+      )
+    }
+
+    // Extract form fields
+    const accessoryType = formData.get('accessory_type') as string
+    const brand = formData.get('brand') as string
+    const model = formData.get('model') as string
+    const reference = formData.get('reference') as string
+    const title = formData.get('title') as string
+    const description = formData.get('description') as string
+    const year = formData.get('year') as string
+    const gender = formData.get('gender') as string
+    const serialNumber = formData.get('serialNumber') as string
+    const dialColor = formData.get('dialColor') as string
+    const diameterMin = formData.get('diameter.min') as string
+    const diameterMax = formData.get('diameter.max') as string
+    const movement = formData.get('movement') as string
+    const caseMaterial = formData.get('case') as string
+    const braceletMaterial = formData.get('braceletMaterial') as string
+    const braceletColor = formData.get('braceletColor') as string
+    const included = formData.get('included') as string
+    const condition = formData.get('condition') as string
+    const price = parseFloat(formData.get('price') as string)
+    const currency = formData.get('currency') as string || 'EUR'
+    const shippingDelay = formData.get('shippingDelay') as string
+    const listingType = formData.get('listing_type') as string
+
+    // Get brand and model IDs
+    const { data: brandData, error: brandError } = await supabase
+      .from('brands')
+      .select('id')
+      .eq('slug', brand)
+      .single()
+
+    if (brandError || !brandData) {
+      return NextResponse.json(
+        { error: 'Brand not found' },
+        { status: 404 }
+      )
+    }
+
+    const { data: modelData, error: modelError } = await supabase
+      .from('models')
+      .select('id')
+      .eq('slug', model)
+      .eq('brand_id', brandData.id)
+      .single()
+
+    if (modelError || !modelData) {
+      return NextResponse.json(
+        { error: 'Model not found' },
+        { status: 404 }
+      )
+    }
+
+    // Update the listing
+    const { data: updatedListing, error: updateError } = await supabase
+      .from('listings')
+      .update({
+        accessory_type: accessoryType,
+        brand_id: brandData.id,
+        model_id: modelData.id,
+        reference,
+        title,
+        description: description || null,
+        year: year || null,
+        gender: gender || null,
+        serial_number: serialNumber || null,
+        dial_color: dialColor || null,
+        diameter_min: diameterMin ? parseInt(diameterMin) : null,
+        diameter_max: diameterMax ? parseInt(diameterMax) : null,
+        movement: movement || null,
+        case_material: caseMaterial || null,
+        bracelet_material: braceletMaterial || null,
+        bracelet_color: braceletColor || null,
+        included,
+        condition,
+        price,
+        currency,
+        shipping_delay: shippingDelay,
+        listing_type: listingType
+      })
+      .eq('id', params.id)
+      .eq('seller_id', seller.id)
+      .select()
+      .single()
+
+    if (updateError) {
+      console.error('Error updating listing:', updateError)
+      return NextResponse.json(
+        { error: 'Failed to update listing' },
+        { status: 500 }
+      )
+    }
+
+    // Handle image uploads
+    const images = formData.getAll('images')
+    console.log('Received images:', images.length, 'items')
+    
+    if (images.length > 0) {
+      // Delete existing images
+      const { error: deleteImagesError } = await supabase
+        .from('listing_images')
+        .delete()
+        .eq('listing_id', params.id)
+
+      if (deleteImagesError) {
+        console.error('Error deleting existing images:', deleteImagesError)
+        return NextResponse.json(
+          { error: 'Failed to delete existing images' },
+          { status: 500 }
+        )
+      }
+
+      const imageUploadPromises = images.map(async (image, index) => {
+        try {
+          console.log(`Processing image ${index}:`, {
+            type: typeof image,
+            isFile: image instanceof File,
+            size: image instanceof File ? image.size : 'N/A',
+            name: image instanceof File ? image.name : 'N/A'
+          })
+
+          // Check if it's a URL (either as string or in File name)
+          const isUrl = typeof image === 'string' || 
+                       (image instanceof File && image.name.startsWith('http'))
+
+          if (isUrl) {
+            const imageUrl = typeof image === 'string' ? image : image.name
+            console.log(`Processing existing image URL: ${imageUrl}`)
+            
+            // Insert the existing image URL into the database
+            const { data: imageData, error: imageError } = await supabase
+              .from('listing_images')
+              .insert({
+                listing_id: params.id,
+                url: imageUrl,
+                order_index: index
+              })
+              .select()
+              .single()
+
+            if (imageError) {
+              console.error(`Error inserting existing image record ${index}:`, imageError)
+              throw new Error(`Failed to create image record ${index}: ${imageError.message}`)
+            }
+
+            return imageData
+          }
+
+          // Handle new file uploads
+          if (!(image instanceof File)) {
+            console.error(`Invalid image type at index ${index}:`, image)
+            throw new Error(`Invalid image type at index ${index}`)
+          }
+
+          if (image.size === 0) {
+            console.error(`Empty file at index ${index}:`, image)
+            throw new Error(`Empty file at index ${index}`)
+          }
+
+          // Validate image type
+          if (!ALLOWED_IMAGE_TYPES.includes(image.type)) {
+            throw new Error(`Invalid image type. Allowed types: ${ALLOWED_IMAGE_TYPES.join(', ')}`)
+          }
+
+          // Convert File to ArrayBuffer
+          const arrayBuffer = await image.arrayBuffer()
+          if (!arrayBuffer || arrayBuffer.byteLength === 0) {
+            throw new Error(`Empty buffer for image at index ${index}`)
+          }
+
+          // Optimize image
+          const optimizedBuffer = await sharp(Buffer.from(arrayBuffer))
+            .resize(MAX_WIDTH, MAX_HEIGHT, {
+              fit: 'inside',
+              withoutEnlargement: true
+            })
+            .jpeg({ quality: QUALITY, progressive: true })
+            .toBuffer()
+
+          // Create a unique file name with extension
+          const fileExt = 'jpg' // We always convert to jpg for consistency
+          const imageFileName = `${params.id}/${model}-${reference}-${listingType}-${index + 1}.${fileExt}`
+
+          // Upload optimized image to storage
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('listingimages')
+            .upload(imageFileName, optimizedBuffer, {
+              contentType: 'image/jpeg',
+              upsert: true,
+              cacheControl: '3600'
+            })
+
+          if (uploadError) {
+            console.error(`Error uploading image ${index}:`, uploadError)
+            throw new Error(`Failed to upload image ${index}: ${uploadError.message}`)
+          }
+
+          // Get the public URL
+          const { data: { publicUrl } } = supabase.storage
+            .from('listingimages')
+            .getPublicUrl(imageFileName)
+
+          // Insert into listing_images table
+          const { data: imageData, error: imageError } = await supabase
+            .from('listing_images')
+            .insert({
+              listing_id: params.id,
+              url: publicUrl,
+              order_index: index
+            })
+            .select()
+            .single()
+
+          if (imageError) {
+            console.error(`Error inserting image record ${index}:`, imageError)
+            // Clean up the uploaded file if database insert fails
+            await supabase.storage
+              .from('listingimages')
+              .remove([imageFileName])
+            throw new Error(`Failed to create image record ${index}: ${imageError.message}`)
+          }
+
+          return imageData
+        } catch (error) {
+          console.error(`Error processing image ${index}:`, error)
+          throw error
+        }
+      })
+
+      try {
+        await Promise.all(imageUploadPromises)
+      } catch (error) {
+        console.error('Error uploading images:', error)
+        return NextResponse.json(
+          { error: 'Failed to upload images' },
+          { status: 500 }
+        )
+      }
+    }
+
+    // Handle document uploads
+    const documents = formData.getAll('documents') as File[]
+    if (documents.length > 0) {
+      const documentUploadPromises = documents.map(async (document) => {
+        try {
+          // Skip if the document is a URL (existing document)
+          if (typeof document === 'string' || document instanceof String) {
+            return null
+          }
+
+          // Convert File to ArrayBuffer
+          const arrayBuffer = await document.arrayBuffer()
+          const buffer = Buffer.from(arrayBuffer)
+
+          // Create a unique file name with extension
+          const fileExtension = document.name.split('.').pop()
+          const fileName = `${params.id}/documents/${document.name}`
+
+          // Upload file to storage
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('listingdocuments')
+            .upload(fileName, buffer, {
+              contentType: document.type,
+              upsert: true,
+              cacheControl: '3600'
+            })
+
+          if (uploadError) {
+            console.error(`Error uploading document:`, uploadError)
+            throw new Error(`Failed to upload document: ${uploadError.message}`)
+          }
+
+          // Get the public URL
+          const { data: { publicUrl } } = supabase.storage
+            .from('listingdocuments')
+            .getPublicUrl(fileName)
+
+          return supabase
+            .from('listing_documents')
+            .insert({
+              listing_id: params.id,
+              document_type: fileExtension?.toUpperCase() || 'OTHER',
+              url: publicUrl
+            })
+        } catch (error) {
+          console.error(`Error processing document:`, error)
+          throw error
+        }
+      })
+
+      try {
+        await Promise.all(documentUploadPromises)
+      } catch (error) {
+        console.error('Error uploading documents:', error)
+        return NextResponse.json(
+          { error: 'Failed to upload documents' },
+          { status: 500 }
+        )
+      }
+    }
+
+    return NextResponse.json({ success: true, listing: updatedListing })
+  } catch (error) {
+    console.error('Error in PUT /api/listings/[id]:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -174,6 +174,7 @@ export function FeaturedModels() {
                       src={`/images/watches/${model?.slug}.jpg`}
                       alt={`${brand?.label} ${model.label}`}
                       fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
                       className="object-contain p-4"
                     />
                     <div className="absolute top-1.5 right-1.5 md:top-2 md:right-2">

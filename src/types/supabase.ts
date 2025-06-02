@@ -67,6 +67,7 @@ export interface Database {
           model_id: string
           reference: string
           title: string
+          accessory_type: string
           description: string | null
           year: string | null
           gender: string | null
@@ -95,6 +96,7 @@ export interface Database {
           model_id: string
           reference: string
           title: string
+          accessory_type: string
           description?: string | null
           year?: string | null
           gender?: string | null
@@ -123,6 +125,7 @@ export interface Database {
           model_id?: string
           reference?: string
           title?: string
+          accessory_type?: string
           description?: string | null
           year?: string | null
           gender?: string | null

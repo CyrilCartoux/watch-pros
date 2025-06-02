@@ -206,6 +206,7 @@ export async function POST(request: Request) {
     }
 
     // Extract form fields
+    const accessoryType = formData.get('accessory_type') as string
     const brand = formData.get('brand') as string
     const model = formData.get('model') as string
     const reference = formData.get('reference') as string
@@ -261,6 +262,7 @@ export async function POST(request: Request) {
 
     // Log the data we're trying to insert
     const listingData = {
+      accessory_type: accessoryType,
       reference_id,
       seller_id: seller.id,
       brand_id: brandData.id,

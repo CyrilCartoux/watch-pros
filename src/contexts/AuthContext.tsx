@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
@@ -22,11 +22,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const supabase = createClient();
+  const userRef = useRef<User | null>(null);
 
   useEffect(() => {
     // Vérifier l'état de connexion initial
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Session initiale:', session);
+      userRef.current = session?.user ?? null;
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -35,13 +36,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-      router.refresh();
+      const newUser = session?.user ?? null;
+      if (JSON.stringify(newUser) !== JSON.stringify(userRef.current)) {
+        userRef.current = newUser;
+        setUser(newUser);
+        setLoading(false);
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase, router]);
+  }, [supabase]);
 
   const signOut = async () => {
     await supabase.auth.signOut();

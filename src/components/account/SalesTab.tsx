@@ -115,6 +115,7 @@ export function SalesTab() {
                       src={sale.image}
                       alt={sale.title}
                       fill
+                      sizes="96px"
                       className="rounded-md object-cover"
                     />
                   </div>
