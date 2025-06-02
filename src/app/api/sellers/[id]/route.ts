@@ -21,6 +21,17 @@ interface SellerBanking {
   payment_method: string
 }
 
+interface SellerReview {
+  id: string
+  rating: number
+  comment: string
+  created_at: string
+  reviewer: {
+    first_name: string
+    last_name: string
+  } | null
+}
+
 interface Seller {
   id: string
   company_name: string
@@ -37,6 +48,12 @@ interface Seller {
   updated_at: string
   seller_addresses: SellerAddress[]
   seller_banking: SellerBanking[]
+  seller_stats: {
+    total_reviews: number
+    average_rating: number
+    total_approvals: number
+    last_updated: string
+  } | null
 }
 
 interface Listing {
@@ -117,6 +134,33 @@ export async function GET(
       )
     }
 
+    // Récupérer les stats séparément
+    const { data: stats } = await supabase
+      .from('seller_stats')
+      .select('*')
+      .eq('seller_id', seller.id)
+      .single()
+
+    // Récupérer les reviews
+    const { data: reviews, error: reviewsError } = await supabase
+      .from('seller_reviews')
+      .select(`
+        id,
+        rating,
+        comment,
+        created_at
+      `)
+      .eq('seller_id', seller.id)
+      .order('created_at', { ascending: false }) as { data: SellerReview[] | null, error: any }
+
+    if (reviewsError) {
+      console.error('Error fetching reviews:', reviewsError)
+      return NextResponse.json(
+        { error: 'Failed to fetch reviews' },
+        { status: 500 }
+      )
+    }
+
     // Récupérer l'utilisateur actuel
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -167,6 +211,9 @@ export async function GET(
       )
     }
 
+    console.log('seller', seller)
+    
+
     // Transformer les données pour correspondre à la structure attendue
     const transformedSeller = {
       id: seller.id,
@@ -208,7 +255,24 @@ export async function GET(
           image: listing.listing_images?.[0]?.url || '/images/placeholder.jpg'
         }
       }) || [],
-      isApproved
+      isApproved,
+      stats: stats ? {
+        totalReviews: stats.total_reviews || 0,
+        averageRating: stats.average_rating || 0,
+        totalApprovals: stats.total_approvals || 0,
+        lastUpdated: stats.last_updated
+      } : {
+        totalReviews: 0,
+        averageRating: 0,
+        totalApprovals: 0,
+        lastUpdated: new Date().toISOString()
+      },
+      reviews: reviews?.map(review => ({
+        id: review.id,
+        rating: review.rating,
+        comment: review.comment,
+        createdAt: review.created_at,
+      })) || []
     }
 
     return NextResponse.json(transformedSeller)

@@ -55,79 +55,18 @@ interface Seller {
     image: string
   }[]
   isApproved: boolean
+  stats: {
+    totalReviews: number
+    averageRating: number
+    totalApprovals: number
+    lastUpdated: string
+  }
 }
 
 interface ReviewData {
   rating: number
   comment: string
 }
-
-// Mock data for statistics and ratings
-const mockStats = {
-  totalSales: 156,
-  rating: 4.8,
-  totalReviews: 42,
-  recommendationRate: 98,
-  ratings: {
-    shipping: 4.9,
-    description: 4.8,
-    communication: 4.7
-  }
-}
-
-const mockReviews = [
-  {
-    id: "1",
-    author: "John Smith",
-    date: "2024-03-15",
-    rating: 5,
-    comment: "Excellent service, fast delivery and watch in perfect condition. Highly recommend!",
-    verified: true
-  },
-  {
-    id: "2",
-    author: "Mary Martin",
-    date: "2024-03-10",
-    rating: 5,
-    comment: "Very professional seller, clear and precise communication. The watch perfectly matches the description.",
-    verified: true
-  },
-  {
-    id: "3",
-    author: "Peter Durant",
-    date: "2024-03-05",
-    rating: 4,
-    comment: "Very good service, just a small delivery delay but nothing serious. I'm satisfied with my purchase.",
-    verified: true
-  }
-]
-
-const mockFeaturedListings = [
-  {
-    id: "1",
-    brand: "Rolex",
-    model: "Submariner",
-    reference: "126610LN",
-    price: 12500,
-    image: "/images/listings/submariner-1.jpg"
-  },
-  {
-    id: "2",
-    brand: "Patek Philippe",
-    model: "Nautilus",
-    reference: "5711/1A",
-    price: 85000,
-    image: "/images/listings/nautilus-1.jpg"
-  },
-  {
-    id: "3",
-    brand: "Audemars Piguet",
-    model: "Royal Oak",
-    reference: "15500ST",
-    price: 45000,
-    image: "/images/listings/royal-oak-1.jpg"
-  }
-]
 
 interface SellerPageProps {
   params: {
@@ -277,12 +216,28 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
 
     setIsSubmittingReview(true)
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const response = await fetch(`/api/sellers/${seller.id}/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(review)
+      })
 
-      // Refresh reviews after submission
-      // TODO: Implement refresh reviews logic
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to submit review')
+      }
+
+      // Refresh seller data to get updated reviews
+      const sellerResponse = await fetch(`/api/sellers/${params.id}`)
+      if (sellerResponse.ok) {
+        const updatedSeller = await sellerResponse.json()
+        setSeller(updatedSeller)
+      }
     } catch (error) {
       console.error('Error submitting review:', error)
+      alert(error instanceof Error ? error.message : 'Failed to submit review')
     } finally {
       setIsSubmittingReview(false)
       setIsReviewDialogOpen(false)
@@ -309,10 +264,12 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                 <div className="flex flex-col md:flex-row items-center gap-1 md:gap-4 mb-2 md:mb-4">
                   <div className="flex items-center gap-1">
                     <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                    <span className="text-sm md:text-base font-semibold">{mockStats.rating}</span>
-                    <span className="text-xs md:text-sm text-muted-foreground">({mockStats.totalReviews} reviews)</span>
+                    <span className="text-sm md:text-base font-semibold">{seller.stats.averageRating.toFixed(1)}</span>
+                    <span className="text-xs md:text-sm text-muted-foreground">({seller.stats.totalReviews} reviews)</span>
                   </div>
-                  <Badge variant="secondary" className="text-xs md:text-sm">{mockStats.recommendationRate}% recommend</Badge>
+                  <Badge variant="secondary" className="text-xs md:text-sm">
+                    {seller.stats.totalApprovals} approvals
+                  </Badge>
                 </div>
 
                 {/* Action Buttons */}
@@ -376,12 +333,15 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                 <h3 className="font-semibold">Statistics</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-sm text-muted-foreground">Watches sold</p>
-                    <p className="text-2xl font-bold">{mockStats.totalSales}</p>
+                    <p className="text-sm text-muted-foreground">Total approvals</p>
+                    <p className="text-2xl font-bold">{seller.stats.totalApprovals}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Average rating</p>
-                    <p className="text-2xl font-bold">{mockStats.rating}</p>
+                    <div className="flex items-center gap-1">
+                      <p className="text-2xl font-bold">{seller.stats.averageRating.toFixed(1)}</p>
+                      <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -390,25 +350,17 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                 <h3 className="font-semibold">Ratings</h3>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Shipping</span>
+                    <span className="text-sm">Total reviews</span>
                     <div className="flex items-center gap-1">
-                      <span className="font-medium">{mockStats.ratings.shipping}</span>
-                      <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                      <span className="font-medium">{seller.stats.totalReviews}</span>
+                      
                     </div>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-sm">Description</span>
-                    <div className="flex items-center gap-1">
-                      <span className="font-medium">{mockStats.ratings.description}</span>
-                      <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Communication</span>
-                    <div className="flex items-center gap-1">
-                      <span className="font-medium">{mockStats.ratings.communication}</span>
-                      <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                    </div>
+                    <span className="text-sm">Last updated</span>
+                    <span className="text-sm text-muted-foreground">
+                      {new Date(seller.stats.lastUpdated).toLocaleDateString()}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -428,34 +380,19 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
         <div className="mb-12">
           <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockReviews.map((review) => (
-              <Card key={review.id}>
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                      <span className="text-lg font-semibold text-primary">
-                        {review.author.charAt(0)}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="font-medium">{review.author}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(review.date).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 mb-2">
-                    {Array.from({ length: review.rating }).map((_, i) => (
-                      <Star key={i} className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                    ))}
-                  </div>
-                  <p className="text-muted-foreground">{review.comment}</p>
-                  {review.verified && (
-                    <Badge variant="outline" className="mt-4">Verified Purchase</Badge>
-                  )}
+            {seller.stats.totalReviews === 0 ? (
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <p className="text-muted-foreground">No reviews yet</p>
                 </CardContent>
               </Card>
-            ))}
+            ) : (
+              <Card>
+                <CardContent className="p-6 text-center">
+                  <p className="text-muted-foreground">Reviews coming soon</p>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
 
@@ -634,7 +571,7 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                   <div className="text-sm text-muted-foreground">
                     <p>Seller: {seller.account.companyName}</p>
                     <p>Type: {seller.account.companyStatus}</p>
-                    <p>Rating: {mockStats.rating} ({mockStats.totalReviews} reviews)</p>
+                    <p>Rating: {seller.stats.averageRating.toFixed(1)} ({seller.stats.totalReviews} reviews)</p>
                   </div>
                 </div>
               )}
