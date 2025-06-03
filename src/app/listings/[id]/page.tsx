@@ -360,7 +360,7 @@ export default function ListingPage({ params }: Props) {
                   size="icon"
                   onClick={handleFavoriteClick}
                 >
-                  <Heart className={`h-5 w-5 ${isFavorite(listing.id) ? "fill-primary text-primary" : ""}`} />
+                  <Heart className={`h-5 w-5 ${isFavorite(listing.id) ? "fill-red-500 text-red-500" : ""}`} />
                 </Button>
                 <Dialog open={showNotificationTooltip} onOpenChange={setShowNotificationTooltip}>
                   <DialogTrigger asChild>
@@ -401,9 +401,6 @@ export default function ListingPage({ params }: Props) {
                     </div>
                   </DialogContent>
                 </Dialog>
-                <Button variant="outline" size="icon">
-                  <Share2 className="h-5 w-5" />
-                </Button>
                 <Button 
                   variant="outline" 
                   size="icon"

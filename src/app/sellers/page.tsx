@@ -554,7 +554,7 @@ export default function SellersListPage() {
             <DialogHeader>
               <DialogTitle className="text-xl font-semibold">Filters</DialogTitle>
             </DialogHeader>
-            <div className="h-[calc(100vh-12rem)] overflow-y-auto pr-2">
+            <div className="h-[calc(100vh-12rem)] overflow-y-auto pl-2 pr-2">
               {renderFilters()}
             </div>
             <div className="flex justify-between pt-4 border-t">
