@@ -7,13 +7,27 @@ export const dynamic = 'force-dynamic'
 // Cache duration in seconds
 const CACHE_DURATION = 60 * 60 // 1 hour
 
-// In-memory cache
-let modelsCache: {
-  data: { [key: string]: any[] } | null
-  timestamp: number
-} = {
-  data: null,
-  timestamp: 0
+// In-memory cache with TTL
+const cache = new Map<string, { data: any; timestamp: number }>()
+
+function getCachedData(key: string) {
+  const cached = cache.get(key)
+  if (!cached) return null
+
+  const now = Date.now()
+  if (now - cached.timestamp > CACHE_DURATION * 1000) {
+    cache.delete(key)
+    return null
+  }
+
+  return cached.data
+}
+
+function setCachedData(key: string, data: any) {
+  cache.set(key, {
+    data,
+    timestamp: Date.now()
+  })
 }
 
 export async function GET(request: Request) {
@@ -30,27 +44,23 @@ export async function GET(request: Request) {
       )
     }
 
-    // Check if cache is valid and contains data for this brand
-    const now = Date.now()
-    if (
-      modelsCache.data &&
-      now - modelsCache.timestamp < CACHE_DURATION * 1000 &&
-      modelsCache.data[brandId]
-    ) {
-      let filteredModels = modelsCache.data[brandId]
+    // Generate cache key based on parameters
+    const cacheKey = `models:${brandId}:${popular}:${slugs?.join(',') || 'all'}`
 
-      // Apply filters if needed
-      if (popular === "true") {
-        filteredModels = filteredModels.filter((model) => model.popular)
-      }
-      if (slugs) {
-        filteredModels = filteredModels.filter((model) => slugs.includes(model.slug))
-      }
-
-      return NextResponse.json({ models: filteredModels })
+    // Check cache
+    const cachedData = getCachedData(cacheKey)
+    if (cachedData) {
+      return NextResponse.json(
+        { models: cachedData },
+        {
+          headers: {
+            'Cache-Control': `public, s-maxage=${CACHE_DURATION}, stale-while-revalidate=${CACHE_DURATION * 2}`,
+          },
+        }
+      )
     }
 
-    // If cache is invalid or empty, fetch from database
+    // If not in cache, fetch from database
     const supabase = await createClient()
 
     let query = supabase
@@ -74,15 +84,16 @@ export async function GET(request: Request) {
     }
 
     // Update cache
-    modelsCache = {
-      data: {
-        ...(modelsCache.data || {}),
-        [brandId]: models
-      },
-      timestamp: now
-    }
+    setCachedData(cacheKey, models)
 
-    return NextResponse.json({ models })
+    return NextResponse.json(
+      { models },
+      {
+        headers: {
+          'Cache-Control': `public, s-maxage=${CACHE_DURATION}, stale-while-revalidate=${CACHE_DURATION * 2}`,
+        },
+      }
+    )
   } catch (error) {
     console.error("Error fetching models:", error)
     return NextResponse.json(

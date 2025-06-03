@@ -19,14 +19,6 @@ function AuthForm() {
   const [registrationSuccess, setRegistrationSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
-  const supabase = createClient()
-
-  useEffect(() => {
-    const fromEditor = searchParams.get('from') === 'editor'
-    if (fromEditor) {
-      setIsLogin(false)
-    }
-  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

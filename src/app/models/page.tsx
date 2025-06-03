@@ -41,6 +41,7 @@ interface Model {
   slug: string
   label: string
   popular: boolean
+  brands: Brand
 }
 
 export default function ModelsPage() {
@@ -49,58 +50,42 @@ export default function ModelsPage() {
   const [sortBy, setSortBy] = useState("popularity")
   const [notifications, setNotifications] = useState<Record<string, boolean>>({})
   const [brands, setBrands] = useState<Brand[]>([])
-  const [models, setModels] = useState<{ [key: string]: Model[] }>({})
+  const [allModels, setAllModels] = useState<Model[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [isLoadingModels, setIsLoadingModels] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch brands
+  // Fetch brands and models in parallel
   useEffect(() => {
-    const fetchBrands = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch("/api/brands")
-        if (!response.ok) {
+        const [brandsResponse, modelsResponse] = await Promise.all([
+          fetch("/api/brands"),
+          fetch("/api/models/all")
+        ])
+
+        if (!brandsResponse.ok) {
           throw new Error("Failed to fetch brands")
         }
-        const data = await response.json()
-        setBrands(data.brands)
+        if (!modelsResponse.ok) {
+          throw new Error("Failed to fetch models")
+        }
+
+        const [brandsData, modelsData] = await Promise.all([
+          brandsResponse.json(),
+          modelsResponse.json()
+        ])
+
+        setBrands(brandsData.brands)
+        setAllModels(modelsData.models)
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch brands")
+        setError(err instanceof Error ? err.message : "Failed to fetch data")
       } finally {
         setIsLoading(false)
       }
     }
 
-    fetchBrands()
+    fetchData()
   }, [])
-
-  // Fetch models for each brand
-  useEffect(() => {
-    const fetchModels = async () => {
-      setIsLoadingModels(true)
-      const modelsData: { [key: string]: Model[] } = {}
-      
-      for (const brand of brands) {
-        try {
-          const response = await fetch(`/api/models?brand_id=${brand.id}`)
-          if (!response.ok) {
-            throw new Error(`Failed to fetch models for ${brand.label}`)
-          }
-          const data = await response.json()
-          modelsData[brand.id] = data.models
-        } catch (err) {
-          console.error(`Error fetching models for ${brand.label}:`, err)
-        }
-      }
-      
-      setModels(modelsData)
-      setIsLoadingModels(false)
-    }
-
-    if (brands.length > 0) {
-      fetchModels()
-    }
-  }, [brands])
 
   const toggleNotification = (modelSlug: string) => {
     setNotifications(prev => ({
@@ -109,39 +94,28 @@ export default function ModelsPage() {
     }))
   }
 
-  const filterAndSortModels = (brandId: string) => {
-    const brandModels = models[brandId] || []
-    return brandModels
-      .filter(model => 
-        model.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        brands.find(b => b.id === model.brand_id)?.label.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+  const filterAndSortModels = (models: Model[]) => {
+    return models.filter(model => 
+      model.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      model.brands.label.toLowerCase().includes(searchQuery.toLowerCase())
+    )
   }
 
   // Définir l'ordre des marques populaires
   const popularBrandsOrder = ["rolex", "audemars-piguet", "patek-philippe"]
   
-  const featuredModels = brands
-    .filter(brand => brand.popular)
+  const featuredModels = allModels
+    .filter(model => model.brands.popular && model.popular)
     .sort((a, b) => {
-      const aIndex = popularBrandsOrder.indexOf(a.slug)
-      const bIndex = popularBrandsOrder.indexOf(b.slug)
+      const aIndex = popularBrandsOrder.indexOf(a.brands.slug)
+      const bIndex = popularBrandsOrder.indexOf(b.brands.slug)
       if (aIndex === -1) return 1
       if (bIndex === -1) return -1
       return aIndex - bIndex
     })
-    .flatMap(brand => filterAndSortModels(brand.id))
-    .filter(model => model.popular)
 
-  const otherModels = brands
-    .filter(brand => !brand.popular)
-    .flatMap(brand => filterAndSortModels(brand.id))
-    .concat(
-      brands
-        .filter(brand => brand.popular)
-        .flatMap(brand => filterAndSortModels(brand.id))
-        .filter(model => !model.popular)
-    )
+  const otherModels = allModels
+    .filter(model => !model.brands.popular || !model.popular)
 
   if (isLoading) {
     return (
@@ -205,7 +179,7 @@ export default function ModelsPage() {
           </TabsList>
 
           <TabsContent value="featured">
-            {isLoadingModels ? (
+            {isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {Array.from({ length: 8 }).map((_, i) => (
                   <div key={i} className="animate-pulse">
@@ -243,61 +217,58 @@ export default function ModelsPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {featuredModels.map((model) => {
-                  const brand = brands.find(b => b.id === model.brand_id)
-                  return (
-                    <Link href={`/listings?brand=${brand?.slug}&model=${model.slug}`} key={model.id}>
-                      <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                        <div className="relative aspect-square">
-                          <Image
-                            src={`/images/brands/${brand?.slug}.png`}
-                            alt={`${brand?.label} ${model.label}`}
-                            fill
-                            className="object-contain p-4"
-                          />
-                          <div className="absolute top-2 right-2">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <button
-                                    onClick={(e) => {
-                                      e.preventDefault()
-                                      toggleNotification(model.slug)
-                                    }}
-                                    className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
-                                      notifications[model.slug] 
-                                        ? "bg-red-500 hover:bg-red-600" 
-                                        : "bg-background/80 hover:bg-background/90"
-                                    }`}
-                                  >
-                                    <Bell className={`h-4 w-4 ${notifications[model.slug] ? "text-white" : "text-muted-foreground"}`} />
-                                  </button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  {notifications[model.slug] 
-                                    ? "Disable notifications" 
-                                    : "Enable notifications"}
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </div>
+                {featuredModels.map((model) => (
+                  <Link href={`/listings?brand=${model.brands.slug}&model=${model.slug}`} key={model.id}>
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+                      <div className="relative aspect-square">
+                        <Image
+                          src={`/images/brands/${model.brands.slug}.png`}
+                          alt={`${model.brands.label} ${model.label}`}
+                          fill
+                          className="object-contain p-4"
+                        />
+                        <div className="absolute top-2 right-2">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    toggleNotification(model.slug)
+                                  }}
+                                  className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
+                                    notifications[model.slug] 
+                                      ? "bg-red-500 hover:bg-red-600" 
+                                      : "bg-background/80 hover:bg-background/90"
+                                  }`}
+                                >
+                                  <Bell className={`h-4 w-4 ${notifications[model.slug] ? "text-white" : "text-muted-foreground"}`} />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {notifications[model.slug] 
+                                  ? "Disable notifications" 
+                                  : "Enable notifications"}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </div>
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-sm font-medium text-primary">{brand?.label}</span>
-                          </div>
-                          <h3 className="text-lg font-semibold mb-2">{model.label}</h3>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  )
-                })}
+                      </div>
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-sm font-medium text-primary">{model.brands.label}</span>
+                        </div>
+                        <h3 className="text-lg font-semibold mb-2">{model.label}</h3>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
               </div>
             )}
           </TabsContent>
 
           <TabsContent value="other">
-            {isLoadingModels ? (
+            {isLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {Array.from({ length: 8 }).map((_, i) => (
                   <div key={i} className="animate-pulse">
@@ -335,55 +306,52 @@ export default function ModelsPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {otherModels.map((model) => {
-                  const brand = brands.find(b => b.id === model.brand_id)
-                  return (
-                    <Link href={`/listings?brand=${brand?.slug}&model=${model.slug}`} key={model.id}>
-                      <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                        <div className="relative aspect-square">
-                          <Image
-                            src={`/images/brands/${brand?.slug}.png`}
-                            alt={`${brand?.label} ${model.label}`}
-                            fill
-                            className="object-contain p-4"
-                          />
-                          <div className="absolute top-2 right-2">
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <button
-                                    onClick={(e) => {
-                                      e.preventDefault()
-                                      toggleNotification(model.slug)
-                                    }}
-                                    className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
-                                      notifications[model.slug] 
-                                        ? "bg-red-500 hover:bg-red-600" 
-                                        : "bg-background/80 hover:bg-background/90"
-                                    }`}
-                                  >
-                                    <Bell className={`h-4 w-4 ${notifications[model.slug] ? "text-white" : "text-muted-foreground"}`} />
-                                  </button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  {notifications[model.slug] 
-                                    ? "Disable notifications" 
-                                    : "Enable notifications"}
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </div>
+                {otherModels.map((model) => (
+                  <Link href={`/listings?brand=${model.brands.slug}&model=${model.slug}`} key={model.id}>
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
+                      <div className="relative aspect-square">
+                        <Image
+                          src={`/images/brands/${model.brands.slug}.png`}
+                          alt={`${model.brands.label} ${model.label}`}
+                          fill
+                          className="object-contain p-4"
+                        />
+                        <div className="absolute top-2 right-2">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    toggleNotification(model.slug)
+                                  }}
+                                  className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
+                                    notifications[model.slug] 
+                                      ? "bg-red-500 hover:bg-red-600" 
+                                      : "bg-background/80 hover:bg-background/90"
+                                  }`}
+                                >
+                                  <Bell className={`h-4 w-4 ${notifications[model.slug] ? "text-white" : "text-muted-foreground"}`} />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {notifications[model.slug] 
+                                  ? "Disable notifications" 
+                                  : "Enable notifications"}
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </div>
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-sm font-medium text-primary">{brand?.label}</span>
-                          </div>
-                          <h3 className="text-lg font-semibold mb-2">{model.label}</h3>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  )
-                })}
+                      </div>
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-sm font-medium text-primary">{model.brands.label}</span>
+                        </div>
+                        <h3 className="text-lg font-semibold mb-2">{model.label}</h3>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
               </div>
             )}
           </TabsContent>

@@ -51,7 +51,6 @@ export default function MyListings() {
       toast({
         title: "Listing deleted",
         description: "Your listing has been successfully deleted.",
-        icon: <CheckCircle2 className="h-4 w-4 text-green-500" />,
       })
     } catch (error) {
       toast({

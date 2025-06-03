@@ -4,6 +4,14 @@ import { NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 export const revalidate = 60 // Revalidate every 60 seconds
 
+// Add cache configuration
+export const runtime = 'edge'
+export const preferredRegion = 'auto'
+
+// Add cache headers
+const CACHE_TTL = 60 // 60 seconds
+const CACHE_STALE_WHILE_REVALIDATE = 300 // 5 minutes
+
 interface SellerAddress {
   street: string
   city: string
@@ -26,6 +34,7 @@ interface SellerReview {
   rating: number
   comment: string
   created_at: string
+  reviewer_id: string
   reviewer: {
     first_name: string
     last_name: string
@@ -147,6 +156,7 @@ export async function GET(
       .select(`
         id,
         rating,
+        reviewer_id,
         comment,
         created_at
       `)
@@ -210,10 +220,7 @@ export async function GET(
         { status: 500 }
       )
     }
-
-    console.log('seller', seller)
     
-
     // Transformer les données pour correspondre à la structure attendue
     const transformedSeller = {
       id: seller.id,
@@ -270,12 +277,23 @@ export async function GET(
       reviews: reviews?.map(review => ({
         id: review.id,
         rating: review.rating,
+        reviewerId: review.reviewer_id,
         comment: review.comment,
         createdAt: review.created_at,
       })) || []
     }
 
-    return NextResponse.json(transformedSeller)
+    // Add cache control headers
+    const response = NextResponse.json(
+      transformedSeller,
+      {
+        headers: {
+          'Cache-Control': `public, s-maxage=${CACHE_TTL}, stale-while-revalidate=${CACHE_STALE_WHILE_REVALIDATE}`,
+        },
+      }
+    )
+
+    return response
   } catch (error) {
     console.error('Unexpected error:', error)
     return NextResponse.json(

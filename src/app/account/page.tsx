@@ -16,7 +16,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useSearchParams, useRouter } from "next/navigation"
-import { useEffect } from "react"
 
 export default function AccountPage() {
   const searchParams = useSearchParams()

@@ -1,7 +1,7 @@
 import { Card, CardContent } from "./ui/card"
 import Image from "next/image"
 import Link from "next/link"
-import { ChevronLeft, ChevronRight, Bell, Heart } from "lucide-react"
+import { ChevronLeft, ChevronRight, Heart } from "lucide-react"
 import { useState, TouchEvent } from "react"
 import { watchConditions } from "@/data/watch-conditions"
 import {
@@ -10,6 +10,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useFavorites } from "@/hooks/useFavorites"
+import { useAuth } from "@/contexts/AuthContext"
+import { useToast } from "@/components/ui/use-toast"
 
 interface ListingImage {
   id: string
@@ -40,17 +43,48 @@ export function ListingCard({ listing }: ListingCardProps) {
   const [currentImage, setCurrentImage] = useState(0)
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
-  const [notifications, setNotifications] = useState<Record<string, boolean>>({})
+  const { user } = useAuth()
+  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites()
+  const { toast } = useToast()
 
   const minSwipeDistance = 50
   const images = listing.listing_images || []
   const hasImages = images.length > 0
 
-  const toggleNotification = (id: string) => {
-    setNotifications(prev => ({
-      ...prev,
-      [id]: !prev[id]
-    }))
+  const handleFavoriteClick = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to add favorites",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      if (isFavorite(listing.id)) {
+        await removeFavorite(listing.id)
+        toast({
+          title: "Removed from favorites",
+          description: "The listing has been removed from your favorites",
+        })
+      } else {
+        await addFavorite(listing.id)
+        toast({
+          title: "Added to favorites",
+          description: "The listing has been added to your favorites",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update favorites",
+        variant: "destructive",
+      })
+    }
   }
 
   const nextImage = (e: React.MouseEvent) => {
@@ -117,28 +151,25 @@ export function ListingCard({ listing }: ListingCardProps) {
             </div>
           )}
           
-          {/* Notification Button */}
+          {/* Favorite Button */}
           <div className="absolute top-2 right-2">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
-                    onClick={(e) => {
-                      e.preventDefault()
-                      toggleNotification(listing.id)
-                    }}
+                    onClick={handleFavoriteClick}
                     className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
-                      notifications[listing.id] 
+                      isFavorite(listing.id)
                         ? "bg-red-500 hover:bg-red-600" 
                         : "bg-background/80 hover:bg-background/90"
                     }`}
                   >
-                    <Heart className={`h-4 w-4 ${notifications[listing.id] ? "text-white" : "text-muted-foreground"}`} />
+                    <Heart className={`h-4 w-4 ${isFavorite(listing.id) ? "text-white fill-white" : "text-muted-foreground"}`} />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {notifications[listing.id] 
-                    ? "Added to favorites" 
+                  {isFavorite(listing.id) 
+                    ? "Remove from favorites" 
                     : "Add to favorites"}
                 </TooltipContent>
               </Tooltip>

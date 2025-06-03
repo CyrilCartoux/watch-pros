@@ -12,6 +12,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { watchConditions } from "@/data/watch-conditions"
+import { useFavorites } from "@/hooks/useFavorites"
+import { useAuth } from "@/contexts/AuthContext"
+import { useToast } from "@/components/ui/use-toast"
 
 interface ListingData {
   id: string
@@ -91,7 +94,6 @@ interface Props {
 
 export default function ListingPage({ params }: Props) {
   const [currentImage, setCurrentImage] = useState(0)
-  const [isFavorite, setIsFavorite] = useState(false)
   const [currentPopularModel, setCurrentPopularModel] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
   const [touchStart, setTouchStart] = useState(0)
@@ -110,6 +112,9 @@ export default function ListingPage({ params }: Props) {
   const [listing, setListing] = useState<ListingData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { user } = useAuth()
+  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites()
+  const { toast } = useToast()
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -200,6 +205,41 @@ export default function ListingPage({ params }: Props) {
       // TODO: Show error message
     } finally {
       setIsSubmittingMessage(false)
+    }
+  }
+
+  const handleFavoriteClick = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to add favorites",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!listing) return
+
+    try {
+      if (isFavorite(listing.id)) {
+        await removeFavorite(listing.id)
+        toast({
+          title: "Removed from favorites",
+          description: "The listing has been removed from your favorites",
+        })
+      } else {
+        await addFavorite(listing.id)
+        toast({
+          title: "Added to favorites",
+          description: "The listing has been added to your favorites",
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update favorites",
+        variant: "destructive",
+      })
     }
   }
 
@@ -318,9 +358,9 @@ export default function ListingPage({ params }: Props) {
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => setIsFavorite(!isFavorite)}
+                  onClick={handleFavoriteClick}
                 >
-                  <Heart className={`h-5 w-5 ${isFavorite ? "fill-primary text-primary" : ""}`} />
+                  <Heart className={`h-5 w-5 ${isFavorite(listing.id) ? "fill-primary text-primary" : ""}`} />
                 </Button>
                 <Dialog open={showNotificationTooltip} onOpenChange={setShowNotificationTooltip}>
                   <DialogTrigger asChild>

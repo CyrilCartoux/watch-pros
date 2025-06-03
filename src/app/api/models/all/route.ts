@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { cookies } from "next/headers"
-
-export const dynamic = 'force-dynamic'
 
 // Cache duration in seconds
 const CACHE_DURATION = 60 * 60 // 1 hour
@@ -37,13 +34,13 @@ export async function GET(request: Request) {
     const slugs = searchParams.get("slugs")?.split(",")
 
     // Generate cache key based on parameters
-    const cacheKey = `brands:${popular}:${slugs?.join(',') || 'all'}`
+    const cacheKey = `all_models:${popular}:${slugs?.join(',') || 'all'}`
 
     // Check cache
     const cachedData = getCachedData(cacheKey)
     if (cachedData) {
       return NextResponse.json(
-        { brands: cachedData },
+        { models: cachedData },
         {
           headers: {
             'Cache-Control': `public, s-maxage=${CACHE_DURATION}, stale-while-revalidate=${CACHE_DURATION * 2}`,
@@ -56,8 +53,16 @@ export async function GET(request: Request) {
     const supabase = await createClient()
 
     let query = supabase
-      .from("brands")
-      .select("*")
+      .from("models")
+      .select(`
+        *,
+        brands (
+          id,
+          slug,
+          label,
+          popular
+        )
+      `)
       .order("label", { ascending: true })
 
     // Apply filters if needed
@@ -68,17 +73,17 @@ export async function GET(request: Request) {
       query = query.in("slug", slugs)
     }
 
-    const { data: brands, error } = await query
+    const { data: models, error } = await query
 
     if (error) {
       throw error
     }
 
     // Update cache
-    setCachedData(cacheKey, brands)
+    setCachedData(cacheKey, models)
 
     return NextResponse.json(
-      { brands },
+      { models },
       {
         headers: {
           'Cache-Control': `public, s-maxage=${CACHE_DURATION}, stale-while-revalidate=${CACHE_DURATION * 2}`,
@@ -86,9 +91,9 @@ export async function GET(request: Request) {
       }
     )
   } catch (error) {
-    console.error("Error fetching brands:", error)
+    console.error("Error fetching models:", error)
     return NextResponse.json(
-      { error: "Failed to fetch brands" },
+      { error: "Failed to fetch models" },
       { status: 500 }
     )
   }

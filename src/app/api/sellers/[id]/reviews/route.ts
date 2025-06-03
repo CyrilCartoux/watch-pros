@@ -36,11 +36,7 @@ export async function GET(
         rating,
         comment,
         created_at,
-        updated_at,
-        reviewer:reviewer_id (
-          first_name,
-          last_name
-        )
+        updated_at
       `)
       .eq('seller_id', params.id)
       .order('created_at', { ascending: false })
