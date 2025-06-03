@@ -2,13 +2,29 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Star, Shield, Award, MapPin, Coins } from "lucide-react"
+import { Star, Shield, Award, MapPin, Coins, SlidersHorizontal, ChevronDown, ChevronUp, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { countries } from "@/data/form-options"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import { useRouter, useSearchParams } from "next/navigation"
 
 interface Seller {
   account: {
@@ -46,6 +62,12 @@ interface PaginationInfo {
   itemsPerPage: number
 }
 
+interface Filters {
+  country: string
+  cryptoFriendly: boolean
+  minRating: number
+}
+
 function getCountryFlag(countryCode: string): string {
   const codePoints = countryCode
     .toUpperCase()
@@ -55,6 +77,24 @@ function getCountryFlag(countryCode: string): string {
 }
 
 export default function SellersListPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  
+  // Initialize filters from URL params
+  const getInitialFilters = () => {
+    const params = new URLSearchParams(searchParams.toString())
+    return {
+      country: params.get("country") || "",
+      cryptoFriendly: params.get("cryptoFriendly") === "true",
+      minRating: parseFloat(params.get("minRating") || "0")
+    }
+  }
+
+  const [filters, setFilters] = useState<Filters>(getInitialFilters())
+  const [tempFilters, setTempFilters] = useState<Filters>(filters)
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false)
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
+  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "approvals")
   const [sellers, setSellers] = useState<Seller[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -65,10 +105,85 @@ export default function SellersListPage() {
     itemsPerPage: 10
   })
 
+  const updateURL = (newFilters: Filters, page: number = 1, sort: string = sortBy) => {
+    const params = new URLSearchParams()
+    
+    // Add non-empty filters to URL
+    Object.entries(newFilters).forEach(([key, value]) => {
+      if (value) {
+        params.set(key, value.toString())
+      }
+    })
+
+    // Add pagination and sorting
+    if (page > 1) params.set("page", page.toString())
+    if (sort !== "approvals") params.set("sort", sort)
+
+    // Update URL without reloading the page
+    router.push(`/sellers?${params.toString()}`, { scroll: false })
+  }
+
+  const handleFilterChange = (key: keyof Filters, value: any) => {
+    setTempFilters(prev => ({ ...prev, [key]: value }))
+  }
+
+  const handleApplyFilters = () => {
+    setFilters(tempFilters)
+    setCurrentPage(1)
+    updateURL(tempFilters, 1)
+    setIsFiltersOpen(false)
+  }
+
+  const handleClearFilters = () => {
+    const emptyFilters = {
+      country: "",
+      cryptoFriendly: false,
+      minRating: 0
+    }
+    setTempFilters(emptyFilters)
+    setFilters(emptyFilters)
+    setCurrentPage(1)
+    updateURL(emptyFilters, 1)
+    setIsFiltersOpen(false)
+  }
+
+  const removeFilter = (key: keyof Filters) => {
+    const newFilters = { ...filters, [key]: key === "cryptoFriendly" ? false : "" }
+    setTempFilters(newFilters)
+    setFilters(newFilters)
+    updateURL(newFilters)
+  }
+
+  // Update URL when page changes
+  useEffect(() => {
+    if (currentPage > 1) {
+      updateURL(filters, currentPage)
+    }
+  }, [currentPage])
+
+  // Update URL when sort changes
+  useEffect(() => {
+    if (sortBy !== "approvals") {
+      updateURL(filters, currentPage, sortBy)
+    }
+  }, [sortBy])
+
   const fetchSellers = async (page: number) => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/sellers?page=${page}&limit=10`)
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: "10",
+        sort: sortBy === "approvals" ? "total_approvals" : "average_rating",
+        order: "desc"
+      })
+
+      // Add filters to params
+      if (filters.country) params.append("country", filters.country)
+      if (filters.cryptoFriendly) params.append("cryptoFriendly", "true")
+      if (filters.minRating > 0) params.append("minRating", filters.minRating.toString())
+
+      const response = await fetch(`/api/sellers?${params}`)
       if (!response.ok) {
         throw new Error('Failed to fetch sellers')
       }
@@ -83,8 +198,102 @@ export default function SellersListPage() {
   }
 
   useEffect(() => {
-    fetchSellers(1)
-  }, [])
+    fetchSellers(currentPage)
+  }, [currentPage, sortBy, filters])
+
+  const renderFilters = () => (
+    <div className="space-y-8">
+      {/* Country Filter */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <MapPin className="h-4 w-4 text-muted-foreground" />
+          <Label className="text-base font-medium">Country</Label>
+        </div>
+        <Select
+          value={tempFilters.country}
+          onValueChange={(value) => handleFilterChange("country", value)}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select country" />
+          </SelectTrigger>
+          <SelectContent>
+            {countries.map((country) => (
+              <SelectItem key={country.value} value={country.value}>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{getCountryFlag(country.value)}</span>
+                  <span>{country.label}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Rating Filter */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+          <Label className="text-base font-medium">Rating</Label>
+        </div>
+        <Select
+          value={tempFilters.minRating.toString()}
+          onValueChange={(value) => handleFilterChange("minRating", parseFloat(value))}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Minimum rating" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="0">Any rating</SelectItem>
+            <SelectItem value="4.5">
+              <div className="flex items-center gap-2">
+                <div className="flex">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-4 w-4 ${i < 4 ? "text-yellow-400 fill-yellow-400" : "text-yellow-400/50"}`}
+                    />
+                  ))}
+                </div>
+                <span>4.5+ stars</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="4">
+              <div className="flex items-center gap-2">
+                <div className="flex">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-4 w-4 ${i < 4 ? "text-yellow-400 fill-yellow-400" : "text-yellow-400/50"}`}
+                    />
+                  ))}
+                </div>
+                <span>4+ stars</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Payment Options Filter */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Coins className="h-4 w-4 text-amber-500" />
+          <Label className="text-base font-medium">Payment Options</Label>
+        </div>
+        <div className="flex items-center space-x-2 p-4 rounded-lg border bg-card">
+          <Checkbox
+            id="crypto"
+            checked={tempFilters.cryptoFriendly}
+            onCheckedChange={(checked) => handleFilterChange("cryptoFriendly", checked)}
+          />
+          <Label htmlFor="crypto" className="flex items-center gap-2 text-base">
+            <Coins className="h-5 w-5 text-amber-500" />
+            Accepts cryptocurrency
+          </Label>
+        </div>
+      </div>
+    </div>
+  )
 
   if (error) {
     return (
@@ -115,20 +324,77 @@ export default function SellersListPage() {
           </p>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-4 mb-8">
-          <Badge variant="secondary" className="cursor-pointer hover:bg-primary/10">
-            All sellers
-          </Badge>
-          <Badge variant="outline" className="cursor-pointer hover:bg-primary/10">
-            With physical store
-          </Badge>
-          <Badge variant="outline" className="cursor-pointer hover:bg-primary/10">
-            Rolex Expert
-          </Badge>
-          <Badge variant="outline" className="cursor-pointer hover:bg-primary/10">
-            Patek Philippe Expert
-          </Badge>
+        {/* Filters and Sort */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div className="flex items-center justify-between sm:justify-start gap-4">
+            <h2 className="text-xl sm:text-2xl font-bold">
+              {pagination.totalItems.toLocaleString()} sellers
+            </h2>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Select 
+              value={sortBy} 
+              onValueChange={(value: "approvals" | "rating") => setSortBy(value)}
+            >
+              <SelectTrigger className="w-[140px] sm:w-[180px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="approvals">Most approved</SelectItem>
+                <SelectItem value="rating">Highest rated</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Filters Button and Active Filters */}
+        <div className="lg:col-span-4 flex flex-wrap items-center gap-2 mb-6">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => setIsFiltersOpen(true)}
+          >
+            <SlidersHorizontal className="h-4 w-4 mr-2" />
+            Filters
+          </Button>
+
+          {/* Active Filters */}
+          {filters.country && (
+            <div className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-sm">
+              <span>{getCountryFlag(filters.country)} {countries.find(c => c.value === filters.country)?.label}</span>
+              <button
+                onClick={() => removeFilter("country")}
+                className="hover:bg-primary/20 rounded-full p-0.5"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+          {filters.minRating > 0 && (
+            <div className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-sm">
+              <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+              <span>{filters.minRating}+ stars</span>
+              <button
+                onClick={() => removeFilter("minRating")}
+                className="hover:bg-primary/20 rounded-full p-0.5"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          )}
+          {filters.cryptoFriendly && (
+            <div className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-sm">
+              <Coins className="h-3 w-3 text-amber-500" />
+              <span>Accepts crypto</span>
+              <button
+                onClick={() => removeFilter("cryptoFriendly")}
+                className="hover:bg-primary/20 rounded-full p-0.5"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Sellers list */}
@@ -248,6 +514,29 @@ export default function SellersListPage() {
             </Button>
           </div>
         )}
+
+        {/* Filters Modal */}
+        <Dialog open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-semibold">Filters</DialogTitle>
+            </DialogHeader>
+            <div className="h-[calc(100vh-12rem)] overflow-y-auto pr-2">
+              {renderFilters()}
+            </div>
+            <div className="flex justify-between pt-4 border-t">
+              <Button
+                variant="outline"
+                onClick={handleClearFilters}
+                className="flex items-center gap-2"
+              >
+                <X className="h-4 w-4" />
+                Clear all
+              </Button>
+              <Button onClick={handleApplyFilters}>Apply filters</Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </main>
   )
