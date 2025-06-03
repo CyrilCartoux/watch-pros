@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Star, Shield, Award, MapPin, Phone, Mail, Globe, Building2, Clock, ChevronLeft, ChevronRight, MessageSquare, CheckCircle2, ThumbsUp, Coins } from "lucide-react"
+import { Star, MapPin, Phone, Mail, Globe, Building2, ChevronLeft, ChevronRight, MessageSquare, CheckCircle2, ThumbsUp, Coins } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useAuth } from "@/contexts/AuthContext"
 import { ReviewDialog } from "@/components/ReviewDialog"
+import { countries } from "@/data/form-options"
 
 interface Seller {
   id: string
@@ -313,6 +314,9 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                       Accepts Crypto
                     </Badge>
                   )}
+                  <Badge variant="outline" className="text-xs md:text-sm">
+                    {getCountryFlag(seller.account.country)} {countries.find(c => c.value === seller.account.country)?.label}
+                  </Badge>
                 </div>
 
                 {/* Action Buttons */}
@@ -712,4 +716,13 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
       </div>
     </main>
   )
+}
+
+function getCountryFlag(countryCode: string): string {
+  // Convert country code to regional indicator symbols
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
 } 

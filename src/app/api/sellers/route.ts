@@ -30,6 +30,13 @@ interface Seller {
   created_at: string
   updated_at: string
   seller_addresses: SellerAddress[]
+  seller_stats: {
+    total_reviews: number
+    average_rating: number
+    total_approvals: number
+    last_updated: string
+  } | null
+  crypto_friendly: boolean
 }
 
 export async function GET(request: Request) {
@@ -41,7 +48,7 @@ export async function GET(request: Request) {
 
     const supabase = await createClient()
 
-    // Récupérer les vendeurs avec pagination
+    // Récupérer les vendeurs avec pagination et plus d'informations
     const { data: sellers, error: sellersError, count } = await supabase
       .from('sellers')
       .select(`
@@ -58,12 +65,19 @@ export async function GET(request: Request) {
         phone,
         created_at,
         updated_at,
+        crypto_friendly,
         seller_addresses (
           street,
           city,
           country,
           postal_code,
           website
+        ),
+        seller_stats (
+          total_reviews,
+          average_rating,
+          total_approvals,
+          last_updated
         )
       `, { count: 'exact' })
       .range(offset, offset + limit - 1)
@@ -90,6 +104,7 @@ export async function GET(request: Request) {
         title: seller.title,
         phonePrefix: seller.phone_prefix,
         phone: seller.phone,
+        cryptoFriendly: seller.crypto_friendly
       },
       address: seller.seller_addresses?.[0] ? {
         street: seller.seller_addresses[0].street,
@@ -97,7 +112,18 @@ export async function GET(request: Request) {
         country: seller.seller_addresses[0].country,
         postalCode: seller.seller_addresses[0].postal_code,
         website: seller.seller_addresses[0].website
-      } : null
+      } : null,
+      stats: seller.seller_stats ? {
+        totalReviews: seller.seller_stats.total_reviews || 0,
+        averageRating: seller.seller_stats.average_rating || 0,
+        totalApprovals: seller.seller_stats.total_approvals || 0,
+        lastUpdated: seller.seller_stats.last_updated
+      } : {
+        totalReviews: 0,
+        averageRating: 0,
+        totalApprovals: 0,
+        lastUpdated: new Date().toISOString()
+      }
     }))
 
     // Calculer le nombre total de pages

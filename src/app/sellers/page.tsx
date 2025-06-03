@@ -2,12 +2,13 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Star, Shield, Award, MapPin } from "lucide-react"
+import { Star, Shield, Award, MapPin, Coins } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { countries } from "@/data/form-options"
 
 interface Seller {
   account: {
@@ -21,6 +22,7 @@ interface Seller {
     title: string
     phonePrefix: string
     phone: string
+    cryptoFriendly: boolean
   }
   address: {
     street: string
@@ -29,6 +31,12 @@ interface Seller {
     postalCode: string
     website: string
   } | null
+  stats: {
+    totalReviews: number
+    averageRating: number
+    totalApprovals: number
+    lastUpdated: string
+  }
 }
 
 interface PaginationInfo {
@@ -36,6 +44,14 @@ interface PaginationInfo {
   totalPages: number
   totalItems: number
   itemsPerPage: number
+}
+
+function getCountryFlag(countryCode: string): string {
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0))
+  return String.fromCodePoint(...codePoints)
 }
 
 export default function SellersListPage() {
@@ -147,28 +163,40 @@ export default function SellersListPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h2 className="text-xl font-semibold mb-1 truncate">{seller.account.companyName}</h2>
-                        <p className="text-sm text-muted-foreground mb-2 truncate">{seller.account.companyStatus}</p>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="secondary">New Seller</Badge>
+                        <p className="text-sm text-muted-foreground mb-3 truncate">{seller.account.companyStatus}</p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge variant="secondary" className="max-w-[120px] truncate bg-primary/10 hover:bg-primary/20 transition-colors">
+                            <Star className="h-3 w-3 mr-1 text-yellow-400 fill-yellow-400 flex-shrink-0" />
+                            <span className="truncate font-medium">{seller.stats.averageRating.toFixed(1)} ({seller.stats.totalReviews})</span>
+                          </Badge>
+                          <Badge variant="secondary" className="max-w-[120px] truncate bg-primary/10 hover:bg-primary/20 transition-colors">
+                            <span className="truncate font-medium">{seller.stats.totalApprovals} approvals</span>
+                          </Badge>
                         </div>
                       </div>
                     </div>
 
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {seller.account.firstName} {seller.account.lastName}
-                    </p>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <span className="text-sm text-muted-foreground truncate">
+                          {seller.address?.city}
+                        </span>
+                      </div>
 
-                    <div className="flex items-center gap-2 mb-4">
-                      <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <span className="text-sm text-muted-foreground truncate">
-                        {seller.address?.city}, {seller.address?.country}
-                      </span>
-                    </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground truncate">
+                          {getCountryFlag(seller.address?.country || seller.account.country)} {countries.find(c => c.value === seller.account.country)?.label}
+                        </span>
+                      </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      <div className="flex items-center gap-1">
-                        <Shield className="h-4 w-4 text-primary flex-shrink-0" />
-                        <span className="text-sm">Certified Seller</span>
+                      <div className="flex flex-wrap gap-2">
+                        {seller.account.cryptoFriendly && (
+                          <Badge variant="outline" className="border-amber-500 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20 transition-colors">
+                            <Coins className="h-3 w-3 mr-1 flex-shrink-0" />
+                            <span className="font-medium">Accepts Crypto</span>
+                          </Badge>
+                        )}
                       </div>
                     </div>
 
