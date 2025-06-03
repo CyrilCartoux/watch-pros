@@ -13,6 +13,16 @@
 //     constraint seller_stats_seller_id_key unique (seller_id),
 //     constraint seller_stats_seller_id_fkey foreign KEY (seller_id) references sellers (id) on delete CASCADE
 //   ) TABLESPACE pg_default;
+//
+// -- Add indexes for sorting and filtering
+// create index if not exists idx_seller_stats_average_rating on public.seller_stats using btree (average_rating desc) tablespace pg_default;
+// create index if not exists idx_seller_stats_total_approvals on public.seller_stats using btree (total_approvals desc) tablespace pg_default;
+// create index if not exists idx_seller_stats_total_reviews on public.seller_stats using btree (total_reviews desc) tablespace pg_default;
+// create index if not exists idx_seller_stats_last_updated on public.seller_stats using btree (last_updated desc) tablespace pg_default;
+
+// -- Create partial index for sellers with minimum rating
+// create index if not exists idx_seller_stats_min_rating on public.seller_stats using btree (average_rating desc)
+// where average_rating >= 4.5;
 
 /**
  * Represents aggregated statistics for a seller in the system

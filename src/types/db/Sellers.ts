@@ -25,6 +25,42 @@
 //     constraint sellers_email_key unique (email),
 //     constraint sellers_user_id_fkey foreign KEY (user_id) references auth.users (id) on delete CASCADE
 //   ) TABLESPACE pg_default;
+//
+//   -- Add indexes for common filter operations
+//   create index if not exists idx_sellers_country on public.sellers using btree (country) tablespace pg_default;
+//   create index if not exists idx_sellers_crypto_friendly on public.sellers using btree (crypto_friendly) tablespace pg_default;
+//   create index if not exists idx_sellers_company_status on public.sellers using btree (company_status) tablespace pg_default;
+//   create index if not exists idx_sellers_created_at on public.sellers using btree (created_at desc) tablespace pg_default;
+//
+//   -- Add full-text search capabilities
+//   alter table public.sellers add column if not exists search_vector tsvector
+//   generated always as (
+//     setweight(to_tsvector('english', coalesce(company_name, '')), 'A') ||
+//     setweight(to_tsvector('english', coalesce(watch_pros_name, '')), 'A') ||
+//     setweight(to_tsvector('english', coalesce(first_name || ' ' || last_name, '')), 'B') ||
+//     setweight(to_tsvector('english', coalesce(email, '')), 'C')
+//   ) stored;
+//
+//   create index if not exists idx_sellers_search on public.sellers using gin (search_vector) tablespace pg_default;
+//
+//   -- Create function to update search vector
+//   create or replace function public.update_sellers_search_vector()
+//   returns trigger as $$
+//   begin
+//     new.search_vector :=
+//       setweight(to_tsvector('english', coalesce(new.company_name, '')), 'A') ||
+//       setweight(to_tsvector('english', coalesce(new.watch_pros_name, '')), 'A') ||
+//       setweight(to_tsvector('english', coalesce(new.first_name || ' ' || new.last_name, '')), 'B') ||
+//       setweight(to_tsvector('english', coalesce(new.email, '')), 'C');
+//     return new;
+//   end;
+//   $$ language plpgsql;
+//
+//   -- Create trigger to automatically update search vector
+//   create trigger update_sellers_search_vector
+//   before insert or update on public.sellers
+//   for each row
+//   execute function public.update_sellers_search_vector();
 
 /**
  * Represents a seller in the system
@@ -46,6 +82,7 @@
  * @property {string} proof_of_address_url - URL to the proof of address document
  * @property {string} user_id - UUID of the associated user account
  * @property {boolean} crypto_friendly - Whether the seller accepts cryptocurrency payments
+ * @property {string} search_vector - Full-text search vector for efficient text search
  */
 export type Seller = {
     /** Unique identifier (UUID) for the seller */
@@ -84,4 +121,6 @@ export type Seller = {
     user_id: string | null
     /** Whether the seller accepts cryptocurrency payments */
     crypto_friendly: boolean
+    /** Full-text search vector for efficient text search */
+    search_vector?: string
 }

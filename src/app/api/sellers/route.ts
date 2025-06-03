@@ -45,11 +45,16 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
     const offset = (page - 1) * limit
+    const sort = searchParams.get('sort') || 'total_approvals'
+    const order = searchParams.get('order') || 'desc'
+    const country = searchParams.get('country')
+    const cryptoFriendly = searchParams.get('cryptoFriendly')
+    const minRating = searchParams.get('minRating')
 
     const supabase = await createClient()
 
-    // Récupérer les vendeurs avec pagination et plus d'informations
-    const { data: sellers, error: sellersError, count } = await supabase
+    // Start building the query
+    let query = supabase
       .from('sellers')
       .select(`
         id,
@@ -80,8 +85,31 @@ export async function GET(request: Request) {
           last_updated
         )
       `, { count: 'exact' })
-      .range(offset, offset + limit - 1)
-      .order('created_at', { ascending: false })
+
+    // Apply filters using the new indexes
+    if (country) {
+      query = query.eq('country', country)
+    }
+    if (cryptoFriendly === 'true') {
+      query = query.eq('crypto_friendly', true)
+    }
+    if (minRating) {
+      query = query.gte('seller_stats.average_rating', parseFloat(minRating))
+    }
+
+    // Apply sorting using the new indexes
+    if (sort === 'total_approvals') {
+      query = query.order('seller_stats(total_approvals)', { ascending: order === 'asc' })
+    } else if (sort === 'average_rating') {
+      query = query.order('seller_stats(average_rating)', { ascending: order === 'asc' })
+    } else {
+      query = query.order('created_at', { ascending: false })
+    }
+
+    // Apply pagination
+    query = query.range(offset, offset + limit - 1)
+
+    const { data: sellers, error: sellersError, count } = await query
 
     if (sellersError) {
       console.error('Error fetching sellers:', sellersError)
@@ -92,7 +120,7 @@ export async function GET(request: Request) {
     }
 
     // Transformer les données pour correspondre à la structure attendue
-    const transformedSellers = (sellers as Seller[]).map(seller => ({
+    const transformedSellers = (sellers as any[]).map(seller => ({
       account: {
         companyName: seller.company_name,
         watchProsName: seller.watch_pros_name,
