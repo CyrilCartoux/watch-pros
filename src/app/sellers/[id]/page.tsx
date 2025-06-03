@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Star, Shield, Award, MapPin, Phone, Mail, Globe, Building2, Clock, ChevronLeft, ChevronRight, MessageSquare, CheckCircle2, ThumbsUp } from "lucide-react"
+import { Star, Shield, Award, MapPin, Phone, Mail, Globe, Building2, Clock, ChevronLeft, ChevronRight, MessageSquare, CheckCircle2, ThumbsUp, Coins } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -29,6 +29,7 @@ interface Seller {
     phonePrefix: string
     phone: string
     language: string
+    cryptoFriendly: boolean
   }
   address: {
     street: string
@@ -306,6 +307,12 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                   <Badge variant="secondary" className="text-xs md:text-sm">
                     {seller.stats.totalApprovals} approvals
                   </Badge>
+                  {seller.account.cryptoFriendly && (
+                    <Badge variant="outline" className="text-xs md:text-sm border-amber-500 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20">
+                      <Coins className="h-3 w-3 mr-1" />
+                      Accepts Crypto
+                    </Badge>
+                  )}
                 </div>
 
                 {/* Action Buttons */}

@@ -20,6 +20,7 @@
 //     id_card_back_url text null,
 //     proof_of_address_url text null,
 //     user_id uuid null,
+//     crypto_friendly boolean not null default false,
 //     constraint sellers_pkey primary key (id),
 //     constraint sellers_email_key unique (email),
 //     constraint sellers_user_id_fkey foreign KEY (user_id) references auth.users (id) on delete CASCADE
@@ -44,6 +45,7 @@
  * @property {string} id_card_back_url - URL to the back of the ID card image
  * @property {string} proof_of_address_url - URL to the proof of address document
  * @property {string} user_id - UUID of the associated user account
+ * @property {boolean} crypto_friendly - Whether the seller accepts cryptocurrency payments
  */
 export type Seller = {
     /** Unique identifier (UUID) for the seller */
@@ -80,4 +82,6 @@ export type Seller = {
     proof_of_address_url: string | null
     /** UUID of the associated user account */
     user_id: string | null
+    /** Whether the seller accepts cryptocurrency payments */
+    crypto_friendly: boolean
 }

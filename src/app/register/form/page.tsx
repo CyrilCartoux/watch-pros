@@ -48,6 +48,7 @@ const accountSchema = z.object({
     .regex(/^\d+$/, "Phone number must contain only digits")
     .min(9, "Phone number must contain at least 9 digits")
     .max(15, "Phone number must not exceed 15 digits"),
+  cryptoFriendly: z.boolean().default(false),
 })
 
 // Validation schema for address
@@ -543,6 +544,18 @@ export default function RegisterFormPage() {
                         />
                         <FormError error={accountForm.formState.errors.phone?.message as string} isSubmitted={isSubmitted.account} />
                       </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="cryptoFriendly"
+                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                        {...accountForm.register("cryptoFriendly")}
+                      />
+                      <Label htmlFor="cryptoFriendly" className="text-sm">
+                        I accept cryptocurrency payments
+                      </Label>
                     </div>
                   </div>
 

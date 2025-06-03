@@ -63,6 +63,7 @@ interface Seller {
     total_approvals: number
     last_updated: string
   } | null
+  crypto_friendly: boolean
 }
 
 interface Listing {
@@ -123,7 +124,8 @@ export async function GET(
           card_holder,
           bank_name,
           payment_method
-        )
+        ),
+        crypto_friendly
       `)
       .eq('watch_pros_name', params.id)
       .single()
@@ -234,7 +236,8 @@ export async function GET(
         country: seller.country,
         title: seller.title,
         phonePrefix: seller.phone_prefix,
-        phone: seller.phone
+        phone: seller.phone,
+        cryptoFriendly: seller.crypto_friendly
       },
       address: seller.seller_addresses?.[0] ? {
         street: seller.seller_addresses[0].street,

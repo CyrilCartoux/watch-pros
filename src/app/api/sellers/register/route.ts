@@ -19,6 +19,7 @@ interface RegisterSellerRequest {
     phone: string
     language: string
     password: string
+    cryptoFriendly: boolean
   }
   address: {
     street: string
