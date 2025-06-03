@@ -416,6 +416,39 @@ export default function SellersListPage() {
                 </CardContent>
               </Card>
             ))
+          ) : sellers.length === 0 ? (
+            <div className="col-span-full flex flex-col items-center justify-center py-12 px-4 text-center">
+              <div className="w-24 h-24 mb-6 text-muted-foreground">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                  />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold mb-2">No sellers found</h3>
+              <p className="text-muted-foreground max-w-sm">
+                {Object.values(filters).some(Boolean) 
+                  ? "Try adjusting your filters to find what you're looking for."
+                  : "There are no sellers available at the moment. Please check back later."}
+              </p>
+              {Object.values(filters).some(Boolean) && (
+                <Button
+                  variant="outline"
+                  className="mt-4"
+                  onClick={handleClearFilters}
+                >
+                  Clear all filters
+                </Button>
+              )}
+            </div>
           ) : (
             sellers.map((seller) => (
               <Link key={seller.account.watchProsName} href={`/sellers/${seller.account.watchProsName}`}>
