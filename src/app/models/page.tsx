@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/carousel"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
-import { Bell } from "lucide-react"
+import { Bell, Loader2 } from "lucide-react"
+import { useToast } from "@/components/ui/use-toast"
 import {
   Select,
   SelectContent,
@@ -45,6 +46,7 @@ interface Model {
 }
 
 export default function ModelsPage() {
+  const { toast } = useToast()
   const [activeTab, setActiveTab] = useState("featured")
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState("popularity")
@@ -104,8 +106,11 @@ export default function ModelsPage() {
     try {
       setIsSubscribing(prev => ({ ...prev, [model.id]: true }))
       
+      const isSubscribing = !notifications[model.id]
+      const method = isSubscribing ? 'POST' : 'DELETE'
+      
       const response = await fetch('/api/subscribe-model', {
-        method: 'POST',
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -123,9 +128,20 @@ export default function ModelsPage() {
         ...prev,
         [model.id]: !prev[model.id]
       }))
+
+      toast({
+        title: isSubscribing ? "Notification enabled" : "Notification disabled",
+        description: isSubscribing 
+          ? `You will be notified about new listings for ${model.brands.label} ${model.label}`
+          : `You will no longer receive notifications for ${model.brands.label} ${model.label}`,
+      })
     } catch (err) {
       console.error('Error toggling notification:', err)
-      // Optionally show an error toast/notification here
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to update notification settings",
+      })
     } finally {
       setIsSubscribing(prev => ({ ...prev, [model.id]: false }))
     }
@@ -280,7 +296,11 @@ export default function ModelsPage() {
                                       : "bg-background/80 hover:bg-background/90"
                                   } ${isSubscribing[model.id] ? "opacity-50 cursor-not-allowed" : ""}`}
                                 >
-                                  <Bell className={`h-4 w-4 ${notifications[model.id] ? "text-white" : "text-muted-foreground"}`} />
+                                  {isSubscribing[model.id] ? (
+                                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                                  ) : (
+                                    <Bell className={`h-4 w-4 ${notifications[model.id] ? "text-white" : "text-muted-foreground"}`} />
+                                  )}
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -370,7 +390,11 @@ export default function ModelsPage() {
                                       : "bg-background/80 hover:bg-background/90"
                                   } ${isSubscribing[model.id] ? "opacity-50 cursor-not-allowed" : ""}`}
                                 >
-                                  <Bell className={`h-4 w-4 ${notifications[model.id] ? "text-white" : "text-muted-foreground"}`} />
+                                  {isSubscribing[model.id] ? (
+                                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                                  ) : (
+                                    <Bell className={`h-4 w-4 ${notifications[model.id] ? "text-white" : "text-muted-foreground"}`} />
+                                  )}
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent>

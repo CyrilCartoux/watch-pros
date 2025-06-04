@@ -127,3 +127,53 @@ export async function POST(request: Request) {
     )
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    // 1. Parse and validate request body
+    const body = await request.json()
+    const parse = Schema.safeParse(body)
+    if (!parse.success) {
+      return NextResponse.json(
+        { error: 'Invalid request', details: parse.error.format() },
+        { status: 400 }
+      )
+    }
+    const { model_id } = parse.data
+    
+    const supabase = await createClient()
+    
+    // Get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // 2. Delete subscription
+    const { error: deleteErr } = await supabaseAdmin
+      .from('model_subscriptions')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('model_id', model_id)
+
+    if (deleteErr) {
+      console.error('Error deleting model subscription:', deleteErr)
+      return NextResponse.json(
+        { error: 'Failed to delete subscription' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error('Unexpected error in delete-subscription:', err)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
