@@ -448,12 +448,6 @@ export async function PUT(
 
       const imageUploadPromises = images.map(async (image, index) => {
         try {
-          console.log(`Processing image ${index}:`, {
-            type: typeof image,
-            isFile: image instanceof File,
-            size: image instanceof File ? image.size : 'N/A',
-            name: image instanceof File ? image.name : 'N/A'
-          })
 
           // Check if it's a URL (either as string or in File name)
           const isUrl = typeof image === 'string' || 
@@ -461,7 +455,6 @@ export async function PUT(
 
           if (isUrl) {
             const imageUrl = typeof image === 'string' ? image : image.name
-            console.log(`Processing existing image URL: ${imageUrl}`)
             
             // Insert the existing image URL into the database
             const { data: imageData, error: imageError } = await supabase

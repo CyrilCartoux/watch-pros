@@ -61,13 +61,10 @@ export default function EditAccessoryPage({ params }: { params: { id: string } }
 
       // Add images
       if (data.images && data.images.length > 0) {
-        console.log('Processing images:', data.images.length)
         data.images.forEach((image: File | string) => {
           if (image instanceof File) {
-            console.log('Adding file image:', image.name)
             formData.append('images', image)
           } else if (typeof image === 'string' && image.startsWith('http')) {
-            console.log('Adding URL image:', image)
             formData.append('images', image)
           }
         })
@@ -75,19 +72,11 @@ export default function EditAccessoryPage({ params }: { params: { id: string } }
 
       // Add documents if any
       if (data.documents?.length > 0) {
-        console.log('Processing documents:', data.documents.length)
         data.documents.forEach((doc: File) => {
           formData.append('documents', doc)
         })
       }
 
-      console.log('Submitting form data:', {
-        images: data.images?.length || 0,
-        documents: data.documents?.length || 0
-      })
-
-      // Send to API
-      console.log('Sending request to API...')
       const response = await fetch(`/api/listings/${params.id}`, {
         method: 'PUT',
         body: formData
