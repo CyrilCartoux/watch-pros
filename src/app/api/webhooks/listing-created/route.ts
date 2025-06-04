@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { sendEmail, emailTemplates } from '@/lib/email'
 import { ModelSubscription } from '@/types/db/notifications/ModelSubscriptions'
+import { watchConditions } from '@/data/watch-conditions'
+import { includedOptions } from '@/data/watch-properties'
 
 // if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
 //   throw new Error('Missing VAPID keys')
@@ -151,6 +153,8 @@ export async function POST(request: Request) {
 
     // 3. Send emails to subscribers
     console.log('📧 Sending emails to subscribers...')
+    const conditionLabel = listingDetails.condition ? watchConditions.find(c => c.slug === listingDetails.condition)?.label : null
+    const includedLabel = listingDetails.included ? includedOptions.find(i => i.id === listingDetails.included)?.title : null
     const emailResults = await Promise.allSettled(
       validEmails.map((to) => {
         const emailContent = emailTemplates.newWatchMatch(
@@ -162,8 +166,8 @@ export async function POST(request: Request) {
           listingDetails.year,
           listingDetails.price,
           listingDetails.currency,
-          listingDetails.condition,
-          listingDetails.included
+          conditionLabel || null,
+          includedLabel || null
         )
         return sendEmail({
           to,

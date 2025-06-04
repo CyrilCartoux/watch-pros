@@ -214,7 +214,7 @@ export async function POST(request: Request) {
           .filter((e): e is string => typeof e === 'string')
 
         if (validEmailsPrice.length > 0) {
-          const notificationTitlePrice = `Price drop for ${listingId}`
+          const notificationTitlePrice = `Price drop for ${brandName} ${modelName}`
           const notificationMessagePrice = `The price has changed from ${(oldPrice)} € to ${(newPrice)} €.`
 
           console.log('📨 Message prepared:', { title: notificationTitlePrice, message: notificationMessagePrice })
