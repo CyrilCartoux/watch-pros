@@ -107,8 +107,8 @@ export default function ListingPage({ params }: Props) {
   const [isSubmittingMessage, setIsSubmittingMessage] = useState(false)
   const [isMessageSuccess, setIsMessageSuccess] = useState(false)
   const [showNotificationTooltip, setShowNotificationTooltip] = useState(false)
-  const [notifyPriceChange, setNotifyPriceChange] = useState(false)
-  const [notifySale, setNotifySale] = useState(false)
+  const [notifyListing, setNotifyListing] = useState(false)
+  const [isSubscribing, setIsSubscribing] = useState(false)
   const [listing, setListing] = useState<ListingData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -125,6 +125,16 @@ export default function ListingPage({ params }: Props) {
         }
         const data = await response.json()
         setListing(data)
+
+        // Fetch subscription status if user is logged in
+        if (user) {
+          const subResponse = await fetch('/api/subscribe-listing')
+          if (subResponse.ok) {
+            const { subscriptions } = await subResponse.json()
+            const isSubscribed = subscriptions.some((sub: any) => sub.listing.id === params.id)
+            setNotifyListing(isSubscribed)
+          }
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
@@ -133,7 +143,7 @@ export default function ListingPage({ params }: Props) {
     }
 
     fetchListing()
-  }, [params.id])
+  }, [params.id, user])
 
   useEffect(() => {
     const checkMobile = () => {
@@ -240,6 +250,58 @@ export default function ListingPage({ params }: Props) {
         description: "Failed to update favorites",
         variant: "destructive",
       })
+    }
+  }
+
+  const toggleNotification = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to enable notifications",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!listing) return
+
+    try {
+      setIsSubscribing(true)
+      
+      const method = notifyListing ? 'DELETE' : 'POST'
+      const response = await fetch('/api/subscribe-listing', {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          listing_id: listing.id,
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to toggle notification')
+      }
+
+      setNotifyListing(!notifyListing)
+      setShowNotificationTooltip(false)
+
+      toast({
+        title: notifyListing ? "Notification disabled" : "Notification enabled",
+        description: notifyListing 
+          ? "You will no longer receive notifications for this listing"
+          : "You will be notified about price updates and when this watch is sold",
+      })
+    } catch (err) {
+      console.error('Error toggling notification:', err)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: err instanceof Error ? err.message : "Failed to update notification settings",
+      })
+    } finally {
+      setIsSubscribing(false)
     }
   }
 
@@ -367,8 +429,17 @@ export default function ListingPage({ params }: Props) {
                     <Button
                       variant="outline"
                       size="icon"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        if (user) {
+                          toggleNotification()
+                        } else {
+                          setShowNotificationTooltip(true)
+                        }
+                      }}
+                      className={notifyListing ? "bg-primary/10 hover:bg-primary/20 border-primary" : ""}
                     >
-                      <Bell className={`h-5 w-5 ${(notifyPriceChange || notifySale) ? "text-primary" : ""}`} />
+                      <Bell className={`h-5 w-5 ${notifyListing ? "text-primary fill-primary" : ""}`} />
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="w-80 p-4">
@@ -378,26 +449,19 @@ export default function ListingPage({ params }: Props) {
                         <p className="font-medium">Receive notifications</p>
                       </div>
                       <div className="space-y-3">
+                        <p className="text-sm text-muted-foreground">
+                          You will receive notifications about price updates and when this watch is sold.
+                        </p>
                         <div className="flex items-center justify-between">
-                          <Label htmlFor="price-change" className="text-sm">Price change</Label>
+                          <Label htmlFor="notify-listing" className="text-sm">Enable notifications</Label>
                           <Switch
-                            id="price-change"
-                            checked={notifyPriceChange}
-                            onCheckedChange={setNotifyPriceChange}
-                          />
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <Label htmlFor="sale" className="text-sm">For sale</Label>
-                          <Switch
-                            id="sale"
-                            checked={notifySale}
-                            onCheckedChange={setNotifySale}
+                            id="notify-listing"
+                            checked={notifyListing}
+                            onCheckedChange={toggleNotification}
+                            disabled={isSubscribing}
                           />
                         </div>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        You will receive an email for each activated notification.
-                      </p>
                     </div>
                   </DialogContent>
                 </Dialog>

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Menu, ShoppingCart, User, Bell, LogOut, Heart, MessageSquare, LayoutDashboard, MoreHorizontal } from "lucide-react"
+import { Menu, User, Bell, LogOut, Heart, MessageSquare, LayoutDashboard, MoreHorizontal } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { Badge } from "./ui/badge"
 import { SearchBar } from "./SearchBar"
@@ -73,7 +73,7 @@ export function Navbar() {
             <SearchBar className="w-64 lg:w-96" />
           </div>
 
-          {/* Account & Cart */}
+          {/* Account */}
           <div className="flex items-center gap-2 lg:gap-4">
             <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
               <Link href="/notifications" className="relative">
@@ -87,12 +87,6 @@ export function Navbar() {
                   </Badge>
                 )}
                 <span className="sr-only">Notifications</span>
-              </Link>
-            </Button>
-            <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
-              <Link href="/cart">
-                <ShoppingCart className="h-4 w-4" />
-                <span className="sr-only">Cart</span>
               </Link>
             </Button>
             <DropdownMenu>
@@ -171,8 +165,8 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden" ref={menuRef}>
-          <div className="container space-y-3 py-3">
+        <div className="md:hidden shadow-lg" ref={menuRef}>
+          <div className="container space-y-3 py-3 bg-background">
             <SearchBar />
             <div className="flex flex-col gap-1">
               <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
@@ -197,18 +191,53 @@ export function Navbar() {
                   )}
                 </Link>
               </Button>
-              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/cart" onClick={handleLinkClick} className="flex items-center gap-2">
-                  <ShoppingCart className="h-4 w-4" />
-                  Cart
-                </Link>
-              </Button>
-              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/account" onClick={handleLinkClick} className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  My Account
-                </Link>
-              </Button>
+              {user ? (
+                <>
+                  <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
+                    <Link href="/account?tab=dashboard" onClick={handleLinkClick} className="flex items-center gap-2">
+                      <LayoutDashboard className="h-4 w-4" />
+                      Dashboard
+                    </Link>
+                  </Button>
+                  <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
+                    <Link href="/account?tab=messages" onClick={handleLinkClick} className="flex items-center gap-2">
+                      <MessageSquare className="h-4 w-4" />
+                      Messages
+                    </Link>
+                  </Button>
+                  <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
+                    <Link href="/account?tab=favorites" onClick={handleLinkClick} className="flex items-center gap-2">
+                      <Heart className="h-4 w-4" />
+                      Favorites
+                    </Link>
+                  </Button>
+                  <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
+                    <Link href="/account" onClick={handleLinkClick} className="flex items-center gap-2">
+                      <MoreHorizontal className="h-4 w-4" />
+                      More
+                    </Link>
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-full justify-start h-9 text-red-600 hover:text-red-600 hover:bg-red-50"
+                    onClick={() => {
+                      signOut()
+                      handleLinkClick()
+                    }}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
+                  <Link href="/auth" onClick={handleLinkClick} className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    Login / Signup
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
         </div>

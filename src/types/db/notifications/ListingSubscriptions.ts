@@ -12,7 +12,6 @@
 //     constraint listing_subscriptions_listing_id_fkey foreign KEY (listing_id) references listings (id) on delete CASCADE,
 //     constraint listing_subscriptions_user_id_fkey foreign KEY (user_id) references auth.users (id) on delete CASCADE
 //   ) TABLESPACE pg_default;
-
 /**
  * Represents a listing subscription in the system
  * @property {string} id - Unique identifier (serial) for the subscription
