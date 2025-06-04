@@ -1,40 +1,129 @@
-// pages/api/subscribe-model.ts
-import { NextApiRequest, NextApiResponse } from 'next'
+import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { z } from 'zod'
+import { createClient } from '@/lib/supabase/server'
 
 const Schema = z.object({
-  model: z.string().min(1),
+  model_id: z.string().uuid('Invalid model ID'),
 })
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    return res.setHeader('Allow', 'POST').status(405).end('Method Not Allowed')
-  }
-
-  const parse = Schema.safeParse(req.body)
-  if (!parse.success) {
-    return res.status(400).json({ error: parse.error.format() })
-  }
-  const { model } = parse.data
-
-  // Récupérer l’utilisateur via son token (idem push-subscribe) :
-  const token = req.headers.cookie?.split('sb:token=')[1]?.split(';')[0]
-  if (!token) return res.status(401).json({ error: 'Non authentifié' })
-  const {
-    data: { user },
-    error: userErr,
-  } = await supabase.auth.getUser(token)
-  if (userErr || !user) return res.status(401).json({ error: 'Utilisateur invalide' })
-
+export async function GET() {
   try {
-    await supabaseAdmin.from('model_subscriptions').upsert({
-      user_id: user.id,
-      model,
-    })
-    return res.status(200).json({ success: true })
-  } catch (err: any) {
-    console.error(err)
-    return res.status(500).json({ error: err.message })
+    const supabase = await createClient()
+    
+    // Get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Get user's model subscriptions with model and brand details
+    const { data: subscriptions, error: subError } = await supabase
+      .from('model_subscriptions')
+      .select(`
+        id,
+        created_at,
+        model:models (
+          id,
+          slug,
+          label,
+          popular,
+          brand:brands (
+            id,
+            slug,
+            label,
+            popular
+          )
+        )
+      `)
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+
+    if (subError) {
+      console.error('Error fetching subscriptions:', subError)
+      return NextResponse.json(
+        { error: 'Failed to fetch subscriptions' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ subscriptions })
+  } catch (err) {
+    console.error('Unexpected error in get-subscriptions:', err)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    // 1. Parse and validate request body
+    const body = await request.json()
+    const parse = Schema.safeParse(body)
+    if (!parse.success) {
+      return NextResponse.json(
+        { error: 'Invalid request', details: parse.error.format() },
+        { status: 400 }
+      )
+    }
+    const { model_id } = parse.data
+    
+    const supabase = await createClient()
+    
+    // Get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // 3. Verify model exists
+    const { data: model, error: modelErr } = await supabaseAdmin
+      .from('models')
+      .select('id')
+      .eq('id', model_id)
+      .single()
+
+    if (modelErr || !model) {
+      console.log('Model not found')
+      return NextResponse.json(
+        { error: 'Model not found' },
+        { status: 404 }
+      )
+    }
+
+    // 4. Create subscription
+    const { error: subErr } = await supabaseAdmin
+      .from('model_subscriptions')
+      .upsert({
+        user_id: user.id,
+        model_id,
+      })
+
+    if (subErr) {
+      console.error('Error creating model subscription:', subErr)
+      console.log('Failed to create subscription')
+      return NextResponse.json(
+        { error: 'Failed to create subscription' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error('Unexpected error in subscribe-model:', err)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
   }
 }

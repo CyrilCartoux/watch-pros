@@ -53,14 +53,16 @@ export default function ModelsPage() {
   const [allModels, setAllModels] = useState<Model[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [isSubscribing, setIsSubscribing] = useState<Record<string, boolean>>({})
 
-  // Fetch brands and models in parallel
+  // Fetch brands, models and subscriptions in parallel
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [brandsResponse, modelsResponse] = await Promise.all([
+        const [brandsResponse, modelsResponse, subscriptionsResponse] = await Promise.all([
           fetch("/api/brands"),
-          fetch("/api/models/all")
+          fetch("/api/models/all"),
+          fetch("/api/subscribe-model")
         ])
 
         if (!brandsResponse.ok) {
@@ -69,14 +71,25 @@ export default function ModelsPage() {
         if (!modelsResponse.ok) {
           throw new Error("Failed to fetch models")
         }
+        if (!subscriptionsResponse.ok) {
+          throw new Error("Failed to fetch subscriptions")
+        }
 
-        const [brandsData, modelsData] = await Promise.all([
+        const [brandsData, modelsData, subscriptionsData] = await Promise.all([
           brandsResponse.json(),
-          modelsResponse.json()
+          modelsResponse.json(),
+          subscriptionsResponse.json()
         ])
 
         setBrands(brandsData.brands)
         setAllModels(modelsData.models)
+        
+        // Initialize notifications state from subscriptions
+        const initialNotifications = subscriptionsData.subscriptions.reduce((acc: Record<string, boolean>, sub: any) => {
+          acc[sub.model.id] = true
+          return acc
+        }, {})
+        setNotifications(initialNotifications)
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to fetch data")
       } finally {
@@ -87,11 +100,35 @@ export default function ModelsPage() {
     fetchData()
   }, [])
 
-  const toggleNotification = (modelSlug: string) => {
-    setNotifications(prev => ({
-      ...prev,
-      [modelSlug]: !prev[modelSlug]
-    }))
+  const toggleNotification = async (model: Model) => {
+    try {
+      setIsSubscribing(prev => ({ ...prev, [model.id]: true }))
+      
+      const response = await fetch('/api/subscribe-model', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model_id: model.id,
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to toggle notification')
+      }
+
+      setNotifications(prev => ({
+        ...prev,
+        [model.id]: !prev[model.id]
+      }))
+    } catch (err) {
+      console.error('Error toggling notification:', err)
+      // Optionally show an error toast/notification here
+    } finally {
+      setIsSubscribing(prev => ({ ...prev, [model.id]: false }))
+    }
   }
 
   const filterAndSortModels = (models: Model[]) => {
@@ -234,19 +271,20 @@ export default function ModelsPage() {
                                 <button
                                   onClick={(e) => {
                                     e.preventDefault()
-                                    toggleNotification(model.slug)
+                                    toggleNotification(model)
                                   }}
+                                  disabled={isSubscribing[model.id]}
                                   className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
-                                    notifications[model.slug] 
+                                    notifications[model.id] 
                                       ? "bg-red-500 hover:bg-red-600" 
                                       : "bg-background/80 hover:bg-background/90"
-                                  }`}
+                                  } ${isSubscribing[model.id] ? "opacity-50 cursor-not-allowed" : ""}`}
                                 >
-                                  <Bell className={`h-4 w-4 ${notifications[model.slug] ? "text-white" : "text-muted-foreground"}`} />
+                                  <Bell className={`h-4 w-4 ${notifications[model.id] ? "text-white" : "text-muted-foreground"}`} />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent>
-                                {notifications[model.slug] 
+                                {notifications[model.id] 
                                   ? "Disable notifications" 
                                   : "Enable notifications"}
                               </TooltipContent>
@@ -323,19 +361,20 @@ export default function ModelsPage() {
                                 <button
                                   onClick={(e) => {
                                     e.preventDefault()
-                                    toggleNotification(model.slug)
+                                    toggleNotification(model)
                                   }}
+                                  disabled={isSubscribing[model.id]}
                                   className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
-                                    notifications[model.slug] 
+                                    notifications[model.id] 
                                       ? "bg-red-500 hover:bg-red-600" 
                                       : "bg-background/80 hover:bg-background/90"
-                                  }`}
+                                  } ${isSubscribing[model.id] ? "opacity-50 cursor-not-allowed" : ""}`}
                                 >
-                                  <Bell className={`h-4 w-4 ${notifications[model.slug] ? "text-white" : "text-muted-foreground"}`} />
+                                  <Bell className={`h-4 w-4 ${notifications[model.id] ? "text-white" : "text-muted-foreground"}`} />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent>
-                                {notifications[model.slug] 
+                                {notifications[model.id] 
                                   ? "Disable notifications" 
                                   : "Enable notifications"}
                               </TooltipContent>
