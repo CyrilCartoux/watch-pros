@@ -30,7 +30,7 @@ const watchSchema = z.object({
   reference: z.string().min(1, "Reference number is required"),
   title: z.string().min(1, "Title is required").max(60, "Title must not exceed 60 characters"),
   description: z.string().optional(),
-  year: z.string().min(1, "Year is required"),
+  year: z.string().optional(),
   gender: z.string().optional(),
   serialNumber: z.string().optional(),
   dialColor: z.string().optional(),
@@ -644,41 +644,33 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                       Select what will be included with the watch *
                     </p>
                     <FormError error={form.formState.errors.included?.message as string} isSubmitted={isStepSubmitted} />
-                    <div className="grid gap-4">
+                    <div className="grid grid-cols-2 gap-2">
                       {includedOptions.map((option) => (
-                        <Card
+                        <button
                           key={option.id}
-                          className={`cursor-pointer transition-colors ${
-                            form.watch("included") === option.id
-                              ? "border-primary"
-                              : "hover:border-primary/50"
-                          }`}
+                          type="button"
                           onClick={() => {
                             form.setValue("included", option.id, { shouldValidate: true })
                           }}
+                          className={`flex items-center gap-2 p-2 rounded-lg border-2 transition-colors ${
+                            form.watch("included") === option.id
+                              ? "border-primary bg-primary/5"
+                              : "border-input hover:border-primary/50"
+                          }`}
                         >
-                          <CardContent className="p-4">
-                            <div className="flex items-center gap-4">
-                              <div
-                                className={`w-5 h-5 p-0.5 rounded-full border-2 flex items-center justify-center ${
-                                  form.watch("included") === option.id
-                                    ? "border-primary bg-primary"
-                                    : "border-input"
-                                }`}
-                              >
-                                {form.watch("included") === option.id && (
-                                  <div className="w-full h-full rounded-full bg-primary-foreground" />
-                                )}
-                              </div>
-                              <div>
-                                <h4 className="font-medium">{option.title}</h4>
-                                <p className="text-sm text-muted-foreground">
-                                  {option.description}
-                                </p>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
+                          <div
+                            className={`w-4 h-4 p-0.5 rounded-full border-2 flex items-center justify-center ${
+                              form.watch("included") === option.id
+                                ? "border-primary bg-primary"
+                                : "border-input"
+                            }`}
+                          >
+                            {form.watch("included") === option.id && (
+                              <div className="w-full h-full rounded-full bg-primary-foreground" />
+                            )}
+                          </div>
+                          <span className="text-sm font-medium">{option.title}</span>
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -689,38 +681,33 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                       Select the condition of your watch *
                     </p>
                     <FormError error={form.formState.errors.condition?.message as string} isSubmitted={isStepSubmitted} />
-                    <div className="grid gap-4">
+                    <div className="grid grid-cols-2 gap-2">
                       {watchConditions.map((condition) => (
-                        <Card
+                        <button
                           key={condition.slug}
-                          className={`cursor-pointer transition-colors ${
-                            form.watch("condition") === condition.slug
-                              ? "border-primary"
-                              : "hover:border-primary/50"
-                          }`}
+                          type="button"
                           onClick={() => {
                             form.setValue("condition", condition.slug, { shouldValidate: true })
                           }}
+                          className={`flex items-center gap-2 p-2 rounded-lg border-2 transition-colors ${
+                            form.watch("condition") === condition.slug
+                              ? "border-primary bg-primary/5"
+                              : "border-input hover:border-primary/50"
+                          }`}
                         >
-                          <CardContent className="p-4">
-                            <div className="flex items-center gap-4">
-                              <div
-                                className={`w-5 h-5 p-0.5 rounded-full border-2 flex items-center justify-center ${
-                                  form.watch("condition") === condition.slug
-                                    ? "border-primary bg-primary"
-                                    : "border-input"
-                                }`}
-                              >
-                                {form.watch("condition") === condition.slug && (
-                                  <div className="w-full h-full rounded-full bg-primary-foreground" />
-                                )}
-                              </div>
-                              <div>
-                                <h4 className="font-medium">{condition.label}</h4>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
+                          <div
+                            className={`w-4 h-4 p-0.5 rounded-full border-2 flex items-center justify-center ${
+                              form.watch("condition") === condition.slug
+                                ? "border-primary bg-primary"
+                                : "border-input"
+                            }`}
+                          >
+                            {form.watch("condition") === condition.slug && (
+                              <div className="w-full h-full rounded-full bg-primary-foreground" />
+                            )}
+                          </div>
+                          <span className="text-sm font-medium">{condition.label}</span>
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -1039,6 +1026,25 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
             </div>
           </CardContent>
         </Card>
+      </div>
+       {/* Add debug button to see all errors */}
+       <div className="fixed bottom-4 right-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={async () => {
+            console.log("Form States:", {
+              form: {
+                isValid: form.formState.isValid,
+                errors: form.formState.errors,
+                values: form.getValues(),
+                trigger: await form.trigger(),
+              },
+            })
+          }}
+        >
+          Debug Form
+        </Button>
       </div>
     </div>
   )

@@ -179,7 +179,8 @@ export const emailTemplates = {
     price: number,
     currency: string,
     condition: string | null,
-    included: string | null
+    included: string | null,
+    country: string | null
   ) => ({
     subject: `New Watch Match: ${brandName} ${modelName}`,
     html: `
@@ -196,6 +197,7 @@ export const emailTemplates = {
           ${year ? `<p style="font-size: 16px; color: #7f8c8d; margin: 5px 0;">Year: ${year}</p>` : ''}
           ${condition ? `<p style="font-size: 16px; color: #7f8c8d; margin: 5px 0;">Condition: ${condition}</p>` : ''}
           ${included ? `<p style="font-size: 16px; color: #7f8c8d; margin: 5px 0;">Included: ${included}</p>` : ''}
+          ${country ? `<p style="font-size: 16px; color: #7f8c8d; margin: 5px 0;">Location: ${country}</p>` : ''}
           
           <div style="margin: 20px 0; padding: 15px; background-color: white; border-radius: 4px; border: 1px solid #e0e0e0;">
             <p style="font-size: 24px; color: #27ae60; font-weight: bold; margin: 0;">

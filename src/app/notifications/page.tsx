@@ -442,7 +442,7 @@ export default function NotificationsPage() {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: itemToDelete.id,
+          id: itemToDelete.id.toString(),
         }),
       });
 

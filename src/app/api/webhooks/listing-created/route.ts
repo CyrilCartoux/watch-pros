@@ -4,6 +4,7 @@ import { sendEmail, emailTemplates } from '@/lib/email'
 import { CustomAlert } from '@/types/db/notifications/CustomAlerts'
 import { watchConditions } from '@/data/watch-conditions'
 import { includedOptions } from '@/data/watch-properties'
+import { countries } from '@/data/form-options'
 
 // if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
 //   throw new Error('Missing VAPID keys')
@@ -57,7 +58,6 @@ async function fetchEmails(userIds: string[]): Promise<Profile[]> {
 export async function POST(request: Request) {
   console.log('📥 Webhook listing-created received')
   const signature = request.headers.get('x-supabase-signature')
-  console.log('🔑 Signature received:', signature?.substring(0, 10) + '...')
 
   if (signature !== process.env.WEBHOOK_SECRET_CREATE) {
     console.error('❌ Invalid signature')
@@ -74,7 +74,6 @@ export async function POST(request: Request) {
     }
 
     const listingId = record.id
-    console.log('🏷️ New listing:', listingId)
 
     // Fetch listing details with brand and model names
     const { data: listingDetails, error: listingError } = await supabaseAdmin
@@ -127,7 +126,7 @@ export async function POST(request: Request) {
     // Get seller's location
     const { data: sellerAddr, error: addrError } = await supabaseAdmin
       .from('seller_addresses')
-      .select('country, city')
+      .select('country')
       .eq('seller_id', listingDetails.seller_id)
       .single()
 
@@ -136,7 +135,6 @@ export async function POST(request: Request) {
     }
 
     const country = sellerAddr?.country ?? null
-    const city = sellerAddr?.city ?? null
 
     // Build filter for custom alerts
     const { data: rawAlerts, error: alertError } = await supabaseAdmin
@@ -158,15 +156,17 @@ export async function POST(request: Request) {
         if (alert.reference && alert.reference !== listingDetails.reference) {
           return false
         }
-        // Check max price if specified
-        if (alert.max_price && alert.max_price < listingDetails.price) {
-          return false
-        }
         // Check location if specified
         if (alert.location) {
           const targetLoc = alert.location.toLowerCase()
-          if (country && !country.toLowerCase().includes(targetLoc)) return false
-          if (city && !city.toLowerCase().includes(targetLoc)) return false
+          const countryMatch = country?.toLowerCase().includes(targetLoc)
+          if (!countryMatch) {
+            return false
+          }
+        }
+        // Check max price if specified
+        if (alert.max_price && listingDetails.price > alert.max_price) {
+          return false
         }
         return true
       })
@@ -203,7 +203,8 @@ export async function POST(request: Request) {
                 listingDetails.price,
                 listingDetails.currency,
                 conditionLabel || null,
-                includedLabel || null
+                includedLabel || null,
+                countries.find(c => c.value === country)?.label || null
               )
               return sendEmail({
                 to,

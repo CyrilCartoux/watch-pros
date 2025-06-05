@@ -181,13 +181,6 @@ export async function POST(request: Request) {
     const supabase = await createClient()
     const formData = await request.formData()
 
-    // Log the form data for debugging
-    console.log('Form data received:', {
-      reference: formData.get('reference'),
-      referenceLength: formData.get('reference')?.toString().length,
-      allFields: Object.fromEntries(formData.entries())
-    })
-
     // Get the current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     
