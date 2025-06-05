@@ -497,14 +497,8 @@ export async function PUT(
             throw new Error(`Empty buffer for image at index ${index}`)
           }
 
-          // Optimize image
-          const optimizedBuffer = await sharp(Buffer.from(arrayBuffer))
-            .resize(MAX_WIDTH, MAX_HEIGHT, {
-              fit: 'inside',
-              withoutEnlargement: true
-            })
-            .jpeg({ quality: QUALITY, progressive: true })
-            .toBuffer()
+          // Optimize image using the existing function
+          const optimizedBuffer = await optimizeImage(image)
 
           // Create a unique file name with extension
           const fileExt = 'jpg' // We always convert to jpg for consistency

@@ -1,16 +1,23 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Bell, BellOff, TrendingUp, ShoppingBag, Clock, CheckCircle2, XCircle } from "lucide-react"
+import { Clock, CheckCircle2, XCircle, Trash2, MessageSquare, DollarSign, User } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { Switch } from "@/components/ui/switch"
 import { NotificationType } from "@/types/db/notifications/Notifications"
 import { Skeleton } from "@/components/ui/skeleton"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 type Notification = {
   id: string
@@ -25,6 +32,10 @@ type Notification = {
     price: number
     currency: string
     status: string
+    listing_images: {
+      url: string
+      order_index: number
+    }[]
     brand: {
       id: string
       slug: string
@@ -57,6 +68,10 @@ type ListingSubscription = {
     price: number
     currency: string
     status: string
+    listing_images: {
+      url: string
+      order_index: number
+    }[]
     brand: {
       id: string
       slug: string
@@ -82,6 +97,29 @@ type ModelSubscription = {
       slug: string
       label: string
     }
+  }
+}
+
+type Offer = {
+  id: string
+  offer: number
+  currency: string
+  created_at: string
+  seller: {
+    id: string
+    watch_pros_name: string
+    company_name: string
+  }
+  listing: {
+    id: string
+    title: string
+    price: number
+    currency: string
+    status: string
+    listing_images: {
+      url: string
+      order_index: number
+    }[]
   }
 }
 
@@ -170,12 +208,53 @@ function ModelSubscriptionSkeleton() {
   )
 }
 
+function OfferSkeleton() {
+  return (
+    <Card className="border-primary/20">
+      <CardContent className="p-4 md:p-6">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+          <Skeleton className="w-full md:w-48 h-48 md:h-32 rounded-md" />
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+              <div className="space-y-2">
+                <div>
+                  <Skeleton className="h-6 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-8 w-32" />
+                  <Skeleton className="h-6 w-20" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-4 w-4" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Skeleton className="h-9 w-full" />
+                <Skeleton className="h-9 w-full" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [listingSubscriptions, setListingSubscriptions] = useState<ListingSubscription[]>([])
   const [modelSubscriptions, setModelSubscriptions] = useState<ModelSubscription[]>([])
+  const [offers, setOffers] = useState<Offer[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [itemToDelete, setItemToDelete] = useState<{
+    type: 'listing' | 'model'
+    id: string
+    name: string
+  } | null>(null)
 
   // Fetch notifications
   const fetchNotifications = async () => {
@@ -216,6 +295,19 @@ export default function NotificationsPage() {
     }
   }
 
+  // Fetch offers
+  const fetchOffers = async () => {
+    try {
+      const response = await fetch('/api/offers')
+      if (!response.ok) throw new Error('Failed to fetch offers')
+      const data = await response.json()
+      setOffers(data.offers)
+    } catch (err) {
+      console.error('Error fetching offers:', err)
+      setError('Failed to load offers')
+    }
+  }
+
   // Initial data fetch
   useEffect(() => {
     const fetchData = async () => {
@@ -223,7 +315,8 @@ export default function NotificationsPage() {
       await Promise.all([
         fetchNotifications(),
         fetchListingSubscriptions(),
-        fetchModelSubscriptions()
+        fetchModelSubscriptions(),
+        fetchOffers()
       ])
       setLoading(false)
     }
@@ -250,10 +343,22 @@ export default function NotificationsPage() {
 
   const markAllAsRead = async () => {
     try {
-      await Promise.all(
-        notifications
-          .filter(n => !n.is_read)
-          .map(n => markAsRead(n.id))
+      const unreadIds = notifications
+        .filter(n => !n.is_read)
+        .map(n => n.id)
+
+      if (unreadIds.length === 0) return
+
+      const response = await fetch('/api/notifications/read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: unreadIds })
+      })
+
+      if (!response.ok) throw new Error('Failed to mark notifications as read')
+      
+      setNotifications(prev =>
+        prev.map(notification => ({ ...notification, is_read: true }))
       )
     } catch (err) {
       console.error('Error marking all notifications as read:', err)
@@ -277,51 +382,41 @@ export default function NotificationsPage() {
     }
   }
 
-  const toggleListingSubscription = async (listingId: string) => {
-    try {
-      const isSubscribed = listingSubscriptions.some(sub => sub.listing.id === listingId)
-      const response = await fetch('/api/subscribe-listing', {
-        method: isSubscribed ? 'DELETE' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ listing_id: listingId })
-      })
-      
-      if (!response.ok) throw new Error('Failed to toggle listing subscription')
-      
-      if (isSubscribed) {
-        setListingSubscriptions(prev =>
-          prev.filter(sub => sub.listing.id !== listingId)
-        )
-      } else {
-        await fetchListingSubscriptions()
-      }
-    } catch (err) {
-      console.error('Error toggling listing subscription:', err)
-      setError('Failed to toggle listing subscription')
-    }
+  const handleDeleteClick = (type: 'listing' | 'model', id: string, name: string) => {
+    setItemToDelete({ type, id, name })
+    setDeleteDialogOpen(true)
   }
 
-  const toggleModelSubscription = async (modelId: string) => {
+  const handleDeleteConfirm = async () => {
+    if (!itemToDelete) return
+
     try {
-      const isSubscribed = modelSubscriptions.some(sub => sub.model.id === modelId)
-      const response = await fetch('/api/subscribe-model', {
-        method: isSubscribed ? 'DELETE' : 'POST',
+      const endpoint = itemToDelete.type === 'listing' ? '/api/subscribe-listing' : '/api/subscribe-model'
+      const response = await fetch(endpoint, {
+        method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model_id: modelId })
+        body: JSON.stringify({
+          [`${itemToDelete.type}_id`]: itemToDelete.id
+        })
       })
-      
-      if (!response.ok) throw new Error('Failed to toggle model subscription')
-      
-      if (isSubscribed) {
-        setModelSubscriptions(prev =>
-          prev.filter(sub => sub.model.id !== modelId)
+
+      if (!response.ok) throw new Error('Failed to delete subscription')
+
+      if (itemToDelete.type === 'listing') {
+        setListingSubscriptions(prev =>
+          prev.filter(sub => sub.listing.id !== itemToDelete.id)
         )
       } else {
-        await fetchModelSubscriptions()
+        setModelSubscriptions(prev =>
+          prev.filter(sub => sub.model.id !== itemToDelete.id)
+        )
       }
     } catch (err) {
-      console.error('Error toggling model subscription:', err)
-      setError('Failed to toggle model subscription')
+      console.error('Error deleting subscription:', err)
+      setError('Failed to delete subscription')
+    } finally {
+      setDeleteDialogOpen(false)
+      setItemToDelete(null)
     }
   }
 
@@ -333,11 +428,27 @@ export default function NotificationsPage() {
           <Skeleton className="h-9 w-32" />
         </div>
 
-        <Tabs defaultValue="active" className="space-y-4 md:space-y-6">
+        <Tabs defaultValue="offers" className="space-y-4 md:space-y-6">
           <TabsList className="w-full sm:w-auto">
+            <TabsTrigger value="offers" className="flex-1 sm:flex-none">
+              Offers
+              {offers.length > 0 && (
+                <Badge variant="destructive" className="ml-2">
+                  {offers.length}
+                </Badge>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="active" className="flex-1 sm:flex-none">Active Alerts</TabsTrigger>
             <TabsTrigger value="history" className="flex-1 sm:flex-none">History</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="offers" className="space-y-4">
+            <div className="grid grid-cols-1 gap-4">
+              {[1, 2, 3].map((i) => (
+                <OfferSkeleton key={i} />
+              ))}
+            </div>
+          </TabsContent>
 
           <TabsContent value="active" className="space-y-6 md:space-y-8">
             {/* Listing Alerts */}
@@ -390,11 +501,101 @@ export default function NotificationsPage() {
         </Button>
       </div>
 
-      <Tabs defaultValue="active" className="space-y-4 md:space-y-6">
+      <Tabs defaultValue="offers" className="space-y-4 md:space-y-6">
         <TabsList className="w-full sm:w-auto">
+          <TabsTrigger value="offers" className="flex-1 sm:flex-none">
+            Offers
+            {offers.length > 0 && (
+              <Badge variant="destructive" className="ml-2">
+                {offers.length}
+              </Badge>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="active" className="flex-1 sm:flex-none">Active Alerts</TabsTrigger>
           <TabsTrigger value="history" className="flex-1 sm:flex-none">History</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="offers" className="space-y-4">
+          {loading ? (
+            <div className="grid grid-cols-1 gap-4">
+              {[1, 2, 3].map((i) => (
+                <OfferSkeleton key={i} />
+              ))}
+            </div>
+          ) : offers.length === 0 ? (
+            <div className="text-center py-8">
+              <DollarSign className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium mb-2">No offers yet</h3>
+              <p className="text-muted-foreground">You haven't received any offers for your listings.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {offers.map((offer) => (
+                <Card key={offer.id} className="border-primary/20 hover:border-primary/40 transition-colors">
+                  <CardContent className="p-4 md:p-6">
+                    <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+                      <Link href={`/listings/${offer.listing.id}`} className="relative w-full md:w-48 h-48 md:h-32">
+                        <Image
+                          src={offer.listing.listing_images[0]?.url || `/api/listings/${offer.listing.id}/image`}
+                          alt={offer.listing.title}
+                          fill
+                          className="rounded-md object-cover"
+                        />
+                      </Link>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                          <div className="space-y-2">
+                            <div>
+                              <Link href={`/listings/${offer.listing.id}`} className="hover:underline">
+                                <h3 className="font-medium text-lg">{offer.listing.title}</h3>
+                              </Link>
+                              <Link href={`/sellers/${offer.seller.watch_pros_name}`} className="hover:underline">
+                                <p className="text-sm text-muted-foreground">
+                                  Offered by {offer.seller.watch_pros_name}
+                                </p>
+                              </Link>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1">
+                                <DollarSign className="h-4 w-4 text-primary" />
+                                <span className="text-2xl font-bold text-primary">
+                                  {offer.offer.toLocaleString()} {offer.currency}
+                                </span>
+                              </div>
+                              <Badge variant="outline" className="ml-2">
+                                {((offer.offer / offer.listing.price) * 100).toFixed(0)}% of asking price
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Clock className="h-4 w-4" />
+                              <span>
+                                {new Date(offer.created_at).toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <Button asChild className="w-full">
+                              <Link href={`/messages?user=${offer.seller.watch_pros_name}`}>
+                                <MessageSquare className="h-4 w-4 mr-2" />
+                                Contact Buyer
+                              </Link>
+                            </Button>
+                            <Button variant="outline" className="w-full" asChild>
+                              <Link href={`/sellers/${offer.seller.watch_pros_name}`}>
+                                <User className="h-4 w-4 mr-2" />
+                                See Buyer Page
+                              </Link>
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
 
         <TabsContent value="active" className="space-y-6 md:space-y-8">
           {/* Listing Alerts */}
@@ -407,40 +608,31 @@ export default function NotificationsPage() {
                     <div className="flex gap-3 md:gap-4">
                       <Link href={`/listings/${subscription.listing.id}`} className="relative w-20 h-20 md:w-24 md:h-24">
                         <Image
-                          src={`/api/listings/${subscription.listing.id}/image`}
+                          src={subscription.listing.listing_images[0]?.url || `/api/listings/${subscription.listing.id}/image`}
                           alt={subscription.listing.title}
                           fill
                           className="rounded-md object-cover"
                         />
                       </Link>
                       <div className="flex-1 min-w-0">
-                        <Link href={`/listings/${subscription.listing.id}`} className="hover:underline">
-                          <h3 className="font-medium truncate text-sm md:text-base">{subscription.listing.title}</h3>
-                        </Link>
-                        <p className="text-base md:text-lg font-bold mt-1">
-                          {subscription.listing.price.toLocaleString()} {subscription.listing.currency}
-                        </p>
-                        <div className="mt-3 md:mt-4 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <TrendingUp className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
-                              <span className="text-xs md:text-sm">Price updates</span>
-                            </div>
-                            <Switch
-                              checked={true}
-                              onCheckedChange={() => toggleListingSubscription(subscription.listing.id)}
-                            />
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <Link href={`/listings/${subscription.listing.id}`} className="hover:underline">
+                              <h3 className="font-medium truncate text-sm md:text-base">{subscription.listing.title}</h3>
+                            </Link>
+                            <p className="text-base md:text-lg font-bold mt-1">
+                              {subscription.listing.price.toLocaleString()} {subscription.listing.currency}
+                            </p>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <ShoppingBag className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
-                              <span className="text-xs md:text-sm">Sold</span>
-                            </div>
-                            <Switch
-                              checked={true}
-                              onCheckedChange={() => toggleListingSubscription(subscription.listing.id)}
-                            />
-                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground hover:text-destructive"
+                            onClick={() => handleDeleteClick('listing', subscription.listing.id, subscription.listing.title)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">Delete subscription</span>
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -457,31 +649,32 @@ export default function NotificationsPage() {
               {modelSubscriptions.map((subscription) => (
                 <Card key={subscription.id} className="hover:bg-muted/50 transition-colors">
                   <CardContent className="p-3 md:p-4">
-                    <div className="flex gap-3 md:gap-4">
-                      <Link href={`/models/${subscription.model.id}`} className="relative w-20 h-20 md:w-24 md:h-24">
+                    <div className="flex items-start gap-3 md:gap-4">
+                      <Link href={`/models/${subscription.model.id}`} className="relative w-12 h-12 md:w-14 md:h-14">
                         <Image
-                          src={`/api/models/${subscription.model.id}/image`}
-                          alt={subscription.model.label}
+                          src={`/images/brands/${subscription.model.brand.slug}.png`}
+                          alt={subscription.model.brand.label}
                           fill
-                          className="rounded-md object-cover"
+                          className="rounded-md object-contain p-1"
                         />
                       </Link>
                       <div className="flex-1 min-w-0">
-                        <Link href={`/models/${subscription.model.id}`} className="hover:underline">
-                          <h3 className="font-medium truncate text-sm md:text-base">{subscription.model.label}</h3>
-                        </Link>
-                        <p className="text-xs md:text-sm text-muted-foreground">{subscription.model.brand.label}</p>
-                        <div className="mt-3 md:mt-4 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <Bell className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
-                              <span className="text-xs md:text-sm">New listings</span>
-                            </div>
-                            <Switch
-                              checked={true}
-                              onCheckedChange={() => toggleModelSubscription(subscription.model.id)}
-                            />
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <Link href={`/models/${subscription.model.id}`} className="hover:underline">
+                              <h3 className="font-medium text-sm md:text-base">{subscription.model.label}</h3>
+                            </Link>
+                            <p className="text-xs md:text-sm text-muted-foreground mt-1">{subscription.model.brand.label}</p>
                           </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground hover:text-destructive"
+                            onClick={() => handleDeleteClick('model', subscription.model.id, subscription.model.label)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">Delete subscription</span>
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -493,6 +686,19 @@ export default function NotificationsPage() {
         </TabsContent>
 
         <TabsContent value="history" className="space-y-3 md:space-y-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl md:text-2xl font-bold">Notification History</h2>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="text-sm">
+                {notifications.filter(n => !n.is_read).length} unread
+              </Badge>
+              {notifications.some(n => !n.is_read) && (
+                <Button variant="outline" size="sm" onClick={markAllAsRead}>
+                  Mark all as read
+                </Button>
+              )}
+            </div>
+          </div>
           {notifications.map((notification) => (
             <Card key={notification.id} className={`hover:bg-muted/50 transition-colors ${!notification.is_read ? 'border-primary/50' : ''}`}>
               <CardContent className="p-3 md:p-4">
@@ -503,8 +709,8 @@ export default function NotificationsPage() {
                   >
                     <Image
                       src={notification.listing 
-                        ? `/api/listings/${notification.listing.id}/image`
-                        : `/api/models/${notification.model?.id}/image`
+                        ? (notification.listing.listing_images?.[0]?.url || `/api/listings/${notification.listing.id}/image`)
+                        : `/images/brands/${notification.model?.brand.slug}.png`
                       }
                       alt={notification.title}
                       fill
@@ -561,6 +767,28 @@ export default function NotificationsPage() {
           ))}
         </TabsContent>
       </Tabs>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Subscription</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete the subscription for {itemToDelete?.name}? You will no longer receive notifications for this {itemToDelete?.type}.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

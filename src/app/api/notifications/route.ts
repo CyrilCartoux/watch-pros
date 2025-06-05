@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
-import { NotificationType } from '@/types/db/notifications/Notifications'
 
 export async function GET() {
   try {
@@ -33,6 +32,10 @@ export async function GET() {
           price,
           currency,
           status,
+          listing_images (
+            url,
+            order_index
+          ),
           brand:brands (
             id,
             slug,

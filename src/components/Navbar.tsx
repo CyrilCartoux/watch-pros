@@ -27,8 +27,24 @@ export function Navbar() {
   const { user, signOut } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-  // TODO: Replace with real unread notifications counter
-  const unreadNotifications = 3
+  const [unreadNotifications, setUnreadNotifications] = useState(0)
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const response = await fetch('/api/notifications/count')
+        if (!response.ok) throw new Error('Failed to fetch unread count')
+        const data = await response.json()
+        setUnreadNotifications(data.count)
+      } catch (err) {
+        console.error('Error fetching unread notifications count:', err)
+      }
+    }
+
+    if (user) {
+      fetchUnreadCount()
+    }
+  }, [user])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

@@ -179,9 +179,25 @@ export default function ListingPage({ params }: Props) {
 
     setIsSubmittingOffer(true)
     try {
-      // TODO: Submit offer to backend
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const response = await fetch('/api/offers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          listing_id: listing.id,
+          offer: Number(offerAmount),
+          currency: listing.currency
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to submit offer')
+      }
+
       setIsOfferSuccess(true)
+
       // Close modal after 2 seconds
       setTimeout(() => {
         setIsOfferDialogOpen(false)
@@ -189,8 +205,12 @@ export default function ListingPage({ params }: Props) {
         setOfferAmount("")
       }, 2000)
     } catch (error) {
-      console.error(error)
-      // TODO: Show error message
+      console.error('Error submitting offer:', error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to submit offer",
+      })
     } finally {
       setIsSubmittingOffer(false)
     }

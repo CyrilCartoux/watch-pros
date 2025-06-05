@@ -31,6 +31,10 @@ export async function GET() {
           id,
           title,
           price,
+          listing_images (
+            url,
+            order_index
+          ),
           currency,
           status,
           brand:brands (
