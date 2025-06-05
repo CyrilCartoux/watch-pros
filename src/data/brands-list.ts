@@ -102,6 +102,37 @@ export const brandsList = [
   {
     label: "Glashütte Original",
     slug: "glashutte-original"
+  },
+  {
+    label: "H. Moser & Cie",
+    slug: "h-moser-&-cie"
+  },
+  {
+    label: "Bulgari",
+    slug: "bulgari"
+  },
+  {
+    label: "Chopard",
+    slug: "chopard"
+  },
+  {
+    label: "Corum",
+    slug: "corum"
+  },
+  {
+    label: "Cvstos",
+    slug: "cvstos"
+  },
+  {
+    label: "Franck Muller",
+    slug: "franck-muller"
+  },
+  {
+    label: "Parmigiani",
+    slug: "parmigiani"
+  },
+  {
+    label: "Piaget",
+    slug: "piaget"
   }
-
 ]

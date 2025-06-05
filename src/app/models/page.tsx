@@ -124,8 +124,8 @@ export default function ModelsPage() {
         throw new Error(data.error || 'Failed to toggle notification')
       }
 
-      setNotifications(prev => ({
-        ...prev,
+    setNotifications(prev => ({
+      ...prev,
         [model.id]: !prev[model.id]
       }))
 

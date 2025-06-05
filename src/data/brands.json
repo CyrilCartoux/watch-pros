@@ -1,7 +1,7 @@
 {
   "rolex": {
     "name": "Rolex",
-    "slug": "rolex", 
+    "slug": "rolex",
     "description": "Rolex is the ultimate luxury watch brand, whose classics dictate fashion. Adored worldwide, Rolex watch prices continue to rise and often go hand in hand with profitable investment.",
     "logo": "/images/brands/rolex.png",
     "overview": {
@@ -597,7 +597,7 @@
   },
   "tudor": {
     "name": "Tudor",
-    "slug": "tudor", 
+    "slug": "tudor",
     "description": "Tudor is a Swiss luxury watch brand created by Rolex in 1926. The brand offers robust and reliable watches at more accessible prices than its parent company, while sharing its expertise.",
     "logo": "/images/brands/tudor.png",
     "overview": {
@@ -609,7 +609,7 @@
     },
     "keyFeatures": [
       "Robust and reliable watches",
-      "Sporty and functional design", 
+      "Sporty and functional design",
       "More accessible prices than Rolex",
       "Quality movements"
     ],
@@ -1714,6 +1714,446 @@
         "Glashütte Original was founded in 1845 in Glashütte, Germany. The brand quickly gained recognition for its traditional craftsmanship and complex movements.",
         "Throughout its history, Glashütte Original has been known for its traditional watchmaking and innovative design. The brand's Senator and Pano collections showcase its expertise in complex movements and distinctive aesthetics.",
         "Today, Glashütte Original continues to innovate while preserving its heritage of German watchmaking excellence."
+      ]
+    }
+  },
+  "h-moser-&-cie": {
+    "name": "H. Moser & Cie",
+    "slug": "h-moser-&-cie",
+    "description": "H. Moser & Cie is known for its minimalist luxury timepieces and in-house manufacturing, offering exceptional Swiss craftsmanship with a touch of irreverence.",
+    "logo": "/images/brands/h-moser-&-cie.png",
+    "overview": {
+      "title": "Independent and Bold Swiss Watchmaking",
+      "content": [
+        "Founded in 1828 and revived in the 21st century, H. Moser & Cie is an independent brand blending haute horlogerie with a bold, modern twist.",
+        "Known for their fumé dials and minimalist aesthetics, Moser watches are made entirely in-house, from movements to hairsprings."
+      ]
+    },
+    "keyFeatures": [
+      "In-house movements and hairsprings",
+      "Minimalist fumé dials",
+      "Limited production",
+      "Bold and irreverent marketing"
+    ],
+    "priceRange": {
+      "catalog": "Between €15,000 and €100,000",
+      "secondary": "Prices relatively stable due to low supply"
+    },
+    "featuredModels": [
+      {
+        "name": "Endeavour Centre Seconds",
+        "description": "Elegant dress watch with signature fumé dial and clean design.",
+        "image": "/images/watches/endeavour.jpg",
+        "price": "Starting at €20,000",
+        "features": [
+          "Fumé dial",
+          "In-house HMC movement",
+          "Minimalist aesthetics"
+        ]
+      },
+      {
+        "name": "Streamliner Chronograph",
+        "description": "A modern integrated chronograph with fluid case design.",
+        "image": "/images/watches/streamliner.jpg",
+        "price": "Starting at €40,000",
+        "features": [
+          "Integrated bracelet",
+          "Flyback chronograph",
+          "Cushion-shaped case"
+        ]
+      }
+    ],
+    "history": {
+      "title": "A Renaissance of Independent Watchmaking",
+      "content": [
+        "Founded in 1828 by Heinrich Moser in St. Petersburg, the brand catered to Russian nobility before expanding globally.",
+        "After several dormant years, H. Moser & Cie was revived in 2002 and became known for its rebellious take on luxury watchmaking.",
+        "Now based in Neuhausen, Switzerland, the brand continues to innovate while preserving traditional craftsmanship."
+      ]
+    }
+  },
+  "bulgari": {
+    "name": "Bulgari",
+    "slug": "bulgari",
+    "description": "Bulgari, known primarily as a high jewelry house, has become a powerhouse in watchmaking with ultra-thin complications and bold Italian design.",
+    "logo": "/images/brands/bulgari.png",
+    "overview": {
+      "title": "Jewelry and Watchmaking Excellence",
+      "content": [
+        "Combining Italian design with Swiss expertise, Bulgari offers luxurious timepieces that bridge the worlds of jewelry and horology.",
+        "Their Octo Finissimo collection holds multiple records for ultra-thin watchmaking."
+      ]
+    },
+    "keyFeatures": [
+      "Ultra-thin complications",
+      "Distinctive Italian design",
+      "Swiss-made precision",
+      "High jewelry integration"
+    ],
+    "priceRange": {
+      "catalog": "Between €3,000 and €200,000",
+      "secondary": "Strong demand for Octo Finissimo drives interest"
+    },
+    "featuredModels": [
+      {
+        "name": "Octo Finissimo",
+        "description": "Record-breaking ultra-thin watch with bold architectural design.",
+        "image": "/images/watches/octo-finissimo.jpg",
+        "price": "Starting at €14,000",
+        "features": [
+          "Thickness under 6mm",
+          "Titanium or ceramic cases",
+          "Modern, angular design"
+        ]
+      },
+      {
+        "name": "Serpenti",
+        "description": "Iconic women’s watch with snake-like bracelet design.",
+        "image": "/images/watches/serpenti.jpg",
+        "price": "Starting at €7,000",
+        "features": [
+          "Jewelry-inspired design",
+          "Double-wrap bracelet",
+          "Quartz or mechanical"
+        ]
+      }
+    ],
+    "history": {
+      "title": "From Jeweler to Haute Horlogerie",
+      "content": [
+        "Bulgari was founded in Rome in 1884 and became a world-renowned jeweler.",
+        "Entering watchmaking in the late 20th century, Bulgari acquired Gerald Genta and Daniel Roth to boost its horological legitimacy.",
+        "The brand now produces award-winning haute horlogerie in Neuchâtel, combining technical innovation with striking design."
+      ]
+    }
+  },
+  "chopard": {
+    "name": "Chopard",
+    "slug": "chopard",
+    "description": "Chopard is a Swiss luxury brand renowned for its fine jewelry and watches, blending elegance, heritage, and sustainable craftsmanship.",
+    "logo": "/images/brands/chopard.png",
+    "overview": {
+      "title": "A Family-Owned Legacy",
+      "content": [
+        "Chopard combines watchmaking expertise with jewelry artistry, offering refined timepieces for both men and women.",
+        "The brand is known for its ethical gold sourcing, in-house manufacturing, and iconic Happy Diamonds and L.U.C collections."
+      ]
+    },
+    "keyFeatures": [
+      "Ethical luxury with Fairmined gold",
+      "In-house L.U.C movements",
+      "High jewelry and horology combined",
+      "Iconic Happy Diamonds and Mille Miglia lines"
+    ],
+    "priceRange": {
+      "catalog": "Between €4,000 and €300,000",
+      "secondary": "Prices stable, strong in women’s luxury and L.U.C"
+    },
+    "featuredModels": [
+      {
+        "name": "L.U.C XPS",
+        "description": "Elegant ultra-thin dress watch with in-house movement.",
+        "image": "/images/watches/luc-xps.jpg",
+        "price": "Starting at €9,000",
+        "features": [
+          "In-house L.U.C caliber",
+          "Ultra-thin case",
+          "High finishing quality"
+        ]
+      },
+      {
+        "name": "Happy Sport",
+        "description": "Playful luxury with moving diamonds on the dial.",
+        "image": "/images/watches/happy-sport.jpg",
+        "price": "Starting at €5,000",
+        "features": [
+          "Floating diamonds",
+          "Sporty and elegant",
+          "Quartz or automatic"
+        ]
+      }
+    ],
+    "history": {
+      "title": "From Pocket Watches to Ethical Gold",
+      "content": [
+        "Founded in 1860 by Louis-Ulysse Chopard in Sonvilier, the brand became famous for precise pocket watches.",
+        "Acquired by the Scheufele family in 1963, Chopard grew into a major jewelry and watch house.",
+        "Today, Chopard is a leader in sustainable luxury, using 100% ethical gold since 2018."
+      ]
+    }
+  },
+  "corum": {
+    "name": "Corum",
+    "slug": "corum",
+    "description": "Corum is a Swiss watch brand known for its bold and avant-garde designs like the Bubble and Golden Bridge.",
+    "logo": "/images/brands/corum.png",
+    "overview": {
+      "title": "Daring Swiss Innovation",
+      "content": [
+        "Founded in 1955, Corum quickly gained attention with creative designs and technical mastery.",
+        "It stands out with unique collections that blend architecture and watchmaking, like the Golden Bridge with its linear movement."
+      ]
+    },
+    "keyFeatures": [
+      "Unconventional and bold design",
+      "Golden Bridge architecture",
+      "Bubble oversized domed crystal",
+      "Limited production"
+    ],
+    "priceRange": {
+      "catalog": "Between €3,000 and €150,000",
+      "secondary": "Niche collector interest"
+    },
+    "featuredModels": [
+      {
+        "name": "Golden Bridge",
+        "description": "Unique linear movement inside a transparent case.",
+        "image": "/images/watches/golden-bridge.jpg",
+        "price": "Starting at €25,000",
+        "features": [
+          "In-line baguette movement",
+          "Skeleton case",
+          "Manual winding"
+        ]
+      },
+      {
+        "name": "Bubble",
+        "description": "Avant-garde design with oversized domed sapphire crystal.",
+        "image": "/images/watches/bubble.jpg",
+        "price": "Starting at €4,000",
+        "features": [
+          "Bold oversized look",
+          "Domed crystal",
+          "Colorful dials"
+        ]
+      }
+    ],
+    "history": {
+      "title": "Creative Spirit Since 1955",
+      "content": [
+        "Founded in La Chaux-de-Fonds by René Bannwart, Corum gained fame for innovation.",
+        "The Admiral collection, launched in 1960, was one of the first nautical watches.",
+        "Corum continues to push boundaries with artistic and architectural watch concepts."
+      ]
+    }
+  },
+  "cvstos": {
+    "name": "Cvstos",
+    "slug": "cvstos",
+    "description": "Cvstos is a young and bold luxury watch brand combining technical innovation with a sporty, futuristic design.",
+    "logo": "/images/brands/cvstos.png",
+    "overview": {
+      "title": "The Future of Haute Horlogerie",
+      "content": [
+        "Founded in 2005, Cvstos offers modern watchmaking with high-tech materials and openworked designs.",
+        "The brand is aimed at a new generation of watch lovers who seek sporty luxury with mechanical credibility."
+      ]
+    },
+    "keyFeatures": [
+      "Futuristic design",
+      "Skeletonized movements",
+      "Technical sportiness",
+      "Lightweight materials (titanium, carbon)"
+    ],
+    "priceRange": {
+      "catalog": "Between €8,000 and €100,000",
+      "secondary": "Niche market with loyal collectors"
+    },
+    "featuredModels": [
+      {
+        "name": "Challenge Chrono II",
+        "description": "Sporty chronograph with skeleton dial and tonneau case.",
+        "image": "/images/watches/challenge-chrono.jpg",
+        "price": "Starting at €12,000",
+        "features": [
+          "Skeleton chronograph",
+          "Lightweight case",
+          "Bold aesthetics"
+        ]
+      },
+      {
+        "name": "Jetliner",
+        "description": "Ultra-light model with aviation-inspired design.",
+        "image": "/images/watches/jetliner.jpg",
+        "price": "Starting at €10,000",
+        "features": [
+          "Aerospace-grade materials",
+          "Skeletonized movement",
+          "Sporty silhouette"
+        ]
+      }
+    ],
+    "history": {
+      "title": "Avant-Garde Watchmaking",
+      "content": [
+        "Cvstos was founded in Geneva in 2005 by Sassoun Sirmakes and Antonio Terranova.",
+        "It blends technical innovation with futuristic aesthetics, using advanced materials like titanium and carbon.",
+        "Still independent, Cvstos remains a boutique brand focused on quality and bold design."
+      ]
+    }
+  },
+  "franck-muller": {
+    "name": "Franck Muller",
+    "slug": "franck-muller",
+    "description": "Franck Muller is known for its flamboyant design and ultra-complicated mechanical watches, including world premieres in haute horlogerie.",
+    "logo": "/images/brands/franck-muller.png",
+    "overview": {
+      "title": "The Master of Complications",
+      "content": [
+        "Franck Muller combines bold aesthetics with impressive mechanical prowess.",
+        "The brand’s Cintrée Curvex case and colorful numerals have become its signature, alongside tourbillons and perpetual calendars."
+      ]
+    },
+    "keyFeatures": [
+      "Highly complicated watches",
+      "Distinctive curved case design",
+      "Colorful Art Deco numerals",
+      "Tourbillon and world firsts"
+    ],
+    "priceRange": {
+      "catalog": "Between €7,000 and €800,000",
+      "secondary": "Strong collector interest for high complications"
+    },
+    "featuredModels": [
+      {
+        "name": "Vanguard",
+        "description": "Sporty yet elegant line with curved case and bold numerals.",
+        "image": "/images/watches/vanguard.jpg",
+        "price": "Starting at €9,000",
+        "features": [
+          "Curved tonneau case",
+          "3D numerals",
+          "Automatic movement"
+        ]
+      },
+      {
+        "name": "Crazy Hours",
+        "description": "Inventive jumping hour display with hours in random order.",
+        "image": "/images/watches/crazy-hours.jpg",
+        "price": "Starting at €18,000",
+        "features": [
+          "Unconventional hour layout",
+          "Jumping hour mechanism",
+          "Curved case"
+        ]
+      }
+    ],
+    "history": {
+      "title": "Complication with a Twist",
+      "content": [
+        "Founded in 1991 by Franck Muller and Vartan Sirmakes, the brand gained fast fame for mechanical innovation.",
+        "The 'Master of Complications' label reflects Franck Muller’s focus on high-end mechanical artistry.",
+        "Its factory, Watchland, is a reference for independent Swiss manufacturing."
+      ]
+    }
+  },
+  "parmigiani": {
+    "name": "Parmigiani Fleurier",
+    "slug": "parmigiani",
+    "description": "Parmigiani Fleurier is an independent Swiss brand producing high-end timepieces with refined design and in-house movements.",
+    "logo": "/images/brands/parmigiani.png",
+    "overview": {
+      "title": "Subtle Luxury, Inside and Out",
+      "content": [
+        "Founded by master watchmaker Michel Parmigiani, the brand blends classical aesthetics with exceptional technical quality.",
+        "Each component is made in-house, backed by the Sandoz Family Foundation’s vertical integration strategy."
+      ]
+    },
+    "keyFeatures": [
+      "In-house manufacture from A to Z",
+      "Elegant classical designs",
+      "Haute horlogerie finishing",
+      "Restoration expertise"
+    ],
+    "priceRange": {
+      "catalog": "Between €10,000 and €150,000",
+      "secondary": "Understated value for collectors"
+    },
+    "featuredModels": [
+      {
+        "name": "Tonda PF",
+        "description": "Elegant modern luxury with integrated bracelet.",
+        "image": "/images/watches/tonda-pf.jpg",
+        "price": "Starting at €20,000",
+        "features": [
+          "Micro-rotor movement",
+          "Guilloché dial",
+          "Refined finishing"
+        ]
+      },
+      {
+        "name": "Toric",
+        "description": "Flagship classical watch with complex decoration.",
+        "image": "/images/watches/toric.jpg",
+        "price": "Starting at €15,000",
+        "features": [
+          "Knurled bezel",
+          "Complications available",
+          "High craftsmanship"
+        ]
+      }
+    ],
+    "history": {
+      "title": "From Restoration to Creation",
+      "content": [
+        "Michel Parmigiani founded the brand in 1996 after a career in restoring antique timepieces.",
+        "With backing from the Sandoz Foundation, the brand created one of the most vertically integrated manufactures in Switzerland.",
+        "Parmigiani Fleurier continues to impress with understated haute horlogerie."
+      ]
+    }
+  },
+  "piaget": {
+    "name": "Piaget",
+    "slug": "piaget",
+    "description": "Piaget is a Swiss luxury watchmaker and jeweler known for its ultra-thin watches and elegant design, often blending horology with haute joaillerie.",
+    "logo": "/images/brands/piaget.png",
+    "overview": {
+      "title": "A Legacy of Elegance and Slimness",
+      "content": [
+        "Founded in 1874, Piaget has specialized in crafting ultra-thin movements and luxurious timepieces.",
+        "Their Altiplano line holds world records for thinness, while the Limelight collection blends jewelry and watchmaking."
+      ]
+    },
+    "keyFeatures": [
+      "Ultra-thin movements",
+      "Elegant design",
+      "In-house calibers",
+      "High jewelry watches"
+    ],
+    "priceRange": {
+      "catalog": "Between €7,000 and €300,000",
+      "secondary": "Strong for ultra-thin and vintage models"
+    },
+    "featuredModels": [
+      {
+        "name": "Altiplano",
+        "description": "World-renowned ultra-thin dress watch.",
+        "image": "/images/watches/altiplano.jpg",
+        "price": "Starting at €10,000",
+        "features": [
+          "2mm movement",
+          "Minimalist elegance",
+          "Manual or automatic"
+        ]
+      },
+      {
+        "name": "Polo",
+        "description": "Luxury sports watch with elegant curves.",
+        "image": "/images/watches/polo.jpg",
+        "price": "Starting at €11,000",
+        "features": [
+          "Integrated bracelet",
+          "Sleek case",
+          "Automatic movement"
+        ]
+      }
+    ],
+    "history": {
+      "title": "Elegant Engineering Since 1874",
+      "content": [
+        "Georges-Édouard Piaget began crafting precision movements in La Côte-aux-Fées in 1874.",
+        "The brand made a name with ultra-thin calibers and transitioned into luxury watches and jewelry.",
+        "Now part of Richemont, Piaget remains a reference for elegance and technical thinness."
       ]
     }
   }

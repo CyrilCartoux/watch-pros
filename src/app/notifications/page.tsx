@@ -439,7 +439,8 @@ export default function NotificationsPage() {
               )}
             </TabsTrigger>
             <TabsTrigger value="active" className="flex-1 sm:flex-none">Active Alerts</TabsTrigger>
-            <TabsTrigger value="history" className="flex-1 sm:flex-none">History</TabsTrigger>
+            <TabsTrigger value="history" className="flex-1 sm:flex-none">History
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="offers" className="space-y-4">

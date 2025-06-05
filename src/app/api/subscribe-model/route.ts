@@ -66,12 +66,12 @@ export async function POST(request: Request) {
     // 1. Parse and validate request body
     const body = await request.json()
     const parse = Schema.safeParse(body)
-    if (!parse.success) {
+  if (!parse.success) {
       return NextResponse.json(
         { error: 'Invalid request', details: parse.error.format() },
         { status: 400 }
       )
-    }
+  }
     const { model_id } = parse.data
     
     const supabase = await createClient()
@@ -105,9 +105,9 @@ export async function POST(request: Request) {
     const { error: subErr } = await supabaseAdmin
       .from('model_subscriptions')
       .upsert({
-        user_id: user.id,
+      user_id: user.id,
         model_id,
-      })
+    })
 
     if (subErr) {
       console.error('Error creating model subscription:', subErr)
