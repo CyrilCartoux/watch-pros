@@ -20,6 +20,7 @@ import { useToast } from "@/components/ui/use-toast"
 export default function MyListings() {
   const [listings, setListings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [listingToDelete, setListingToDelete] = useState<string | null>(null)
   const { toast } = useToast()
@@ -27,7 +28,17 @@ export default function MyListings() {
   useEffect(() => {
     fetch("/api/listings/me")
       .then(res => res.json())
-      .then(data => setListings(data))
+      .then(data => {
+        if (data.error) {
+          setError(data.error)
+        } else {
+          setListings(data)
+        }
+      })
+      .catch(err => {
+        setError('Failed to fetch listings')
+        console.error('Error fetching listings:', err)
+      })
       .finally(() => setLoading(false))
   }, [])
 
@@ -69,6 +80,42 @@ export default function MyListings() {
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
     </div>
   )
+
+  if (error) {
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h2 className="text-xl font-semibold">My Listings</h2>
+          <Link href="/sell">
+            <Button size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              New Listing
+            </Button>
+          </Link>
+        </div>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-8 text-center">
+            <p className="text-muted-foreground mb-4">
+              {error === "Seller not found" 
+                ? "You need to complete your seller profile before creating listings."
+                : "An error occurred while loading your listings."}
+            </p>
+            {error === "Seller not found" ? (
+              <Link href="/account/seller">
+                <Button size="sm">
+                  Complete your seller profile
+                </Button>
+              </Link>
+            ) : (
+              <Button size="sm" onClick={() => window.location.reload()}>
+                Try again
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">

@@ -3,10 +3,12 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import WatchForm from "@/components/forms/WatchForm"
+import { useToast } from "@/components/ui/use-toast"
 
 export default function SellWatchPage() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { toast } = useToast()
 
   const onSubmit = async (data: any) => {
     setIsSubmitting(true)
@@ -45,14 +47,20 @@ export default function SellWatchPage() {
         body: formData
       })
 
+      const responseData = await response.json()
+
       if (!response.ok) {
-        throw new Error('Failed to create listing')
+        throw new Error(responseData.error || 'Failed to create listing')
       }
 
       router.push("/sell/success")
     } catch (error) {
       console.error(error)
-      // TODO: Show error message to user
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to create listing. Please try again.",
+        variant: "destructive",
+      })
     } finally {
       setIsSubmitting(false)
     }

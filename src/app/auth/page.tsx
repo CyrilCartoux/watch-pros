@@ -15,6 +15,8 @@ function AuthForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [registrationSuccess, setRegistrationSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -36,6 +38,7 @@ function AuthForm() {
         body: JSON.stringify({
           email,
           password,
+          ...(isLogin ? {} : { firstName, lastName }),
         }),
       })
 
@@ -53,6 +56,8 @@ function AuthForm() {
         setEmail('')
         setPassword('')
         setConfirmPassword('')
+        setFirstName('')
+        setLastName('')
       } else {
         window.location.href = data.redirectUrl || '/'
       }
@@ -176,6 +181,33 @@ function AuthForm() {
       </div>
 
       <form className="space-y-6" onSubmit={handleSubmit}>
+        {!isLogin && (
+          <>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName">First Name</Label>
+                <Input
+                  id="firstName"
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName">Last Name</Label>
+                <Input
+                  id="lastName"
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+          </>
+        )}
+
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
