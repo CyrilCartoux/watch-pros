@@ -116,6 +116,7 @@ export async function GET(
         sellers (
           id,
           company_name,
+          company_logo_url,
           watch_pros_name,
           company_status,
           first_name,
@@ -187,7 +188,7 @@ export async function GET(
       seller: listing.sellers ? {
         id: listing.sellers.id,
         name: listing.sellers.company_name || listing.sellers.watch_pros_name,
-        logo: '/placeholder-logo.png', // TODO: Add logo field to sellers table
+        companyLogo: listing.sellers.company_logo_url,
         type: listing.sellers.company_status,
         description: listing.sellers.title,
         location: {

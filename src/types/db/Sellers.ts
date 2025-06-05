@@ -19,6 +19,7 @@
 //     id_card_front_url text null,
 //     id_card_back_url text null,
 //     proof_of_address_url text null,
+//     company_logo_url text null,
 //     user_id uuid null,
 //     crypto_friendly boolean not null default false,
 //     constraint sellers_pkey primary key (id),
@@ -80,6 +81,7 @@
  * @property {string} id_card_front_url - URL to the front of the ID card image
  * @property {string} id_card_back_url - URL to the back of the ID card image
  * @property {string} proof_of_address_url - URL to the proof of address document
+ * @property {string} company_logo_url - URL to the company logo
  * @property {string} user_id - UUID of the associated user account
  * @property {boolean} crypto_friendly - Whether the seller accepts cryptocurrency payments
  * @property {string} search_vector - Full-text search vector for efficient text search
@@ -117,6 +119,8 @@ export type Seller = {
     id_card_back_url: string | null
     /** URL to the proof of address document */
     proof_of_address_url: string | null
+    /** URL to the company logo */
+    company_logo_url: string | null
     /** UUID of the associated user account */
     user_id: string | null
     /** Whether the seller accepts cryptocurrency payments */

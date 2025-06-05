@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
-import { Building2, MapPin, CreditCard, FileText, CheckCircle2 } from "lucide-react"
+import { Building2, MapPin, CreditCard, FileText, CheckCircle2, Upload } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
@@ -49,6 +49,10 @@ const accountSchema = z.object({
     .min(9, "Phone number must contain at least 9 digits")
     .max(15, "Phone number must not exceed 15 digits"),
   cryptoFriendly: z.boolean().default(false),
+  companyLogo: z.custom<File>((file) => {
+    if (!file) return false;
+    return validateFile(file as File) === null;
+  }, "Company logo is required"),
 })
 
 // Validation schema for address
@@ -117,6 +121,7 @@ const FormError = ({ error, isSubmitted }: { error?: string, isSubmitted: boolea
 export default function RegisterFormPage() {
   const [paymentMethod, setPaymentMethod] = useState("card")
   const [currentTab, setCurrentTab] = useState("account")
+  const [isLoading, setIsLoading] = useState(false)
   const [isFormValid, setIsFormValid] = useState({
     account: false,
     address: false,
@@ -129,6 +134,7 @@ export default function RegisterFormPage() {
     banking: false,
     documents: false,
   })
+  const [companyLogoPreview, setCompanyLogoPreview] = useState<string | null>(null)
 
   const accountForm = useForm({
     resolver: zodResolver(accountSchema),
@@ -190,6 +196,7 @@ export default function RegisterFormPage() {
 
   const handleSubmit = async () => {
     try {
+      setIsLoading(true)
       // Check that all forms are valid
       const isAccountValid = await accountForm.trigger()
       const isAddressValid = await addressForm.trigger()
@@ -214,6 +221,7 @@ export default function RegisterFormPage() {
       submitData.append('account', JSON.stringify(formData.account))
       submitData.append('address', JSON.stringify(formData.address))
       submitData.append('banking', JSON.stringify(formData.banking))
+      submitData.append('companyLogo', formData.account.companyLogo)
       submitData.append('idCardFront', formData.documents.idCardFront)
       submitData.append('idCardBack', formData.documents.idCardBack)
       submitData.append('proofOfAddress', formData.documents.proofOfAddress)
@@ -237,6 +245,8 @@ export default function RegisterFormPage() {
     } catch (error) {
       console.error("Error submitting form:", error)
       // Here you could show an error message to the user
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -336,6 +346,26 @@ export default function RegisterFormPage() {
     }
   }, [paymentMethod])
 
+  const handleCompanyLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const error = validateFile(file)
+      if (error) {
+        accountForm.setError("companyLogo", { message: error })
+      } else {
+        accountForm.setValue("companyLogo", file)
+        accountForm.clearErrors("companyLogo")
+        
+        // Create preview
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          setCompanyLogoPreview(reader.result as string)
+        }
+        reader.readAsDataURL(file)
+      }
+    }
+  }
+
   return (
     <main className="container py-12">
       <div className="max-w-3xl mx-auto">
@@ -357,7 +387,7 @@ export default function RegisterFormPage() {
           }} 
           className="w-full"
         >
-          <TabsList className="grid w-full grid-cols-6 mb-8">
+          <TabsList className="grid w-full grid-cols-5 mb-8">
             <TabsTrigger 
               value="account" 
               className="flex items-center gap-2"
@@ -415,6 +445,53 @@ export default function RegisterFormPage() {
                   handleNext()
                 }} className="space-y-6">
                   <div className="space-y-4">
+                    {/* Company Logo Upload */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold">Company Logo</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Upload your company logo. This will be displayed on your profile and listings.
+                      </p>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                        {companyLogoPreview && (
+                          <div className="relative aspect-square">
+                            <img
+                              src={companyLogoPreview}
+                              alt="Company logo preview"
+                              className="w-full h-full object-contain rounded-lg border"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setCompanyLogoPreview(null)
+                                accountForm.setValue("companyLogo", null)
+                              }}
+                              className="absolute top-2 right-2 w-6 h-6 bg-background/80 rounded-full flex items-center justify-center hover:bg-background"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        )}
+                        
+                        {!companyLogoPreview && (
+                          <label className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
+                            <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                            <span className="text-sm text-muted-foreground">Upload logo</span>
+                            <input
+                              type="file"
+                              accept="image/jpeg,image/png,image/webp"
+                              className="hidden"
+                              onChange={handleCompanyLogoChange}
+                            />
+                          </label>
+                        )}
+                      </div>
+                      <FormError error={accountForm.formState.errors.companyLogo?.message as string} isSubmitted={isSubmitted.account} />
+                      <p className="text-xs text-muted-foreground">
+                        Accepted formats: JPG, PNG, WEBP (max 5MB)
+                      </p>
+                    </div>
+
                     <div>
                       <Label htmlFor="companyName">Company Name *</Label>
                       <Input id="companyName" placeholder="Enter your company name" {...accountForm.register("companyName")} />
@@ -1317,8 +1394,19 @@ export default function RegisterFormPage() {
                         type="button" 
                         size="lg"
                         onClick={handleSubmit}
+                        disabled={isLoading}
                       >
-                        Complete Registration
+                        {isLoading ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                          </>
+                        ) : (
+                          'Complete Registration'
+                        )}
                       </Button>
                     </div>
                   </div>

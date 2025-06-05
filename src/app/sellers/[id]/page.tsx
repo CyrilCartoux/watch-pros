@@ -31,6 +31,7 @@ interface Seller {
     phone: string
     language: string
     cryptoFriendly: boolean
+    companyLogo?: string
   }
   address: {
     street: string
@@ -292,10 +293,20 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
           <div className="flex-1 space-y-4 md:space-y-6">
             {/* Optimized mobile header */}
             <div className="flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-6">
-              <div className="w-16 h-16 md:w-24 md:h-24 rounded-lg overflow-hidden border-2 border-primary/20 flex items-center justify-center bg-background">
-                <div className="text-2xl md:text-4xl font-bold text-primary">
-                  {seller.account.companyName.charAt(0)}
-                </div>
+              <div className="w-24 h-24 rounded-lg overflow-hidden border-2 border-primary/20 flex items-center justify-center bg-background">
+                {seller.account.companyLogo ? (
+                  <Image
+                    src={seller.account.companyLogo}
+                    alt={`${seller.account.companyName} logo`}
+                    width={96}
+                    height={96}
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className="text-3xl font-bold text-primary">
+                    {seller.account.companyName.charAt(0)}
+                  </div>
+                )}
               </div>
               <div className="flex-1 text-center md:text-left">
                 <h1 className="text-xl md:text-3xl font-bold mb-1 md:mb-2">{seller.account.companyName}</h1>

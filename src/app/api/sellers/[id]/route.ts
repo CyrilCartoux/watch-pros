@@ -44,6 +44,7 @@ interface SellerReview {
 interface Seller {
   id: string
   company_name: string
+  company_logo_url: string
   watch_pros_name: string
   company_status: string
   first_name: string
@@ -61,7 +62,7 @@ interface Seller {
     total_reviews: number
     average_rating: number
     last_updated: string
-  }
+  }[] | null
   crypto_friendly: boolean
 }
 
@@ -98,6 +99,7 @@ export async function GET(
       .select(`
         id,
         company_name,
+        company_logo_url,
         watch_pros_name,
         company_status,
         first_name,
@@ -120,14 +122,14 @@ export async function GET(
           tax_id,
           vat_number
         ),
-        seller_stats!inner (
+        seller_stats (
           total_reviews,
           average_rating,
           last_updated
         )
       `)
       .eq('watch_pros_name', params.id)
-      .single()
+      .maybeSingle()
 
     if (sellerError) {
       console.error('Error fetching seller:', sellerError)
@@ -213,6 +215,7 @@ export async function GET(
       id: seller.id,
       account: {
         companyName: seller.company_name,
+        companyLogo: seller.company_logo_url,
         watchProsName: seller.watch_pros_name,
         companyStatus: seller.company_status,
         firstName: seller.first_name,
@@ -241,10 +244,14 @@ export async function GET(
         comment: review.comment,
         createdAt: review.created_at,
       })) || [],
-      stats: {
-        totalReviews: (seller.seller_stats as any).total_reviews,
-        averageRating: (seller.seller_stats as any).average_rating,
-        lastUpdated: (seller.seller_stats as any).last_updated
+      stats: seller.seller_stats?.[0] ? {
+        totalReviews: seller.seller_stats[0].total_reviews,
+        averageRating: seller.seller_stats[0].average_rating,
+        lastUpdated: seller.seller_stats[0].last_updated
+      } : {
+        totalReviews: 0,
+        averageRating: 0,
+        lastUpdated: new Date().toISOString()
       }
     }
 

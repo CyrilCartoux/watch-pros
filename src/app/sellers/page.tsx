@@ -39,6 +39,7 @@ interface Seller {
     phonePrefix: string
     phone: string
     cryptoFriendly: boolean
+    companyLogo?: string
   }
   address: {
     street: string
@@ -430,9 +431,19 @@ export default function SellersListPage() {
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4 mb-4">
                       <div className="w-20 h-20 rounded-lg overflow-hidden border-2 border-primary/20 flex items-center justify-center bg-background">
-                        <div className="text-2xl font-bold text-primary">
-                          {seller.account.companyName.charAt(0)}
-                        </div>
+                        {seller.account.companyLogo ? (
+                          <Image
+                            src={seller.account.companyLogo}
+                            alt={`${seller.account.companyName} logo`}
+                            width={80}
+                            height={80}
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          <div className="text-2xl font-bold text-primary">
+                            {seller.account.companyName.charAt(0)}
+                          </div>
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h2 className="text-xl font-semibold mb-1 truncate">{seller.account.companyName}</h2>

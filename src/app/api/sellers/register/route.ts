@@ -139,11 +139,13 @@ export async function POST(request: Request) {
     const idCardFront = formData.get('idCardFront') as File
     const idCardBack = formData.get('idCardBack') as File
     const proofOfAddress = formData.get('proofOfAddress') as File
+    const companyLogo = formData.get('companyLogo') as File
 
     // Validate files
     validateFile(idCardFront)
     validateFile(idCardBack)
     validateFile(proofOfAddress)
+    validateFile(companyLogo)
 
     // Insert seller and related data in a single transaction
     const { data: seller, error: registerError } = await supabase.rpc('register_seller', {
@@ -170,6 +172,11 @@ export async function POST(request: Request) {
       {
         file: proofOfAddress,
         type: 'proofOfAddress',
+        user_id: user.id
+      },
+      {
+        file: companyLogo,
+        type: 'companyLogo',
         user_id: user.id
       }
     ]
@@ -228,7 +235,8 @@ export async function POST(request: Request) {
       .update({
         id_card_front_url: documentUrls.idCardFront,
         id_card_back_url: documentUrls.idCardBack,
-        proof_of_address_url: documentUrls.proofOfAddress
+        proof_of_address_url: documentUrls.proofOfAddress,
+        company_logo_url: documentUrls.companyLogo
       })
       .eq('id', seller.id)
 

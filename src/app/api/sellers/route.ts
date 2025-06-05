@@ -57,6 +57,7 @@ export async function GET(request: Request) {
       .select(`
         id,
         company_name,
+        company_logo_url,
         watch_pros_name,
         company_status,
         first_name,
@@ -114,6 +115,7 @@ export async function GET(request: Request) {
     const transformedSellers = (sellers as any[]).map(seller => ({
       account: {
         companyName: seller.company_name,
+        companyLogo: seller.company_logo_url,
         watchProsName: seller.watch_pros_name,
         companyStatus: seller.company_status,
         firstName: seller.first_name,

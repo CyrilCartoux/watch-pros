@@ -46,6 +46,7 @@ interface ListingData {
     name: string
     logo: string
     type: string
+    companyLogo: string
     description: string
     location: {
       address: string
@@ -689,14 +690,20 @@ export default function ListingPage({ params }: Props) {
                 <CardContent className="p-6">
                   <div className="space-y-4">
                     <div className="flex items-start gap-4">
-                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary/20">
-                        <Image
-                          src={listing.seller.logo}
-                          alt={`${listing.seller.name} logo`}
-                          width={64}
-                          height={64}
-                          className="object-contain p-2"
-                        />
+                      <div className="w-24 h-24 rounded-lg overflow-hidden border-2 border-primary/20 flex items-center justify-center bg-background">
+                        {listing.seller.companyLogo ? (
+                          <Image
+                            src={listing.seller.companyLogo}
+                            alt={`${listing.seller.name} logo`}
+                            width={96}
+                            height={96}
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          <div className="text-3xl font-bold text-primary">
+                            {listing.seller.name.charAt(0)}
+                          </div>
+                        )}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
