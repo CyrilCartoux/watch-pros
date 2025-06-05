@@ -33,7 +33,6 @@ interface Seller {
   seller_stats: {
     total_reviews: number
     average_rating: number
-    total_approvals: number
     last_updated: string
   } | null
   crypto_friendly: boolean
@@ -45,7 +44,6 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
     const offset = (page - 1) * limit
-    const sort = searchParams.get('sort') || 'total_approvals'
     const order = searchParams.get('order') || 'desc'
     const country = searchParams.get('country')
     const cryptoFriendly = searchParams.get('cryptoFriendly')
@@ -81,7 +79,6 @@ export async function GET(request: Request) {
         seller_stats (
           total_reviews,
           average_rating,
-          total_approvals,
           last_updated
         )
       `, { count: 'exact' })
@@ -98,13 +95,7 @@ export async function GET(request: Request) {
     }
 
     // Apply sorting using the new indexes
-    if (sort === 'total_approvals') {
-      query = query.order('seller_stats(total_approvals)', { ascending: order === 'asc' })
-    } else if (sort === 'average_rating') {
-      query = query.order('seller_stats(average_rating)', { ascending: order === 'asc' })
-    } else {
-      query = query.order('created_at', { ascending: false })
-    }
+    query = query.order('seller_stats(average_rating)', { ascending: order === 'asc' })
 
     // Apply pagination
     query = query.range(offset, offset + limit - 1)
@@ -144,12 +135,10 @@ export async function GET(request: Request) {
       stats: seller.seller_stats ? {
         totalReviews: seller.seller_stats.total_reviews || 0,
         averageRating: seller.seller_stats.average_rating || 0,
-        totalApprovals: seller.seller_stats.total_approvals || 0,
         lastUpdated: seller.seller_stats.last_updated
       } : {
         totalReviews: 0,
         averageRating: 0,
-        totalApprovals: 0,
         lastUpdated: new Date().toISOString()
       }
     }))

@@ -29,19 +29,19 @@ const watchSchema = z.object({
   model: z.string().min(1, "Model is required"),
   reference: z.string().min(1, "Reference number is required"),
   title: z.string().min(1, "Title is required").max(60, "Title must not exceed 60 characters"),
-  description: z.string().optional(),
-  year: z.string().optional(),
+  description: z.string().nullable().optional(),
+  year: z.string().nullable().optional(),
   gender: z.string().optional(),
-  serialNumber: z.string().optional(),
-  dialColor: z.string().optional(),
+  serialNumber: z.string().nullable().optional(),
+  dialColor: z.string().nullable().optional(),
   diameter: z.object({
     min: z.string().optional(),
     max: z.string().optional(),
   }),
-  movement: z.string().optional(),
-  case: z.string().optional(),
-  braceletMaterial: z.string().optional(),
-  braceletColor: z.string().optional(),
+  movement: z.string().nullable().optional(),
+  case: z.string().nullable().optional(),
+  braceletMaterial: z.string().nullable().optional(),
+  braceletColor: z.string().nullable().optional(),
   listing_type: z.string().default("watch"),
   
   // Step 2: Delivery Contents
@@ -153,6 +153,17 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
     },
     mode: "onChange",
   })
+
+  // Transform null values to empty strings for form fields
+  useEffect(() => {
+    if (initialData) {
+      Object.keys(initialData).forEach(key => {
+        if (initialData[key] === null) {
+          form.setValue(key as keyof FormData, "")
+        }
+      })
+    }
+  }, [initialData, form])
 
   // Update title preview when title changes
   useEffect(() => {
@@ -505,7 +516,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                             name="dialColor"
                             control={form.control}
                             render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value || ""}>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select" />
                                 </SelectTrigger>
@@ -545,7 +556,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                             name="movement"
                             control={form.control}
                             render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value || ""}>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select" />
                                 </SelectTrigger>
@@ -568,7 +579,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                             name="case"
                             control={form.control}
                             render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value || ""}>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select" />
                                 </SelectTrigger>
@@ -591,7 +602,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                             name="braceletMaterial"
                             control={form.control}
                             render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value || ""}>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select" />
                                 </SelectTrigger>
@@ -614,7 +625,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                             name="braceletColor"
                             control={form.control}
                             render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value || ""}>
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select" />
                                 </SelectTrigger>
@@ -775,7 +786,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                           name="currency"
                           control={form.control}
                           render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value || ""}>
                               <SelectTrigger className="w-[100px]">
                                 <SelectValue />
                               </SelectTrigger>

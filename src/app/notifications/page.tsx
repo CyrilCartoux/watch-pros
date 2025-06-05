@@ -558,14 +558,6 @@ export default function NotificationsPage() {
               Create Alert
             </Link>
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={markAllAsRead}
-            className="w-full sm:w-auto"
-          >
-            Mark all as read
-          </Button>
         </div>
       </div>
 
@@ -584,6 +576,9 @@ export default function NotificationsPage() {
           </TabsTrigger>
           <TabsTrigger value="history" className="flex-1 sm:flex-none">
             History
+            {notifications.some((n) => !n.is_read) && (
+              <div className="w-2 h-2 rounded-full bg-destructive ml-2" />
+            )}
           </TabsTrigger>
         </TabsList>
 
@@ -820,10 +815,10 @@ export default function NotificationsPage() {
                       </Link>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
-                          <div>
+                          <div className="min-w-0 flex-1">
                             <Link
                               href={`/listings/${subscription.listing.id}`}
-                              className="hover:underline"
+                              className="hover:underline block"
                             >
                               <h3 className="font-medium truncate text-sm md:text-base">
                                 {subscription.listing.title}
@@ -837,7 +832,7 @@ export default function NotificationsPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground hover:text-destructive"
+                            className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground hover:text-destructive flex-shrink-0"
                             onClick={() =>
                               handleDeleteClick(
                                 "listing",

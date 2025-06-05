@@ -60,9 +60,8 @@ interface Seller {
   seller_stats: {
     total_reviews: number
     average_rating: number
-    total_approvals: number
     last_updated: string
-  } | null
+  }
   crypto_friendly: boolean
 }
 
@@ -93,7 +92,7 @@ export async function GET(
   try {
     const supabase = await createClient()
 
-    // Récupérer le vendeur avec ses relations
+    // Récupérer le vendeur
     const { data: seller, error: sellerError } = await supabase
       .from('sellers')
       .select(`
@@ -110,6 +109,7 @@ export async function GET(
         phone,
         created_at,
         updated_at,
+        crypto_friendly,
         seller_addresses (
           street,
           city,
@@ -120,18 +120,23 @@ export async function GET(
           tax_id,
           vat_number
         ),
-        seller_banking (
-          card_holder,
-          bank_name,
-          payment_method
-        ),
-        crypto_friendly
+        seller_stats!inner (
+          total_reviews,
+          average_rating,
+          last_updated
+        )
       `)
       .eq('watch_pros_name', params.id)
       .single()
 
     if (sellerError) {
       console.error('Error fetching seller:', sellerError)
+      if (sellerError.code === 'PGRST116') {
+        return NextResponse.json(
+          { error: 'Seller not found' },
+          { status: 404 }
+        )
+      }
       return NextResponse.json(
         { error: 'Failed to fetch seller' },
         { status: 500 }
@@ -144,13 +149,6 @@ export async function GET(
         { status: 404 }
       )
     }
-
-    // Récupérer les stats séparément
-    const { data: stats } = await supabase
-      .from('seller_stats')
-      .select('*')
-      .eq('seller_id', seller.id)
-      .single()
 
     // Récupérer les reviews
     const { data: reviews, error: reviewsError } = await supabase
@@ -175,19 +173,6 @@ export async function GET(
 
     // Récupérer l'utilisateur actuel
     const { data: { user } } = await supabase.auth.getUser()
-
-    // Vérifier si l'utilisateur a approuvé ce vendeur
-    let isApproved = false
-    if (user) {
-      const { data: approval } = await supabase
-        .from('seller_approvals')
-        .select('id')
-        .eq('seller_id', seller.id)
-        .eq('approver_id', user.id)
-        .single()
-
-      isApproved = !!approval
-    }
 
     // Requête principale pour les annonces actives
     const { data: listings, error: listingsError } = await supabase
@@ -249,41 +234,18 @@ export async function GET(
         taxId: seller.seller_addresses[0].tax_id,
         vatNumber: seller.seller_addresses[0].vat_number
       } : null,
-      banking: seller.seller_banking?.[0] ? {
-        cardHolder: seller.seller_banking[0].card_holder,
-        bankName: seller.seller_banking[0].bank_name,
-        paymentMethod: seller.seller_banking[0].payment_method
-      } : null,
-      listings: listings?.map(listing => {
-        return {
-          id: listing.id,
-          brand: listing.brands?.[0]?.label || '',
-          model: listing.models?.[0]?.label || '',
-          reference: listing.reference,
-          price: listing.price,
-          currency: listing.currency,
-          image: listing.listing_images?.[0]?.url || '/images/placeholder.jpg'
-        }
-      }) || [],
-      isApproved,
-      stats: stats ? {
-        totalReviews: stats.total_reviews || 0,
-        averageRating: stats.average_rating || 0,
-        totalApprovals: stats.total_approvals || 0,
-        lastUpdated: stats.last_updated
-      } : {
-        totalReviews: 0,
-        averageRating: 0,
-        totalApprovals: 0,
-        lastUpdated: new Date().toISOString()
-      },
       reviews: reviews?.map(review => ({
         id: review.id,
         rating: review.rating,
         reviewerId: review.reviewer_id,
         comment: review.comment,
         createdAt: review.created_at,
-      })) || []
+      })) || [],
+      stats: {
+        totalReviews: (seller.seller_stats as any).total_reviews,
+        averageRating: (seller.seller_stats as any).average_rating,
+        lastUpdated: (seller.seller_stats as any).last_updated
+      }
     }
 
     // Add cache control headers

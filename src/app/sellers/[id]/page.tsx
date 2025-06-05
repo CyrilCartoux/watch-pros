@@ -56,11 +56,9 @@ interface Seller {
     currency: string
     image: string
   }[]
-  isApproved: boolean
   stats: {
     totalReviews: number
     averageRating: number
-    totalApprovals: number
     lastUpdated: string
   }
   reviews?: {
@@ -94,8 +92,6 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
   const [error, setError] = useState<string | null>(null)
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false)
   const [isSubmittingReview, setIsSubmittingReview] = useState(false)
-  const [isApproved, setIsApproved] = useState(false)
-  const [isSubmittingApproval, setIsSubmittingApproval] = useState(false)
   const { user } = useAuth()
   const [isDeletingReview, setIsDeletingReview] = useState<string | null>(null)
   
@@ -104,11 +100,16 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
       try {
         const response = await fetch(`/api/sellers/${params.id}`)
         if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('Seller not found')
+          }
           throw new Error('Failed to fetch seller')
         }
         const data = await response.json()
+        if (!data) {
+          throw new Error('Seller not found')
+        }
         setSeller(data)
-        setIsApproved(data.isApproved)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
@@ -145,14 +146,42 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
       <main className="min-h-screen bg-background py-8">
         <div className="container">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-red-500 mb-4">Error</h2>
-            <p className="text-muted-foreground">{error || 'Seller not found'}</p>
-            <Button 
-              onClick={() => window.location.reload()}
-              className="mt-4"
-            >
-              Try Again
-            </Button>
+            <div className="w-24 h-24 mx-auto mb-6 text-muted-foreground">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold mb-4">
+              {error === 'Seller not found' ? 'Seller Not Found' : 'Error'}
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              {error === 'Seller not found' 
+                ? "We couldn't find the seller you're looking for. They may have been removed or the link might be incorrect."
+                : error || 'An unexpected error occurred'}
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button
+                variant="outline"
+                onClick={() => window.history.back()}
+              >
+                Go Back
+              </Button>
+              <Button
+                onClick={() => window.location.href = '/sellers'}
+              >
+                Browse All Sellers
+              </Button>
+            </div>
           </div>
         </div>
       </main>
@@ -160,16 +189,16 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
   }
 
   const nextListing = () => {
-    if (!seller?.listings.length) return
+    if (!seller?.listings?.length) return
     setCurrentListing((prev) => 
-      prev === seller.listings.length - 1 ? 0 : prev + 1
+      prev === seller.listings?.length - 1 ? 0 : prev + 1
     )
   }
 
   const prevListing = () => {
-    if (!seller?.listings.length) return
+    if (!seller?.listings?.length) return
     setCurrentListing((prev) => 
-      prev === 0 ? seller.listings.length - 1 : prev - 1
+      prev === 0 ? seller.listings?.length - 1 : prev - 1
     )
   }
 
@@ -190,34 +219,6 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
       console.error(error)
     } finally {
       setIsSubmittingMessage(false)
-    }
-  }
-
-  const handleApproveSeller = async () => {
-    if (!user || !seller?.id) return
-
-    setIsSubmittingApproval(true)
-    try {
-      const method = isApproved ? 'DELETE' : 'POST'
-      const response = await fetch(`/api/sellers/${seller.id}/approvals`, {
-        method,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || `Failed to ${isApproved ? 'remove' : 'add'} approval`)
-      }
-
-      setIsApproved(!isApproved)
-    } catch (error) {
-      console.error('Error managing approval:', error)
-      alert(error instanceof Error ? error.message : 'Failed to manage approval')
-    } finally {
-      setIsSubmittingApproval(false)
     }
   }
 
@@ -305,9 +306,6 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                     <span className="text-sm md:text-base font-semibold">{seller.stats.averageRating.toFixed(1)}</span>
                     <span className="text-xs md:text-sm text-muted-foreground">({seller.stats.totalReviews} reviews)</span>
                   </div>
-                  <Badge variant="secondary" className="text-xs md:text-sm">
-                    {seller.stats.totalApprovals} approvals
-                  </Badge>
                   {seller.account.cryptoFriendly && (
                     <Badge variant="outline" className="text-xs md:text-sm border-amber-500 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20">
                       <Coins className="h-3 w-3 mr-1" />
@@ -329,19 +327,6 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                     <Star className="h-4 w-4 mr-2" />
                     {isSubmittingReview ? "Submitting..." : "Write a Review"}
                   </Button>
-                  <Button
-                    variant={isApproved ? "default" : "outline"}
-                    onClick={handleApproveSeller}
-                    disabled={isSubmittingApproval}
-                    className="gap-2"
-                  >
-                    <ThumbsUp className="h-4 w-4" />
-                    {isSubmittingApproval 
-                      ? "Processing..." 
-                      : isApproved 
-                        ? "Approved by you ✓" 
-                        : "I approve this seller"}
-                  </Button>
                 </div>
               </div>
             </div>
@@ -361,7 +346,7 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                   <>
                     <div className="flex items-center gap-1.5 md:gap-2">
                       <MapPin className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground" />
-                      <span className="truncate">{seller.address.city}, {seller.address.country}</span>
+                      <span className="truncate">{seller.address.city}, {countries.find(c => c.value === seller.address?.country)?.label}</span>
                     </div>
                     <div className="flex items-center gap-1.5 md:gap-2">
                       <Globe className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground" />
@@ -378,11 +363,7 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
             <CardContent className="p-6 space-y-4">
               <div className="space-y-2">
                 <h3 className="font-semibold">Statistics</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total approvals</p>
-                    <p className="text-2xl font-bold">{seller.stats.totalApprovals}</p>
-                  </div>
+                <div className="grid grid-cols-1 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Average rating</p>
                     <div className="flex items-center gap-1">
@@ -400,7 +381,6 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                     <span className="text-sm">Total reviews</span>
                     <div className="flex items-center gap-1">
                       <span className="font-medium">{seller.stats.totalReviews}</span>
-                      
                     </div>
                   </div>
                   <div className="flex justify-between items-center">
@@ -582,7 +562,7 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
         {/* Best Current Offers */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold mb-6">Best Current Offers</h2>
-          {seller.listings.length > 0 ? (
+          {seller.listings &&seller.listings.length > 0 ? (
             <div className="relative">
               <div className="overflow-hidden">
                 <div className="flex transition-transform duration-300 ease-in-out" style={{ transform: `translateX(-${currentListing * 100}%)` }}>

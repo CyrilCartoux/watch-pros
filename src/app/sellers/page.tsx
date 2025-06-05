@@ -50,7 +50,6 @@ interface Seller {
   stats: {
     totalReviews: number
     averageRating: number
-    totalApprovals: number
     lastUpdated: string
   }
 }
@@ -94,7 +93,6 @@ export default function SellersListPage() {
   const [tempFilters, setTempFilters] = useState<Filters>(filters)
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
-  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "approvals")
   const [sellers, setSellers] = useState<Seller[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -105,7 +103,7 @@ export default function SellersListPage() {
     itemsPerPage: 10
   })
 
-  const updateURL = (newFilters: Filters, page: number = 1, sort: string = sortBy) => {
+  const updateURL = (newFilters: Filters, page: number = 1) => {
     const params = new URLSearchParams()
     
     // Add non-empty filters to URL
@@ -117,7 +115,6 @@ export default function SellersListPage() {
 
     // Add pagination and sorting
     if (page > 1) params.set("page", page.toString())
-    if (sort !== "approvals") params.set("sort", sort)
 
     // Update URL without reloading the page
     router.push(`/sellers?${params.toString()}`, { scroll: false })
@@ -161,20 +158,12 @@ export default function SellersListPage() {
     }
   }, [currentPage])
 
-  // Update URL when sort changes
-  useEffect(() => {
-    if (sortBy !== "approvals") {
-      updateURL(filters, currentPage, sortBy)
-    }
-  }, [sortBy])
-
   const fetchSellers = async (page: number) => {
     try {
       setLoading(true)
       const params = new URLSearchParams({
         page: page.toString(),
         limit: "10",
-        sort: sortBy === "approvals" ? "total_approvals" : "average_rating",
         order: "desc"
       })
 
@@ -199,7 +188,7 @@ export default function SellersListPage() {
 
   useEffect(() => {
     fetchSellers(currentPage)
-  }, [currentPage, sortBy, filters])
+  }, [currentPage, filters])
 
   const renderFilters = () => (
     <div className="space-y-8">
@@ -331,21 +320,6 @@ export default function SellersListPage() {
               {pagination.totalItems.toLocaleString()} sellers
             </h2>
           </div>
-
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Select 
-              value={sortBy} 
-              onValueChange={(value: "approvals" | "rating") => setSortBy(value)}
-            >
-              <SelectTrigger className="w-[140px] sm:w-[180px]">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="approvals">Most approved</SelectItem>
-                <SelectItem value="rating">Highest rated</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
         {/* Filters Button and Active Filters */}
@@ -467,9 +441,6 @@ export default function SellersListPage() {
                           <Badge variant="secondary" className="max-w-[120px] truncate bg-primary/10 hover:bg-primary/20 transition-colors">
                             <Star className="h-3 w-3 mr-1 text-yellow-400 fill-yellow-400 flex-shrink-0" />
                             <span className="truncate font-medium">{seller.stats.averageRating.toFixed(1)} ({seller.stats.totalReviews})</span>
-                          </Badge>
-                          <Badge variant="secondary" className="max-w-[120px] truncate bg-primary/10 hover:bg-primary/20 transition-colors">
-                            <span className="truncate font-medium">{seller.stats.totalApprovals} approvals</span>
                           </Badge>
                         </div>
                       </div>

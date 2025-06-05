@@ -35,12 +35,6 @@ export async function GET(
         .select('rating')
         .eq('seller_id', params.id)
 
-      // Récupérer les approbations
-      const { data: approvals } = await supabase
-        .from('seller_approvals')
-        .select('is_verified')
-        .eq('seller_id', params.id)
-
       // Calculer les statistiques
       const calculatedStats = {
         seller_id: params.id,
@@ -48,8 +42,6 @@ export async function GET(
         average_rating: reviews?.length 
           ? reviews.reduce((acc, curr) => acc + curr.rating, 0) / reviews.length 
           : 0,
-        total_approvals: approvals?.length || 0,
-        verified_approvals: approvals?.filter(a => a.is_verified).length || 0,
         last_updated: new Date().toISOString()
       }
 
