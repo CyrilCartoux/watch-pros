@@ -269,18 +269,18 @@ export default function ModelsPage() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
                 {featuredModels.map((model) => (
                   <Link href={`/listings?brand=${model.brands.slug}&model=${model.slug}`} key={model.id}>
                     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                      <div className="relative aspect-square">
+                      <div className="relative aspect-[3/2]">
                         <Image
                           src={`/images/brands/${model.brands.slug}.png`}
                           alt={`${model.brands.label} ${model.label}`}
                           fill
-                          className="object-contain p-4"
+                          className="object-contain p-1"
                         />
-                        <div className="absolute top-2 right-2">
+                        <div className="absolute top-1 right-1">
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -290,16 +290,16 @@ export default function ModelsPage() {
                                     toggleNotification(model)
                                   }}
                                   disabled={isSubscribing[model.id]}
-                                  className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
+                                  className={`p-1 rounded-full backdrop-blur-sm transition-colors ${
                                     notifications[model.id] 
                                       ? "bg-red-500 hover:bg-red-600" 
                                       : "bg-background/80 hover:bg-background/90"
                                   } ${isSubscribing[model.id] ? "opacity-50 cursor-not-allowed" : ""}`}
                                 >
                                   {isSubscribing[model.id] ? (
-                                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                                    <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
                                   ) : (
-                                    <Bell className={`h-4 w-4 ${notifications[model.id] ? "text-white" : "text-muted-foreground"}`} />
+                                    <Bell className={`h-3 w-3 ${notifications[model.id] ? "text-white" : "text-muted-foreground"}`} />
                                   )}
                                 </button>
                               </TooltipTrigger>
@@ -312,11 +312,11 @@ export default function ModelsPage() {
                           </TooltipProvider>
                         </div>
                       </div>
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-sm font-medium text-primary">{model.brands.label}</span>
+                      <CardContent className="p-1.5">
+                        <div className="flex items-center gap-0.5 mb-0.5">
+                          <span className="text-[10px] font-medium text-primary">{model.brands.label}</span>
                         </div>
-                        <h3 className="text-lg font-semibold mb-2">{model.label}</h3>
+                        <h3 className="text-xs font-semibold line-clamp-1">{model.label}</h3>
                       </CardContent>
                     </Card>
                   </Link>
@@ -363,18 +363,18 @@ export default function ModelsPage() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
                 {otherModels.map((model) => (
                   <Link href={`/listings?brand=${model.brands.slug}&model=${model.slug}`} key={model.id}>
                     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                      <div className="relative aspect-square">
+                      <div className="relative aspect-[3/2]">
                         <Image
                           src={`/images/brands/${model.brands.slug}.png`}
                           alt={`${model.brands.label} ${model.label}`}
                           fill
-                          className="object-contain p-4"
+                          className="object-contain p-1"
                         />
-                        <div className="absolute top-2 right-2">
+                        <div className="absolute top-1 right-1">
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -384,16 +384,16 @@ export default function ModelsPage() {
                                     toggleNotification(model)
                                   }}
                                   disabled={isSubscribing[model.id]}
-                                  className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
+                                  className={`p-1 rounded-full backdrop-blur-sm transition-colors ${
                                     notifications[model.id] 
                                       ? "bg-red-500 hover:bg-red-600" 
                                       : "bg-background/80 hover:bg-background/90"
                                   } ${isSubscribing[model.id] ? "opacity-50 cursor-not-allowed" : ""}`}
                                 >
                                   {isSubscribing[model.id] ? (
-                                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                                    <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
                                   ) : (
-                                    <Bell className={`h-4 w-4 ${notifications[model.id] ? "text-white" : "text-muted-foreground"}`} />
+                                    <Bell className={`h-3 w-3 ${notifications[model.id] ? "text-white" : "text-muted-foreground"}`} />
                                   )}
                                 </button>
                               </TooltipTrigger>
@@ -406,11 +406,11 @@ export default function ModelsPage() {
                           </TooltipProvider>
                         </div>
                       </div>
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-sm font-medium text-primary">{model.brands.label}</span>
+                      <CardContent className="p-1.5">
+                        <div className="flex items-center gap-0.5 mb-0.5">
+                          <span className="text-[10px] font-medium text-primary">{model.brands.label}</span>
                         </div>
-                        <h3 className="text-lg font-semibold mb-2">{model.label}</h3>
+                        <h3 className="text-xs font-semibold line-clamp-1">{model.label}</h3>
                       </CardContent>
                     </Card>
                   </Link>

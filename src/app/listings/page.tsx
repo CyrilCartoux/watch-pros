@@ -436,15 +436,7 @@ export default function ListingsPage() {
 
   const renderFilters = () => (
     <div className="space-y-6 h-[calc(100vh-8rem)] overflow-y-auto pl-2 pr-2">
-      {/* <div className="space-y-4">
-        <h2 className="font-semibold">Search</h2>
-        <Input
-          placeholder="Search listings..."
-          value={tempFilters.search}
-          onChange={(e) => handleFilterChange("search", e.target.value)}
-        />
-      </div> */}
-
+      
       <div className="space-y-2">
         <div className="grid grid-cols-2 gap-2">
           <button
@@ -730,50 +722,43 @@ export default function ListingsPage() {
             <p className="text-sm">{error}</p>
           </div>
         )}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div className="flex items-center justify-between sm:justify-start gap-4">
-            <h1 className="text-xl sm:text-2xl font-bold">
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="flex items-center justify-between">
+            <h1 className="text-lg md:text-2xl font-bold">
               {totalItems.toLocaleString()} listings
             </h1>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-4">
             <Select 
               value={sortBy} 
               onValueChange={setSortBy}
             >
-              <SelectTrigger className="w-[140px] sm:w-[180px]">
+              <SelectTrigger className="w-[140px]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="relevance">Relevance</SelectItem>
-                <SelectItem value="popular">Popular</SelectItem>
                 <SelectItem value="price-asc">Price ascending</SelectItem>
                 <SelectItem value="price-desc">Price descending</SelectItem>
               </SelectContent>
             </Select>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Filters Button and Active Filters */}
-          <div className="lg:col-span-4 flex flex-wrap items-center gap-2">
+          {/* Active Filters */}
+          <div className="flex flex-wrap items-center gap-2">
             <Button 
               variant="outline" 
               size="sm"
               onClick={() => setIsFiltersOpen(true)}
+              className="h-8"
             >
               <SlidersHorizontal className="h-4 w-4 mr-2" />
               Filters
             </Button>
 
-            {/* Active Filters */}
             {Object.entries(filters).map(([key, value]) => {
               if (!value) return null
               return (
                 <div
                   key={key}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-sm"
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-xs"
                 >
                   <span>{getFilterLabel(key as keyof Filters, value)}</span>
                   <button
@@ -786,7 +771,9 @@ export default function ListingsPage() {
               )
             })}
           </div>
+        </div>
 
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Listings Grid */}
           <div className="lg:col-span-4">
             {isLoading ? (
@@ -835,7 +822,7 @@ export default function ListingsPage() {
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
                 {listings.map((listing) => (
                   <ListingCard key={listing.id} listing={listing} />
                 ))}

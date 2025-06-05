@@ -132,7 +132,7 @@ export function ListingCard({ listing }: ListingCardProps) {
     <Link href={`/listings/${listing.id}`}>
       <Card className="overflow-hidden hover:shadow-lg transition-all h-full flex flex-col">
         <div 
-          className="relative aspect-square group"
+          className="relative aspect-[3/4] group"
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
@@ -214,31 +214,31 @@ export function ListingCard({ listing }: ListingCardProps) {
             </>
           )}
         </div>
-        <CardContent className="p-4 flex-1 flex flex-col">
-          <div className="space-y-3">
+        <CardContent className="p-2 md:p-4 flex-1 flex flex-col">
+          <div className="space-y-2 md:space-y-3">
             {/* Title */}
-            <h3 className="font-semibold text-lg">{listing.title}</h3>
+            <h3 className="font-semibold text-sm md:text-lg line-clamp-2">{listing.title}</h3>
 
             {/* Tags and Price */}
-            <div className="flex flex-col gap-2">
-              <div className="flex flex-wrap gap-2">
+            <div className="flex flex-col gap-1 md:gap-2">
+              <div className="flex flex-wrap gap-1 md:gap-2">
                 {listing.year && (
-                  <span className="px-2 py-1 bg-muted rounded-md text-xs">
+                  <span className="px-1.5 py-0.5 md:px-2 md:py-1 bg-muted rounded-md text-[10px] md:text-xs">
                     {listing.year}
                   </span>
                 )}
                 {conditionLabel && (
-                  <span className="px-2 py-1 bg-muted rounded-md text-xs">
+                  <span className="px-1.5 py-0.5 md:px-2 md:py-1 bg-muted rounded-md text-[10px] md:text-xs">
                     {conditionLabel}
                   </span>
                 )}
                 {listing.shipping_delay && (
-                  <span className="px-2 py-1 bg-muted rounded-md text-xs">
+                  <span className="px-1.5 py-0.5 md:px-2 md:py-1 bg-muted rounded-md text-[10px] md:text-xs">
                     {listing.shipping_delay} days
                   </span>
                 )}
               </div>
-              <p className="text-xl font-bold mt-2">{listing.price.toLocaleString()} {listing.currency}</p>
+              <p className="text-base md:text-xl font-bold mt-1 md:mt-2">{listing.price.toLocaleString()} {listing.currency}</p>
             </div>
           </div>
         </CardContent>

@@ -95,10 +95,10 @@ export default function MyListings() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
           {listings.map((listing) => (
             <Card key={listing.id} className="overflow-hidden">
-              <div className="relative aspect-[4/3]">
+              <div className="relative aspect-[3/4]">
                 {listing.image ? (
                   <Image
                     src={listing.image}
@@ -108,64 +108,64 @@ export default function MyListings() {
                   />
                 ) : (
                   <div className="w-full h-full bg-muted flex items-center justify-center">
-                    <span className="text-muted-foreground text-sm">No image</span>
+                    <span className="text-muted-foreground text-xs">No image</span>
                   </div>
                 )}
                 <Badge 
                   variant={listing.status === "active" ? "default" : "secondary"}
-                  className="absolute top-2 right-2 text-xs"
+                  className="absolute top-2 right-2 text-[10px]"
                 >
                   {listing.status}
                 </Badge>
               </div>
-              <CardContent className="p-3 space-y-2">
+              <CardContent className="p-2 md:p-3 space-y-1.5 md:space-y-2">
                 <div>
-                  <h3 className="font-semibold text-sm line-clamp-1">{listing.title}</h3>
-                  <p className="text-lg font-bold text-primary">
+                  <h3 className="font-semibold text-xs md:text-sm line-clamp-1">{listing.title}</h3>
+                  <p className="text-base md:text-lg font-bold text-primary">
                     {listing.price.toLocaleString()} €
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {listing.brand && (
-                    <Badge variant="outline" className="text-xs">{listing.brand}</Badge>
+                    <Badge variant="outline" className="text-[10px] md:text-xs">{listing.brand}</Badge>
                   )}
                   {listing.model && (
-                    <Badge variant="outline" className="text-xs">{listing.model}</Badge>
+                    <Badge variant="outline" className="text-[10px] md:text-xs">{listing.model}</Badge>
                   )}
                 </div>
                 <div className="flex gap-1 pt-1">
                   <Link href={`/sell/${listing.type}/${listing.id}/edit`} className="flex-1">
-                    <Button variant="outline" size="sm" className="w-full">
-                      <Edit className="h-3 w-3 mr-1" />
-                      Edit
+                    <Button variant="outline" size="sm" className="w-full h-7 md:h-8 text-xs">
+                      <Edit className="h-3 w-3 md:mr-1" />
+                      <span className="hidden md:inline">Edit</span>
                     </Button>
                   </Link>
                   <Button 
                     variant="outline" 
                     size="sm"
-                    className="flex-1"
+                    className="flex-1 h-7 md:h-8 text-xs"
                     onClick={() => handlePause(listing.id)}
                   >
                     {listing.status === "active" ? (
                       <>
-                        <Pause className="h-3 w-3 mr-1" />
-                        Pause
+                        <Pause className="h-3 w-3 md:mr-1" />
+                        <span className="hidden md:inline">Pause</span>
                       </>
                     ) : (
                       <>
-                        <Play className="h-3 w-3 mr-1" />
-                        Activate
+                        <Play className="h-3 w-3 md:mr-1" />
+                        <span className="hidden md:inline">Activate</span>
                       </>
                     )}
                   </Button>
                   <Button 
                     variant="destructive" 
                     size="sm"
-                    className="flex-1"
+                    className="flex-1 h-7 md:h-8 text-xs"
                     onClick={() => openDeleteDialog(listing.id)}
                   >
-                    <Trash2 className="h-3 w-3 mr-1" />
-                    Delete
+                    <Trash2 className="h-3 w-3 md:mr-1" />
+                    <span className="hidden md:inline">Delete</span>
                   </Button>
                 </div>
               </CardContent>
