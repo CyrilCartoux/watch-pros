@@ -185,9 +185,9 @@ export default function ListingPage({ params }: Props) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          listing_id: listing.id,
+          listing_id: listing!.id,
           offer: Number(offerAmount),
-          currency: listing.currency
+          currency: listing!.currency
         }),
       })
 
