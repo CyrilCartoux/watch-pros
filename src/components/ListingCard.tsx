@@ -132,7 +132,7 @@ export function ListingCard({ listing }: ListingCardProps) {
     <Link href={`/listings/${listing.id}`}>
       <Card className="overflow-hidden hover:shadow-lg transition-all h-full flex flex-col">
         <div 
-          className="relative aspect-[3/4] group"
+          className="relative aspect-[3/4] md:aspect-[3/4] lg:aspect-[1] group"
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}

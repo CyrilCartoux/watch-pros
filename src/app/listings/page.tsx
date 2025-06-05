@@ -777,7 +777,7 @@ export default function ListingsPage() {
           {/* Listings Grid */}
           <div className="lg:col-span-4">
             {isLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 gap-3 md:gap-4">
                 {Array.from({ length: itemsPerPage }).map((_, i) => (
                   <div key={i} className="animate-pulse">
                     <div className="bg-gray-200 h-64 rounded-lg mb-4"></div>
@@ -822,7 +822,7 @@ export default function ListingsPage() {
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                 {listings.map((listing) => (
                   <ListingCard key={listing.id} listing={listing} />
                 ))}

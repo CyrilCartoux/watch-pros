@@ -1,15 +1,24 @@
-"use client"
+"use client";
 
-import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Clock, CheckCircle2, XCircle, Trash2, MessageSquare, DollarSign, User } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { useEffect, useState } from "react"
-import { NotificationType } from "@/types/db/notifications/Notifications"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Trash2,
+  MessageSquare,
+  DollarSign,
+  User,
+  Bell,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { NotificationType } from "@/types/db/notifications/Notifications";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -17,111 +26,120 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
+import { useSearchParams, useRouter } from "next/navigation";
+import { countries } from "@/data/form-options";
 
 type Notification = {
-  id: string
-  type: NotificationType
-  title: string
-  message: string
-  is_read: boolean
-  created_at: string
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
   listing?: {
-    id: string
-    title: string
-    price: number
-    currency: string
-    status: string
+    id: string;
+    title: string;
+    price: number;
+    currency: string;
+    status: string;
     listing_images: {
-      url: string
-      order_index: number
-    }[]
+      url: string;
+      order_index: number;
+    }[];
     brand: {
-      id: string
-      slug: string
-      label: string
-    }
+      id: string;
+      slug: string;
+      label: string;
+    };
     model: {
-      id: string
-      slug: string
-      label: string
-    }
-  }
+      id: string;
+      slug: string;
+      label: string;
+    };
+  };
   model?: {
-    id: string
-    slug: string
-    label: string
+    id: string;
+    slug: string;
+    label: string;
     brand: {
-      id: string
-      slug: string
-      label: string
-    }
-  }
-}
+      id: string;
+      slug: string;
+      label: string;
+    };
+  };
+};
 
 type ListingSubscription = {
-  id: string
-  created_at: string
+  id: string;
+  created_at: string;
   listing: {
-    id: string
-    title: string
-    price: number
-    currency: string
-    status: string
+    id: string;
+    title: string;
+    price: number;
+    currency: string;
+    status: string;
     listing_images: {
-      url: string
-      order_index: number
-    }[]
+      url: string;
+      order_index: number;
+    }[];
     brand: {
-      id: string
-      slug: string
-      label: string
-    }
+      id: string;
+      slug: string;
+      label: string;
+    };
     model: {
-      id: string
-      slug: string
-      label: string
-    }
-  }
-}
+      id: string;
+      slug: string;
+      label: string;
+    };
+  };
+};
 
-type ModelSubscription = {
-  id: string
-  created_at: string
-  model: {
-    id: string
-    slug: string
-    label: string
-    brand: {
-      id: string
-      slug: string
-      label: string
-    }
-  }
-}
+type ModelSubscription = CustomAlert;
 
 type Offer = {
-  id: string
-  offer: number
-  currency: string
-  created_at: string
+  id: string;
+  offer: number;
+  currency: string;
+  created_at: string;
   seller: {
-    id: string
-    watch_pros_name: string
-    company_name: string
-  }
+    id: string;
+    watch_pros_name: string;
+    company_name: string;
+  };
   listing: {
-    id: string
-    title: string
-    price: number
-    currency: string
-    status: string
+    id: string;
+    title: string;
+    price: number;
+    currency: string;
+    status: string;
     listing_images: {
-      url: string
-      order_index: number
-    }[]
-  }
-}
+      url: string;
+      order_index: number;
+    }[];
+  };
+};
+
+type CustomAlert = {
+  id: string;
+  created_at: string;
+  brand_id: string | null;
+  model_id: string | null;
+  reference: string | null;
+  max_price: number | null;
+  location: string | null;
+  brand?: {
+    id: string;
+    slug: string;
+    label: string;
+  };
+  model?: {
+    id: string;
+    slug: string;
+    label: string;
+  };
+};
 
 function NotificationSkeleton() {
   return (
@@ -148,7 +166,7 @@ function NotificationSkeleton() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function ListingSubscriptionSkeleton() {
@@ -180,7 +198,7 @@ function ListingSubscriptionSkeleton() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function ModelSubscriptionSkeleton() {
@@ -205,7 +223,7 @@ function ModelSubscriptionSkeleton() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 function OfferSkeleton() {
@@ -239,186 +257,214 @@ function OfferSkeleton() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState<Notification[]>([])
-  const [listingSubscriptions, setListingSubscriptions] = useState<ListingSubscription[]>([])
-  const [modelSubscriptions, setModelSubscriptions] = useState<ModelSubscription[]>([])
-  const [offers, setOffers] = useState<Offer[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<string>(searchParams.get("tab") || "offers");
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [listingSubscriptions, setListingSubscriptions] = useState<ListingSubscription[]>([]);
+  const [modelSubscriptions, setModelSubscriptions] = useState<ModelSubscription[]>([]);
+  const [offers, setOffers] = useState<Offer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{
-    type: 'listing' | 'model'
-    id: string
-    name: string
-  } | null>(null)
+    type: "listing" | "model";
+    id: string;
+    name: string;
+  } | null>(null);
+
+  // Update URL when tab changes
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", activeTab);
+    router.push(`?${params.toString()}`);
+  }, [activeTab, router, searchParams]);
+
+  // Update tab when URL changes
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && ["offers", "active", "history"].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   // Fetch notifications
   const fetchNotifications = async () => {
     try {
-      const response = await fetch('/api/notifications')
-      if (!response.ok) throw new Error('Failed to fetch notifications')
-      const data = await response.json()
-      setNotifications(data.notifications)
+      const response = await fetch("/api/notifications");
+      if (!response.ok) throw new Error("Failed to fetch notifications");
+      const data = await response.json();
+      setNotifications(data.notifications);
     } catch (err) {
-      console.error('Error fetching notifications:', err)
-      setError('Failed to load notifications')
+      console.error("Error fetching notifications:", err);
+      setError("Failed to load notifications");
     }
-  }
+  };
 
   // Fetch listing subscriptions
   const fetchListingSubscriptions = async () => {
     try {
-      const response = await fetch('/api/subscribe-listing')
-      if (!response.ok) throw new Error('Failed to fetch listing subscriptions')
-      const data = await response.json()
-      setListingSubscriptions(data.subscriptions)
+      const response = await fetch("/api/subscribe-listing");
+      if (!response.ok)
+        throw new Error("Failed to fetch listing subscriptions");
+      const data = await response.json();
+      setListingSubscriptions(data.subscriptions);
     } catch (err) {
-      console.error('Error fetching listing subscriptions:', err)
-      setError('Failed to load listing subscriptions')
+      console.error("Error fetching listing subscriptions:", err);
+      setError("Failed to load listing subscriptions");
     }
-  }
+  };
 
   // Fetch model subscriptions
   const fetchModelSubscriptions = async () => {
     try {
-      const response = await fetch('/api/subscribe-model')
-      if (!response.ok) throw new Error('Failed to fetch model subscriptions')
-      const data = await response.json()
-      setModelSubscriptions(data.subscriptions)
+      const response = await fetch("/api/custom-alerts");
+      if (!response.ok) throw new Error("Failed to fetch custom alerts");
+      const data = await response.json();
+      setModelSubscriptions(data.alerts);
     } catch (err) {
-      console.error('Error fetching model subscriptions:', err)
-      setError('Failed to load model subscriptions')
+      console.error("Error fetching custom alerts:", err);
+      setError("Failed to load custom alerts");
     }
-  }
+  };
 
   // Fetch offers
   const fetchOffers = async () => {
     try {
-      const response = await fetch('/api/offers')
-      if (!response.ok) throw new Error('Failed to fetch offers')
-      const data = await response.json()
-      setOffers(data.offers)
+      const response = await fetch("/api/offers");
+      if (!response.ok) throw new Error("Failed to fetch offers");
+      const data = await response.json();
+      setOffers(data.offers);
     } catch (err) {
-      console.error('Error fetching offers:', err)
-      setError('Failed to load offers')
+      console.error("Error fetching offers:", err);
+      setError("Failed to load offers");
     }
-  }
+  };
 
   // Initial data fetch
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true)
+      setLoading(true);
       await Promise.all([
         fetchNotifications(),
         fetchListingSubscriptions(),
         fetchModelSubscriptions(),
-        fetchOffers()
-      ])
-      setLoading(false)
-    }
-    fetchData()
-  }, [])
+        fetchOffers(),
+      ]);
+      setLoading(false);
+    };
+    fetchData();
+  }, []);
 
   const markAsRead = async (id: string) => {
     try {
       const response = await fetch(`/api/notifications/read?id=${id}`, {
-        method: 'PATCH'
-      })
-      if (!response.ok) throw new Error('Failed to mark notification as read')
-      
-      setNotifications(prev =>
-        prev.map(notification =>
-          notification.id === id ? { ...notification, is_read: true } : notification
+        method: "PATCH",
+      });
+      if (!response.ok) throw new Error("Failed to mark notification as read");
+
+      setNotifications((prev) =>
+        prev.map((notification) =>
+          notification.id === id
+            ? { ...notification, is_read: true }
+            : notification
         )
-      )
+      );
     } catch (err) {
-      console.error('Error marking notification as read:', err)
-      setError('Failed to mark notification as read')
+      console.error("Error marking notification as read:", err);
+      setError("Failed to mark notification as read");
     }
-  }
+  };
 
   const markAllAsRead = async () => {
     try {
       const unreadIds = notifications
-        .filter(n => !n.is_read)
-        .map(n => n.id)
+        .filter((n) => !n.is_read)
+        .map((n) => n.id);
 
-      if (unreadIds.length === 0) return
+      if (unreadIds.length === 0) return;
 
-      const response = await fetch('/api/notifications/read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: unreadIds })
-      })
+      const response = await fetch("/api/notifications/read", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: unreadIds }),
+      });
 
-      if (!response.ok) throw new Error('Failed to mark notifications as read')
-      
-      setNotifications(prev =>
-        prev.map(notification => ({ ...notification, is_read: true }))
-      )
+      if (!response.ok) throw new Error("Failed to mark notifications as read");
+
+      setNotifications((prev) =>
+        prev.map((notification) => ({ ...notification, is_read: true }))
+      );
     } catch (err) {
-      console.error('Error marking all notifications as read:', err)
-      setError('Failed to mark all notifications as read')
+      console.error("Error marking all notifications as read:", err);
+      setError("Failed to mark all notifications as read");
     }
-  }
+  };
 
   const removeNotification = async (id: string) => {
     try {
       const response = await fetch(`/api/notifications?id=${id}`, {
-        method: 'DELETE'
-      })
-      if (!response.ok) throw new Error('Failed to delete notification')
-      
-      setNotifications(prev =>
-        prev.filter(notification => notification.id !== id)
-      )
-    } catch (err) {
-      console.error('Error deleting notification:', err)
-      setError('Failed to delete notification')
-    }
-  }
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Failed to delete notification");
 
-  const handleDeleteClick = (type: 'listing' | 'model', id: string, name: string) => {
-    setItemToDelete({ type, id, name })
-    setDeleteDialogOpen(true)
-  }
+      setNotifications((prev) =>
+        prev.filter((notification) => notification.id !== id)
+      );
+    } catch (err) {
+      console.error("Error deleting notification:", err);
+      setError("Failed to delete notification");
+    }
+  };
+
+  const handleDeleteClick = (
+    type: "listing" | "model",
+    id: string,
+    name: string
+  ) => {
+    setItemToDelete({ type, id, name });
+    setDeleteDialogOpen(true);
+  };
 
   const handleDeleteConfirm = async () => {
-    if (!itemToDelete) return
+    if (!itemToDelete) return;
 
     try {
-      const endpoint = itemToDelete.type === 'listing' ? '/api/subscribe-listing' : '/api/subscribe-model'
+      const endpoint =
+        itemToDelete.type === "listing"
+          ? "/api/subscribe-listing"
+          : "/api/custom-alerts";
       const response = await fetch(endpoint, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          [`${itemToDelete.type}_id`]: itemToDelete.id
-        })
-      })
+          id: itemToDelete.id,
+        }),
+      });
 
-      if (!response.ok) throw new Error('Failed to delete subscription')
+      if (!response.ok) throw new Error("Failed to delete subscription");
 
-      if (itemToDelete.type === 'listing') {
-        setListingSubscriptions(prev =>
-          prev.filter(sub => sub.listing.id !== itemToDelete.id)
-        )
+      if (itemToDelete.type === "listing") {
+        setListingSubscriptions((prev) =>
+          prev.filter((sub) => sub.listing.id !== itemToDelete.id)
+        );
       } else {
-        setModelSubscriptions(prev =>
-          prev.filter(sub => sub.model.id !== itemToDelete.id)
-        )
+        setModelSubscriptions((prev) =>
+          prev.filter((sub) => sub.id !== itemToDelete.id)
+        );
       }
     } catch (err) {
-      console.error('Error deleting subscription:', err)
-      setError('Failed to delete subscription')
+      console.error("Error deleting subscription:", err);
+      setError("Failed to delete subscription");
     } finally {
-      setDeleteDialogOpen(false)
-      setItemToDelete(null)
+      setDeleteDialogOpen(false);
+      setItemToDelete(null);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -438,8 +484,11 @@ export default function NotificationsPage() {
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="active" className="flex-1 sm:flex-none">Active Alerts</TabsTrigger>
-            <TabsTrigger value="history" className="flex-1 sm:flex-none">History
+            <TabsTrigger value="active" className="flex-1 sm:flex-none">
+              Active Alerts
+            </TabsTrigger>
+            <TabsTrigger value="history" className="flex-1 sm:flex-none">
+              History
             </TabsTrigger>
           </TabsList>
 
@@ -480,7 +529,7 @@ export default function NotificationsPage() {
           </TabsContent>
         </Tabs>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -490,19 +539,37 @@ export default function NotificationsPage() {
           <p className="text-red-500">{error}</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="container py-4 md:py-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
         <h1 className="text-2xl md:text-3xl font-bold">Notification Center</h1>
-        <Button variant="outline" size="sm" onClick={markAllAsRead} className="w-full sm:w-auto">
-          Mark all as read
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            asChild
+            variant="default"
+            size="sm"
+            className="w-full sm:w-auto"
+          >
+            <Link href="/alerts/create">
+              <Bell className="h-4 w-4 mr-2" />
+              Create Alert
+            </Link>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={markAllAsRead}
+            className="w-full sm:w-auto"
+          >
+            Mark all as read
+          </Button>
+        </div>
       </div>
 
-      <Tabs defaultValue="offers" className="space-y-4 md:space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 md:space-y-6">
         <TabsList className="w-full sm:w-auto">
           <TabsTrigger value="offers" className="flex-1 sm:flex-none">
             Offers
@@ -512,8 +579,12 @@ export default function NotificationsPage() {
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="active" className="flex-1 sm:flex-none">Active Alerts</TabsTrigger>
-          <TabsTrigger value="history" className="flex-1 sm:flex-none">History</TabsTrigger>
+          <TabsTrigger value="active" className="flex-1 sm:flex-none">
+            Active Alerts
+          </TabsTrigger>
+          <TabsTrigger value="history" className="flex-1 sm:flex-none">
+            History
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="offers" className="space-y-4">
@@ -527,17 +598,28 @@ export default function NotificationsPage() {
             <div className="text-center py-8">
               <DollarSign className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-medium mb-2">No offers yet</h3>
-              <p className="text-muted-foreground">You haven't received any offers for your listings.</p>
+              <p className="text-muted-foreground">
+                You haven't received any offers for your listings.
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4">
               {offers.map((offer) => (
-                <Card key={offer.id} className="border-primary/20 hover:border-primary/40 transition-colors">
+                <Card
+                  key={offer.id}
+                  className="border-primary/20 hover:border-primary/40 transition-colors"
+                >
                   <CardContent className="p-4 md:p-6">
                     <div className="flex flex-col md:flex-row gap-4 md:gap-6">
-                      <Link href={`/listings/${offer.listing.id}`} className="relative w-full md:w-48 h-48 md:h-32">
+                      <Link
+                        href={`/listings/${offer.listing.id}`}
+                        className="relative w-full md:w-48 h-48 md:h-32"
+                      >
                         <Image
-                          src={offer.listing.listing_images[0]?.url || `/api/listings/${offer.listing.id}/image`}
+                          src={
+                            offer.listing.listing_images[0]?.url ||
+                            `/api/listings/${offer.listing.id}/image`
+                          }
                           alt={offer.listing.title}
                           fill
                           className="rounded-md object-cover"
@@ -547,10 +629,18 @@ export default function NotificationsPage() {
                         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                           <div className="space-y-2">
                             <div>
-                              <Link href={`/listings/${offer.listing.id}`} className="hover:underline">
-                                <h3 className="font-medium text-lg">{offer.listing.title}</h3>
+                              <Link
+                                href={`/listings/${offer.listing.id}`}
+                                className="hover:underline"
+                              >
+                                <h3 className="font-medium text-lg">
+                                  {offer.listing.title}
+                                </h3>
                               </Link>
-                              <Link href={`/sellers/${offer.seller.watch_pros_name}`} className="hover:underline">
+                              <Link
+                                href={`/sellers/${offer.seller.watch_pros_name}`}
+                                className="hover:underline"
+                              >
                                 <p className="text-sm text-muted-foreground">
                                   Offered by {offer.seller.watch_pros_name}
                                 </p>
@@ -560,11 +650,16 @@ export default function NotificationsPage() {
                               <div className="flex items-center gap-1">
                                 <DollarSign className="h-4 w-4 text-primary" />
                                 <span className="text-2xl font-bold text-primary">
-                                  {offer.offer.toLocaleString()} {offer.currency}
+                                  {offer.offer.toLocaleString()}{" "}
+                                  {offer.currency}
                                 </span>
                               </div>
                               <Badge variant="outline" className="ml-2">
-                                {((offer.offer / offer.listing.price) * 100).toFixed(0)}% of asking price
+                                {(
+                                  (offer.offer / offer.listing.price) *
+                                  100
+                                ).toFixed(0)}
+                                % of asking price
                               </Badge>
                             </div>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -576,13 +671,21 @@ export default function NotificationsPage() {
                           </div>
                           <div className="flex flex-col gap-2">
                             <Button asChild className="w-full">
-                              <Link href={`/messages?user=${offer.seller.watch_pros_name}`}>
+                              <Link
+                                href={`/messages?user=${offer.seller.watch_pros_name}`}
+                              >
                                 <MessageSquare className="h-4 w-4 mr-2" />
                                 Contact Buyer
                               </Link>
                             </Button>
-                            <Button variant="outline" className="w-full" asChild>
-                              <Link href={`/sellers/${offer.seller.watch_pros_name}`}>
+                            <Button
+                              variant="outline"
+                              className="w-full"
+                              asChild
+                            >
+                              <Link
+                                href={`/sellers/${offer.seller.watch_pros_name}`}
+                              >
                                 <User className="h-4 w-4 mr-2" />
                                 See Buyer Page
                               </Link>
@@ -599,40 +702,86 @@ export default function NotificationsPage() {
         </TabsContent>
 
         <TabsContent value="active" className="space-y-6 md:space-y-8">
-          {/* Listing Alerts */}
+          {/* All Alerts */}
           <div>
-            <h2 className="text-xl md:text-2xl font-bold mb-4">Listing Alerts</h2>
+            <h2 className="text-xl md:text-2xl font-bold mb-4">
+              Custom Alerts
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-              {listingSubscriptions.map((subscription) => (
-                <Card key={subscription.id} className="hover:bg-muted/50 transition-colors">
+              {modelSubscriptions.map((alert) => (
+                <Card
+                  key={alert.id}
+                  className="hover:bg-muted/50 transition-colors"
+                >
                   <CardContent className="p-3 md:p-4">
-                    <div className="flex gap-3 md:gap-4">
-                      <Link href={`/listings/${subscription.listing.id}`} className="relative w-20 h-20 md:w-24 md:h-24">
+                    <div className="flex items-start gap-3 md:gap-4">
+                      <Link
+                        href={`/models/${alert.model?.id}`}
+                        className="relative w-12 h-12 md:w-14 md:h-14"
+                      >
                         <Image
-                          src={subscription.listing.listing_images[0]?.url || `/api/listings/${subscription.listing.id}/image`}
-                          alt={subscription.listing.title}
+                          src={`/images/brands/${alert.brand?.slug}.png`}
+                          alt={alert.brand?.label || "Brand"}
                           fill
-                          className="rounded-md object-cover"
+                          className="rounded-md object-contain p-1"
                         />
                       </Link>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
                           <div>
-                            <Link href={`/listings/${subscription.listing.id}`} className="hover:underline">
-                              <h3 className="font-medium truncate text-sm md:text-base">{subscription.listing.title}</h3>
-                            </Link>
-                            <p className="text-base md:text-lg font-bold mt-1">
-                              {subscription.listing.price.toLocaleString()} {subscription.listing.currency}
+                              <h3 className="font-medium text-sm md:text-base">
+                                {alert.model?.label}
+                              </h3>
+                            <p className="text-xs md:text-sm text-muted-foreground mt-1">
+                              {alert.brand?.label}
                             </p>
+                            <div className="mt-2 space-y-1">
+                              {alert.reference && (
+                                <div className="flex items-center gap-1 text-xs md:text-sm">
+                                  <span className="text-muted-foreground">
+                                    Reference:
+                                  </span>
+                                  <span className="font-medium">
+                                    {alert.reference}
+                                  </span>
+                                </div>
+                              )}
+                              {alert.max_price && (
+                                <div className="flex items-center gap-1 text-xs md:text-sm">
+                                  <span className="text-muted-foreground">
+                                    Max price:
+                                  </span>
+                                  <span className="font-medium">
+                                    {alert.max_price.toLocaleString()} EUR
+                                  </span>
+                                </div>
+                              )}
+                              {alert.location && (
+                                <div className="flex items-center gap-1 text-xs md:text-sm">
+                                  <span className="text-muted-foreground">
+                                    Location:
+                                  </span>
+                                  <span className="font-medium">
+                                    {countries.find(country => country.value === alert.location)?.label}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
                           </div>
                           <Button
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground hover:text-destructive"
-                            onClick={() => handleDeleteClick('listing', subscription.listing.id, subscription.listing.title)}
+                            onClick={() =>
+                              handleDeleteClick(
+                                "model",
+                                alert.id,
+                                alert.model?.label || "Alert"
+                              )
+                            }
                           >
                             <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Delete subscription</span>
+                            <span className="sr-only">Delete alert</span>
                           </Button>
                         </div>
                       </div>
@@ -642,36 +791,60 @@ export default function NotificationsPage() {
               ))}
             </div>
           </div>
-
-          {/* Model Alerts */}
+          {/* Listing Alerts */}
           <div>
-            <h2 className="text-xl md:text-2xl font-bold mb-4">Model Alerts</h2>
+            <h2 className="text-xl md:text-2xl font-bold mb-4">
+              Listings you follow
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-              {modelSubscriptions.map((subscription) => (
-                <Card key={subscription.id} className="hover:bg-muted/50 transition-colors">
+              {listingSubscriptions.map((subscription) => (
+                <Card
+                  key={subscription.id}
+                  className="hover:bg-muted/50 transition-colors"
+                >
                   <CardContent className="p-3 md:p-4">
-                    <div className="flex items-start gap-3 md:gap-4">
-                      <Link href={`/models/${subscription.model.id}`} className="relative w-12 h-12 md:w-14 md:h-14">
+                    <div className="flex gap-3 md:gap-4">
+                      <Link
+                        href={`/listings/${subscription.listing.id}`}
+                        className="relative w-20 h-20 md:w-24 md:h-24"
+                      >
                         <Image
-                          src={`/images/brands/${subscription.model.brand.slug}.png`}
-                          alt={subscription.model.brand.label}
+                          src={
+                            subscription.listing.listing_images[0]?.url ||
+                            `/api/listings/${subscription.listing.id}/image`
+                          }
+                          alt={subscription.listing.title}
                           fill
-                          className="rounded-md object-contain p-1"
+                          className="rounded-md object-cover"
                         />
                       </Link>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
                           <div>
-                            <Link href={`/models/${subscription.model.id}`} className="hover:underline">
-                              <h3 className="font-medium text-sm md:text-base">{subscription.model.label}</h3>
+                            <Link
+                              href={`/listings/${subscription.listing.id}`}
+                              className="hover:underline"
+                            >
+                              <h3 className="font-medium truncate text-sm md:text-base">
+                                {subscription.listing.title}
+                              </h3>
                             </Link>
-                            <p className="text-xs md:text-sm text-muted-foreground mt-1">{subscription.model.brand.label}</p>
+                            <p className="text-base md:text-lg font-bold mt-1">
+                              {subscription.listing.price.toLocaleString()}{" "}
+                              {subscription.listing.currency}
+                            </p>
                           </div>
                           <Button
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground hover:text-destructive"
-                            onClick={() => handleDeleteClick('model', subscription.model.id, subscription.model.label)}
+                            onClick={() =>
+                              handleDeleteClick(
+                                "listing",
+                                subscription.listing.id,
+                                subscription.listing.title
+                              )
+                            }
                           >
                             <Trash2 className="h-4 w-4" />
                             <span className="sr-only">Delete subscription</span>
@@ -688,12 +861,14 @@ export default function NotificationsPage() {
 
         <TabsContent value="history" className="space-y-3 md:space-y-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl md:text-2xl font-bold">Notification History</h2>
+            <h2 className="text-xl md:text-2xl font-bold">
+              Notification History
+            </h2>
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="text-sm">
-                {notifications.filter(n => !n.is_read).length} unread
+                {notifications.filter((n) => !n.is_read).length} unread
               </Badge>
-              {notifications.some(n => !n.is_read) && (
+              {notifications.some((n) => !n.is_read) && (
                 <Button variant="outline" size="sm" onClick={markAllAsRead}>
                   Mark all as read
                 </Button>
@@ -701,17 +876,26 @@ export default function NotificationsPage() {
             </div>
           </div>
           {notifications.map((notification) => (
-            <Card key={notification.id} className={`hover:bg-muted/50 transition-colors ${!notification.is_read ? 'border-primary/50' : ''}`}>
+            <Card
+              key={notification.id}
+              className={`hover:bg-muted/50 transition-colors ${!notification.is_read ? "border-primary/50" : ""}`}
+            >
               <CardContent className="p-3 md:p-4">
                 <div className="flex gap-3 md:gap-4">
-                  <Link 
-                    href={notification.listing ? `/listings/${notification.listing.id}` : `/models/${notification.model?.id}`} 
+                  <Link
+                    href={
+                      notification.listing
+                        ? `/listings/${notification.listing.id}`
+                        : `/models/${notification.model?.id}`
+                    }
                     className="relative w-14 h-14 md:w-16 md:h-16"
                   >
                     <Image
-                      src={notification.listing 
-                        ? (notification.listing.listing_images?.[0]?.url || `/api/listings/${notification.listing.id}/image`)
-                        : `/images/brands/${notification.model?.brand.slug}.png`
+                      src={
+                        notification.listing
+                          ? notification.listing.listing_images?.[0]?.url ||
+                            `/api/listings/${notification.listing.id}/image`
+                          : `/images/brands/${notification.model?.brand.slug}.png`
                       }
                       alt={notification.title}
                       fill
@@ -721,16 +905,21 @@ export default function NotificationsPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <div>
-                        <Link 
-                          href={notification.listing 
-                            ? `/listings/${notification.listing.id}` 
-                            : `/models/${notification.model?.id}`
-                          } 
+                        <Link
+                          href={
+                            notification.listing
+                              ? `/listings/${notification.listing.id}`
+                              : `/models/${notification.model?.id}`
+                          }
                           className="hover:underline"
                         >
-                          <h3 className="font-medium text-sm md:text-base">{notification.title}</h3>
+                          <h3 className="font-medium text-sm md:text-base">
+                            {notification.title}
+                          </h3>
                         </Link>
-                        <p className="text-xs md:text-sm text-muted-foreground mt-1">{notification.message}</p>
+                        <p className="text-xs md:text-sm text-muted-foreground mt-1">
+                          {notification.message}
+                        </p>
                         <div className="flex items-center gap-2 mt-2">
                           <Clock className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
                           <p className="text-xs md:text-sm text-muted-foreground">
@@ -774,22 +963,22 @@ export default function NotificationsPage() {
           <DialogHeader>
             <DialogTitle>Delete Subscription</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the subscription for {itemToDelete?.name}? You will no longer receive notifications for this {itemToDelete?.type}.
+              Are you sure you want to delete this subscription? You will no longer receive notifications.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
               Cancel
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDeleteConfirm}
-            >
+            <Button variant="destructive" onClick={handleDeleteConfirm}>
               Delete
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

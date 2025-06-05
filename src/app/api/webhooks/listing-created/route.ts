@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { sendEmail, emailTemplates } from '@/lib/email'
-import { ModelSubscription } from '@/types/db/notifications/ModelSubscriptions'
+import { CustomAlert } from '@/types/db/notifications/CustomAlerts'
 import { watchConditions } from '@/data/watch-conditions'
 import { includedOptions } from '@/data/watch-properties'
 
@@ -26,6 +26,9 @@ type ListingDetails = {
   currency: string
   condition: string | null
   included: string | null
+  brand_id: string
+  model_id: string
+  seller_id: string
   brands: {
     label: string
   }
@@ -34,18 +37,22 @@ type ListingDetails = {
   }
 }
 
-// Type pour la jointure avec les utilisateurs
-type ModelSubscriptionWithUser = ModelSubscription & {
-  users: {
-    email: string
-  }
-}
-
 // webpush.setVapidDetails(
 //   'mailto:you@your-domain.com',
 //   process.env.VAPID_PUBLIC_KEY,
 //   process.env.VAPID_PRIVATE_KEY
 // )
+
+// Utility function to fetch emails from a list of user_ids
+async function fetchEmails(userIds: string[]): Promise<Profile[]> {
+  const { data, error } = await supabaseAdmin
+    .from('profiles')
+    .select('id, email')
+    .in('id', userIds)
+
+  if (error) throw error
+  return data || []
+}
 
 export async function POST(request: Request) {
   console.log('📥 Webhook listing-created received')
@@ -82,6 +89,9 @@ export async function POST(request: Request) {
         currency,
         condition,
         included,
+        brand_id,
+        model_id,
+        seller_id,
         brands:brand_id (
           label
         ),
@@ -110,99 +120,131 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing brand or model information' }, { status: 404 })
     }
 
-    // 1. Find model subscribers
-    console.log('🔍 Searching subscribers for model:', listingDetails.models.label)
-    const { data: subs, error: subErr } = await supabaseAdmin
-      .from('model_subscriptions')
-      .select('user_id')
-      .eq('model_id', record.model_id)
+    let totalAlerts = 0
+    let emailsSent = 0
+    let emailsFailed = 0
 
-    if (subErr) {
-      console.error('❌ Error finding subscribers:', subErr)
-      throw subErr
-    }
-    if (!subs?.length) {
-      console.log('ℹ️ No subscribers for this model')
-      return NextResponse.json({ ok: true, info: 'No subscribers for this model' })
-    }
-    console.log('👥 Number of subscribers found:', subs.length)
+    // Get seller's location
+    const { data: sellerAddr, error: addrError } = await supabaseAdmin
+      .from('seller_addresses')
+      .select('country, city')
+      .eq('seller_id', listingDetails.seller_id)
+      .single()
 
-    // 2. Get user emails
-    const userIds = subs.map(row => row.user_id)
-    
-    // Utility function to fetch emails from a list of user_ids
-    async function fetchEmails(userIds: string[]): Promise<Profile[]> {
-      const { data, error } = await supabaseAdmin
-        .from('profiles')
-        .select('id, email')
-        .in('id', userIds)
-
-      if (error) throw error
-      return data || []
+    if (addrError) {
+      console.warn('⚠️ Could not fetch seller location:', addrError)
     }
 
-    const users = await fetchEmails(userIds)
-    const validEmails = users
-      .map((u) => u.email)
-      .filter((e): e is string => typeof e === 'string')
+    const country = sellerAddr?.country ?? null
+    const city = sellerAddr?.city ?? null
 
-    if (validEmails.length === 0) {
-      console.log('ℹ️ No valid emails found for subscribers')
-      return NextResponse.json({ ok: true, info: 'No valid emails found for subscribers' })
+    // Build filter for custom alerts
+    const { data: rawAlerts, error: alertError } = await supabaseAdmin
+      .from('custom_alerts')
+      .select('id, user_id, brand_id, model_id, reference, max_price, location')
+      .or(`and(brand_id.eq.${listingDetails.brand_id},model_id.eq.${listingDetails.model_id}),and(brand_id.eq.${listingDetails.brand_id},model_id.is.null),and(brand_id.is.null,model_id.eq.${listingDetails.model_id})`)
+
+    if (alertError) {
+      console.error('❌ Error fetching custom alerts:', alertError)
+      throw alertError
     }
 
-    // 3. Send emails to subscribers
-    console.log('📧 Sending emails to subscribers...')
-    const conditionLabel = listingDetails.condition ? watchConditions.find(c => c.slug === listingDetails.condition)?.label : null
-    const includedLabel = listingDetails.included ? includedOptions.find(i => i.id === listingDetails.included)?.title : null
-    const emailResults = await Promise.allSettled(
-      validEmails.map((to) => {
-        const emailContent = emailTemplates.newWatchMatch(
-          brandName,
-          modelName,
-          listingDetails.title,
-          listingDetails.reference,
-          listingDetails.description,
-          listingDetails.year,
-          listingDetails.price,
-          listingDetails.currency,
-          conditionLabel || null,
-          includedLabel || null
-        )
-        return sendEmail({
-          to,
-          ...emailContent
-        })
+    if (!rawAlerts?.length) {
+      console.log('ℹ️ No matching custom alerts found')
+    } else {
+      // Filter alerts by additional criteria
+      const matchingAlerts = rawAlerts.filter(alert => {
+        // Check reference if specified
+        if (alert.reference && alert.reference !== listingDetails.reference) {
+          return false
+        }
+        // Check max price if specified
+        if (alert.max_price && alert.max_price < listingDetails.price) {
+          return false
+        }
+        // Check location if specified
+        if (alert.location) {
+          const targetLoc = alert.location.toLowerCase()
+          if (country && !country.toLowerCase().includes(targetLoc)) return false
+          if (city && !city.toLowerCase().includes(targetLoc)) return false
+        }
+        return true
       })
-    )
 
-    const failedEmails = emailResults
-      .map((result, index) => result.status === 'rejected' ? validEmails[index] : null)
-      .filter(Boolean)
+      if (matchingAlerts.length > 0) {
+        totalAlerts = matchingAlerts.length
+        console.log(`👥 ${totalAlerts} matching custom alerts found`)
 
-    if (failedEmails.length > 0) {
-      console.log('⚠️ Failed emails:', failedEmails.length, 'emails')
+        // Get unique user IDs
+        const userIdsSet = new Set(matchingAlerts.map(a => a.user_id))
+        const userIds = Array.from(userIdsSet)
+
+        // Get user emails
+        const users = await fetchEmails(userIds)
+        const validEmails = users
+          .map((u: Profile) => u.email)
+          .filter((e): e is string => typeof e === 'string')
+
+        if (validEmails.length > 0) {
+          // Send emails
+          console.log('📧 Sending emails for custom alerts...')
+          const conditionLabel = listingDetails.condition ? watchConditions.find(c => c.slug === listingDetails.condition)?.label : null
+          const includedLabel = listingDetails.included ? includedOptions.find(i => i.id === listingDetails.included)?.title : null
+
+          const emailResults = await Promise.allSettled(
+            validEmails.map((to: string) => {
+              const emailContent = emailTemplates.newWatchMatch(
+                brandName,
+                modelName,
+                listingDetails.title,
+                listingDetails.reference,
+                listingDetails.description,
+                listingDetails.year,
+                listingDetails.price,
+                listingDetails.currency,
+                conditionLabel || null,
+                includedLabel || null
+              )
+              return sendEmail({
+                to,
+                ...emailContent
+              })
+            })
+          )
+
+          const failedEmails = emailResults
+            .map((result: PromiseSettledResult<any>, index: number) => result.status === 'rejected' ? validEmails[index] : null)
+            .filter(Boolean)
+
+          emailsSent += validEmails.length - failedEmails.length
+          emailsFailed += failedEmails.length
+
+          if (failedEmails.length > 0) {
+            console.log('⚠️ Failed custom alert emails:', failedEmails.length, 'emails')
+          }
+
+          // Create in-app notifications
+          console.log('💾 Creating in-app notifications for custom alerts...')
+          const notificationTitle = `New listing matching your criteria`
+          const notificationMessage = `A new ${brandName} ${modelName} (ref ${listingDetails.reference}) has been listed for ${listingDetails.price.toLocaleString()} ${listingDetails.currency}.`
+
+          await supabaseAdmin.from('notifications').insert(
+            userIds.map(uid => ({
+              user_id: uid,
+              listing_id: listingId,
+              type: 'new_listing',
+              title: notificationTitle,
+              message: notificationMessage,
+            }))
+          )
+        }
+      }
     }
-
-    // 4. Create in-app notifications
-    console.log('💾 Creating in-app notifications...')
-    const notificationTitle = `New ${brandName} ${modelName} listed!`
-    const notificationMessage = `A new ${brandName} ${modelName} has been listed for ${listingDetails.price.toLocaleString()} ${listingDetails.currency}.`
-
-    await supabaseAdmin.from('notifications').insert(
-      userIds.map(uid => ({
-        user_id: uid,
-        listing_id: listingId,
-        type: 'new_listing',
-        title: notificationTitle,
-        message: notificationMessage,
-      }))
-    )
 
     const stats = {
-      totalSubscribers: userIds.length,
-      emailsSent: validEmails.length - failedEmails.length,
-      emailsFailed: failedEmails.length
+      totalAlerts,
+      emailsSent,
+      emailsFailed
     }
     console.log('✅ Webhook completed successfully:', stats)
 
