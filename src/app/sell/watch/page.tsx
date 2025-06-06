@@ -5,24 +5,9 @@ import { useRouter } from "next/navigation"
 import WatchForm from "@/components/forms/WatchForm"
 import { useToast } from "@/components/ui/use-toast"
 import { useAuthGuard } from "@/hooks/useAuthGuard"
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 export default function SellWatchPage() {
-  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
-    requireAuth: true,
-    requireSeller: true,
-    requireVerified: true
-  })
-  if (isAuthLoading) {
-    return (
-      <div className="min-h-screen bg-background py-8">
-        <div className="container">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-muted rounded w-1/3"></div>
-          </div>
-        </div>
-      </div>
-    )
-  }
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
@@ -84,6 +69,7 @@ export default function SellWatchPage() {
   }
 
   return (
+    <ProtectedRoute requireSeller requireVerified>  
     <main className="container py-4 sm:py-12">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-4 sm:mb-12">
@@ -101,5 +87,6 @@ export default function SellWatchPage() {
         />
       </div>
     </main>
+    </ProtectedRoute>
   )
 } 

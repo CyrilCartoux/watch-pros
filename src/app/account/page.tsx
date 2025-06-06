@@ -16,25 +16,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useSearchParams, useRouter } from "next/navigation"
-import { useAuthGuard } from "@/hooks/useAuthGuard"
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 export default function AccountPage() {
-  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
-    requireAuth: true,
-    requireSeller: true,
-    requireVerified: true
-  })
-  if (isAuthLoading) {
-    return (
-      <div className="min-h-screen bg-background py-8">
-        <div className="container">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-muted rounded w-1/3"></div>
-          </div>
-        </div>
-      </div>
-    )
-  }
   const searchParams = useSearchParams()
   const router = useRouter()
   const tab = searchParams.get('tab') || 'dashboard'
@@ -45,6 +29,8 @@ export default function AccountPage() {
 
 
   return (
+    <ProtectedRoute requireSeller requireVerified>
+
     <div className="container py-4 md:py-8">
       <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">My Account</h1>
 
@@ -161,5 +147,6 @@ export default function AccountPage() {
         </TabsContent>
       </Tabs>
     </div>
+    </ProtectedRoute>
   )
 }

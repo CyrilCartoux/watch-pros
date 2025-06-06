@@ -26,6 +26,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuthGuard } from "@/hooks/useAuthGuard"
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 interface Seller {
   account: {
@@ -78,22 +79,6 @@ function getCountryFlag(countryCode: string): string {
 }
 
 export default function SellersListPage() {
-  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
-    requireAuth: true,
-    requireSeller: true,
-    requireVerified: true
-  })
-  if (isAuthLoading) {
-    return (
-      <div className="min-h-screen bg-background py-8">
-        <div className="container">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-muted rounded w-1/3"></div>
-          </div>
-        </div>
-      </div>
-    )
-  }
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -320,6 +305,8 @@ export default function SellersListPage() {
   }
 
   return (
+    <ProtectedRoute requireSeller requireVerified>
+
     <main className="min-h-screen bg-background py-8">
       <div className="container">
         {/* Header */}
@@ -577,5 +564,6 @@ export default function SellersListPage() {
         </Dialog>
       </div>
     </main>
+    </ProtectedRoute>
   )
 }

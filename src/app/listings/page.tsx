@@ -25,7 +25,7 @@ import { Label } from "@/components/ui/label"
 import { useBrandsAndModels } from "@/hooks/useBrandsAndModels"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useFavorites } from "@/hooks/useFavorites"
-import { useAuthGuard } from "@/hooks/useAuthGuard"
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 interface Brand {
   id: string
@@ -115,22 +115,6 @@ interface Filters {
 }
 
 export default function ListingsPage() {
-  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
-    requireAuth: true,
-    requireSeller: true,
-    requireVerified: true
-  })
-  if (isAuthLoading) {
-    return (
-      <div className="min-h-screen bg-background py-8">
-        <div className="container">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-muted rounded w-1/3"></div>
-          </div>
-        </div>
-      </div>
-    )
-  }
   const router = useRouter()
   const searchParams = useSearchParams()
   const { brands, models, isLoading: isLoadingBrands, error: brandsError, fetchModels } = useBrandsAndModels()
@@ -733,190 +717,192 @@ export default function ListingsPage() {
   }, [sortBy])
 
   return (
-    <main className="min-h-screen bg-background py-8">
-      <div className="container">
-        {error && (
-          <div className="mb-4 p-4 bg-destructive/10 text-destructive rounded-lg">
-            <p className="font-medium">Error</p>
-            <p className="text-sm">{error}</p>
-          </div>
-        )}
-        <div className="flex flex-col gap-4 mb-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-lg md:text-2xl font-bold">
-              {totalItems.toLocaleString()} listings
-            </h1>
-            <Select 
-              value={sortBy} 
-              onValueChange={setSortBy}
-            >
-              <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="price-asc">Price ascending</SelectItem>
-                <SelectItem value="price-desc">Price descending</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Active Filters */}
-          <div className="flex flex-wrap items-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setIsFiltersOpen(true)}
-              className="h-8"
-            >
-              <SlidersHorizontal className="h-4 w-4 mr-2" />
-              Filters
-            </Button>
-
-            {Object.entries(filters).map(([key, value]) => {
-              if (!value) return null
-              return (
-                <div
-                  key={key}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-xs"
-                >
-                  <span>{getFilterLabel(key as keyof Filters, value)}</span>
-                  <button
-                    onClick={() => removeFilter(key as keyof Filters)}
-                    className="hover:bg-primary/20 rounded-full p-0.5"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Listings Grid */}
-          <div className="lg:col-span-4">
-            {isLoading ? (
-              <div className="grid grid-cols-2 gap-3 md:gap-4">
-                {Array.from({ length: itemsPerPage }).map((_, i) => (
-                  <div key={i} className="animate-pulse">
-                    <div className="bg-gray-200 h-64 rounded-lg mb-4"></div>
-                    <div className="space-y-3">
-                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                      <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : listings.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-                <div className="w-24 h-24 mb-6 text-muted-foreground">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold mb-2">No listings found</h3>
-                <p className="text-muted-foreground max-w-sm">
-                  {Object.values(tempFilters).some(Boolean) 
-                    ? "Try adjusting your filters or search terms to find what you're looking for."
-                    : "There are no listings available at the moment. Please check back later."}
-                </p>
-                {Object.values(tempFilters).some(Boolean) && (
-                  <Button
-                    variant="outline"
-                    className="mt-4"
-                    onClick={handleClearFilters}
-                  >
-                    Clear all filters
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
-                {listings.map((listing) => (
-                  <ListingCard
-                    key={listing.id}
-                    listing={listing}
-                    isFavorite={isFavorite(listing.id)}
-                    onFavoriteClick={() => {
-                      if (isFavorite(listing.id)) {
-                        removeFavorite(listing.id)
-                      } else {
-                        addFavorite(listing.id)
-                      }
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Pagination */}
-            {!isLoading && listings.length > 0 && (
-              <div className="flex justify-center gap-2 mt-8">
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                >
-                  Previous
-                </Button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <Button
-                    key={page}
-                    variant={currentPage === page ? "default" : "outline"}
-                    onClick={() => setCurrentPage(page)}
-                  >
-                    {page}
-                  </Button>
-                ))}
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                </Button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Filters Modal */}
-        <Dialog open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
-          <DialogContent className="sm:max-w-[600px] h-[calc(100dvh-4rem)] sm:h-auto p-0 sm:p-6 gap-0 sm:gap-6">
-            <DialogHeader className="p-4 sm:p-0">
-              <DialogTitle>Filters</DialogTitle>
-            </DialogHeader>
-            <div className="h-[calc(100%-8rem)] sm:h-auto overflow-y-auto px-4 sm:px-0">
-              {renderFilters()}
+    <ProtectedRoute requireSeller requireVerified>
+      <main className="min-h-screen bg-background py-8">
+        <div className="container">
+          {error && (
+            <div className="mb-4 p-4 bg-destructive/10 text-destructive rounded-lg">
+              <p className="font-medium">Error</p>
+              <p className="text-sm">{error}</p>
             </div>
-            <div className="fixed sm:static bottom-0 left-0 right-0 p-4 sm:p-0 bg-background border-t sm:border-0 flex gap-2 sm:gap-4">
+          )}
+          <div className="flex flex-col gap-4 mb-6">
+            <div className="flex items-center justify-between">
+              <h1 className="text-lg md:text-2xl font-bold">
+                {totalItems.toLocaleString()} listings
+              </h1>
+              <Select 
+                value={sortBy} 
+                onValueChange={setSortBy}
+              >
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="price-asc">Price ascending</SelectItem>
+                  <SelectItem value="price-desc">Price descending</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Active Filters */}
+            <div className="flex flex-wrap items-center gap-2">
               <Button 
                 variant="outline" 
-                className="flex-1"
-                onClick={handleClearFilters}
+                size="sm"
+                onClick={() => setIsFiltersOpen(true)}
+                className="h-8"
               >
-                Clear filters
+                <SlidersHorizontal className="h-4 w-4 mr-2" />
+                Filters
               </Button>
-              <Button 
-                className="flex-1"
-                onClick={handleApplyFilters}
-              >
-                Apply filters
-              </Button>
+
+              {Object.entries(filters).map(([key, value]) => {
+                if (!value) return null
+                return (
+                  <div
+                    key={key}
+                    className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-xs"
+                  >
+                    <span>{getFilterLabel(key as keyof Filters, value)}</span>
+                    <button
+                      onClick={() => removeFilter(key as keyof Filters)}
+                      className="hover:bg-primary/20 rounded-full p-0.5"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                )
+              })}
             </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </main>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Listings Grid */}
+            <div className="lg:col-span-4">
+              {isLoading ? (
+                <div className="grid grid-cols-2 gap-3 md:gap-4">
+                  {Array.from({ length: itemsPerPage }).map((_, i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="bg-gray-200 h-64 rounded-lg mb-4"></div>
+                      <div className="space-y-3">
+                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : listings.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+                  <div className="w-24 h-24 mb-6 text-muted-foreground">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">No listings found</h3>
+                  <p className="text-muted-foreground max-w-sm">
+                    {Object.values(tempFilters).some(Boolean) 
+                      ? "Try adjusting your filters or search terms to find what you're looking for."
+                      : "There are no listings available at the moment. Please check back later."}
+                  </p>
+                  {Object.values(tempFilters).some(Boolean) && (
+                    <Button
+                      variant="outline"
+                      className="mt-4"
+                      onClick={handleClearFilters}
+                    >
+                      Clear all filters
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
+                  {listings.map((listing) => (
+                    <ListingCard
+                      key={listing.id}
+                      listing={listing}
+                      isFavorite={isFavorite(listing.id)}
+                      onFavoriteClick={() => {
+                        if (isFavorite(listing.id)) {
+                          removeFavorite(listing.id)
+                        } else {
+                          addFavorite(listing.id)
+                        }
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Pagination */}
+              {!isLoading && listings.length > 0 && (
+                <div className="flex justify-center gap-2 mt-8">
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </Button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <Button
+                      key={page}
+                      variant={currentPage === page ? "default" : "outline"}
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </Button>
+                  ))}
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Filters Modal */}
+          <Dialog open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+            <DialogContent className="sm:max-w-[600px] h-[calc(100dvh-4rem)] sm:h-auto p-0 sm:p-6 gap-0 sm:gap-6">
+              <DialogHeader className="p-4 sm:p-0">
+                <DialogTitle>Filters</DialogTitle>
+              </DialogHeader>
+              <div className="h-[calc(100%-8rem)] sm:h-auto overflow-y-auto px-4 sm:px-0">
+                {renderFilters()}
+              </div>
+              <div className="fixed sm:static bottom-0 left-0 right-0 p-4 sm:p-0 bg-background border-t sm:border-0 flex gap-2 sm:gap-4">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={handleClearFilters}
+                >
+                  Clear filters
+                </Button>
+                <Button 
+                  className="flex-1"
+                  onClick={handleApplyFilters}
+                >
+                  Apply filters
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </main>
+    </ProtectedRoute>
   )
 }

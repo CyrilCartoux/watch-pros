@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link"
 import brandsData from "@/data/brands.json"
-import { useAuthGuard } from "@/hooks/useAuthGuard"
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 interface Brand {
   name: string
@@ -14,22 +14,6 @@ interface Brand {
 }
 
 export default function BrandsPage() {
-  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
-    requireAuth: true,
-    requireSeller: true,
-    requireVerified: true
-  })
-  if (isAuthLoading) {
-    return (
-      <div className="min-h-screen bg-background py-8">
-        <div className="container">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-muted rounded w-1/3"></div>
-          </div>
-        </div>
-      </div>
-    )
-  }
   // Convert object to array and sort by name
   const brands = Object.values(brandsData) as Brand[]
   const sortedBrands = brands.sort((a, b) => a.name.localeCompare(b.name))
@@ -45,6 +29,8 @@ export default function BrandsPage() {
   }, {} as Record<string, Brand[]>)
 
   return (
+    <ProtectedRoute requireSeller requireVerified>
+
     <main className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative py-12 md:py-20 bg-gradient-to-b from-background to-muted/30">
@@ -387,5 +373,6 @@ export default function BrandsPage() {
         </div>
       </section>
     </main>
+    </ProtectedRoute>
   )
 } 

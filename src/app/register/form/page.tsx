@@ -13,6 +13,7 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { countries, titles, phonePrefixes } from "@/data/form-options"
 import { useAuthGuard } from "@/hooks/useAuthGuard"
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 // Constants for file validation
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -120,22 +121,6 @@ const FormError = ({ error, isSubmitted }: { error?: string, isSubmitted: boolea
 }
 
 export default function RegisterFormPage() {
-  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
-    requireAuth: true,
-    requireSeller: false,
-    requireVerified: false
-  })
-  if (isAuthLoading) {
-    return (
-      <div className="min-h-screen bg-background py-8">
-        <div className="container">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-muted rounded w-1/3"></div>
-          </div>
-        </div>
-      </div>
-    )
-  }
   const [paymentMethod, setPaymentMethod] = useState("card")
   const [currentTab, setCurrentTab] = useState("account")
   const [isLoading, setIsLoading] = useState(false)
@@ -384,6 +369,8 @@ export default function RegisterFormPage() {
   }
 
   return (
+    <ProtectedRoute requireAuth>
+
     <main className="container py-12">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-12">
@@ -1468,5 +1455,6 @@ export default function RegisterFormPage() {
         </Button>
       </div>
     </main>
+    </ProtectedRoute>
   )
 } 

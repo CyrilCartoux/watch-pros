@@ -15,7 +15,7 @@ import { watchConditions } from "@/data/watch-conditions"
 import { useFavorites } from "@/hooks/useFavorites"
 import { useAuth } from "@/contexts/AuthContext"
 import { useToast } from "@/components/ui/use-toast"
-import { useAuthGuard } from "@/hooks/useAuthGuard"
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 interface ListingData {
   id: string
@@ -95,11 +95,6 @@ interface Props {
 }
 
 export default function ListingPage({ params }: Props) {
-  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
-    requireAuth: true,
-    requireSeller: true,
-    requireVerified: true
-  })
   const [currentImage, setCurrentImage] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
   const [touchStart, setTouchStart] = useState(0)
@@ -371,38 +366,6 @@ export default function ListingPage({ params }: Props) {
     }
   }
 
-  if (isAuthLoading) {
-    return (
-      <div className="min-h-screen bg-background py-8">
-        <div className="container">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-muted rounded w-1/3"></div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <div className="aspect-square bg-muted rounded-lg"></div>
-                <div className="grid grid-cols-4 gap-2">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="aspect-square bg-muted rounded-lg"></div>
-                  ))}
-                </div>
-              </div>
-              <div className="space-y-6">
-                <div className="h-8 bg-muted rounded w-2/3"></div>
-                <div className="h-4 bg-muted rounded w-1/3"></div>
-                <div className="h-12 bg-muted rounded"></div>
-                <div className="h-32 bg-muted rounded"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!isAuthorized) {
-    return null // La redirection est gérée par le hook
-  }
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background py-8">
@@ -448,6 +411,7 @@ export default function ListingPage({ params }: Props) {
   }
 
   return (
+    <ProtectedRoute requireSeller requireVerified>
     <main className="min-h-screen bg-background">
       <div className="container py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -892,5 +856,6 @@ export default function ListingPage({ params }: Props) {
         </div>
       </div>
     </main>
+    </ProtectedRoute>
   )
 } 

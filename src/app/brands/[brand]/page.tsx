@@ -13,7 +13,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import { Button } from "@/components/ui/button"
-import { useAuthGuard } from "@/hooks/useAuthGuard"
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 interface BrandData {
   name: string
@@ -43,22 +43,6 @@ interface BrandData {
 }
 
 export default function BrandPage({ params }: { params: { brand: string } }) {
-  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
-    requireAuth: true,
-    requireSeller: true,
-    requireVerified: true
-  })
-  if (isAuthLoading) {
-    return (
-      <div className="min-h-screen bg-background py-8">
-        <div className="container">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-muted rounded w-1/3"></div>
-          </div>
-        </div>
-      </div>
-    )
-  }
   const brandInfo = brandsData[params.brand as keyof typeof brandsData] as BrandData
   const [currentModel, setCurrentModel] = useState(0)
   const [touchStart, setTouchStart] = useState<number | null>(null)
@@ -96,6 +80,7 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
   }
 
   return (
+    <ProtectedRoute requireSeller requireVerified>
     <main className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative min-h-[200px] md:min-h-[420px] flex flex-col items-center justify-center bg-gradient-to-b from-background to-muted/30 py-6 md:py-16">
@@ -321,5 +306,6 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
         </div>
       </section>
     </main>
+    </ProtectedRoute>
   )
 } 

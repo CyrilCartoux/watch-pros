@@ -14,8 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { useAuthGuard } from "@/hooks/useAuthGuard"
-
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 interface Brand {
   id: string
   slug: string
@@ -33,22 +32,6 @@ interface Model {
 }
 
 export default function ModelsPage() {
-  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
-    requireAuth: true,
-    requireSeller: true,
-    requireVerified: true
-  })
-  if (isAuthLoading) {
-    return (
-      <div className="min-h-screen bg-background py-8">
-        <div className="container">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-muted rounded w-1/3"></div>
-          </div>
-        </div>
-      </div>
-    )
-  }
   const { toast } = useToast()
   const [activeTab, setActiveTab] = useState("featured")
   const [searchQuery, setSearchQuery] = useState("")
@@ -150,13 +133,6 @@ export default function ModelsPage() {
     }
   }
 
-  const filterAndSortModels = (models: Model[]) => {
-    return models.filter(model => 
-      model.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      model.brands.label.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  }
-
   // Définir l'ordre des marques populaires
   const popularBrandsOrder = ["rolex", "audemars-piguet", "patek-philippe"]
   
@@ -209,6 +185,7 @@ export default function ModelsPage() {
   }
 
   return (
+    <ProtectedRoute requireSeller requireVerified>
     <main className="min-h-screen bg-background">
       <div className="container py-8">
         <h1 className="text-3xl md:text-4xl font-bold mb-2">Popular Models</h1>
@@ -424,5 +401,6 @@ export default function ModelsPage() {
         </Tabs>
       </div>
     </main>
+    </ProtectedRoute>
   )
 }
