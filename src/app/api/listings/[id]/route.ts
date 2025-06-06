@@ -138,6 +138,7 @@ export async function GET(
         )
       `)
       .eq('id', params.id)
+      .eq('status', 'active')
       .single()
 
     if (error) {

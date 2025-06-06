@@ -24,6 +24,7 @@ import Image from "next/image"
 import { Label } from "@/components/ui/label"
 import { useBrandsAndModels } from "@/hooks/useBrandsAndModels"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useFavorites } from "@/hooks/useFavorites"
 
 interface Brand {
   id: string
@@ -116,6 +117,7 @@ export default function ListingsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { brands, models, isLoading: isLoadingBrands, error: brandsError, fetchModels } = useBrandsAndModels()
+  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites()
   
   // Initialize filters from URL params
   const getInitialFilters = () => {
@@ -824,7 +826,18 @@ export default function ListingsPage() {
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4">
                 {listings.map((listing) => (
-                  <ListingCard key={listing.id} listing={listing} />
+                  <ListingCard
+                    key={listing.id}
+                    listing={listing}
+                    isFavorite={isFavorite(listing.id)}
+                    onFavoriteClick={() => {
+                      if (isFavorite(listing.id)) {
+                        removeFavorite(listing.id)
+                      } else {
+                        addFavorite(listing.id)
+                      }
+                    }}
+                  />
                 ))}
               </div>
             )}

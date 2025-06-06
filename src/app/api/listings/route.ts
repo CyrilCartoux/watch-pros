@@ -121,6 +121,7 @@ export async function GET(request: Request) {
           watch_pros_name
         )
       `, { count: 'exact' })
+      .eq('status', 'active')
 
     // Apply text search if search term exists
     if (search) {

@@ -37,14 +37,15 @@ interface ListingCardProps {
       label: string
     } | null
   }
+  isFavorite: boolean
+  onFavoriteClick: () => void
 }
 
-export function ListingCard({ listing }: ListingCardProps) {
+export function ListingCard({ listing, isFavorite, onFavoriteClick }: ListingCardProps) {
   const [currentImage, setCurrentImage] = useState(0)
   const [touchStart, setTouchStart] = useState<number | null>(null)
   const [touchEnd, setTouchEnd] = useState<number | null>(null)
   const { user } = useAuth()
-  const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites()
   const { toast } = useToast()
 
   const minSwipeDistance = 50
@@ -64,27 +65,7 @@ export function ListingCard({ listing }: ListingCardProps) {
       return
     }
 
-    try {
-      if (isFavorite(listing.id)) {
-        await removeFavorite(listing.id)
-        toast({
-          title: "Removed from favorites",
-          description: "The listing has been removed from your favorites",
-        })
-      } else {
-        await addFavorite(listing.id)
-        toast({
-          title: "Added to favorites",
-          description: "The listing has been added to your favorites",
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update favorites",
-        variant: "destructive",
-      })
-    }
+    onFavoriteClick()
   }
 
   const nextImage = (e: React.MouseEvent) => {
@@ -159,16 +140,16 @@ export function ListingCard({ listing }: ListingCardProps) {
                   <button
                     onClick={handleFavoriteClick}
                     className={`p-2 rounded-full backdrop-blur-sm transition-colors ${
-                      isFavorite(listing.id)
+                      isFavorite
                         ? "bg-red-500 hover:bg-red-600" 
                         : "bg-background/80 hover:bg-background/90"
                     }`}
                   >
-                    <Heart className={`h-4 w-4 ${isFavorite(listing.id) ? "text-white fill-white" : "text-muted-foreground"}`} />
+                    <Heart className={`h-4 w-4 ${isFavorite ? "text-white fill-white" : "text-muted-foreground"}`} />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {isFavorite(listing.id) 
+                  {isFavorite 
                     ? "Remove from favorites" 
                     : "Add to favorites"}
                 </TooltipContent>

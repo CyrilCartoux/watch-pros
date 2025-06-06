@@ -26,7 +26,7 @@
 //     price numeric(10, 2) not null,
 //     currency character varying(3) not null default 'EUR'::character varying,
 //     shipping_delay character varying(20) null,
-//     status character varying(20) null default 'draft'::character varying,
+//     status character varying(20) null default 'active'::character varying,
 //     created_at timestamp with time zone null default CURRENT_TIMESTAMP,
 //     updated_at timestamp with time zone null default CURRENT_TIMESTAMP,
 //     listing_type text null,
@@ -92,7 +92,7 @@
  * @property {number} price - Price of the item
  * @property {string} currency - Currency code (default: 'EUR')
  * @property {string} shipping_delay - Expected shipping delay
- * @property {string} status - Current status of the listing (default: 'draft')
+ * @property {string} status - Current status of the listing (default: 'active')
  * @property {string} created_at - ISO 8601 timestamp of when the listing was created
  * @property {string} updated_at - ISO 8601 timestamp of when the listing was last updated
  * @property {string} listing_type - Type of listing ('watch' or 'accessory')
@@ -145,7 +145,7 @@ export type Listing = {
     currency: string
     /** Expected shipping delay */
     shipping_delay: string | null
-    /** Current status of the listing (default: 'draft') */
+    /** Current status of the listing (default: 'active') */
     status: string | null
     /** ISO 8601 timestamp of when the listing was created */
     created_at: string | null

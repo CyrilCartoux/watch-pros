@@ -15,6 +15,8 @@ import { watchConditions } from "@/data/watch-conditions"
 import { useFavorites } from "@/hooks/useFavorites"
 import { useAuth } from "@/contexts/AuthContext"
 import { useToast } from "@/components/ui/use-toast"
+import { countries } from "@/data/form-options"
+import { getCountryFlag } from "@/lib/utils"
 
 interface ListingData {
   id: string
@@ -117,6 +119,8 @@ export default function ListingPage({ params }: Props) {
   const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites()
   const { toast } = useToast()
 
+  const minSwipeDistance = 50
+
   useEffect(() => {
     const fetchListing = async () => {
       try {
@@ -176,41 +180,51 @@ export default function ListingPage({ params }: Props) {
   }
 
   const handleSubmitOffer = async () => {
-    if (!offerAmount || isNaN(Number(offerAmount))) return
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to make an offer",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!offerAmount) {
+      toast({
+        title: "Invalid offer",
+        description: "Please enter an offer amount",
+        variant: "destructive",
+      })
+      return
+    }
 
     setIsSubmittingOffer(true)
     try {
-      const response = await fetch('/api/offers', {
-        method: 'POST',
+      const response = await fetch("/api/offers", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          listing_id: listing!.id,
-          offer: Number(offerAmount),
-          currency: listing!.currency
+          listing_id: listing?.id,
+          amount: parseFloat(offerAmount),
         }),
       })
 
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to submit offer')
+        throw new Error("Failed to submit offer")
       }
 
-      setIsOfferSuccess(true)
-
-      // Close modal after 2 seconds
-      setTimeout(() => {
-        setIsOfferDialogOpen(false)
-        setIsOfferSuccess(false)
-        setOfferAmount("")
-      }, 2000)
-    } catch (error) {
-      console.error('Error submitting offer:', error)
       toast({
-        variant: "destructive",
+        title: "Offer submitted",
+        description: "Your offer has been submitted successfully",
+      })
+      setOfferAmount("")
+    } catch (error) {
+      toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to submit offer",
+        description: "Failed to submit offer",
+        variant: "destructive",
       })
     } finally {
       setIsSubmittingOffer(false)
@@ -218,22 +232,52 @@ export default function ListingPage({ params }: Props) {
   }
 
   const handleSubmitMessage = async () => {
-    if (!message.trim()) return
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to send a message",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!message) {
+      toast({
+        title: "Invalid message",
+        description: "Please enter a message",
+        variant: "destructive",
+      })
+      return
+    }
 
     setIsSubmittingMessage(true)
     try {
-      // TODO: Submit message to backend
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      setIsMessageSuccess(true)
-      // Close modal after 2 seconds
-      setTimeout(() => {
-        setIsContactDialogOpen(false)
-        setIsMessageSuccess(false)
-        setMessage("")
-      }, 2000)
+      const response = await fetch("/api/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          listing_id: listing?.id,
+          message,
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to send message")
+      }
+
+      toast({
+        title: "Message sent",
+        description: "Your message has been sent successfully",
+      })
+      setMessage("")
     } catch (error) {
-      console.error(error)
-      // TODO: Show error message
+      toast({
+        title: "Error",
+        description: "Failed to send message",
+        variant: "destructive",
+      })
     } finally {
       setIsSubmittingMessage(false)
     }
@@ -278,7 +322,7 @@ export default function ListingPage({ params }: Props) {
     if (!user) {
       toast({
         title: "Authentication required",
-        description: "Please sign in to enable notifications",
+        description: "Please sign in to set notifications",
         variant: "destructive",
       })
       return
@@ -432,7 +476,7 @@ export default function ListingPage({ params }: Props) {
           {/* Right Column - Details */}
           <div className="space-y-6">
             {/* Title and Actions */}
-            <div className="flex justify-between items-start">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-bold">{listing.title}</h1>
                 <p className="text-muted-foreground">{listing.reference}</p>
@@ -458,9 +502,9 @@ export default function ListingPage({ params }: Props) {
                           setShowNotificationTooltip(true)
                         }
                       }}
-                      className={notifyListing ? "bg-primary/10 hover:bg-primary/20 border-primary" : ""}
+                      className={notifyListing ? "bg-red-50 hover:bg-red-100 border-red-200" : ""}
                     >
-                      <Bell className={`h-5 w-5 ${notifyListing ? "text-primary fill-primary" : ""}`} />
+                      <Bell className={`h-5 w-5 ${notifyListing ? "text-red-500 fill-red-500" : ""}`} />
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="w-80 p-4">
@@ -486,7 +530,7 @@ export default function ListingPage({ params }: Props) {
                     </div>
                   </DialogContent>
                 </Dialog>
-                <Button 
+                <Button
                   variant="outline" 
                   size="icon"
                   onClick={() => setIsContactDialogOpen(true)}
