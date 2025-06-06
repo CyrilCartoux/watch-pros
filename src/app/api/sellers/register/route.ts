@@ -245,6 +245,19 @@ export async function POST(request: Request) {
       throw new Error('Failed to update seller with document URLs')
     }
 
+    // Update profile with seller_id
+    const { error: profileUpdateError } = await supabase
+      .from('profiles')
+      .update({
+        seller_id: seller.id
+      })
+      .eq('id', user.id)
+
+    if (profileUpdateError) {
+      console.error('Error updating profile with seller_id:', profileUpdateError)
+      throw new Error('Failed to update profile with seller_id')
+    }
+
     return NextResponse.json({
       message: 'Seller registered successfully',
       seller: {

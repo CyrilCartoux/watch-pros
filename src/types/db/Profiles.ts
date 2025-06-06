@@ -7,8 +7,10 @@
 //     first_name text null,
 //     last_name text null,
 //     email text null,
+//     seller_id uuid null,
 //     constraint profiles_pkey primary key (id),
-//     constraint profiles_id_fkey foreign KEY (id) references auth.users (id) on delete CASCADE
+//     constraint profiles_id_fkey foreign KEY (id) references auth.users (id) on delete CASCADE,
+//     constraint profiles_seller_id_fkey foreign KEY (seller_id) references public.sellers (id) on delete SET NULL
 //   ) TABLESPACE pg_default;
 
 /**
@@ -17,6 +19,7 @@
  * @property {string} first_name - User's first name
  * @property {string} last_name - User's last name
  * @property {string} email - User's email
+ * @property {string} seller_id - Reference to the seller profile if the user is a seller
  */
 export type Profile = {
     /** Unique identifier (UUID) for the profile, matches auth.users id */
@@ -27,6 +30,8 @@ export type Profile = {
     last_name: string | null
     /** User's email */
     email: string | null
+    /** Reference to the seller profile if the user is a seller */
+    seller_id: string | null
 }
 
 export type ProfileInsert = Omit<Profile, 'id'>

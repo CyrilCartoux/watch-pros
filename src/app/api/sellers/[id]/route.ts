@@ -35,9 +35,11 @@ interface SellerReview {
   comment: string
   created_at: string
   reviewer_id: string
-  reviewer: {
-    first_name: string
-    last_name: string
+  profiles?: {
+    seller_id: string | null
+    sellers: {
+      watch_pros_name: string
+    } | null
   } | null
 }
 
@@ -163,7 +165,7 @@ export async function GET(
         created_at
       `)
       .eq('seller_id', seller.id)
-      .order('created_at', { ascending: false }) as { data: SellerReview[] | null, error: any }
+      .order('created_at', { ascending: false })
 
     if (reviewsError) {
       console.error('Error fetching reviews:', reviewsError)
@@ -173,8 +175,38 @@ export async function GET(
       )
     }
 
-    // Récupérer l'utilisateur actuel
-    const { data: { user } } = await supabase.auth.getUser()
+    // Récupérer les informations des reviewers
+    const reviewerIds = reviews?.map(review => review.reviewer_id) || []
+    console.log('reviewerIds', reviewerIds)
+    const { data: reviewerProfiles, error: reviewerError } = await supabase
+      .from('profiles')
+      .select(`
+        id,
+        seller_id,
+        sellers (
+          watch_pros_name,
+          company_logo_url
+        )
+      `)
+      .in('id', reviewerIds)
+
+      console.log('reviewerProfiles', reviewerProfiles)
+
+    if (reviewerError) {
+      console.error('Error fetching reviewer profiles:', reviewerError)
+      return NextResponse.json(
+        { error: 'Failed to fetch reviewer profiles' },
+        { status: 500 }
+      )
+    }
+
+    // Créer un map des reviewers pour un accès facile
+    const reviewerMap = new Map(
+      reviewerProfiles?.map(profile => [
+        profile.id,
+        (profile.sellers as any).watch_pros_name || 'Anonymous'
+      ]) || []
+    )
 
     // Requête principale pour les annonces actives
     const { data: listings, error: listingsError } = await supabase
@@ -241,6 +273,8 @@ export async function GET(
         id: review.id,
         rating: review.rating,
         reviewerId: review.reviewer_id,
+        reviewerName: reviewerMap.get(review.reviewer_id) || 'Anonymous',
+        reviewerCompanyLogo: (reviewerProfiles?.find(p => p.id === review.reviewer_id)?.sellers as any)?.company_logo_url || null,
         comment: review.comment,
         createdAt: review.created_at,
       })) || [],

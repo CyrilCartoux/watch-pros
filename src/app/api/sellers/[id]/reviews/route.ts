@@ -76,6 +76,28 @@ export async function POST(
       )
     }
 
+    // Vérifier que l'utilisateur n'est pas le vendeur
+    const { data: seller, error: sellerError } = await supabase
+      .from('sellers')
+      .select('user_id')
+      .eq('id', params.id)
+      .single()
+
+    if (sellerError) {
+      console.error('Error fetching seller:', sellerError)
+      return NextResponse.json(
+        { error: 'Failed to verify seller' },
+        { status: 500 }
+      )
+    }
+
+    if (seller.user_id === user.id) {
+      return NextResponse.json(
+        { error: 'You cannot review your own profile' },
+        { status: 403 }
+      )
+    }
+
     // Récupérer les données de la review
     const body = await request.json()
     const { rating, comment } = body

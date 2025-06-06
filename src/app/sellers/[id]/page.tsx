@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Star, MapPin, Phone, Mail, Globe, Building2, ChevronLeft, ChevronRight, MessageSquare, CheckCircle2, ThumbsUp, Coins } from "lucide-react"
+import { Star, MapPin, Phone, Mail, Globe, Building2, ChevronLeft, ChevronRight, MessageSquare, CheckCircle2, ThumbsUp, Coins, Shield } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useAuth } from "@/contexts/AuthContext"
 import { ReviewDialog } from "@/components/ReviewDialog"
 import { countries } from "@/data/form-options"
+import { useToast } from "@/components/ui/use-toast"
 
 interface Seller {
   id: string
@@ -68,6 +69,8 @@ interface Seller {
     comment: string
     createdAt: string
     reviewerId?: string
+    reviewerName?: string
+    reviewerCompanyLogo?: string
   }[] 
 }
 
@@ -83,6 +86,7 @@ interface SellerPageProps {
 }
 
 export default function SellerDetailPage({ params }: SellerPageProps) {
+  const { toast } = useToast()
   const [currentListing, setCurrentListing] = useState(0)
   const [isContactDialogOpen, setIsContactDialogOpen] = useState(false)
   const [message, setMessage] = useState("")
@@ -236,8 +240,9 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
         body: JSON.stringify(review)
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        const data = await response.json()
         throw new Error(data.error || 'Failed to submit review')
       }
 
@@ -265,8 +270,9 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
         method: 'DELETE',
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        const data = await response.json()
         throw new Error(data.error || 'Failed to delete review')
       }
 
@@ -275,10 +281,19 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
       if (sellerResponse.ok) {
         const updatedSeller = await sellerResponse.json()
         setSeller(updatedSeller)
+        toast({
+          title: "Review deleted",
+          description: "Your review has been removed.",
+          variant: "default",
+        })
       }
     } catch (error) {
       console.error('Error deleting review:', error)
-      alert(error instanceof Error ? error.message : 'Failed to delete review')
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to delete review',
+        variant: "destructive",
+      })
     } finally {
       setIsDeletingReview(null)
     }
@@ -309,9 +324,37 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                 )}
               </div>
               <div className="flex-1 text-center md:text-left">
-                <h1 className="text-xl md:text-3xl font-bold mb-1 md:mb-2">{seller.account.companyName}</h1>
+                <div className="flex items-center justify-center md:justify-start gap-2 mb-1 md:mb-2">
+                  <h1 className="text-xl md:text-3xl font-bold">{seller.account.companyName}</h1>
+                  <Badge variant="secondary" className="bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors">
+                    <Shield className="h-3 w-3 mr-1 flex-shrink-0" />
+                    <span className="font-medium">Verified</span>
+                  </Badge>
+                </div>
                 <p className="text-sm md:text-base text-muted-foreground mb-2 md:mb-4">{seller.account.companyStatus}</p>
-                <div className="flex flex-col md:flex-row items-center gap-1 md:gap-4 mb-2 md:mb-4">
+
+                {/* Mobile Stats Bar */}
+                <div className="md:hidden flex items-center justify-between bg-muted/30 rounded-lg p-3 mb-4">
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                    <div>
+                      <p className="font-semibold">{seller.stats.averageRating.toFixed(1)}</p>
+                      <p className="text-xs text-muted-foreground">{seller.stats.totalReviews} reviews</p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => setIsReviewDialogOpen(true)}
+                    size="sm"
+                    className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white"
+                    disabled={isSubmittingReview}
+                  >
+                    <Star className="h-3 w-3 mr-1" />
+                    Review
+                  </Button>
+                </div>
+
+                {/* Desktop Stats */}
+                <div className="hidden md:flex flex-col md:flex-row items-center gap-1 md:gap-4 mb-2 md:mb-4">
                   <div className="flex items-center gap-1">
                     <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
                     <span className="text-sm md:text-base font-semibold">{seller.stats.averageRating.toFixed(1)}</span>
@@ -328,8 +371,21 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                   </Badge>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                {/* Mobile Tags */}
+                <div className="md:hidden flex flex-wrap gap-2 mb-4">
+                  {seller.account.cryptoFriendly && (
+                    <Badge variant="outline" className="text-xs border-amber-500 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20">
+                      <Coins className="h-3 w-3 mr-1" />
+                      Accepts Crypto
+                    </Badge>
+                  )}
+                  <Badge variant="outline" className="text-xs">
+                    {getCountryFlag(seller.account.country)} {countries.find(c => c.value === seller.account.country)?.label}
+                  </Badge>
+                </div>
+
+                {/* Desktop Action Buttons */}
+                <div className="hidden md:flex flex-wrap gap-2 justify-center md:justify-start">
                   <Button
                     onClick={() => setIsReviewDialogOpen(true)}
                     className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
@@ -418,7 +474,7 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
         <div className="mb-12">
           <h2 className="text-2xl font-bold mb-6">Peer Reviews</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {seller.stats.totalReviews === 0 ? (
+            {seller.reviews && seller.reviews?.length === 0 ? (
               <Card>
                 <CardContent className="p-6 text-center">
                   <p className="text-muted-foreground">No reviews yet</p>
@@ -430,15 +486,28 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between gap-2 mb-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="text-sm font-medium text-primary">
-                            {review.reviewerId ? review.reviewerId.slice(0, 2).toUpperCase() : 'A'}
-                          </span>
-                        </div>
+                      <div className="w-10 h-10 rounded-lg overflow-hidden border-2 border-primary/20 flex items-center justify-center bg-background">
+                        {review.reviewerCompanyLogo ? (
+                          <Image
+                            src={review.reviewerCompanyLogo}
+                            alt={`${review.reviewerName} logo`}
+                            width={96}
+                            height={96}
+                            className="w-full h-full object-contain"
+                          />
+                        ) : (
+                          <div className="text-3xl font-bold text-primary">
+                            {review.reviewerName ? review.reviewerName.slice(0, 1) : 'A'}
+                          </div>
+                        )}
+                      </div>
                         <div>
-                          <p className="font-medium">
-                            {review.reviewerId ? `Reviewer ${review.reviewerId.slice(0, 6)}` : 'Anonymous'}
-                          </p>
+                          <Link 
+                            href={`/sellers/${review.reviewerName}`}
+                            className="font-medium hover:text-primary transition-colors"
+                          >
+                            {review.reviewerName || 'Anonymous'}
+                          </Link>
                           <p className="text-sm text-muted-foreground">
                             {new Date(review.createdAt).toLocaleDateString()}
                           </p>

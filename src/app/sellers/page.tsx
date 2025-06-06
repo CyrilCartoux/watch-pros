@@ -446,7 +446,13 @@ export default function SellersListPage() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h2 className="text-xl font-semibold mb-1 truncate">{seller.account.companyName}</h2>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h2 className="text-xl font-semibold truncate">{seller.account.companyName}</h2>
+                          <Badge variant="secondary" className="bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors">
+                            <Shield className="h-3 w-3 mr-1 flex-shrink-0" />
+                            <span className="font-medium">Verified</span>
+                          </Badge>
+                        </div>
                         <p className="text-sm text-muted-foreground mb-3 truncate">{seller.account.companyStatus}</p>
                         <div className="flex flex-wrap items-center gap-2">
                           <Badge variant="secondary" className="max-w-[120px] truncate bg-primary/10 hover:bg-primary/20 transition-colors">

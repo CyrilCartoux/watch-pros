@@ -22,6 +22,7 @@
 //     company_logo_url text null,
 //     user_id uuid null,
 //     crypto_friendly boolean not null default false,
+//     identity_verified boolean not null default false,
 //     constraint sellers_pkey primary key (id),
 //     constraint sellers_email_key unique (email),
 //     constraint sellers_user_id_fkey foreign KEY (user_id) references auth.users (id) on delete CASCADE
@@ -84,6 +85,7 @@
  * @property {string} company_logo_url - URL to the company logo
  * @property {string} user_id - UUID of the associated user account
  * @property {boolean} crypto_friendly - Whether the seller accepts cryptocurrency payments
+ * @property {boolean} identity_verified - Whether the seller's identity has been verified
  * @property {string} search_vector - Full-text search vector for efficient text search
  */
 export type Seller = {
@@ -125,6 +127,8 @@ export type Seller = {
     user_id: string | null
     /** Whether the seller accepts cryptocurrency payments */
     crypto_friendly: boolean
+    /** Whether the seller's identity has been verified */
+    identity_verified: boolean
     /** Full-text search vector for efficient text search */
     search_vector?: string
 }

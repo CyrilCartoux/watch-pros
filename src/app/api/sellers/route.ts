@@ -36,6 +36,7 @@ interface Seller {
     last_updated: string
   } | null
   crypto_friendly: boolean
+  identity_verified: boolean
 }
 
 export async function GET(request: Request) {
@@ -70,6 +71,7 @@ export async function GET(request: Request) {
         created_at,
         updated_at,
         crypto_friendly,
+        identity_verified,
         seller_addresses (
           street,
           city,
@@ -83,6 +85,7 @@ export async function GET(request: Request) {
           last_updated
         )
       `, { count: 'exact' })
+      .eq('identity_verified', true) // Only get verified sellers
 
     // Apply filters using the new indexes
     if (country) {
