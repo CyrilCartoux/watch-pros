@@ -9,8 +9,8 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 
 export default function RegisterPage() {
-  <ProtectedRoute requireAuth>
   return (
+    <ProtectedRoute requireAuth>
     <main className="container py-12">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
