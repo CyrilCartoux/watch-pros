@@ -4,8 +4,26 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import CustomAlertForm from "@/components/forms/CustomAlertForm"
 import { CustomAlertInsert } from "@/types/db/notifications/CustomAlerts"
+import { useAuthGuard } from "@/hooks/useAuthGuard"
 
 export default function CreateAlertPage() {
+
+  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
+    requireAuth: true,
+    requireSeller: true,
+    requireVerified: true
+  })
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-background py-8">
+        <div className="container">
+          <div className="animate-pulse space-y-8">
+            <div className="h-8 bg-muted rounded w-1/3"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
 

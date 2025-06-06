@@ -4,30 +4,17 @@ import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Bell, Loader2 } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { useAuthGuard } from "@/hooks/useAuthGuard"
 
 interface Brand {
   id: string
@@ -46,6 +33,22 @@ interface Model {
 }
 
 export default function ModelsPage() {
+  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
+    requireAuth: true,
+    requireSeller: true,
+    requireVerified: true
+  })
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-background py-8">
+        <div className="container">
+          <div className="animate-pulse space-y-8">
+            <div className="h-8 bg-muted rounded w-1/3"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
   const { toast } = useToast()
   const [activeTab, setActiveTab] = useState("featured")
   const [searchQuery, setSearchQuery] = useState("")

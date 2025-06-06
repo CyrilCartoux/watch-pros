@@ -16,8 +16,25 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useSearchParams, useRouter } from "next/navigation"
+import { useAuthGuard } from "@/hooks/useAuthGuard"
 
 export default function AccountPage() {
+  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
+    requireAuth: true,
+    requireSeller: true,
+    requireVerified: true
+  })
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-background py-8">
+        <div className="container">
+          <div className="animate-pulse space-y-8">
+            <div className="h-8 bg-muted rounded w-1/3"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
   const searchParams = useSearchParams()
   const router = useRouter()
   const tab = searchParams.get('tab') || 'dashboard'
@@ -25,6 +42,7 @@ export default function AccountPage() {
   const handleTabChange = (value: string) => {
     router.push(`/account?tab=${value}`)
   }
+
 
   return (
     <div className="container py-4 md:py-8">

@@ -4,8 +4,25 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { CheckCircle2, Building2, User, AlertCircle } from "lucide-react"
 import Link from "next/link"
+import { useAuthGuard } from "@/hooks/useAuthGuard"
 
 export default function RegisterPage() {
+  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
+    requireAuth: true,
+    requireSeller: false  ,
+    requireVerified: false
+  })
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-background py-8">
+        <div className="container">
+          <div className="animate-pulse space-y-8">
+            <div className="h-8 bg-muted rounded w-1/3"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
   return (
     <main className="container py-12">
       <div className="max-w-4xl mx-auto">

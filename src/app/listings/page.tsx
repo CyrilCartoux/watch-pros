@@ -25,6 +25,7 @@ import { Label } from "@/components/ui/label"
 import { useBrandsAndModels } from "@/hooks/useBrandsAndModels"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useFavorites } from "@/hooks/useFavorites"
+import { useAuthGuard } from "@/hooks/useAuthGuard"
 
 interface Brand {
   id: string
@@ -114,6 +115,22 @@ interface Filters {
 }
 
 export default function ListingsPage() {
+  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
+    requireAuth: true,
+    requireSeller: true,
+    requireVerified: true
+  })
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-background py-8">
+        <div className="container">
+          <div className="animate-pulse space-y-8">
+            <div className="h-8 bg-muted rounded w-1/3"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
   const router = useRouter()
   const searchParams = useSearchParams()
   const { brands, models, isLoading: isLoadingBrands, error: brandsError, fetchModels } = useBrandsAndModels()

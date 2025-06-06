@@ -15,6 +15,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { ReviewDialog } from "@/components/ReviewDialog"
 import { countries } from "@/data/form-options"
 import { useToast } from "@/components/ui/use-toast"
+import { useAuthGuard } from "@/hooks/useAuthGuard"
 
 interface Seller {
   id: string
@@ -86,6 +87,22 @@ interface SellerPageProps {
 }
 
 export default function SellerDetailPage({ params }: SellerPageProps) {
+  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
+    requireAuth: true,
+    requireSeller: true,
+    requireVerified: true
+  })
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-background py-8">
+        <div className="container">
+          <div className="animate-pulse space-y-8">
+            <div className="h-8 bg-muted rounded w-1/3"></div>
+          </div>
+        </div>
+      </div>
+    )
+  } 
   const { toast } = useToast()
   const [currentListing, setCurrentListing] = useState(0)
   const [isContactDialogOpen, setIsContactDialogOpen] = useState(false)

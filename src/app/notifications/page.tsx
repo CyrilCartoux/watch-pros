@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { useSearchParams, useRouter } from "next/navigation";
 import { countries } from "@/data/form-options";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 
 type Notification = {
   id: string;
@@ -261,6 +262,22 @@ function OfferSkeleton() {
 }
 
 export default function NotificationsPage() {
+  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
+    requireAuth: true,
+    requireSeller: true,
+    requireVerified: true
+  })
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-background py-8">
+        <div className="container">
+          <div className="animate-pulse space-y-8">
+            <div className="h-8 bg-muted rounded w-1/3"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
   const searchParams = useSearchParams();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<string>(searchParams.get("tab") || "offers");

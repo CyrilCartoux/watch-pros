@@ -4,8 +4,25 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import AccessoryForm from "@/components/forms/AccessoryForm"
 import { useToast } from "@/components/ui/use-toast"
+import { useAuthGuard } from "@/hooks/useAuthGuard"
 
 export default function EditAccessoryPage({ params }: { params: { id: string } }) {
+  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
+    requireAuth: true,
+    requireSeller: true,
+    requireVerified: true
+  })
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-background py-8">
+        <div className="container">
+          <div className="animate-pulse space-y-8">
+            <div className="h-8 bg-muted rounded w-1/3"></div>
+          </div>
+        </div>
+      </div>
+    )
+  }
   const router = useRouter()
   const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
