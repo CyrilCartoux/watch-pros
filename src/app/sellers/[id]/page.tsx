@@ -210,20 +210,43 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
   }
 
   const handleSubmitMessage = async () => {
-    if (!message.trim()) return
+    if (!message.trim() || !user) return
 
     setIsSubmittingMessage(true)
     try {
-      // TODO: Submit message to backend
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const response = await fetch('/api/conversations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          otherUserId: seller.id,
+          initialMessage: message.trim()
+        })
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to send message')
+      }
+
+      const { conversationId } = await response.json()
+      
       setIsMessageSuccess(true)
       setTimeout(() => {
         setIsContactDialogOpen(false)
         setIsMessageSuccess(false)
         setMessage("")
+        // Rediriger vers la conversation
+        window.location.href = `/messages?conversation=${conversationId}`
       }, 2000)
     } catch (error) {
       console.error(error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to send message',
+        variant: "destructive",
+      })
     } finally {
       setIsSubmittingMessage(false)
     }

@@ -632,4 +632,68 @@ export async function PUT(
       { status: 500 }
     )
   }
+}
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const supabase = await createClient()
+
+    // Get the current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Get the seller associated with the user
+    const { data: seller, error: sellerError } = await supabase
+      .from('sellers')
+      .select('id')
+      .eq('user_id', user.id)
+      .single()
+
+    if (sellerError || !seller) {
+      return NextResponse.json(
+        { error: 'Seller not found' },
+        { status: 404 }
+      )
+    }
+
+    // Get the request body
+    const { finalPrice } = await request.json()
+
+    // Update the listing status to sold
+    const { data: updatedListing, error: updateError } = await supabase
+      .from('listings')
+      .update({
+        status: 'sold',
+        final_price: finalPrice || null
+      })
+      .eq('id', params.id)
+      .eq('seller_id', seller.id)
+      .select()
+      .single()
+
+    if (updateError) {
+      console.error('Error updating listing status:', updateError)
+      return NextResponse.json(
+        { error: 'Failed to update listing status' },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({ success: true, listing: updatedListing })
+  } catch (error) {
+    console.error('Error in PATCH /api/listings/[id]:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
 } 

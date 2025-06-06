@@ -16,6 +16,7 @@ import { useFavorites } from "@/hooks/useFavorites"
 import { useAuth } from "@/contexts/AuthContext"
 import { useToast } from "@/components/ui/use-toast"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
+import { useRouter } from "next/navigation"
 
 interface ListingData {
   id: string
@@ -116,6 +117,10 @@ export default function ListingPage({ params }: Props) {
   const { user } = useAuth()
   const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites()
   const { toast } = useToast()
+  const router = useRouter()
+  const [isDeclareSaleDialogOpen, setIsDeclareSaleDialogOpen] = useState(false)
+  const [finalPrice, setFinalPrice] = useState("")
+  const [isSubmittingSale, setIsSubmittingSale] = useState(false)
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -185,6 +190,15 @@ export default function ListingPage({ params }: Props) {
       return
     }
 
+    if (!listing) {
+      toast({
+        title: "Error",
+        description: "Listing not found",
+        variant: "destructive",
+      })
+      return
+    }
+
     if (!offerAmount) {
       toast({
         title: "Invalid offer",
@@ -202,24 +216,29 @@ export default function ListingPage({ params }: Props) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          listing_id: listing?.id,
-          amount: parseFloat(offerAmount),
+          listing_id: listing.id,
+          offer: parseFloat(offerAmount),
+          currency: listing.currency
         }),
       })
 
       if (!response.ok) {
-        throw new Error("Failed to submit offer")
+        const data = await response.json()
+        throw new Error(data.error || "Failed to submit offer")
       }
 
+      const { offer } = await response.json()
+      setIsOfferSuccess(true)
       toast({
         title: "Offer submitted",
         description: "Your offer has been submitted successfully",
       })
       setOfferAmount("")
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to submit offer"
       toast({
         title: "Error",
-        description: "Failed to submit offer",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -289,9 +308,14 @@ export default function ListingPage({ params }: Props) {
       return
     }
 
-    if (!listing) return
-
-    try {
+    if (!listing) {
+      toast({
+        title: "Error",
+        description: "Listing not found",
+        variant: "destructive",
+      })
+      return;
+    }
       if (isFavorite(listing.id)) {
         await removeFavorite(listing.id)
         toast({
@@ -305,13 +329,6 @@ export default function ListingPage({ params }: Props) {
           description: "The listing has been added to your favorites",
         })
       }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update favorites",
-        variant: "destructive",
-      })
-    }
   }
 
   const toggleNotification = async () => {
@@ -324,7 +341,14 @@ export default function ListingPage({ params }: Props) {
       return
     }
 
-    if (!listing) return
+    if (!listing) {
+      toast({
+        title: "Error",
+        description: "Listing not found",
+        variant: "destructive",
+      })
+      return
+    }
 
     try {
       setIsSubscribing(true)
@@ -355,14 +379,52 @@ export default function ListingPage({ params }: Props) {
           : "You will be notified about price updates and when this watch is sold",
       })
     } catch (err) {
-      console.error('Error toggling notification:', err)
+      const errorMessage = err instanceof Error ? err.message : "Failed to update notification settings"
       toast({
         variant: "destructive",
         title: "Error",
-        description: err instanceof Error ? err.message : "Failed to update notification settings",
+        description: errorMessage,
       })
     } finally {
       setIsSubscribing(false)
+    }
+  }
+
+  const handleDeclareSale = async () => {
+    if (!listing) return
+
+    setIsSubmittingSale(true)
+    try {
+      const response = await fetch(`/api/listings/${listing.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          finalPrice: finalPrice ? parseFloat(finalPrice) : null
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || "Failed to declare sale")
+      }
+
+      toast({
+        title: "Sale declared",
+        description: "The listing has been marked as sold",
+      })
+      setIsDeclareSaleDialogOpen(false)
+      router.refresh()
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to declare sale"
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmittingSale(false)
     }
   }
 
@@ -608,18 +670,22 @@ export default function ListingPage({ params }: Props) {
                 <p className="text-3xl font-bold">{listing.price.toLocaleString()} {listing.currency}</p>
                 <p className="text-muted-foreground">Estimated delivery: {listing.shippingDelay} business days</p>
               </div>
-              <div className="flex gap-3">
-                <Button className="flex-1 bg-primary hover:bg-primary/90">
-                  Buy
+              {user?.id === listing.seller?.id ? (
+                <Button 
+                  className="w-full bg-green-600 hover:bg-green-700"
+                  onClick={() => setIsDeclareSaleDialogOpen(true)}
+                >
+                  Declare Sale
                 </Button>
+              ) : (
                 <Button 
                   variant="outline" 
-                  className="flex-1"
+                  className="w-full"
                   onClick={() => setIsOfferDialogOpen(true)}
                 >
                   Make an offer
                 </Button>
-              </div>
+              )}
             </div>
 
             {/* Offer Dialog */}
@@ -699,6 +765,49 @@ export default function ListingPage({ params }: Props) {
                       </Button>
                     </>
                   )}
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            {/* Declare Sale Dialog */}
+            <Dialog open={isDeclareSaleDialogOpen} onOpenChange={setIsDeclareSaleDialogOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Declare Sale</DialogTitle>
+                  <DialogDescription>
+                    Are you sure you want to mark this listing as sold? This action cannot be undone.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="finalPrice">Final Sale Price (Optional)</Label>
+                    <Input
+                      id="finalPrice"
+                      type="number"
+                      placeholder="Enter final sale price"
+                      value={finalPrice}
+                      onChange={(e) => setFinalPrice(e.target.value)}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      This information is used for statistics and market analysis.
+                    </p>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsDeclareSaleDialogOpen(false)}
+                    disabled={isSubmittingSale}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    className="bg-green-600 hover:bg-green-700"
+                    onClick={handleDeclareSale}
+                    disabled={isSubmittingSale}
+                  >
+                    {isSubmittingSale ? "Declaring..." : "Confirm Sale"}
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>

@@ -1,24 +1,317 @@
 "use client"
 
-import { useState } from "react"
-import { ArrowLeft } from "lucide-react"
+import { useState, useEffect, useRef, useMemo } from "react"
+import { ArrowLeft, Send } from "lucide-react"
 import Link from "next/link"
-import mockData from "@/data/mock-conversations.json"
+import { useAuth } from "@/contexts/AuthContext"
+import { createClient } from "@/lib/supabase/client"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { useToast } from "@/components/ui/use-toast"
 
-type Conversation = typeof mockData.conversations[0]
+interface Message {
+  id: string
+  conversation_id: string
+  sender_id: string
+  content: string
+  created_at: string
+  read: boolean
+}
+
+interface Conversation {
+  id: string
+  participant1_id: string
+  participant2_id: string
+  created_at: string
+  last_message?: Message
+  other_user?: {
+    id: string
+    name: string
+    avatar_url: string | null
+    seller_since: string
+    company_name?: string
+    full_name?: string
+    company_status?: string
+    seller?: {
+      watch_pros_name: string
+      company_status: string
+      company_logo_url: string | null
+    }
+  }
+  messages?: Message[]
+}
 
 export function MessagesTab() {
-  const [selectedConversation, setSelectedConversation] = useState<number | null>(null)
+  const { user } = useAuth()
+  const { toast } = useToast()
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [newMessage, setNewMessage] = useState("")
   const [showMobileConversation, setShowMobileConversation] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [loadingMessages, setLoadingMessages] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const supabase = useMemo(() => createClient(), [])
 
-  const handleSelectConversation = (id: number) => {
-    setSelectedConversation(id)
-    setShowMobileConversation(true)
+  // Charger les conversations
+  useEffect(() => {
+    if (!user) return
+
+    async function loadConversations() {
+      try {
+        const { data, error } = await supabase
+          .from('conversations')
+          .select(`
+            *,
+            messages:messages(
+              id,
+              content,
+              created_at,
+              sender_id,
+              read
+            ),
+            participant1:profiles!conversations_participant1_id_fkey(
+              id,
+              first_name,
+              last_name,
+              seller_id,
+              seller:sellers!inner(
+                watch_pros_name,
+                company_status,
+                company_logo_url
+              )
+            ),
+            participant2:profiles!conversations_participant2_id_fkey(
+              id,
+              first_name,
+              last_name,
+              seller_id,
+              seller:sellers!inner(
+                watch_pros_name,
+                company_status,
+                company_logo_url
+              )
+            )
+          `)
+          .order('updated_at', { ascending: false })
+
+        if (error) throw error
+
+        const formattedConversations = data.map((conv: any) => ({
+          ...conv,
+          last_message: conv.messages?.[0],
+          other_user: conv.participant1_id === user?.id ? {
+            ...conv.participant2,
+            avatar_url: conv.participant2.seller?.company_logo_url
+          } : {
+            ...conv.participant1,
+            avatar_url: conv.participant1.seller?.company_logo_url
+          }
+        }))
+
+        setConversations(formattedConversations)
+      } catch (err) {
+        console.error('Error loading conversations:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadConversations()
+  }, [user, supabase])
+
+  // S'abonner aux nouveaux messages
+  useEffect(() => {
+    if (!user || !selectedConversation) return
+
+    const channel = supabase
+      .channel(`conversation:${selectedConversation.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${selectedConversation.id}`
+        },
+        async (payload) => {
+          const newMessage = payload.new as Message
+          setMessages(prev => [...prev, newMessage])
+          
+          // Mettre à jour la dernière conversation
+          setConversations(prev => 
+            prev.map(conv => 
+              conv.id === selectedConversation.id
+                ? { ...conv, last_message: newMessage }
+                : conv
+            )
+          )
+
+          // Marquer le message comme lu si c'est l'autre utilisateur qui l'a envoyé
+          if (newMessage.sender_id !== user.id) {
+            try {
+              const { error } = await supabase
+                .from('messages')
+                .update({ read: true })
+                .eq('id', newMessage.id)
+
+              if (error) {
+                console.error('Failed to mark message as read:', error)
+                // Optionnel : réessayer après un délai
+                setTimeout(async () => {
+                  const { error: retryError } = await supabase
+                    .from('messages')
+                    .update({ read: true })
+                    .eq('id', newMessage.id)
+                  
+                  if (retryError) {
+                    console.error('Failed to mark message as read after retry:', retryError)
+                  }
+                }, 2000)
+              }
+            } catch (err) {
+              console.error('Error marking message as read:', err)
+            }
+          }
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user, selectedConversation, supabase])
+
+  // Charger les messages d'une conversation
+  const loadMessages = async (conversationId: string) => {
+    setLoadingMessages(true)
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true })
+
+      if (error) throw error
+
+      setMessages(data)
+      
+      // Marquer les messages comme lus
+      const unreadMessages = data.filter(
+        (msg: Message) => !msg.read && msg.sender_id !== user?.id
+      )
+      
+      if (unreadMessages.length > 0) {
+        await supabase
+          .from('messages')
+          .update({ read: true })
+          .in('id', unreadMessages.map(msg => msg.id))
+      }
+    } catch (err) {
+      console.error('Error loading messages:', err)
+      toast({
+        title: "Error",
+        description: "Failed to load messages",
+        variant: "destructive",
+      })
+    } finally {
+      setLoadingMessages(false)
+    }
   }
 
-  const selectedConversationData = selectedConversation 
-    ? mockData.conversations.find(c => c.id === selectedConversation)
-    : null
+  const handleSelectConversation = async (conversation: Conversation) => {
+    setSelectedConversation(conversation)
+    setShowMobileConversation(true)
+    await loadMessages(conversation.id)
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newMessage.trim() || !selectedConversation || !user) return
+
+    const messageContent = newMessage.trim()
+    setNewMessage("")
+
+    // Sauvegarder l'ancien dernier message
+    const oldLastMessage = selectedConversation.last_message
+
+    // Créer un message temporaire
+    const tempMessage: Message = {
+      id: 'temp-' + Date.now(),
+      conversation_id: selectedConversation.id,
+      sender_id: user.id,
+      content: messageContent,
+      created_at: new Date().toISOString(),
+      read: false
+    }
+
+    // Ajouter le message à l'UI immédiatement
+    setMessages(prev => [...prev, tempMessage])
+    setConversations(prev => 
+      prev.map(conv => 
+        conv.id === selectedConversation.id
+          ? { ...conv, last_message: tempMessage }
+          : conv
+      )
+    )
+
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .insert({
+          conversation_id: selectedConversation.id,
+          sender_id: user.id,
+          content: messageContent
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+
+      // Remplacer le message temporaire par le vrai message
+      setMessages(prev => 
+        prev.map(msg => 
+          msg.id === tempMessage.id ? data : msg
+        )
+      )
+      setConversations(prev => 
+        prev.map(conv => 
+          conv.id === selectedConversation.id
+            ? { ...conv, last_message: data }
+            : conv
+        )
+      )
+    } catch (err) {
+      console.error('Error sending message:', err)
+      toast({
+        title: "Error",
+        description: "Failed to send message",
+        variant: "destructive",
+      })
+      // Retirer le message temporaire en cas d'erreur
+      setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id))
+      setConversations(prev => 
+        prev.map(conv => 
+          conv.id === selectedConversation.id
+            ? { ...conv, last_message: oldLastMessage }
+            : conv
+        )
+      )
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-muted rounded w-32"></div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
@@ -39,31 +332,35 @@ export function MessagesTab() {
         {/* Liste */}
         <div className="flex-1 overflow-y-auto">
           <div className="divide-y">
-            {mockData.conversations.map((conversation) => (
+            {conversations.map((conversation) => (
               <button 
                 key={conversation.id}
-                className={`w-full p-4 hover:bg-muted/50 transition-colors text-left ${selectedConversation === conversation.id ? 'bg-muted/50' : ''}`}
-                onClick={() => handleSelectConversation(conversation.id)}
+                className={`w-full p-4 hover:bg-muted/50 transition-colors text-left ${selectedConversation?.id === conversation.id ? 'bg-muted/50' : ''}`}
+                onClick={() => handleSelectConversation(conversation)}
               >
                 <div className="flex items-start gap-3">
-                  <div className="relative">
-                    <img
-                      src={conversation.user.avatar}
-                      alt={conversation.user.name}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                    <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-background ${conversation.user.isOnline ? 'bg-green-500' : 'bg-gray-400'}`} />
-                  </div>
+                  <Avatar>
+                    <AvatarImage src={conversation.other_user?.avatar_url || undefined} />
+                    <AvatarFallback>
+                      {conversation.other_user?.name?.charAt(0) || '?'}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="font-medium truncate">{conversation.user.name}</p>
-                      <span className="text-sm text-muted-foreground">
-                        {new Date(conversation.lastMessage.timestamp).toLocaleTimeString()}
-                      </span>
+                      <p className="font-medium truncate">
+                        {conversation.other_user?.seller?.watch_pros_name}
+                      </p>
+                      {conversation.last_message && (
+                        <span className="text-sm text-muted-foreground">
+                          {new Date(conversation.last_message.created_at).toLocaleTimeString()}
+                        </span>
+                      )}
                     </div>
-                    <p className="text-sm text-muted-foreground truncate">
-                      {conversation.lastMessage.content}
-                    </p>
+                    {conversation.last_message && (
+                      <p className="text-sm text-muted-foreground truncate">
+                        {conversation.last_message.content}
+                      </p>
+                    )}
                   </div>
                 </div>
               </button>
@@ -74,7 +371,7 @@ export function MessagesTab() {
 
       {/* Détail de la conversation */}
       <div className={`md:col-span-2 border rounded-lg overflow-hidden flex flex-col h-full ${!showMobileConversation ? 'hidden md:flex' : 'flex'}`}>
-        {selectedConversationData ? (
+        {selectedConversation ? (
           <>
             {/* Header avec infos du vendeur */}
             <div className="p-4 border-b">
@@ -85,15 +382,20 @@ export function MessagesTab() {
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </button>
-                <Link href={`/profile/${selectedConversationData.user.id}`} className="flex items-center gap-3 flex-1">
-                  <img
-                    src={selectedConversationData.user.avatar}
-                    alt={selectedConversationData.user.name}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
+                <Link href={`/sellers/${selectedConversation.other_user?.seller?.watch_pros_name}`} className="flex items-center gap-3 flex-1">
+                  <Avatar>
+                    <AvatarImage src={selectedConversation.other_user?.avatar_url || undefined} />
+                    <AvatarFallback>
+                      {selectedConversation.other_user?.name?.charAt(0) || '?'}
+                    </AvatarFallback>
+                  </Avatar>
                   <div>
-                    <h3 className="font-medium">{selectedConversationData.user.name}</h3>
-                    <p className="text-sm text-muted-foreground">Vendeur depuis {selectedConversationData.user.sellerSince}</p>
+                    <h3 className="font-medium">
+                      {selectedConversation.other_user?.seller?.watch_pros_name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {selectedConversation.other_user?.seller?.company_status}
+                    </p>
                   </div>
                 </Link>
               </div>
@@ -101,49 +403,60 @@ export function MessagesTab() {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {selectedConversationData.messages.map((message) => (
-                <div 
-                  key={message.id}
-                  className={`flex gap-3 ${message.senderId === "currentUser" ? "justify-end" : ""}`}
-                >
-                  {message.senderId !== "currentUser" && (
-                    <img
-                      src={selectedConversationData.user.avatar}
-                      alt={selectedConversationData.user.name}
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                  )}
-                  <div className={`flex-1 ${message.senderId === "currentUser" ? "max-w-[80%]" : ""}`}>
-                    <div className={`rounded-lg p-3 ${
-                      message.senderId === "currentUser" 
-                        ? "bg-primary text-primary-foreground" 
-                        : "bg-muted"
-                    }`}>
-                      <p>{message.content}</p>
-                    </div>
-                    <span className={`text-xs text-muted-foreground mt-1 block ${
-                      message.senderId === "currentUser" ? "text-right" : ""
-                    }`}>
-                      {new Date(message.timestamp).toLocaleTimeString()}
-                    </span>
-                  </div>
+              {loadingMessages ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
-              ))}
+              ) : (
+                <>
+                  {messages.map((message) => (
+                    <div 
+                      key={message.id}
+                      className={`flex gap-3 ${message.sender_id === user?.id ? "justify-end" : ""}`}
+                    >
+                      {message.sender_id !== user?.id && (
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage src={selectedConversation.other_user?.avatar_url || undefined} />
+                          <AvatarFallback>
+                            {selectedConversation.other_user?.name?.charAt(0) || '?'}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
+                      <div className={`flex-1 ${message.sender_id === user?.id ? "max-w-[80%]" : ""}`}>
+                        <div className={`rounded-lg p-3 ${
+                          message.sender_id === user?.id 
+                            ? "bg-primary text-primary-foreground" 
+                            : "bg-muted"
+                        }`}>
+                          <p>{message.content}</p>
+                        </div>
+                        <span className={`text-xs text-muted-foreground mt-1 block ${
+                          message.sender_id === user?.id ? "text-right" : ""
+                        }`}>
+                          {new Date(message.created_at).toLocaleTimeString()}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                  <div ref={messagesEndRef} />
+                </>
+              )}
             </div>
 
             {/* Input pour nouveau message */}
-            <div className="p-4 border-t">
+            <form onSubmit={handleSendMessage} className="p-4 border-t">
               <div className="flex gap-2">
-                <input
-                  type="text"
+                <Input
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Écrivez votre message..."
-                  className="flex-1 px-3 py-2 rounded-md border"
+                  className="flex-1"
                 />
-                <button className="px-4 py-2 bg-primary text-primary-foreground rounded-md">
-                  Envoyer
-                </button>
+                <Button type="submit" size="icon">
+                  <Send className="h-4 w-4" />
+                </Button>
               </div>
-            </div>
+            </form>
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-muted-foreground">

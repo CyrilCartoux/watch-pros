@@ -112,7 +112,7 @@ export async function POST(request: Request) {
     // Check if the listing exists and is active
     const { data: listing, error: listingError } = await supabase
       .from('listings')
-      .select('id, status')
+      .select('id, status, seller_id')
       .eq('id', listing_id)
       .single()
 
@@ -126,6 +126,14 @@ export async function POST(request: Request) {
     if (listing.status !== 'active') {
       return NextResponse.json(
         { error: 'Listing is not active' },
+        { status: 400 }
+      )
+    }
+
+    // Vérifier si le vendeur essaie de faire une offre sur sa propre annonce
+    if (listing.seller_id === seller.id) {
+      return NextResponse.json(
+        { error: 'You cannot make an offer on your own listing' },
         { status: 400 }
       )
     }

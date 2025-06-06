@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
-import { Pause, Play, Edit, Trash2, Plus, CheckCircle2 } from "lucide-react"
+import { Pause, Play, Edit, Trash2, Plus, CheckCircle2, DollarSign } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { watchConditions } from "@/data/watch-conditions"
 import {
@@ -16,6 +16,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 export default function MyListings() {
   const [listings, setListings] = useState<any[]>([])
@@ -23,6 +25,10 @@ export default function MyListings() {
   const [error, setError] = useState<string | null>(null)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [listingToDelete, setListingToDelete] = useState<string | null>(null)
+  const [declareSaleDialogOpen, setDeclareSaleDialogOpen] = useState(false)
+  const [listingToDeclareSale, setListingToDeclareSale] = useState<string | null>(null)
+  const [finalPrice, setFinalPrice] = useState("")
+  const [isSubmittingSale, setIsSubmittingSale] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -72,6 +78,54 @@ export default function MyListings() {
     } finally {
       setDeleteDialogOpen(false)
       setListingToDelete(null)
+    }
+  }
+
+  const openDeclareSaleDialog = (id: string) => {
+    setListingToDeclareSale(id)
+    setDeclareSaleDialogOpen(true)
+  }
+
+  const handleDeclareSale = async () => {
+    if (!listingToDeclareSale) return
+
+    setIsSubmittingSale(true)
+    try {
+      const response = await fetch(`/api/listings/${listingToDeclareSale}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          finalPrice: finalPrice ? parseFloat(finalPrice) : null
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || "Failed to declare sale")
+      }
+
+      setListings(listings => listings.map(l => 
+        l.id === listingToDeclareSale ? { ...l, status: "sold" } : l
+      ))
+      
+      toast({
+        title: "Sale declared",
+        description: "The listing has been marked as sold",
+      })
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to declare sale"
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmittingSale(false)
+      setDeclareSaleDialogOpen(false)
+      setListingToDeclareSale(null)
+      setFinalPrice("")
     }
   }
 
@@ -181,40 +235,79 @@ export default function MyListings() {
                   )}
                 </div>
                 <div className="flex gap-1 pt-1">
-                  <Link href={`/sell/${listing.type}/${listing.id}/edit`} className="flex-1">
-                    <Button variant="outline" size="sm" className="w-full h-7 md:h-8 text-xs">
-                      <Edit className="h-3 w-3 md:mr-1" />
-                      <span className="hidden md:inline">Edit</span>
-                    </Button>
-                  </Link>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="flex-1 h-7 md:h-8 text-xs"
-                    onClick={() => handlePause(listing.id)}
-                  >
-                    {listing.status === "active" ? (
-                      <>
+                  {listing.status === "active" ? (
+                    <>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="flex-1 h-7 md:h-8 text-xs"
+                        onClick={() => handlePause(listing.id)}
+                      >
                         <Pause className="h-3 w-3 md:mr-1" />
                         <span className="hidden md:inline">Pause</span>
-                      </>
-                    ) : (
-                      <>
+                      </Button>
+                      <Link href={`/sell/${listing.type}/${listing.id}/edit`} className="flex-1">
+                        <Button variant="outline" size="sm" className="w-full h-7 md:h-8 text-xs">
+                          <Edit className="h-3 w-3 md:mr-1" />
+                          <span className="hidden md:inline">Edit</span>
+                        </Button>
+                      </Link>
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        className="flex-1 h-7 md:h-8 text-xs"
+                        onClick={() => openDeleteDialog(listing.id)}
+                      >
+                        <Trash2 className="h-3 w-3 md:mr-1" />
+                        <span className="hidden md:inline">Delete</span>
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="flex-1 h-7 md:h-8 text-xs"
+                        onClick={() => handlePause(listing.id)}
+                      >
                         <Play className="h-3 w-3 md:mr-1" />
                         <span className="hidden md:inline">Activate</span>
-                      </>
-                    )}
-                  </Button>
-                  <Button 
-                    variant="destructive" 
-                    size="sm"
-                    className="flex-1 h-7 md:h-8 text-xs"
-                    onClick={() => openDeleteDialog(listing.id)}
-                  >
-                    <Trash2 className="h-3 w-3 md:mr-1" />
-                    <span className="hidden md:inline">Delete</span>
-                  </Button>
+                      </Button>
+                      <Link href={`/sell/${listing.type}/${listing.id}/edit`} className="flex-1">
+                        <Button variant="outline" size="sm" className="w-full h-7 md:h-8 text-xs">
+                          <Edit className="h-3 w-3 md:mr-1" />
+                          <span className="hidden md:inline">Edit</span>
+                        </Button>
+                      </Link>
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        className="flex-1 h-7 md:h-8 text-xs"
+                        onClick={() => openDeleteDialog(listing.id)}
+                      >
+                        <Trash2 className="h-3 w-3 md:mr-1" />
+                        <span className="hidden md:inline">Delete</span>
+                      </Button>
+                    </>
+                  )}
                 </div>
+                {listing.status === "active" ? (
+                  <Button 
+                    className="w-full h-9 md:h-10 text-sm bg-green-600 hover:bg-green-700 mt-2"
+                    onClick={() => openDeclareSaleDialog(listing.id)}
+                  >
+                    <DollarSign className="h-4 w-4 mr-2" />
+                    Declare Sale
+                  </Button>
+                ) : listing.status === "sold" ? (
+                  <Button 
+                    className="w-full h-9 md:h-10 text-sm bg-green-600 mt-2"
+                    disabled
+                  >
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Sold
+                  </Button>
+                ) : null}
               </CardContent>
             </Card>
           ))}
@@ -241,6 +334,52 @@ export default function MyListings() {
               onClick={handleDelete}
             >
               Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={declareSaleDialogOpen} onOpenChange={setDeclareSaleDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Declare Sale</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to mark this listing as sold? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="finalPrice">Final Sale Price (Optional)</Label>
+              <Input
+                id="finalPrice"
+                type="number"
+                placeholder="Enter final sale price"
+                value={finalPrice}
+                onChange={(e) => setFinalPrice(e.target.value)}
+              />
+              <p className="text-sm text-muted-foreground">
+                This information is used for statistics and market analysis.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeclareSaleDialogOpen(false)
+                setListingToDeclareSale(null)
+                setFinalPrice("")
+              }}
+              disabled={isSubmittingSale}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-green-600 hover:bg-green-700"
+              onClick={handleDeclareSale}
+              disabled={isSubmittingSale}
+            >
+              {isSubmittingSale ? "Declaring..." : "Confirm Sale"}
             </Button>
           </DialogFooter>
         </DialogContent>

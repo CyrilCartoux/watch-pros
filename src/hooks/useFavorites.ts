@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "@/contexts/AuthContext"
+import { useToast } from "@/components/ui/use-toast"
 
 interface Favorite {
   id: string
@@ -31,6 +32,7 @@ export function useFavorites() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { user } = useAuth()
+  const { toast } = useToast()
 
   // Charger les favoris
   useEffect(() => {
@@ -44,24 +46,37 @@ export function useFavorites() {
       try {
         const response = await fetch("/api/favorites")
         if (!response.ok) {
-          throw new Error("Failed to fetch favorites")
+          const data = await response.json()
+          throw new Error(data.error || "Failed to fetch favorites")
         }
         const data = await response.json()
         setFavorites(data.favorites)
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to fetch favorites")
+        const errorMessage = err instanceof Error ? err.message : "Failed to fetch favorites"
+        setError(errorMessage)
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        })
       } finally {
         setIsLoading(false)
       }
     }
 
     fetchFavorites()
-  }, [user])
+  }, [user, toast])
 
   // Ajouter un favori
   const addFavorite = async (listingId: string) => {
     if (!user) {
-      throw new Error("You must be logged in to add favorites")
+      const errorMessage = "You must be logged in to add favorites"
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
+      throw new Error(errorMessage)
     }
 
     try {
@@ -80,8 +95,18 @@ export function useFavorites() {
 
       const { favorite } = await response.json()
       setFavorites(prev => [favorite, ...prev])
+      toast({
+        title: "Success",
+        description: "Listing added to favorites",
+      })
       return favorite
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to add favorite"
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
       throw err instanceof Error ? err : new Error("Failed to add favorite")
     }
   }
@@ -89,7 +114,13 @@ export function useFavorites() {
   // Supprimer un favori
   const removeFavorite = async (listingId: string) => {
     if (!user) {
-      throw new Error("You must be logged in to remove favorites")
+      const errorMessage = "You must be logged in to remove favorites"
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
+      throw new Error(errorMessage)
     }
 
     try {
@@ -103,7 +134,17 @@ export function useFavorites() {
       }
 
       setFavorites(prev => prev.filter(fav => fav.listing_id !== listingId))
+      toast({
+        title: "Success",
+        description: "Listing removed from favorites",
+      })
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to remove favorite"
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      })
       throw err instanceof Error ? err : new Error("Failed to remove favorite")
     }
   }

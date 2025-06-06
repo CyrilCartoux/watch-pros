@@ -81,10 +81,10 @@ export async function POST(request: Request) {
       )
     }
 
-    // Vérifier si le listing existe
+    // Vérifier si le listing existe et appartient à l'utilisateur
     const { data: listing, error: listingError } = await supabase
       .from("listings")
-      .select("id")
+      .select("id, seller_id")
       .eq("id", listing_id)
       .single()
 
@@ -92,6 +92,20 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Listing not found" },
         { status: 404 }
+      )
+    }
+
+    // Vérifier si l'utilisateur est le vendeur de l'annonce
+    const { data: userProfile } = await supabase
+      .from("profiles")
+      .select("seller_id")
+      .eq("id", user.id)
+      .single()
+
+    if (userProfile?.seller_id === listing.seller_id) {
+      return NextResponse.json(
+        { error: "You cannot favorite your own listing" },
+        { status: 400 }
       )
     }
 

@@ -98,7 +98,7 @@ export async function POST(request: Request) {
     // 3. Verify listing exists and is active
     const { data: listing, error: listingErr } = await supabaseAdmin
       .from('listings')
-      .select('id, status')
+      .select('id, status, seller_id')
       .eq('id', listing_id)
       .single()
 
@@ -117,7 +117,21 @@ export async function POST(request: Request) {
       )
     }
 
-    // 4. Create subscription
+    // 4. Check if user is the seller
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('seller_id')
+      .eq('id', user.id)
+      .single()
+
+    if (userProfile?.seller_id === listing.seller_id) {
+      return NextResponse.json(
+        { error: 'You cannot subscribe to your own listing' },
+        { status: 400 }
+      )
+    }
+
+    // 5. Create subscription
     const { error: subErr } = await supabaseAdmin
       .from('listing_subscriptions')
       .upsert({
