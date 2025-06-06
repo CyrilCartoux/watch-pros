@@ -1,5 +1,5 @@
 // TODO: Add more domains
-export const VALID_DOMAINS = ['http://localhost:3000'];
+export const VALID_DOMAINS = ['http://localhost:3000', 'https://watch-pros-web.vercel.app/'];
 
 export function getCurrentDomain(request: Request): string {
   const url = new URL(request.url);
