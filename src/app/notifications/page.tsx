@@ -481,9 +481,7 @@ export default function NotificationsPage() {
             <TabsTrigger value="offers" className="flex-1 sm:flex-none">
               Offers
               {offers.length > 0 && (
-                <Badge variant="destructive" className="ml-2">
-                  {offers.length}
-                </Badge>
+                <div className="w-2 h-2 rounded-full bg-destructive ml-2" />
               )}
             </TabsTrigger>
             <TabsTrigger value="active" className="flex-1 sm:flex-none">
@@ -491,6 +489,9 @@ export default function NotificationsPage() {
             </TabsTrigger>
             <TabsTrigger value="history" className="flex-1 sm:flex-none">
               History
+              {notifications.some((n) => !n.is_read) && (
+                <div className="w-2 h-2 rounded-full bg-destructive ml-2" />
+              )}
             </TabsTrigger>
           </TabsList>
 
@@ -569,9 +570,7 @@ export default function NotificationsPage() {
           <TabsTrigger value="offers" className="flex-1 sm:flex-none">
             Offers
             {offers.length > 0 && (
-              <Badge variant="destructive" className="ml-2">
-                {offers.length}
-              </Badge>
+              <div className="w-2 h-2 rounded-full bg-destructive ml-2" />
             )}
           </TabsTrigger>
           <TabsTrigger value="active" className="flex-1 sm:flex-none">

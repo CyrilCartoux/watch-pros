@@ -88,6 +88,31 @@ interface Listing {
   }[]
 }
 
+// Types pour la mise à jour
+interface SellerUpdateRequest {
+  account?: {
+    companyName?: string
+    companyLogo?: string | null
+    watchProsName?: string
+    companyStatus?: string
+    firstName?: string
+    lastName?: string
+    email?: string
+    country?: string
+    title?: string
+    phonePrefix?: string
+    phone?: string
+    cryptoFriendly?: boolean
+  }
+  address?: {
+    street?: string
+    city?: string
+    country?: string
+    postalCode?: string
+    website?: string
+  }
+}
+
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
@@ -95,8 +120,11 @@ export async function GET(
   try {
     const supabase = await createClient()
 
-    // Récupérer le vendeur
-    const { data: seller, error: sellerError } = await supabase
+    // Check if the id is a UUID (seller id) or a string (watch_pros_name)
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.id)
+
+    // Build the query based on the id type
+    let query = supabase
       .from('sellers')
       .select(`
         id,
@@ -130,8 +158,15 @@ export async function GET(
           last_updated
         )
       `)
-      .eq('watch_pros_name', params.id)
-      .maybeSingle()
+
+    // Apply the appropriate filter
+    if (isUUID) {
+      query = query.eq('id', params.id)
+    } else {
+      query = query.eq('watch_pros_name', params.id)
+    }
+
+    const { data: seller, error: sellerError } = await query.maybeSingle()
 
     if (sellerError) {
       console.error('Error fetching seller:', sellerError)
@@ -177,7 +212,6 @@ export async function GET(
 
     // Récupérer les informations des reviewers
     const reviewerIds = reviews?.map(review => review.reviewer_id) || []
-    console.log('reviewerIds', reviewerIds)
     const { data: reviewerProfiles, error: reviewerError } = await supabase
       .from('profiles')
       .select(`
@@ -189,8 +223,6 @@ export async function GET(
         )
       `)
       .in('id', reviewerIds)
-
-      console.log('reviewerProfiles', reviewerProfiles)
 
     if (reviewerError) {
       console.error('Error fetching reviewer profiles:', reviewerError)
@@ -208,40 +240,6 @@ export async function GET(
       ]) || []
     )
 
-    // Requête principale pour les annonces actives
-    const { data: listings, error: listingsError } = await supabase
-      .from('listings')
-      .select(`
-        id,
-        title,
-        price,
-        currency,
-        reference,
-        brands (
-          slug,
-          label
-        ),
-        models (
-          slug,
-          label
-        ),
-        listing_images (
-          url,
-          order_index
-        )
-      `)
-      .eq('seller_id', seller.id)
-      .order('created_at', { ascending: false })
-      .limit(6)
-
-    if (listingsError) {
-      console.error('Error fetching listings:', listingsError)
-      return NextResponse.json(
-        { error: 'Failed to fetch listings' },
-        { status: 500 }
-      )
-    }
-    
     // Transformer les données pour correspondre à la structure attendue
     const transformedSeller = {
       id: seller.id,
@@ -300,6 +298,199 @@ export async function GET(
     )
 
     return response
+  } catch (error) {
+    console.error('Unexpected error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const supabase = await createClient()
+
+    // Vérifier que l'utilisateur est authentifié
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Vérifier que l'utilisateur est le propriétaire du profil vendeur
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('seller_id')
+      .eq('id', user.id)
+      .single()
+
+    if (!profile || profile.seller_id !== params.id) {
+      return NextResponse.json(
+        { error: 'Forbidden' },
+        { status: 403 }
+      )
+    }
+
+    // Récupérer les données de mise à jour
+    const updateData: SellerUpdateRequest = await request.json()
+
+    // Préparer les mises à jour pour la table sellers
+    const sellerUpdates: any = {}
+    if (updateData.account) {
+      if (updateData.account.companyName) sellerUpdates.company_name = updateData.account.companyName
+      if (updateData.account.companyLogo !== undefined) sellerUpdates.company_logo_url = updateData.account.companyLogo
+      if (updateData.account.watchProsName) sellerUpdates.watch_pros_name = updateData.account.watchProsName
+      if (updateData.account.companyStatus) sellerUpdates.company_status = updateData.account.companyStatus
+      if (updateData.account.firstName) sellerUpdates.first_name = updateData.account.firstName
+      if (updateData.account.lastName) sellerUpdates.last_name = updateData.account.lastName
+      if (updateData.account.email) sellerUpdates.email = updateData.account.email
+      if (updateData.account.country) sellerUpdates.country = updateData.account.country
+      if (updateData.account.title) sellerUpdates.title = updateData.account.title
+      if (updateData.account.phonePrefix) sellerUpdates.phone_prefix = updateData.account.phonePrefix
+      if (updateData.account.phone) sellerUpdates.phone = updateData.account.phone
+      if (updateData.account.cryptoFriendly !== undefined) sellerUpdates.crypto_friendly = updateData.account.cryptoFriendly
+    }
+
+    // Mettre à jour la table sellers
+    const { error: sellerError } = await supabase
+      .from('sellers')
+      .update(sellerUpdates)
+      .eq('id', params.id)
+
+    if (sellerError) {
+      console.error('Error updating seller:', sellerError)
+      return NextResponse.json(
+        { error: 'Failed to update seller' },
+        { status: 500 }
+      )
+    }
+
+    // Mettre à jour l'adresse si fournie
+    if (updateData.address) {
+      const addressUpdates: any = {}
+      if (updateData.address.street) addressUpdates.street = updateData.address.street
+      if (updateData.address.city) addressUpdates.city = updateData.address.city
+      if (updateData.address.country) addressUpdates.country = updateData.address.country
+      if (updateData.address.postalCode) addressUpdates.postal_code = updateData.address.postalCode
+      if (updateData.address.website) addressUpdates.website = updateData.address.website
+
+      // Vérifier si une adresse existe déjà
+      const { data: existingAddress } = await supabase
+        .from('seller_addresses')
+        .select('id')
+        .eq('seller_id', params.id)
+        .single()
+
+      if (existingAddress) {
+        // Mettre à jour l'adresse existante
+        const { error: addressError } = await supabase
+          .from('seller_addresses')
+          .update(addressUpdates)
+          .eq('id', existingAddress.id)
+
+        if (addressError) {
+          console.error('Error updating address:', addressError)
+          return NextResponse.json(
+            { error: 'Failed to update address' },
+            { status: 500 }
+          )
+        }
+      } else {
+        // Créer une nouvelle adresse
+        const { error: addressError } = await supabase
+          .from('seller_addresses')
+          .insert({
+            seller_id: params.id,
+            ...addressUpdates
+          })
+
+        if (addressError) {
+          console.error('Error creating address:', addressError)
+          return NextResponse.json(
+            { error: 'Failed to create address' },
+            { status: 500 }
+          )
+        }
+      }
+    }
+
+    // Récupérer les données mises à jour
+    const { data: updatedSeller, error: fetchError } = await supabase
+      .from('sellers')
+      .select(`
+        id,
+        company_name,
+        company_logo_url,
+        watch_pros_name,
+        company_status,
+        first_name,
+        last_name,
+        email,
+        country,
+        title,
+        phone_prefix,
+        phone,
+        created_at,
+        updated_at,
+        crypto_friendly,
+        seller_addresses (
+          street,
+          city,
+          country,
+          postal_code,
+          website,
+          siren,
+          tax_id,
+          vat_number
+        )
+      `)
+      .eq('id', params.id)
+      .single()
+
+    if (fetchError) {
+      console.error('Error fetching updated seller:', fetchError)
+      return NextResponse.json(
+        { error: 'Failed to fetch updated seller' },
+        { status: 500 }
+      )
+    }
+
+    // Transformer les données pour correspondre à la structure attendue
+    const transformedSeller = {
+      id: updatedSeller.id,
+      account: {
+        companyName: updatedSeller.company_name,
+        companyLogo: updatedSeller.company_logo_url,
+        watchProsName: updatedSeller.watch_pros_name,
+        companyStatus: updatedSeller.company_status,
+        firstName: updatedSeller.first_name,
+        lastName: updatedSeller.last_name,
+        email: updatedSeller.email,
+        country: updatedSeller.country,
+        title: updatedSeller.title,
+        phonePrefix: updatedSeller.phone_prefix,
+        phone: updatedSeller.phone,
+        cryptoFriendly: updatedSeller.crypto_friendly
+      },
+      address: updatedSeller.seller_addresses?.[0] ? {
+        street: updatedSeller.seller_addresses[0].street,
+        city: updatedSeller.seller_addresses[0].city,
+        country: updatedSeller.seller_addresses[0].country,
+        postalCode: updatedSeller.seller_addresses[0].postal_code,
+        website: updatedSeller.seller_addresses[0].website,
+        siren: updatedSeller.seller_addresses[0].siren,
+        taxId: updatedSeller.seller_addresses[0].tax_id,
+        vatNumber: updatedSeller.seller_addresses[0].vat_number
+      } : null
+    }
+
+    return NextResponse.json(transformedSeller)
   } catch (error) {
     console.error('Unexpected error:', error)
     return NextResponse.json(

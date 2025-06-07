@@ -27,6 +27,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Vérifier l'état de connexion initial
     supabase.auth.getSession().then(({ data: { session } }) => {
+    console.log('user', session?.user);
+
       userRef.current = session?.user ?? null;
       setUser(session?.user ?? null);
       setLoading(false);
@@ -43,6 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
     });
+
 
     return () => subscription.unsubscribe();
   }, [supabase]);

@@ -261,7 +261,6 @@ export async function POST(request: Request) {
     // Generate a unique reference_id
     const reference_id = `${brand}-${model}-${reference}-${Date.now()}`
 
-    // Log the data we're trying to insert
     const listingData = {
       accessory_type: accessoryType,
       reference_id,
@@ -287,7 +286,7 @@ export async function POST(request: Request) {
       currency,
       shipping_delay: shippingDelay,
       listing_type: listingType,
-      status: 'draft'
+      status: 'active'
     }
 
     // Create the listing

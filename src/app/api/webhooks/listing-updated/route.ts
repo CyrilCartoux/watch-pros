@@ -16,6 +16,7 @@ type Profile = {
 // Type for listing details query response
 type ListingDetails = {
   id: string
+  seller_id: string
   brands: {
     label: string
   }
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
       .from('listings')
       .select(`
         id,
+        seller_id,
         brands:brand_id (
           label
         ),
@@ -88,6 +90,7 @@ export async function POST(request: Request) {
 
     const brandName = listingDetails.brands?.label
     const modelName = listingDetails.models?.label
+    const sellerId = listingDetails.seller_id
 
     if (!brandName || !modelName) {
       console.error('❌ Missing brand or model name:', { brandName, modelName })
@@ -135,7 +138,10 @@ export async function POST(request: Request) {
         throw subsSellErr
       }
 
-      const userIdsSell = subsSell.map((row) => row.user_id)
+      // Filter out the seller from subscribers
+      const userIdsSell = subsSell
+        .map((row) => row.user_id)
+        .filter(uid => uid !== sellerId)
       console.log('👥 Number of subscribers found:', userIdsSell.length)
 
       if (userIdsSell.length > 0) {
@@ -203,7 +209,10 @@ export async function POST(request: Request) {
         throw subsPriceErr
       }
 
-      const userIdsPrice = subsPrice.map((row) => row.user_id)
+      // Filter out the seller from subscribers
+      const userIdsPrice = subsPrice
+        .map((row) => row.user_id)
+        .filter(uid => uid !== sellerId)
       console.log('👥 Number of subscribers found:', userIdsPrice.length)
 
       if (userIdsPrice.length > 0) {

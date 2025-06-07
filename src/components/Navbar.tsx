@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Menu, User, Bell, LogOut, Heart, MessageSquare, LayoutDashboard, MoreHorizontal } from "lucide-react"
+import { Menu, User, Bell, LogOut, Heart, MessageSquare, LayoutDashboard, MoreHorizontal, Tag } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { Badge } from "./ui/badge"
 import { SearchBar } from "./SearchBar"
@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import Image from "next/image"
 
 const navigation = [
   { name: "Brands", href: "/brands" },
@@ -65,12 +66,48 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <nav className="container flex h-14 sm:h-16 items-center justify-between">
+      <div className="container flex h-14 items-center">
         {/* Logo */}
-        <div className="mr-4 sm:mr-8">
+        <div className="mr-4 hidden md:flex">
           <Link href="/" className="text-xl sm:text-2xl font-bold">
             Watch Pros
           </Link>
+        </div>
+
+        {/* Mobile Logo */}
+        <div className="flex md:hidden">
+          <Link href="/" className="flex items-center space-x-2">
+            Watch Pros
+          </Link>
+        </div>
+
+        {/* Mobile Navigation */}
+        <div className="flex flex-1 items-center justify-end md:hidden">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
+              <Link href="/notifications" className="relative">
+                <Bell className="h-4 w-4" />
+                {unreadNotifications > 0 && (
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
+                  >
+                    {unreadNotifications}
+                  </Badge>
+                )}
+                <span className="sr-only">Notifications</span>
+              </Link>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <Menu className="h-4 w-4" />
+              <span className="sr-only">Toggle menu</span>
+            </Button>
+          </div>
         </div>
 
         {/* Desktop Navigation */}
@@ -116,11 +153,20 @@ export function Navbar() {
                 {user ? (
                   <>
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <div className="px-2 py-1.5 text-sm text-muted-foreground truncate">
+                      {user.email}
+                    </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link href="/account?tab=dashboard" className="flex items-center">
                         <LayoutDashboard className="mr-2 h-4 w-4" />
                         Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/account?tab=listings" className="flex items-center">
+                        <Tag className="mr-2 h-4 w-4" />
+                        My Listings
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -136,9 +182,9 @@ export function Navbar() {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/account" className="flex items-center">
-                        <MoreHorizontal className="mr-2 h-4 w-4" />
-                        More
+                      <Link href="/account?tab=settings" className="flex items-center">
+                        <User className="mr-2 h-4 w-4" />
+                        Settings
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
@@ -164,45 +210,16 @@ export function Navbar() {
             </DropdownMenu>
           </div>
         </div>
-
-        {/* Mobile Navigation */}
-        <div className="flex flex-1 items-center justify-end md:hidden">
-          {user ? (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              <Menu className="h-4 w-4" />
-              <span className="sr-only">Menu</span>
-            </Button>
-          ) : (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9">
-                  <User className="h-4 w-4" />
-                  <span className="sr-only">Account</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuItem asChild>
-                  <Link href="/auth" className="flex items-center">
-                    <User className="mr-2 h-4 w-4" />
-                    Login / Signup
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
-      </nav>
+      </div>
 
       {/* Mobile Menu */}
       {isMenuOpen && user && (
         <div className="md:hidden shadow-lg" ref={menuRef}>
           <div className="container space-y-3 py-3 bg-background">
             <SearchBar />
+            <div className="px-2 py-1.5 text-sm text-muted-foreground truncate">
+              {user.email}
+            </div>
             <div className="flex flex-col gap-1">
               <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
                 <Link href="/listings" onClick={handleLinkClick}>Buy</Link>
@@ -216,20 +233,15 @@ export function Navbar() {
             </div>
             <div className="flex flex-col gap-1 pt-3 border-t">
               <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/notifications" onClick={handleLinkClick} className="flex items-center gap-2">
-                  <Bell className="h-4 w-4" />
-                  Notifications
-                  {unreadNotifications > 0 && (
-                    <Badge variant="destructive" className="ml-auto text-[10px]">
-                      {unreadNotifications}
-                    </Badge>
-                  )}
-                </Link>
-              </Button>
-              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
                 <Link href="/account?tab=dashboard" onClick={handleLinkClick} className="flex items-center gap-2">
                   <LayoutDashboard className="h-4 w-4" />
                   Dashboard
+                </Link>
+              </Button>
+              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
+                <Link href="/account?tab=listings" onClick={handleLinkClick} className="flex items-center gap-2">
+                  <Tag className="h-4 w-4" />
+                  My Listings
                 </Link>
               </Button>
               <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
@@ -245,9 +257,9 @@ export function Navbar() {
                 </Link>
               </Button>
               <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/account" onClick={handleLinkClick} className="flex items-center gap-2">
-                  <MoreHorizontal className="h-4 w-4" />
-                  More
+                <Link href="/account?tab=settings" onClick={handleLinkClick} className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Settings
                 </Link>
               </Button>
               <Button 

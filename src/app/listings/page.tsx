@@ -26,6 +26,7 @@ import { useBrandsAndModels } from "@/hooks/useBrandsAndModels"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useFavorites } from "@/hooks/useFavorites"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
+import { ListingType } from "@/types/enums/listings-enum"
 
 interface Brand {
   id: string
@@ -444,9 +445,9 @@ export default function ListingsPage() {
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
-            onClick={() => handleFilterChange("listingType", "watch")}
+            onClick={() => handleFilterChange("listingType", ListingType.WATCH)}
             className={`flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-colors ${
-              tempFilters.listingType === "watch"
+              tempFilters.listingType === ListingType.WATCH
                 ? "border-primary bg-primary/5"
                 : "border-input hover:border-primary/50"
             }`}
@@ -456,9 +457,9 @@ export default function ListingsPage() {
           </button>
           <button
             type="button"
-            onClick={() => handleFilterChange("listingType", "accessory")}
+            onClick={() => handleFilterChange("listingType", ListingType.ACCESSORY)}
             className={`flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-colors ${
-              tempFilters.listingType === "accessory"
+              tempFilters.listingType === ListingType.ACCESSORY
                 ? "border-primary bg-primary/5"
                 : "border-input hover:border-primary/50"
             }`}
