@@ -11,9 +11,8 @@ import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { dialColors, movements, cases, braceletMaterials, braceletColors, includedOptions } from '@/data/watch-properties'
-import { brandsList } from '@/data/brands-list'
-import { modelsList } from '@/data/models-list'
 import { watchConditions } from '@/data/watch-conditions'
+import { useBrandsAndModels } from '@/hooks/useBrandsAndModels'
 import Image from 'next/image'
 
 // Add a component to display errors
@@ -107,6 +106,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
   const [currentImage, setCurrentImage] = useState(0)
   const [isStepSubmitted, setIsStepSubmitted] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
+  const { brands, models, isLoading, fetchModels } = useBrandsAndModels()
 
   // Handle existing images in edit mode
   useEffect(() => {
@@ -172,15 +172,15 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
 
   // Auto-complete title when brand, model or reference changes
   useEffect(() => {
-    const brand = brandsList.find(b => b.slug === form.watch("brand"))?.label
-    const model = selectedBrand && modelsList[selectedBrand as keyof typeof modelsList]?.find((m: any) => m.slug === form.watch("model"))?.label
+    const brand = brands.find(b => b.id === form.watch("brand"))?.label
+    const model = selectedBrand && models[selectedBrand]?.find(m => m.id === form.watch("model"))?.label
     const reference = form.watch("reference")
 
     if (brand && model && reference) {
       const suggestedTitle = `${brand} - ${model} - ${reference}`
       form.setValue("title", suggestedTitle)
     }
-  }, [form.watch("brand"), form.watch("model"), form.watch("reference")])
+  }, [form.watch("brand"), form.watch("model"), form.watch("reference"), brands, models, selectedBrand])
 
   // Step validation
   const validateStep = async (stepNumber: number) => {
@@ -214,11 +214,12 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
     return result
   }
 
-  const handleBrandChange = (value: string) => {
+  const handleBrandChange = async (value: string) => {
     setSelectedBrand(value)
     setSelectedModel("")
     form.setValue("brand", value)
     form.setValue("model", "")
+    await fetchModels(value)
   }
 
   const handleModelChange = (value: string) => {
@@ -309,27 +310,30 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                     <div className="space-y-2">
                       <Label>Popular Brands</Label>
                       <div className="grid grid-cols-5 sm:grid-cols-3 md:grid-cols-5 gap-1 sm:gap-2">
-                        {popularBrands.map((brand) => (
-                          <button
-                            key={brand.slug}
-                            type="button"
-                            onClick={() => handleBrandChange(brand.slug)}
-                            className={`relative aspect-square rounded-lg border-2 transition-colors ${
-                              form.watch("brand") === brand.slug
-                                ? "border-primary bg-primary/5"
-                                : "border-input hover:border-primary/50"
-                            }`}
-                          >
-                            <div className="absolute inset-0 flex items-center justify-center p-1 sm:p-2">
-                              <Image
-                                src={brand.image}
-                                alt={brand.label}
-                                fill
-                                className="object-contain p-1 sm:p-2"
-                              />
-                            </div>
-                          </button>
-                        ))}
+                        {popularBrands.map((brand) => {
+                          const brandData = brands.find(b => b.slug === brand.slug)
+                          return brandData && (
+                            <button
+                              key={brandData.id}
+                              type="button"
+                              onClick={() => handleBrandChange(brandData.id)}
+                              className={`relative aspect-square rounded-lg border-2 transition-colors ${
+                                form.watch("brand") === brandData.id
+                                  ? "border-primary bg-primary/5"
+                                  : "border-input hover:border-primary/50"
+                              }`}
+                            >
+                              <div className="absolute inset-0 flex items-center justify-center p-1 sm:p-2">
+                                <Image
+                                  src={brand.image}
+                                  alt={brandData.label}
+                                  fill
+                                  className="object-contain p-1 sm:p-2"
+                                />
+                              </div>
+                            </button>
+                          )
+                        })}
                       </div>
                     </div>
                     
@@ -343,8 +347,8 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                               <SelectValue placeholder="Select a brand" />
                             </SelectTrigger>
                             <SelectContent>
-                              {brandsList.map((brand) => (
-                                <SelectItem key={brand.slug} value={brand.slug}>
+                              {brands.map((brand) => (
+                                <SelectItem key={brand.id} value={brand.id}>
                                   {brand.label}
                                 </SelectItem>
                               ))}
@@ -356,19 +360,19 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                     </div>
 
                     {/* Popular Models */}
-                    {selectedBrand && modelsList[selectedBrand as keyof typeof modelsList] && (
+                    {selectedBrand && models[selectedBrand] && (
                       <div className="space-y-2">
-                        <Label>Models {brandsList.find(b => b.slug === selectedBrand)?.label}</Label>
+                        <Label>Models {brands.find(b => b.id === selectedBrand)?.label}</Label>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2">
-                          {modelsList[selectedBrand as keyof typeof modelsList]
+                          {models[selectedBrand]
                             .slice(0, 4)
-                            .map((model: any) => (
+                            .map((model) => (
                               <button
-                                key={model.slug}
+                                key={model.id}
                                 type="button"
-                                onClick={() => handleModelChange(model.slug)}
+                                onClick={() => handleModelChange(model.id)}
                                 className={`relative aspect-[4/1] sm:aspect-[3/2] rounded-lg border-2 transition-colors ${
-                                  form.watch("model") === model.slug
+                                  form.watch("model") === model.id
                                     ? "border-primary bg-primary/5"
                                     : "border-input hover:border-primary/50"
                                 }`}
@@ -398,8 +402,8 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                               <SelectValue placeholder="Select a model" />
                             </SelectTrigger>
                             <SelectContent>
-                              {selectedBrand && modelsList[selectedBrand as keyof typeof modelsList]?.map((model: any) => (
-                                <SelectItem key={model.slug} value={model.slug}>
+                              {selectedBrand && models[selectedBrand]?.map((model) => (
+                                <SelectItem key={model.id} value={model.id}>
                                   {model.label}
                                 </SelectItem>
                               ))}
@@ -992,13 +996,13 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                 <div>
                   <p className="text-muted-foreground">Brand</p>
                   <p className="font-medium">
-                    {brandsList.find(b => b.slug === form.watch("brand"))?.label || "-"}
+                    {brands.find(b => b.id === form.watch("brand"))?.label || "-"}
                   </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Model</p>
                   <p className="font-medium">
-                    {selectedBrand && modelsList[selectedBrand as keyof typeof modelsList]?.find((m: any) => m.slug === form.watch("model"))?.label || "-"}
+                    {selectedBrand && models[selectedBrand]?.find((m: any) => m.id === form.watch("model"))?.label || "-"}
                   </p>
                 </div>
                 <div>

@@ -78,12 +78,13 @@ export async function GET(request: Request) {
     const sort = searchParams.get('sort') || 'created_at'
     const order = searchParams.get('order') || 'desc'
     const search = searchParams.get('search') || ''
+    const after = searchParams.get('after') // Cursor for pagination
     
     // Filter parameters
-    const brand = searchParams.get('brand')
-    const brand_id = searchParams.get('brand_id')
-    const model = searchParams.get('model')
-    const model_id = searchParams.get('model_id')
+    const brand = searchParams.get('brand') || searchParams.get('brand_id')
+    const model = searchParams.get('model') || searchParams.get('model_id')
+    console.log('brand', brand)
+    console.log('model', model)
     const reference = searchParams.get('reference')
     const seller = searchParams.get('seller')
     const year = searchParams.get('year')
@@ -102,14 +103,6 @@ export async function GET(request: Request) {
       .from('listings')
       .select(`
         *,
-        brands!brand_id (
-          slug,
-          label
-        ),
-        models!model_id (
-          slug,
-          label
-        ),
         listing_images (
           id,
           url,
@@ -132,11 +125,25 @@ export async function GET(request: Request) {
     }
 
     // Apply filters
-    if (brand_id) query = query.eq('brand_id', brand_id)
-    else if (brand) query = query.eq('brand_id', brand)
-    if (model_id) query = query.eq('model_id', model_id)
-    else if (model) query = query.eq('model_id', model)
-    if (reference) query = query.eq('reference', reference)
+    if (brand) {
+      // Check if brand is a UUID (brand_id) or a string (brand_slug)
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(brand)
+      if (isUUID) {
+        query = query.eq('brand_id', brand)
+      } else {
+        query = query.eq('brand_slug', brand)
+      }
+    }
+    if (model) {
+      // Check if model is a UUID (model_id) or a string (model_slug)
+      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(model)
+      if (isUUID) {
+        query = query.eq('model_id', model)
+      } else {
+        query = query.eq('model_slug', model)
+      }
+    }
+    if (reference) query = query.ilike('reference', `${reference}%`)
     if (seller) query = query.eq('seller_id', seller)
     if (year) query = query.eq('year', year)
     if (dialColor) query = query.eq('dial_color', dialColor)
@@ -149,13 +156,33 @@ export async function GET(request: Request) {
     if (minPrice) query = query.gte('price', parseInt(minPrice))
     if (maxPrice) query = query.lte('price', parseInt(maxPrice))
 
+    // Apply cursor-based pagination if after is provided
+    if (after) {
+      query = query.lt('created_at', after)
+    }
+
     // Apply sorting
     query = query.order(sort, { ascending: order === 'asc' })
 
-    // Apply pagination
-    const from = (page - 1) * limit
-    const to = from + limit - 1
-    query = query.range(from, to)
+    // Apply limit
+    query = query.limit(limit)
+
+    console.log('Query parameters:', {
+      brand,
+      model,
+      reference,
+      condition,
+      dialColor,
+      included,
+      minPrice,
+      maxPrice,
+      shippingDelay,
+      listingType,
+      sort,
+      order,
+      limit,
+      after
+    })
 
     const { data: listings, error, count } = await query
 
@@ -164,8 +191,15 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Failed to fetch listings' }, { status: 500 })
     }
 
+    console.log('Response:', {
+      total: count,
+      listingsCount: listings?.length,
+      firstListing: listings?.[0]?.brand_id
+    })
+
     return NextResponse.json({
       listings,
+      nextCursor: listings?.[listings.length - 1]?.created_at || null,
       total: count || 0,
       page,
       limit,
@@ -234,7 +268,7 @@ export async function POST(request: Request) {
     const { data: brandData, error: brandError } = await supabase
       .from('brands')
       .select('id')
-      .eq('slug', brand)
+      .or(`id.eq.${brand},slug.eq.${brand}`)
       .single()
 
     if (brandError || !brandData) {
@@ -247,7 +281,7 @@ export async function POST(request: Request) {
     const { data: modelData, error: modelError } = await supabase
       .from('models')
       .select('id')
-      .eq('slug', model)
+      .or(`id.eq.${model},slug.eq.${model}`)
       .eq('brand_id', brandData.id)
       .single()
 
