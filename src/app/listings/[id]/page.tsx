@@ -642,10 +642,21 @@ export default function ListingPage({ params }: Props) {
                       </div>
 
                       {listing.seller && (
-                        <div className="text-sm text-muted-foreground">
-                          <p>Seller: {listing.seller.name}</p>
-                          <p>Type: {listing.seller.type}</p>
-                          <p>Rating: {listing.seller.stats.rating} ({listing.seller.stats.totalReviews} reviews)</p>
+                        <div className="space-y-3 text-sm">
+                          <div className="flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-muted-foreground" />
+                            <span>{listing.seller.contact.email}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Phone className="h-4 w-4 text-muted-foreground" />
+                            <span>{listing.seller.contact.phone}</span>
+                          </div>
+                          {listing.seller.contact.mobile && (
+                            <div className="flex items-center gap-2">
+                              <Phone className="h-4 w-4 text-muted-foreground" />
+                              <span>{listing.seller.contact.mobile}</span>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
