@@ -3,26 +3,12 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import AccessoryForm from "@/components/forms/AccessoryForm"
-import { useAuthGuard } from "@/hooks/useAuthGuard"
+import { useToast } from "@/components/ui/use-toast"
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 export default function SellAccessoryPage() {
-  const { isAuthorized, isLoading: isAuthLoading } = useAuthGuard({
-    requireAuth: true,
-    requireSeller: true,
-    requireVerified: true
-  })
-  if (isAuthLoading) {
-    return (
-      <div className="min-h-screen bg-background py-8">
-        <div className="container">
-          <div className="animate-pulse space-y-8">
-            <div className="h-8 bg-muted rounded w-1/3"></div>
-          </div>
-        </div>
-      </div>
-    )
-  }
   const router = useRouter()
+  const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const onSubmit = async (data: any) => {
@@ -76,13 +62,18 @@ export default function SellAccessoryPage() {
       router.push("/sell/success")
     } catch (error) {
       console.error('Error submitting form:', error)
-      // TODO: Show error message to user
+      toast({
+        title: 'Failed to create listing',
+        description: 'Please try again',
+        variant: 'destructive'
+      })
     } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
+    <ProtectedRoute requireSeller requireVerified>
     <main className="container py-4 sm:py-12">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-4 sm:mb-12">
@@ -100,5 +91,6 @@ export default function SellAccessoryPage() {
         />
       </div>
     </main>
+    </ProtectedRoute>
   )
 }

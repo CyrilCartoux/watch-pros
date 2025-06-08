@@ -187,7 +187,7 @@ export default function CustomAlertForm({ onSubmit, isSubmitting = false }: Cust
                   <Label>Models {brands.find(b => b.id === selectedBrand)?.label} *</Label>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2">
                     {models[selectedBrand]
-                      .slice(0, 4)
+                      .filter(model => model.popular)
                       .map((model) => (
                         <button
                           key={model.id}

@@ -32,6 +32,7 @@
 //     listing_type text null,
 //     accessory_type character varying(255) null,
 //     final_price numeric(10, 2) null,
+//     country character varying(2) null,
 //     constraint listings_pkey primary key (id),
 //     constraint listings_reference_id_key unique (reference_id),
 //     constraint listings_brand_id_fkey foreign KEY (brand_id) references brands (id),
@@ -99,6 +100,7 @@
  * @property {string} listing_type - Type of listing ('watch' or 'accessory')
  * @property {string} accessory_type - Type of accessory (if listing_type is 'accessory')
  * @property {number} final_price - Final sale price of the listing, used for statistics and market analysis
+ * @property {string} country - Country of origin of the watch (ISO 2-letter code)
  */
 export type Listing = {
     /** Unique identifier (UUID) for the listing */
@@ -159,4 +161,6 @@ export type Listing = {
     accessory_type: string | null
     /** Final sale price of the listing, used for statistics and market analysis */
     final_price: number | null
+    /** Country of origin of the watch (ISO 2-letter code) */
+    country: string | null
 }

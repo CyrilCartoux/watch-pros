@@ -17,6 +17,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useToast } from "@/components/ui/use-toast"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { useRouter } from "next/navigation"
+import { countries } from '@/data/form-options'
 
 interface ListingData {
   id: string
@@ -87,6 +88,7 @@ interface ListingData {
   } | null
   listing_type: string
   type: string
+  country?: string
 }
 
 interface Props {
@@ -426,6 +428,12 @@ export default function ListingPage({ params }: Props) {
     } finally {
       setIsSubmittingSale(false)
     }
+  }
+
+  const getCountryLabel = (countryCode: string | null) => {
+    if (!countryCode) return null
+    const country = countries.find(c => c.value === countryCode)
+    return country ? `${country.flag} ${country.label}` : null
   }
 
   if (isLoading) {
@@ -925,6 +933,16 @@ export default function ListingPage({ params }: Props) {
                       <dt className="text-muted-foreground">Reference number</dt>
                       <dd>{listing.reference}</dd>
                     </div>
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">Year</dt>
+                      <dd>{listing.year}</dd>
+                    </div>
+                    {listing.country && (
+                      <div className="flex justify-between">
+                        <dt className="text-muted-foreground">Country of Origin</dt>
+                        <dd>{getCountryLabel(listing.country)}</dd>
+                      </div>
+                    )}
                   </dl>
                 </div>
 

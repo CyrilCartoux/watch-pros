@@ -263,6 +263,7 @@ export async function POST(request: Request) {
     const currency = formData.get('currency') as string || 'EUR'
     const shippingDelay = formData.get('shippingDelay') as string
     const listingType = formData.get('listing_type') as string
+    const country = formData.get('country') as string
 
     // Get brand and model IDs
     const { data: brandData, error: brandError } = await supabase
@@ -320,7 +321,8 @@ export async function POST(request: Request) {
       currency,
       shipping_delay: shippingDelay,
       listing_type: listingType,
-      status: 'active'
+      status: 'active',
+      country: country || null
     }
 
     // Create the listing

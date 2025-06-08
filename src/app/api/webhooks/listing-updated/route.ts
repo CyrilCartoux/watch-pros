@@ -153,7 +153,7 @@ export async function POST(request: Request) {
 
         if (validEmailsSell.length > 0) {
           const notificationTitle = `Listing ${listingId} sold!`
-          const notificationMessage = `Congratulations: the listing ${listingId} you were following has just been sold.`
+          const notificationMessage = `Oups: the listing ${listingId} you were following has just been sold.`
 
           console.log('📨 Message prepared:', { title: notificationTitle, message: notificationMessage })
           console.log('📧 Sending emails to subscribers...')

@@ -13,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { dialColors, movements, cases, braceletMaterials, braceletColors, includedOptions } from '@/data/watch-properties'
 import { watchConditions } from '@/data/watch-conditions'
 import { useBrandsAndModels } from '@/hooks/useBrandsAndModels'
+import { countries } from '@/data/form-options'
 import Image from 'next/image'
 
 // Add a component to display errors
@@ -27,12 +28,13 @@ const watchSchema = z.object({
   brand: z.string().min(1, "Brand is required"),
   model: z.string().min(1, "Model is required"),
   reference: z.string().min(1, "Reference number is required"),
-  title: z.string().min(1, "Title is required").max(60, "Title must not exceed 60 characters"),
+  title: z.string().min(1, "Title is required").max(100, "Title must not exceed 100 characters"),
   description: z.string().nullable().optional(),
   year: z.string().nullable().optional(),
   gender: z.string().optional(),
   serialNumber: z.string().nullable().optional(),
   dialColor: z.string().nullable().optional(),
+  country: z.string().nullable().optional(),
   diameter: z.object({
     min: z.string().optional(),
     max: z.string().optional(),
@@ -133,6 +135,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
       gender: "unisex",
       serialNumber: "",
       dialColor: "",
+      country: "",
       diameter: {
         min: "",
         max: "",
@@ -365,6 +368,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                         <Label>Models {brands.find(b => b.id === selectedBrand)?.label}</Label>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2">
                           {models[selectedBrand]
+                            .filter(model => model.popular)
                             .slice(0, 4)
                             .map((model) => (
                               <button
@@ -437,7 +441,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                         {...form.register("title")}
                       />
                       <p className="text-sm text-muted-foreground mt-1">
-                        {form.watch("title")?.length || 0} / 40
+                        {form.watch("title")?.length || 0} / 100
                       </p>
                       <FormError error={form.formState.errors.title?.message as string} isSubmitted={isStepSubmitted} />
                     </div>
@@ -451,7 +455,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                         {...form.register("description")}
                       />
                       <p className="text-sm text-muted-foreground mt-1">
-                        {form.watch("description")?.length || 0} / 40
+                        {form.watch("description")?.length || 0} / 100
                       </p>
                       <FormError error={form.formState.errors.description?.message as string} isSubmitted={isStepSubmitted} />
                     </div>
@@ -482,6 +486,29 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                             {...form.register("year")}
                           />
                           <FormError error={form.formState.errors.year?.message as string} isSubmitted={isStepSubmitted} />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="country">Country of origin (optional)</Label>
+                          <Controller
+                            name="country"
+                            control={form.control}
+                            render={({ field }) => (
+                              <Select onValueChange={field.onChange} value={field.value || ""}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select country" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {countries.map((country) => (
+                                    <SelectItem key={country.value} value={country.value}>
+                                      {country.flag} {country.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                          />
+                          <FormError error={form.formState.errors.country?.message as string} isSubmitted={isStepSubmitted} />
                         </div>
 
                         <div>

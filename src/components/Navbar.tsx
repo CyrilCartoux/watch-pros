@@ -115,7 +115,7 @@ export function Navbar() {
           {/* Main Navigation */}
           <div className="flex items-center gap-4 lg:gap-6">
             <Button variant="ghost" size="sm" className="h-9 px-3" asChild>
-              <Link href="/listings">Buy</Link>
+              <Link href="/listings?listingType=watch">Buy</Link>
             </Button>
             <Button variant="ghost" size="sm" className="h-9 px-3" asChild>
               <Link href="/sell">Sell</Link>

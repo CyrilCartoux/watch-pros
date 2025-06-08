@@ -16,6 +16,7 @@ import { accessoryTypes, braceletColors, braceletMaterials, lensMaterials, frequ
 import { brandsList } from '@/data/brands-list'
 import { modelsList } from '@/data/models-list'
 import Image from 'next/image'
+import { useBrandsAndModels } from '@/hooks/useBrandsAndModels'
 
 // Add a component to display errors
 const FormError = ({ error, isSubmitted }: { error?: string, isSubmitted: boolean }) => {
@@ -29,7 +30,7 @@ const accessorySchema = z.object({
   accessory_type: z.string().min(1, 'Accessory type is required'),
   brand: z.string().min(1, 'Brand is required'),
   model: z.string().min(1, 'Model is required'),
-  title: z.string().min(1, 'Title is required').max(60, 'Title must not exceed 60 characters'),
+  title: z.string().min(1, 'Title is required').max(100, 'Title must not exceed 100 characters'),
   year: z.string().nullable().default(''),
   yearUnknown: z.boolean().default(false),
   reference: z.string().default(''),
@@ -112,83 +113,62 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
   const [step, setStep] = useState(1)
   const [selectedBrand, setSelectedBrand] = useState(initialData?.brand || "")
   const [selectedModel, setSelectedModel] = useState(initialData?.model || "")
+  const [previewTitle, setPreviewTitle] = useState("")
   const [selectedImages, setSelectedImages] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [currentImage, setCurrentImage] = useState(0)
   const [isStepSubmitted, setIsStepSubmitted] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
-
-  // Handle existing images in edit mode
-  useEffect(() => {
-    if (isEditing && initialData?.images) {
-      setImagePreviews(initialData.images)
-      // Create a dummy File object for each existing image to satisfy the validation
-      const dummyFiles = initialData.images.map((url: string) => {
-        return new File([], url, { type: 'image/jpeg' })
-      })
-      setSelectedImages(dummyFiles)
-      form.setValue('images', dummyFiles)
-    }
-  }, [isEditing, initialData])
+  const { brands, models, isLoading, fetchModels } = useBrandsAndModels()
 
   const form = useForm<FormData>({
     resolver: zodResolver(accessorySchema),
     defaultValues: {
-      accessory_type: '',
-      brand: '',
-      model: '',
-      title: '',
-      year: '',
+      brand: "",
+      model: "",
+      reference: "",
+      title: "",
+      description: "",
+      year: "",
       yearUnknown: false,
-      reference: '',
-      dimensions: {
-        width: '',
-        height: '',
-        lugWidth: '',
-        claspWidth: '',
-        braceletLongLength: '',
-        braceletShortLength: '',
-        braceletThickness: '',
-      },
-      description: '',
-      condition: '',
+      country: "",
+      accessory_type: "",
+      included: "",
+      condition: "",
       images: [],
       price: 0,
-      currency: 'EUR',
-      shippingDelay: '',
+      currency: "EUR",
+      shippingDelay: "",
       documents: [] as File[],
-      claspType: '',
-      claspMaterial: '',
-      caseType: '',
-      braceletColor: '',
-      braceletMaterial: '',
-      dialColor: '',
-      caliber: '',
-      lensMaterial: '',
-      movement: '',
-      baseCaliber: '',
-      powerReserve: '',
-      frequencyUnit: '',
-      frequencyValue: '',
-      jewels: '',
-      glassType: '',
-      listing_type: 'accessory',
+      listing_type: "accessory",
+      dimensions: {
+        width: "",
+        height: "",
+        lugWidth: "",
+        claspWidth: "",
+        braceletLongLength: "",
+        braceletShortLength: "",
+        braceletThickness: "",
+      },
+      claspType: "",
+      claspMaterial: "",
+      caseType: "",
+      braceletColor: "",
+      braceletMaterial: "",
+      dialColor: "",
+      caliber: "",
+      lensMaterial: "",
+      movement: "",
+      baseCaliber: "",
+      powerReserve: "",
+      frequencyUnit: "",
+      frequencyValue: "",
+      jewels: "",
+      glassType: "",
       ...initialData,
     },
-    mode: 'onChange',
+    mode: "onChange",
   })
-
-  // Auto-complete title when type, brand or model changes
-  useEffect(() => {
-    const accessoryType = form.watch('accessory_type')
-    const brand = brandsList.find(b => b.slug === form.watch('brand'))?.label
-    const model = selectedBrand && modelsList[selectedBrand as keyof typeof modelsList]?.find((m: any) => m.slug === form.watch('model'))?.label
-
-    if (accessoryType && brand && model) {
-      const suggestedTitle = `${brand} ${model} ${accessoryType}`
-      form.setValue('title', suggestedTitle)
-    }
-  }, [form.watch('accessory_type'), form.watch('brand'), form.watch('model')])
 
   // Step validation
   const validateStep = async (stepNumber: number) => {
@@ -214,16 +194,54 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
     return result
   }
 
-  const handleBrandChange = (value: string) => {
+  // Handle existing images in edit mode
+  useEffect(() => {
+    if (isEditing && initialData?.images) {
+      setImagePreviews(initialData.images)
+      // Create a dummy File object for each existing image to satisfy the validation
+      const dummyFiles = initialData.images.map((url: string) => {
+        return new File([], url, { type: 'image/jpeg' })
+      })
+      setSelectedImages(dummyFiles)
+      form.setValue('images', dummyFiles)
+    }
+  }, [isEditing, initialData])
+
+  // Update title preview when title changes
+  useEffect(() => {
+    setPreviewTitle(form.watch("title"))
+  }, [form.watch("title")])
+
+  // Auto-complete title when brand, model or reference changes
+  useEffect(() => {
+    const brand = brands.find(b => b.id === form.watch("brand"))?.label
+    const model = selectedBrand && models[selectedBrand]?.find(m => m.id === form.watch("model"))?.label
+    const reference = form.watch("reference")
+
+    if (brand && model && reference) {
+      const suggestedTitle = `${brand} - ${model} - ${reference}`
+      form.setValue("title", suggestedTitle)
+    }
+  }, [form.watch("brand"), form.watch("model"), form.watch("reference"), brands, models, selectedBrand])
+
+  const handleBrandChange = async (value: string) => {
     setSelectedBrand(value)
-    setSelectedModel('')
-    form.setValue('brand', value)
-    form.setValue('model', '')
+    setSelectedModel("")
+    form.setValue("brand", value)
+    form.setValue("model", "")
+    await fetchModels(value)
+  }
+
+  const handlePopularBrandClick = async (brandSlug: string) => {
+    const brand = brands.find(b => b.slug === brandSlug)
+    if (brand) {
+      await handleBrandChange(brand.id)
+    }
   }
 
   const handleModelChange = (value: string) => {
     setSelectedModel(value)
-    form.setValue('model', value)
+    form.setValue("model", value)
   }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -324,9 +342,9 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
                         <button
                           key={brand.slug}
                           type="button"
-                          onClick={() => handleBrandChange(brand.slug)}
+                          onClick={() => handlePopularBrandClick(brand.slug)}
                           className={`relative aspect-square rounded-lg border-2 transition-colors ${
-                            form.watch('brand') === brand.slug
+                            brands.find(b => b.id === form.watch('brand'))?.slug === brand.slug
                               ? 'border-primary bg-primary/5'
                               : 'border-input hover:border-primary/50'
                           }`}
@@ -354,8 +372,8 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
                             <SelectValue placeholder="Select a brand" />
                           </SelectTrigger>
                           <SelectContent>
-                            {brandsList.map((brand) => (
-                              <SelectItem key={brand.slug} value={brand.slug}>
+                            {brands.map((brand) => (
+                              <SelectItem key={brand.id} value={brand.id}>
                                 {brand.label}
                               </SelectItem>
                             ))}
@@ -367,30 +385,28 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
                   </div>
 
                   {/* Popular models */}
-                  {selectedBrand && modelsList[selectedBrand as keyof typeof modelsList] && (
+                  {selectedBrand && models[selectedBrand] && (
                     <div className="space-y-2">
-                      <Label>Models {brandsList.find(b => b.slug === selectedBrand)?.label}</Label>
+                      <Label>Models {brands.find(b => b.id === selectedBrand)?.label}</Label>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2">
-                        {modelsList[selectedBrand as keyof typeof modelsList]
-                          .slice(0, 4)
-                          .map((model: any) => (
-                            <button
-                              key={model.slug}
-                              type="button"
-                              onClick={() => handleModelChange(model.slug)}
-                              className={`relative aspect-[4/1] sm:aspect-[3/2] rounded-lg border-2 transition-colors ${
-                                form.watch('model') === model.slug
-                                  ? 'border-primary bg-primary/5'
-                                  : 'border-input hover:border-primary/50'
-                              }`}
-                            >
-                              <div className="absolute inset-0 flex flex-col items-center justify-center p-1 sm:p-2">
-                                <span className="text-[10px] sm:text-xs font-medium text-center line-clamp-1 sm:line-clamp-2 break-words w-full px-0.5">
-                                  {model.label}
-                                </span>
-                              </div>
-                            </button>
-                          ))}
+                        {models[selectedBrand].filter(m => m.popular).map((model) => (
+                          <button
+                            key={model.id}
+                            type="button"
+                            onClick={() => handleModelChange(model.id)}
+                            className={`relative aspect-[4/1] sm:aspect-[3/2] rounded-lg border-2 transition-colors ${
+                              form.watch('model') === model.id
+                                ? 'border-primary bg-primary/5'
+                                : 'border-input hover:border-primary/50'
+                            }`}
+                          >
+                            <div className="absolute inset-0 flex flex-col items-center justify-center p-1 sm:p-2">
+                              <span className="text-[10px] sm:text-xs font-medium text-center line-clamp-1 sm:line-clamp-2 break-words w-full px-0.5">
+                                {model.label}
+                              </span>
+                            </div>
+                          </button>
+                        ))}
                       </div>
                     </div>
                   )}
@@ -408,8 +424,8 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
                             <SelectValue placeholder="Select a model" />
                           </SelectTrigger>
                           <SelectContent>
-                            {selectedBrand && modelsList[selectedBrand as keyof typeof modelsList]?.map((model: any) => (
-                              <SelectItem key={model.slug} value={model.slug}>
+                            {selectedBrand && models[selectedBrand]?.map((model) => (
+                              <SelectItem key={model.id} value={model.id}>
                                 {model.label}
                               </SelectItem>
                             ))}
@@ -1138,13 +1154,13 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
                 <div>
                   <p className="text-muted-foreground">Brand</p>
                   <p className="font-medium">
-                    {brandsList.find(b => b.slug === form.watch('brand'))?.label || '-'}
+                    {brands.find(b => b.id === form.watch('brand'))?.label || '-'}
                   </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Model</p>
                   <p className="font-medium">
-                    {selectedBrand && modelsList[selectedBrand as keyof typeof modelsList]?.find((m: any) => m.slug === form.watch('model'))?.label || '-'}
+                    {selectedBrand && models[selectedBrand]?.find((m) => m.id === form.watch('model'))?.label || '-'}
                   </p>
                 </div>
                 <div>

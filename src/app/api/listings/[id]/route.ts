@@ -179,6 +179,7 @@ export async function GET(
       braceletMaterial: listing.bracelet_material,
       braceletColor: listing.bracelet_color,
       included: listing.included,
+      country: listing.country,
       images: listing.listing_images
         .sort((a: ListingImage, b: ListingImage) => a.order_index - b.order_index)
         .map((img: ListingImage) => img.url),
@@ -265,7 +266,48 @@ export async function DELETE(
       )
     }
 
-    // Delete the listing
+    // Get listing images before deletion
+    const { data: listingImages, error: imagesError } = await supabase
+      .from('listing_images')
+      .select('url')
+      .eq('listing_id', params.id)
+
+    if (imagesError) {
+      console.error('Error fetching listing images:', imagesError)
+      return NextResponse.json(
+        { error: 'Failed to fetch listing images' },
+        { status: 500 }
+      )
+    }
+
+    // Delete images from storage
+    if (listingImages && listingImages.length > 0) {
+      console.log('deleting images', listingImages)
+      const imagePaths = listingImages.map(img => {
+        // Extract the path from the URL
+        const url = new URL(img.url)
+        const path = url.pathname.split('/').pop()
+        return path || ''
+      }).filter(path => path !== '')
+
+      console.log('imagesPaths', imagePaths)
+
+      if (imagePaths.length > 0) {
+        const { error: storageError } = await supabase.storage
+          .from('listingimages')
+          .remove(imagePaths)
+
+        if (storageError) {
+          console.error('Error deleting images from storage:', storageError)
+          return NextResponse.json(
+            { error: 'Failed to delete images from storage' },
+            { status: 500 }
+          )
+        }
+      }
+    }
+
+    // Delete the listing (this will cascade delete related records)
     const { error: deleteError } = await supabase
       .from('listings')
       .delete()
