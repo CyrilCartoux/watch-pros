@@ -114,6 +114,8 @@ export async function GET(request: Request) {
       )
     }
 
+    console.log('sellers', sellers)
+
     // Transformer les données pour correspondre à la structure attendue
     const transformedSellers = (sellers as any[]).map(seller => ({
       account: {

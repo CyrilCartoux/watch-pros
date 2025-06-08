@@ -13,6 +13,8 @@ import {
 import { useFavorites } from "@/hooks/useFavorites"
 import { useAuth } from "@/contexts/AuthContext"
 import { useToast } from "@/components/ui/use-toast"
+import { Badge } from "@/components/ui/badge"
+import { Coins } from "lucide-react"
 
 interface ListingImage {
   id: string
@@ -35,6 +37,13 @@ interface ListingCardProps {
     models: {
       slug: string
       label: string
+    } | null
+    seller: {
+      id: string
+      company_name: string
+      watch_pros_name: string
+      company_logo_url: string | null
+      crypto_friendly: boolean
     } | null
   }
   isFavorite: boolean
@@ -108,6 +117,7 @@ export function ListingCard({ listing, isFavorite, onFavoriteClick }: ListingCar
 
   // Get condition label
   const conditionLabel = watchConditions.find(c => c.slug === listing.condition)?.label
+  const shippingDelayLabel = `${listing.shipping_delay} days` 
 
   return (
     <Link href={`/listings/${listing.id}`}>
@@ -197,6 +207,36 @@ export function ListingCard({ listing, isFavorite, onFavoriteClick }: ListingCar
         </div>
         <CardContent className="p-2 md:p-4 flex-1 flex flex-col">
           <div className="space-y-2 md:space-y-3">
+            {/* Seller Info */}
+            {listing.seller && (
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-6 h-6 rounded-full overflow-hidden border border-primary/20 flex-shrink-0">
+                  {listing.seller.company_logo_url ? (
+                    <Image
+                      src={listing.seller.company_logo_url}
+                      alt={listing.seller.company_name}
+                      width={24}
+                      height={24}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-muted flex items-center justify-center text-[10px] font-bold text-primary">
+                      {listing.seller.company_name.charAt(0)}
+                    </div>
+                  )}
+                </div>
+                <span className="text-xs text-muted-foreground truncate">
+                  {listing.seller.watch_pros_name}
+                </span>
+                {listing.seller.crypto_friendly && (
+                  <Badge variant="outline" className="text-[10px] border-amber-500 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20 ml-auto">
+                    <Coins className="h-3 w-3 mr-1" />
+                    Crypto
+                  </Badge>
+                )}
+              </div>
+            )}
+
             {/* Title */}
             <h3 className="font-semibold text-sm md:text-lg line-clamp-2">{listing.title}</h3>
 

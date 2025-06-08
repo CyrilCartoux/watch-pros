@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Heart, Share2, Shield, Clock, Package, Star, ChevronLeft, ChevronRight, CheckCircle2, MessageSquare, Bell, MapPin, Phone, Mail } from "lucide-react"
+import { Heart, Share2, Shield, Clock, Package, Star, ChevronLeft, ChevronRight, CheckCircle2, MessageSquare, Bell, MapPin, Phone, Mail, Coins } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useState, useEffect } from "react"
@@ -18,6 +18,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { useRouter } from "next/navigation"
 import { countries } from '@/data/form-options'
+import { Badge } from "@/components/ui/badge"
 
 interface ListingData {
   id: string
@@ -63,28 +64,16 @@ interface ListingData {
       email: string
       languages: string[]
     }
-    business: {
-      vatNumber: string
-      hasPhysicalStore: boolean
-      yearsOfExperience: number
-      specialties: string[]
-    }
     stats: {
-      totalSales: number
-      rating: number
+      averageRating: number
       totalReviews: number
-      recommendationRate: number
-      ratings: {
-        shipping: number
-        description: number
-        communication: number
-      }
     }
     certifications: {
       name: string
       description: string
       icon: string
     }[]
+    cryptoFriendly: boolean
   } | null
   listing_type: string
   type: string
@@ -698,8 +687,7 @@ export default function ListingPage({ params }: Props) {
                 </Button>
               ) : (
                 <Button 
-                  variant="outline" 
-                  className="w-full"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-lg py-6"
                   onClick={() => setIsOfferDialogOpen(true)}
                 >
                   Make an offer
@@ -880,10 +868,44 @@ export default function ListingPage({ params }: Props) {
                             <h3 className="font-semibold text-lg">{listing.seller.name}</h3>
                             <p className="text-sm text-muted-foreground">{listing.seller.type}</p>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 text-primary fill-primary" />
-                            <span className="font-medium">{listing.seller.stats.rating}</span>
-                            <span className="text-sm text-muted-foreground">({listing.seller.stats.totalReviews})</span>
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1">
+                              {listing.seller && Array.from({ length: 5 }).map((_, index) => {
+                                const rating = listing.seller!.stats.averageRating;
+                                const starValue = index + 1;
+                                const isHalfStar = rating >= starValue - 0.5 && rating < starValue;
+                                const isFullStar = rating >= starValue;
+                                
+                                return (
+                                  <div key={index} className="relative w-4 h-4">
+                                    <Star
+                                      className={`absolute h-4 w-4 ${
+                                        isFullStar
+                                          ? "text-yellow-400 fill-yellow-400"
+                                          : "text-muted-foreground"
+                                      }`}
+                                    />
+                                    {isHalfStar && (
+                                      <div className="absolute inset-0 w-1/2 overflow-hidden">
+                                        <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                              {listing.seller && (
+                                <>
+                                  <span className="font-medium">{listing.seller.stats.averageRating.toFixed(1)}</span>
+                                  <span className="text-sm text-muted-foreground">({listing.seller.stats.totalReviews})</span>
+                                </>
+                              )}
+                            </div>
+                            {listing.seller?.cryptoFriendly && (
+                              <Badge variant="outline" className="border-amber-500 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20">
+                                <Coins className="h-4 w-4 mr-1" />
+                                Crypto
+                              </Badge>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -892,21 +914,12 @@ export default function ListingPage({ params }: Props) {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span>{listing.seller.location.city}, {listing.seller.location.country}</span>
+                        <span>{listing.seller.location.city}, {getCountryLabel(listing.seller.location.country)}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Phone className="h-4 w-4 text-muted-foreground" />
                         <span>{listing.seller.contact.phone}</span>
                       </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      {listing.seller.certifications.map((cert, index) => (
-                        <div key={index} className="flex items-center gap-1 px-2 py-1 bg-muted rounded-md text-xs">
-                          <Shield className="h-3 w-3 text-primary" />
-                          <span>{cert.name}</span>
-                        </div>
-                      ))}
                     </div>
 
                     <div className="pt-2">

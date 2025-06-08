@@ -111,7 +111,10 @@ export async function GET(request: Request) {
         seller:sellers (
           id,
           company_name,
-          watch_pros_name
+          watch_pros_name,
+          country,
+          crypto_friendly,
+          company_logo_url
         )
       `, { count: 'exact' })
       .eq('status', 'active')

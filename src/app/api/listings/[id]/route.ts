@@ -128,6 +128,11 @@ export async function GET(
           phone,
           created_at,
           updated_at,
+          crypto_friendly,
+          seller_stats (
+            total_reviews,
+            average_rating
+          ),
           seller_addresses (
             street,
             city,
@@ -189,39 +194,26 @@ export async function GET(
       listing_type: listing.listing_type,
       seller: listing.sellers ? {
         id: listing.sellers.id,
-        name: listing.sellers.company_name || listing.sellers.watch_pros_name,
+        name: listing.sellers.watch_pros_name,
         companyLogo: listing.sellers.company_logo_url,
         type: listing.sellers.company_status,
         description: listing.sellers.title,
+        cryptoFriendly: listing.sellers.crypto_friendly,
         location: {
           address: listing.sellers.seller_addresses[0]?.street || '',
           city: listing.sellers.seller_addresses[0]?.city || '',
           postalCode: listing.sellers.seller_addresses[0]?.postal_code || '',
           country: listing.sellers.seller_addresses[0]?.country || listing.sellers.country
         },
+        stats: {
+          totalReviews: listing.sellers.seller_stats?.total_reviews || 0,
+          averageRating: listing.sellers.seller_stats?.average_rating || 0
+        },
         contact: {
           phone: `${listing.sellers.phone_prefix}${listing.sellers.phone}`,
           mobile: `${listing.sellers.phone_prefix}${listing.sellers.phone}`,
           email: listing.sellers.email
-        },
-        business: {
-          vatNumber: '', // TODO: Add VAT number field to sellers table
-          hasPhysicalStore: true, // TODO: Add field to sellers table
-          yearsOfExperience: 0, // TODO: Add field to sellers table
-          specialties: [] // TODO: Add field to sellers table
-        },
-        stats: {
-          totalSales: 0, // TODO: Add field to sellers table
-          rating: 5, // TODO: Add field to sellers table
-          totalReviews: 0, // TODO: Add field to sellers table
-          recommendationRate: 100, // TODO: Add field to sellers table
-          ratings: {
-            shipping: 5, // TODO: Add field to sellers table
-            description: 5, // TODO: Add field to sellers table
-            communication: 5 // TODO: Add field to sellers table
-          }
-        },
-        certifications: [] // TODO: Add certifications table
+        }
       } : null
     }
 

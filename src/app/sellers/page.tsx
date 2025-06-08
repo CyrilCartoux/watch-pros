@@ -430,17 +430,21 @@ export default function SellersListPage() {
             </div>
           ) : (
             sellers.map((seller) => (
-              <Link key={seller.account.watchProsName} href={`/sellers/${seller.account.watchProsName}`}>
-                <Card className="h-full hover:shadow-lg transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-20 h-20 rounded-lg overflow-hidden border-2 border-primary/20 flex items-center justify-center bg-background">
+              <Link
+                key={seller.account.watchProsName}
+                href={`/sellers/${seller.account.watchProsName}`}
+                className="block hover:shadow-lg transition-all duration-300"
+              >
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-primary/20 flex items-center justify-center bg-background flex-shrink-0">
                         {seller.account.companyLogo ? (
                           <Image
                             src={seller.account.companyLogo}
                             alt={`${seller.account.companyName} logo`}
-                            width={80}
-                            height={80}
+                            width={64}
+                            height={64}
                             className="w-full h-full object-contain"
                           />
                         ) : (
@@ -450,55 +454,27 @@ export default function SellersListPage() {
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h2 className="text-xl font-semibold truncate">{seller.account.companyName}</h2>
-                          <Badge variant="secondary" className="bg-green-500/10 text-green-600 hover:bg-green-500/20 transition-colors">
-                            <Shield className="h-3 w-3 mr-1 flex-shrink-0" />
-                            <span className="font-medium">Verified</span>
-                          </Badge>
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <h3 className="font-semibold text-base truncate group-hover:text-primary transition-colors">{seller.account.watchProsName}</h3>
+                          {seller.account.cryptoFriendly && (
+                            <Badge variant="outline" className="text-xs border-amber-500 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20">
+                              <Coins className="h-3 w-3 mr-1" />
+                              Crypto
+                            </Badge>
+                          )}
                         </div>
-                        <p className="text-sm text-muted-foreground mb-3 truncate">{seller.account.companyStatus}</p>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Badge variant="secondary" className="max-w-[120px] truncate bg-primary/10 hover:bg-primary/20 transition-colors">
-                            <Star className="h-3 w-3 mr-1 text-yellow-400 fill-yellow-400 flex-shrink-0" />
-                            <span className="truncate font-medium">{seller.stats.averageRating.toFixed(1)} ({seller.stats.totalReviews})</span>
-                          </Badge>
+                        <p className="text-sm text-muted-foreground mb-2">{seller.account.companyStatus}</p>
+                        <div className="flex items-center gap-4 text-sm">
+                          <div className="flex items-center gap-1">
+                            <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />
+                            <span className="font-medium">{seller.stats.averageRating.toFixed(1)}</span>
+                            <span className="text-muted-foreground">({seller.stats.totalReviews})</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className="text-muted-foreground">{getCountryFlag(seller.account.country)} {countries.find(c => c.value === seller.account.country)?.label}</span>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                        <span className="text-sm text-muted-foreground truncate">
-                          {seller.address?.city}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground truncate">
-                          {getCountryFlag(seller.address?.country || seller.account.country)} {countries.find(c => c.value === seller.account.country)?.label}
-                        </span>
-                      </div>
-
-                      <div className="flex flex-wrap gap-2">
-                        {seller.account.cryptoFriendly && (
-                          <Badge variant="outline" className="border-amber-500 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20 transition-colors">
-                            <Coins className="h-3 w-3 mr-1 flex-shrink-0" />
-                            <span className="font-medium">Accepts Crypto</span>
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="mt-4 pt-4 border-t">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground truncate max-w-[70%]">
-                          Contact: {seller.account.email}
-                        </span>
-                        <span className="text-sm font-medium text-primary flex-shrink-0">
-                          View profile →
-                        </span>
                       </div>
                     </div>
                   </CardContent>

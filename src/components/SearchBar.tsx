@@ -10,6 +10,16 @@ import { useRouter } from "next/navigation"
 import { brandsList } from "@/data/brands-list"
 import { modelsList } from "@/data/models-list"
 
+interface Model {
+  label: string
+  slug: string
+  brand: string
+}
+
+interface ModelsList {
+  [key: string]: Model[]
+}
+
 interface SearchResult {
   type: "brand" | "model"
   label: string
@@ -67,11 +77,11 @@ export function SearchBar({ className }: SearchBarProps) {
     })
 
     // Search in models
-    Object.entries(modelsList).forEach(([brandSlug, models]) => {
+    Object.entries(modelsList as ModelsList).forEach(([brandSlug, models]) => {
       const brand = brandsList.find(b => b.slug === brandSlug)
       if (!brand) return
 
-      models.forEach((model: any) => {
+      models.forEach((model: Model) => {
         // Check if search matches "brand model" or just "model"
         const fullSearch = `${brand.label} ${model.label}`.toLowerCase()
         if (fullSearch.includes(searchLower) || model.label.toLowerCase().includes(searchLower)) {
@@ -146,8 +156,8 @@ export function SearchBar({ className }: SearchBarProps) {
         params.set('brand', brand.slug)
         
         // Look for matching model in the brand's models
-        const brandModels = modelsList[brand.slug] || []
-        const model = brandModels.find(m => 
+        const brandModels = (modelsList as ModelsList)[brand.slug] || []
+        const model = brandModels.find((m: Model) => 
           tokens.some(token => 
             m.slug === token.toLowerCase() || 
             m.label.toLowerCase() === token.toLowerCase()

@@ -665,66 +665,103 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
           </Card>
         </div>
 
-        {/* Best Current Offers */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">Best Current Offers</h2>
-          {seller.listings &&seller.listings.length > 0 ? (
-            <div className="relative">
-              <div className="overflow-hidden">
-                <div className="flex transition-transform duration-300 ease-in-out" style={{ transform: `translateX(-${currentListing * 100}%)` }}>
-                  {seller.listings.map((listing) => (
-                    <div key={listing.id} className="w-full md:w-1/3 flex-shrink-0 px-2">
-                      <Link href={`/listings/${listing.id}`}>
-                        <Card className="hover:shadow-lg transition-shadow">
-                          <div className="relative aspect-square">
-                            <Image
-                              src={listing.image}
-                              alt={`${listing.brand} ${listing.model}`}
-                              fill
-                              className="object-cover rounded-t-lg"
-                            />
+        {/* Best current offers */}
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Current offers</h2>
+          
+          {/* Mobile Carousel */}
+          <div className="md:hidden relative">
+            <div className="overflow-hidden">
+              <div className="flex transition-transform duration-300 ease-in-out" style={{ transform: `translateX(-${currentListing * 100}%)` }}>
+                {seller.listings?.slice(0, 5).map((listing) => (
+                  <div key={listing.id} className="w-full flex-shrink-0 px-2">
+                    <Link href={`/listings/${listing.id}`} className="group">
+                      <Card className="overflow-hidden transition-all hover:shadow-md">
+                        <div className="aspect-square relative">
+                          <Image
+                            src={listing.image}
+                            alt={`${listing.brand} ${listing.model}`}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <CardContent className="p-2">
+                          <div className="space-y-1">
+                            <h3 className="font-medium text-sm line-clamp-1 group-hover:text-primary transition-colors">
+                              {listing.brand} {listing.model}
+                            </h3>
+                            <p className="text-xs text-muted-foreground">
+                              Ref. {listing.reference}
+                            </p>
+                            <p className="text-sm font-medium">
+                              {listing.price.toLocaleString()} {listing.currency}
+                            </p>
                           </div>
-                          <CardContent className="p-4">
-                            <h3 className="font-semibold">{listing.brand} {listing.model}</h3>
-                            <p className="text-sm text-muted-foreground mb-2">Ref. {listing.reference}</p>
-                            <p className="font-medium text-primary">{listing.price.toLocaleString()} {listing.currency}</p>
-                          </CardContent>
-                        </Card>
-                      </Link>
-                    </div>
-                  ))}
-                </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </div>
+                ))}
               </div>
-              
-              {/* Navigation Buttons - Only show if there are multiple listings */}
-              {seller.listings.length > 1 && (
-                <>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-10 h-10"
-                    onClick={prevListing}
-                  >
-                    <ChevronLeft className="h-6 w-6" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-10 h-10"
-                    onClick={nextListing}
-                  >
-                    <ChevronRight className="h-6 w-6" />
-                  </Button>
-                </>
-              )}
             </div>
-          ) : (
-            <Card>
-              <CardContent className="p-6 text-center">
-                <p className="text-muted-foreground">No active listings at the moment</p>
-              </CardContent>
-            </Card>
-          )}
+            
+            {/* Navigation Buttons - Only show if there are multiple listings */}
+            {seller.listings && seller.listings.length > 1 && (
+              <>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-8 h-8"
+                  onClick={prevListing}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-8 h-8"
+                  onClick={nextListing}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </>
+            )}
+          </div>
+
+          {/* Desktop Grid */}
+          <div className="hidden md:grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+            {seller.listings?.slice(0, 5).map((listing) => (
+              <Link
+                key={listing.id}
+                href={`/listings/${listing.id}`}
+                className="group"
+              >
+                <Card className="overflow-hidden transition-all hover:shadow-md">
+                  <div className="aspect-square relative">
+                    <Image
+                      src={listing.image}
+                      alt={`${listing.brand} ${listing.model}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <CardContent className="p-2">
+                    <div className="space-y-1">
+                      <h3 className="font-medium text-sm line-clamp-1 group-hover:text-primary transition-colors">
+                        {listing.brand} {listing.model}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        Ref. {listing.reference}
+                      </p>
+                      <p className="text-sm font-medium">
+                        {listing.price.toLocaleString()} {listing.currency}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* Contact Dialog */}

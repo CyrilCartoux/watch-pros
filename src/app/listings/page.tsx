@@ -89,6 +89,8 @@ interface Listing {
     id: string
     company_name: string
     watch_pros_name: string
+    company_logo_url: string | null
+    crypto_friendly: boolean
   } | null
 }
 
@@ -157,11 +159,11 @@ export default function ListingsPage() {
   const [error, setError] = useState<string | null>(null)
   const [isInitialized, setIsInitialized] = useState(false)
   const itemsPerPage = 12
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+  const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
     watch: true,
     condition: false,
     price: false,
-    shipping: false,
+    shipping: false
   })
   const [isLoadingModels, setIsLoadingModels] = useState(false)
 
@@ -432,7 +434,7 @@ export default function ListingsPage() {
   }
 
   const toggleSection = (section: string) => {
-    setExpandedSections(prev => ({
+    setOpenSections(prev => ({
       ...prev,
       [section]: !prev[section]
     }))
@@ -446,13 +448,13 @@ export default function ListingsPage() {
         className="flex items-center justify-between w-full text-left"
       >
         <h2 className="font-semibold">{title}</h2>
-        {expandedSections[section] ? (
+        {openSections[section] ? (
           <ChevronUp className="h-4 w-4 text-muted-foreground" />
         ) : (
           <ChevronDown className="h-4 w-4 text-muted-foreground" />
         )}
       </button>
-      {expandedSections[section] && (
+      {openSections[section] && (
         <div className="space-y-4">
           {children}
         </div>
@@ -462,7 +464,7 @@ export default function ListingsPage() {
 
   const renderFilters = () => (
     <div className="space-y-6 h-[calc(100vh-8rem)] overflow-y-auto pl-2 pr-2">
-      
+      {/* Type Selection */}
       <div className="space-y-2">
         <div className="grid grid-cols-2 gap-2">
           <button
@@ -492,6 +494,7 @@ export default function ListingsPage() {
         </div>
       </div>
 
+      {/* Watch Selection */}
       <FilterSection title="Watch Selection" section="watch">
         {/* Popular Brands */}
         <div className="space-y-2">
@@ -591,86 +594,117 @@ export default function ListingsPage() {
         )}
       </FilterSection>
 
-      <FilterSection title="Condition & Details" section="condition">
-        <div className="space-y-2">
-          <Label>Condition</Label>
-          <Select
-            value={tempFilters.condition}
-            onValueChange={(value) => handleFilterChange("condition", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select condition" />
-            </SelectTrigger>
-            <SelectContent>
-              {watchConditions.map((condition) => (
-                <SelectItem key={condition.slug} value={condition.slug}>
-                  {condition.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      {/* Quick Filters */}
+      <div className="space-y-6">
+        <h3 className="font-medium text-lg">Other Filters</h3>
+        
+        {/* Condition & Details */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>Condition</Label>
+            <Select
+              value={tempFilters.condition}
+              onValueChange={(value) => handleFilterChange("condition", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select condition" />
+              </SelectTrigger>
+              <SelectContent>
+                {watchConditions.map((condition) => (
+                  <SelectItem key={condition.slug} value={condition.slug}>
+                    {condition.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Dial Color</Label>
+            <Select
+              value={tempFilters.dialColor}
+              onValueChange={(value) => handleFilterChange("dialColor", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select color" />
+              </SelectTrigger>
+              <SelectContent>
+                {dialColors.map((color) => (
+                  <SelectItem key={color} value={color}>
+                    {color}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Year</Label>
+            <Select
+              value={tempFilters.year}
+              onValueChange={(value) => handleFilterChange("year", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select year" />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: 30 }, (_, i) => {
+                  const year = new Date().getFullYear() - i
+                  return (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  )
+                })}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Included</Label>
+            <Select
+              value={tempFilters.included}
+              onValueChange={(value) => handleFilterChange("included", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select option" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="full-set">Full set (Box & Papers)</SelectItem>
+                <SelectItem value="box-only">Box only</SelectItem>
+                <SelectItem value="papers-only">Papers only</SelectItem>
+                <SelectItem value="watch-only">Watch only</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <Label>Dial Color</Label>
-          <Select
-            value={tempFilters.dialColor}
-            onValueChange={(value) => handleFilterChange("dialColor", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select color" />
-            </SelectTrigger>
-            <SelectContent>
-              {dialColors.map((color) => (
-                <SelectItem key={color} value={color}>
-                  {color}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Price Range */}
+        <div className="space-y-4">
+          <h3 className="font-medium">Price Range</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Min Price</Label>
+              <Input
+                type="number"
+                placeholder="Min price"
+                value={tempFilters.minPrice}
+                onChange={(e) => handleFilterChange("minPrice", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Max Price</Label>
+              <Input
+                type="number"
+                placeholder="Max price"
+                value={tempFilters.maxPrice}
+                onChange={(e) => handleFilterChange("maxPrice", e.target.value)}
+              />
+            </div>
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <Label>Included</Label>
-          <Select
-            value={tempFilters.included}
-            onValueChange={(value) => handleFilterChange("included", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select option" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="full-set">Full set (Box & Papers)</SelectItem>
-              <SelectItem value="box-only">Box only</SelectItem>
-              <SelectItem value="papers-only">Papers only</SelectItem>
-              <SelectItem value="watch-only">Watch only</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </FilterSection>
-
-      <FilterSection title="Price Range" section="price">
-        <div className="space-y-2">
-          <Label>Min Price</Label>
-          <Input
-            type="number"
-            placeholder="Min price"
-            value={tempFilters.minPrice}
-            onChange={(e) => handleFilterChange("minPrice", e.target.value)}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Max Price</Label>
-          <Input
-            type="number"
-            placeholder="Max price"
-            value={tempFilters.maxPrice}
-            onChange={(e) => handleFilterChange("maxPrice", e.target.value)}
-          />
-        </div>
-      </FilterSection>
-
-      <FilterSection title="Shipping" section="shipping">
+        {/* Shipping */}
         <div className="space-y-2">
           <Label>Shipping Delay</Label>
           <Select
@@ -690,7 +724,7 @@ export default function ListingsPage() {
             </SelectContent>
           </Select>
         </div>
-      </FilterSection>
+      </div>
     </div>
   )
 
@@ -760,36 +794,36 @@ export default function ListingsPage() {
           </div>
 
           <div className="flex flex-col gap-4 mb-6">
-            <div className="flex items-center justify-between">
-              <h1 className="text-lg md:text-2xl font-bold">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <h1 className="text-xl sm:text-2xl font-bold">
                 {totalItems.toLocaleString()} listings
               </h1>
-              <Select 
-                value={sortBy} 
-                onValueChange={setSortBy}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Filter by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="price-asc">Price ascending</SelectItem>
-                  <SelectItem value="price-desc">Price descending</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  className="flex items-center justify-center gap-2 font-medium text-base px-6 h-12 bg-primary hover:bg-primary/90 w-full sm:w-auto"
+                  onClick={() => setIsFiltersOpen(true)}
+                >
+                  <SlidersHorizontal className="h-6 w-6" />
+                  Filters
+                </Button>
+                <Select
+                  value={sortBy} 
+                  onValueChange={setSortBy}
+                >
+                  <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Filter by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="price-asc">Price ascending</SelectItem>
+                    <SelectItem value="price-desc">Price descending</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Active Filters */}
             <div className="flex flex-wrap items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setIsFiltersOpen(true)}
-                className="h-8"
-              >
-                <SlidersHorizontal className="h-4 w-4 mr-2" />
-                Filters
-              </Button>
-
               {Object.entries(filters).map(([key, value]) => {
                 if (!value) return null
                 return (

@@ -64,7 +64,7 @@ interface Seller {
     total_reviews: number
     average_rating: number
     last_updated: string
-  }[] | null
+  } | null
   crypto_friendly: boolean
 }
 
@@ -167,6 +167,7 @@ export async function GET(
     }
 
     const { data: seller, error: sellerError } = await query.maybeSingle()
+    console.log('seller', seller)
 
     if (sellerError) {
       console.error('Error fetching seller:', sellerError)
@@ -188,6 +189,51 @@ export async function GET(
         { status: 404 }
       )
     }
+
+    // Récupérer les listings du vendeur
+    const { data: listings, error: listingsError } = await supabase
+      .from('listings')
+      .select(`
+        id,
+        title,
+        price,
+        currency,
+        reference,
+        brands (
+          slug,
+          label
+        ),
+        models (
+          slug,
+          label
+        ),
+        listing_images (
+          url,
+          order_index
+        )
+      `)
+      .eq('seller_id', seller.id)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+
+    if (listingsError) {
+      console.error('Error fetching listings:', listingsError)
+      return NextResponse.json(
+        { error: 'Failed to fetch listings' },
+        { status: 500 }
+      )
+    }
+
+    // Transformer les listings pour correspondre à la structure attendue
+    const transformedListings = listings?.map(listing => ({
+      id: listing.id,
+      brand: (listing.brands as any)?.label || '',
+      model: (listing.models as any)?.label || '',
+      reference: listing.reference,
+      price: listing.price,
+      currency: listing.currency,
+      image: listing.listing_images?.[0]?.url || ''
+    })) || []
 
     // Récupérer les reviews
     const { data: reviews, error: reviewsError } = await supabase
@@ -240,6 +286,8 @@ export async function GET(
       ]) || []
     )
 
+    console.log('(seller.seller_stats as any)?.total_reviews ', (seller.seller_stats as any)?.total_reviews )
+
     // Transformer les données pour correspondre à la structure attendue
     const transformedSeller = {
       id: seller.id,
@@ -276,15 +324,12 @@ export async function GET(
         comment: review.comment,
         createdAt: review.created_at,
       })) || [],
-      stats: seller.seller_stats?.[0] ? {
-        totalReviews: seller.seller_stats[0].total_reviews,
-        averageRating: seller.seller_stats[0].average_rating,
-        lastUpdated: seller.seller_stats[0].last_updated
-      } : {
-        totalReviews: 0,
-        averageRating: 0,
-        lastUpdated: new Date().toISOString()
-      }
+      stats: {
+        totalReviews: (seller.seller_stats as any)?.total_reviews || 0,
+        averageRating: (seller.seller_stats as any)?.average_rating || 0,
+        lastUpdated: (seller.seller_stats as any)?.last_updated || new Date().toISOString()
+      },
+      listings: transformedListings
     }
 
     // Add cache control headers
