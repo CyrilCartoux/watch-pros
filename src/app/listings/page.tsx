@@ -27,6 +27,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useFavorites } from "@/hooks/useFavorites"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { ListingType } from "@/types/enums/listings-enum"
+import { SearchBar } from "@/components/SearchBar"
 
 interface Brand {
   id: string
@@ -145,7 +146,7 @@ export default function ListingsPage() {
   const [tempFilters, setTempFilters] = useState<Filters>(filters)
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
-  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "relevance")
+  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "")
   const [listings, setListings] = useState<Listing[]>([])
   const [totalItems, setTotalItems] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
@@ -347,12 +348,33 @@ export default function ListingsPage() {
     }
   }, [brands])
 
-  // Fetch listings only after initialization
+  // Watch for URL changes and update filters
   useEffect(() => {
-    if (isInitialized) {
-      fetchListings()
+    const params = new URLSearchParams(window.location.search)
+    const newFilters = {
+      search: params.get("query") || "",
+      brand: params.get("brand") || "",
+      model: params.get("model") || "",
+      reference: params.get("reference") || "",
+      seller: params.get("seller") || "",
+      year: params.get("year") || "",
+      dialColor: params.get("dialColor") || "",
+      condition: params.get("condition") || "",
+      included: params.get("included") || "",
+      minPrice: params.get("minPrice") || "",
+      maxPrice: params.get("maxPrice") || "",
+      shippingDelay: params.get("shippingDelay") || "",
+      listingType: params.get("listingType") || "",
     }
-  }, [currentPage, sortBy, filters, isInitialized])
+    setFilters(newFilters)
+    setCurrentPage(Number(params.get("page")) || 1)
+    setSortBy(params.get("sort") || "")
+  }, [searchParams])
+
+  // Fetch listings when filters change
+  useEffect(() => {
+    fetchListings()
+  }, [filters, currentPage, sortBy])
 
   const fetchListings = async () => {
     if (!isInitialized) return
@@ -727,6 +749,16 @@ export default function ListingsPage() {
               <p className="text-sm">{error}</p>
             </div>
           )}
+
+          {/* Search Bar Section */}
+          <div className="mb-8">
+            <div className="max-w-3xl mx-auto">
+              <h1 className="text-2xl font-bold text-center mb-2">Find Your Perfect Watch</h1>
+              <p className="text-muted-foreground text-center mb-4">Search by brand, model, or reference number to discover our curated selection of luxury timepieces</p>
+              <SearchBar className="w-full h-12 text-lg" />
+            </div>
+          </div>
+
           <div className="flex flex-col gap-4 mb-6">
             <div className="flex items-center justify-between">
               <h1 className="text-lg md:text-2xl font-bold">
@@ -736,8 +768,8 @@ export default function ListingsPage() {
                 value={sortBy} 
                 onValueChange={setSortBy}
               >
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue placeholder="Sort by" />
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter by" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="price-asc">Price ascending</SelectItem>

@@ -98,8 +98,79 @@ export function SearchBar({ className }: SearchBarProps) {
 
   const handleSearch = (query: string) => {
     if (!query) return
-    setSearch(query)
-    router.push(`/listings?query=${encodeURIComponent(query)}`)
+
+    const params = new URLSearchParams()
+    const trimmed = query.trim()
+    const tokens = trimmed.split(/\s+/)
+
+    // Find if the query matches a model result from suggestions
+    const modelResult = results.find(result => result.type === "model" && result.label === query)
+    
+    if (modelResult) {
+      // If it's a model from suggestions, use brand and model parameters
+      params.set('brand', modelResult.brandSlug)
+      if (modelResult.modelSlug) {
+        params.set('model', modelResult.modelSlug)
+      }
+      // Update the search input with the selected value
+      setSearch(modelResult.label)
+    } else if (tokens.length === 1) {
+      // Single token - could be a reference number or brand
+      const single = tokens[0].toLowerCase()
+      
+      // Check if it's a brand
+      const brand = brandsList.find(b => 
+        b.slug === single || b.label.toLowerCase() === single
+      )
+      
+      if (brand) {
+        params.set('brand', brand.slug)
+        // Update the search input with the brand name
+        setSearch(brand.label)
+      } else {
+        // If not a brand, treat as reference number
+        params.set('reference', trimmed)
+        // Keep the reference number in the search input
+        setSearch(trimmed)
+      }
+    } else {
+      // Multiple tokens - try to find brand and model
+      const brand = brandsList.find(b => 
+        tokens.some(token => 
+          b.slug === token.toLowerCase() || 
+          b.label.toLowerCase() === token.toLowerCase()
+        )
+      )
+
+      if (brand) {
+        params.set('brand', brand.slug)
+        
+        // Look for matching model in the brand's models
+        const brandModels = modelsList[brand.slug] || []
+        const model = brandModels.find(m => 
+          tokens.some(token => 
+            m.slug === token.toLowerCase() || 
+            m.label.toLowerCase() === token.toLowerCase()
+          )
+        )
+
+        if (model) {
+          params.set('model', model.slug)
+          // Update the search input with the brand and model name
+          setSearch(`${brand.label} ${model.label}`)
+        } else {
+          // If only brand is found, update with brand name
+          setSearch(brand.label)
+        }
+      } else {
+        // If no brand/model match found, use as free text search
+        params.set('query', trimmed)
+        // Keep the original search text
+        setSearch(trimmed)
+      }
+    }
+
+    router.push(`/listings?${params.toString()}`)
     setIsOpen(false)
   }
 
@@ -110,7 +181,7 @@ export function SearchBar({ className }: SearchBarProps) {
         <Input
           ref={inputRef}
           type="search"
-          placeholder="Search for a watch..."
+          placeholder="Search for a watch, model or reference number..."
           className="pl-9 h-9 text-sm"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
