@@ -1,18 +1,20 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
-import { Building2, MapPin, CreditCard, FileText, CheckCircle2, Upload } from "lucide-react"
+import { Building2, MapPin, CreditCard, FileText, CheckCircle2, Upload, Check } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { countries, titles, phonePrefixes } from "@/data/form-options"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
+import { SubscriptionStep } from '@/components/SubscriptionStep'
+import { plans } from "@/data/subscription-plans"
 
 // Constants for file validation
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -136,6 +138,7 @@ export default function RegisterFormPage() {
     documents: false,
   })
   const [companyLogoPreview, setCompanyLogoPreview] = useState<string | null>(null)
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
 
   const accountForm = useForm({
     resolver: zodResolver(accountSchema),
@@ -296,11 +299,15 @@ export default function RegisterFormPage() {
         }
         if (isValid) {
           console.log("Documents form values:", documentsForm.getValues())
-          setCurrentTab("summary")
+          setCurrentTab("subscription")
         }
         break
-      case "summary":
-        setCurrentTab("documents")
+      case "subscription":
+        if (!selectedPlan) {
+          // Show error message
+          return
+        }
+        // The subscription form handles its own submission
         break
       default:
         break
@@ -318,7 +325,7 @@ export default function RegisterFormPage() {
       case "documents":
         setCurrentTab("banking")
         break
-      case "summary":
+      case "subscription":
         setCurrentTab("documents")
         break
       default:
@@ -424,12 +431,12 @@ export default function RegisterFormPage() {
               <span className="hidden sm:inline">Documents</span>
             </TabsTrigger>
             <TabsTrigger 
-              value="summary" 
+              value="subscription" 
               className="flex items-center gap-2"
-              disabled={!isTabAccessible("summary")}
+              disabled={!isTabAccessible("subscription")}
             >
               <CheckCircle2 className="w-4 h-4" />
-              <span className="hidden sm:inline">Summary</span>
+              <span className="hidden sm:inline">Subscription</span>
             </TabsTrigger>
           </TabsList>
 
@@ -1223,196 +1230,57 @@ export default function RegisterFormPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="summary">
+          <TabsContent value="subscription">
             <Card>
               <CardContent className="p-6">
-                <div className="mb-8">
-                  <h2 className="text-2xl font-semibold mb-2">Summary</h2>
-                </div>
-
-                <div className="space-y-8">
-                  {/* Professional Account */}
+                <div className="space-y-6">
                   <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Professional Account</h3>
-                      <Button variant="outline" size="sm" onClick={() => setCurrentTab("account")}>Edit</Button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Company</p>
-                        <p className="font-medium">{accountForm.getValues("companyName")}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Watch Pros Name</p>
-                        <p className="font-medium">{accountForm.getValues("watchProsName")}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Email</p>
-                        <p className="font-medium">{accountForm.getValues("email")}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Phone</p>
-                        <p className="font-medium">+{accountForm.getValues("phonePrefix")}{accountForm.getValues("phone")}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Professional Plan */}
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <h3 className="text-lg font-semibold mb-2">Your Professional Plan</h3>
-                    <p className="text-sm text-muted-foreground">
-                      During the 30-day trial period, you don't pay any base fee for your Professional plan. You can post as many listings as you want. Only completed sales are subject to a sales commission. After the trial period, we will automatically assign you the most advantageous Professional plan based on the number of watch listings you have published.
-                    </p>
-                  </div>
-
-                  {/* Company Data */}
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Company Information</h3>
-                      <Button variant="outline" size="sm" onClick={() => setCurrentTab("address")}>Edit</Button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Address</p>
-                        <p className="font-medium">{addressForm.getValues("street")}</p>
-                        {addressForm.getValues("addressComplement") && (
-                          <p className="font-medium">{addressForm.getValues("addressComplement")}</p>
-                        )}
-                        <p className="font-medium">{addressForm.getValues("postalCode")} {addressForm.getValues("city")}</p>
-                        <p className="font-medium">{countries.find(c => c.value === addressForm.getValues("country"))?.label}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Mobile</p>
-                        <p className="font-medium">+{addressForm.getValues("mobilePrefix")}{addressForm.getValues("mobile")}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Website</p>
-                        <p className="font-medium">{addressForm.getValues("website") || "--"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Company Status</p>
-                        <p className="font-medium">{accountForm.getValues("companyStatus")}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">SIREN/SIRET</p>
-                        <p className="font-medium">{addressForm.getValues("siren")}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Tax ID</p>
-                        <p className="font-medium">{addressForm.getValues("taxId")}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">VAT Number</p>
-                        <p className="font-medium">{addressForm.getValues("vatNumber")}</p>
-                      </div>
-                      {addressForm.getValues("oss") && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">OSS Registration</p>
-                          <p className="font-medium">Yes</p>
-                        </div>
-                      )}
+                    <h3 className="text-lg font-medium">Choose Your Plan</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+                      {plans.map((plan, index) => (
+                        <Card 
+                          key={plan.name + index}
+                          className={`cursor-pointer transition-colors ${
+                            selectedPlan === plan.priceId ? 'border-primary' : ''
+                          }`}
+                          onClick={() => setSelectedPlan(plan.priceId)}
+                        >
+                          <CardHeader className="p-2 sm:p-3">
+                            <CardTitle className="text-sm sm:text-base">{plan.name}</CardTitle>
+                            <CardDescription className="text-[10px] sm:text-xs line-clamp-2">{plan.description}</CardDescription>
+                          </CardHeader>
+                          <CardContent className="p-2 sm:p-3 pt-0">
+                            <div className="text-base sm:text-lg font-bold">€{plan.price.early}</div>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground">per month</p>
+                            <ul className="mt-1 sm:mt-2 space-y-0.5 sm:space-y-1">
+                              {plan.features.map((feature) => (
+                                <li key={feature} className="flex items-center gap-1">
+                                  <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary" />
+                                  <span className="text-[10px] sm:text-xs line-clamp-1">{feature}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </CardContent>
+                        </Card>
+                      ))}
                     </div>
                   </div>
 
-                  {/* Banking Details */}
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Your Bank Details</h3>
-                      <Button variant="outline" size="sm" onClick={() => setCurrentTab("banking")}>Edit</Button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">Payment Method</p>
-                        <p className="font-medium">
-                          {bankingForm.getValues("paymentMethod") === "card" ? "Credit Card" : "SEPA Direct Debit"}
-                        </p>
-                      </div>
-                      {bankingForm.getValues("paymentMethod") === "card" ? (
-                        <>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Card Holder</p>
-                            <p className="font-medium">{bankingForm.getValues("cardHolder")}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Card Number</p>
-                            <p className="font-medium">**** **** **** {bankingForm.getValues("cardNumber")?.slice(-4)}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Expiry Date</p>
-                            <p className="font-medium">{bankingForm.getValues("expiryDate")}</p>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Account Holder</p>
-                            <p className="font-medium">{bankingForm.getValues("accountHolder")}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">IBAN</p>
-                            <p className="font-medium">**** **** **** {bankingForm.getValues("iban")?.slice(-4)}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">BIC</p>
-                            <p className="font-medium">{bankingForm.getValues("bic")}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Bank Name</p>
-                            <p className="font-medium">{bankingForm.getValues("bankName")}</p>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Documents */}
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-lg font-semibold">Uploaded Documents</h3>
-                      <Button variant="outline" size="sm" onClick={() => setCurrentTab("documents")}>Edit</Button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-muted-foreground">ID Card Front</p>
-                        <p className="font-medium">{documentsForm.getValues("idCardFront")?.name || "--"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">ID Card Back</p>
-                        <p className="font-medium">{documentsForm.getValues("idCardBack")?.name || "--"}</p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Proof of Address</p>
-                        <p className="font-medium">{documentsForm.getValues("proofOfAddress")?.name || "--"}</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center pt-6">
-                    <p className="text-sm text-muted-foreground">* Required field</p>
-                    <div className="space-x-4">
-                      <Button variant="outline" size="lg" onClick={handleBack}>
-                        Back
-                      </Button>
-                      <Button 
-                        type="button" 
-                        size="lg"
-                        onClick={handleSubmit}
-                        disabled={isLoading}
-                      >
-                        {isLoading ? (
-                          <>
-                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Processing...
-                          </>
-                        ) : (
-                          'Complete Registration'
-                        )}
-                      </Button>
-                    </div>
-                  </div>
+                  {selectedPlan && (
+                    <SubscriptionStep
+                      plan={selectedPlan}
+                      onSuccess={(subscriptionId) => {
+                        // Handle successful subscription
+                        console.log('Subscription successful:', subscriptionId)
+                        // You might want to update the user's profile or redirect
+                      }}
+                      onError={(error) => {
+                        // Handle subscription error
+                        console.error('Subscription error:', error)
+                        // You might want to show an error message to the user
+                      }}
+                    />
+                  )}
                 </div>
               </CardContent>
             </Card>
