@@ -21,11 +21,62 @@ function AuthForm() {
   const [registrationSuccess, setRegistrationSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+  const [validationErrors, setValidationErrors] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  })
+
+  const validateInputs = () => {
+    const errors = {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      confirmPassword: ''
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      errors.email = 'Please enter a valid email address'
+    }
+
+    // Password validation
+    if (password.length < 8) {
+      errors.password = 'Password must be at least 8 characters long'
+    }
+
+    if (!isLogin) {
+      // Name validations
+      if (firstName.length < 2) {
+        errors.firstName = 'First name must be at least 2 characters'
+      }
+      if (lastName.length < 2) {
+        errors.lastName = 'Last name must be at least 2 characters'
+      }
+
+      // Confirm password validation
+      if (password !== confirmPassword) {
+        errors.confirmPassword = 'Passwords do not match'
+      }
+    }
+
+    setValidationErrors(errors)
+    return !Object.values(errors).some(error => error !== '')
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setRegistrationSuccess(false)
+
+    if (!validateInputs()) {
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -52,12 +103,7 @@ function AuthForm() {
       }
 
       if (!isLogin) {
-        setRegistrationSuccess(true)
-        setEmail('')
-        setPassword('')
-        setConfirmPassword('')
-        setFirstName('')
-        setLastName('')
+        window.location.href = '/auth/verify-email'
       } else {
         window.location.href = data.redirectUrl || '/'
       }
@@ -192,7 +238,11 @@ function AuthForm() {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   required
+                  className={validationErrors.firstName ? 'border-red-500' : ''}
                 />
+                {validationErrors.firstName && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.firstName}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName">Last Name</Label>
@@ -202,7 +252,11 @@ function AuthForm() {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   required
+                  className={validationErrors.lastName ? 'border-red-500' : ''}
                 />
+                {validationErrors.lastName && (
+                  <p className="text-red-500 text-sm mt-1">{validationErrors.lastName}</p>
+                )}
               </div>
             </div>
           </>
@@ -217,7 +271,11 @@ function AuthForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            className={validationErrors.email ? 'border-red-500' : ''}
           />
+          {validationErrors.email && (
+            <p className="text-red-500 text-sm mt-1">{validationErrors.email}</p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -228,7 +286,11 @@ function AuthForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            className={validationErrors.password ? 'border-red-500' : ''}
           />
+          {validationErrors.password && (
+            <p className="text-red-500 text-sm mt-1">{validationErrors.password}</p>
+          )}
         </div>
 
         {!isLogin && (
@@ -240,7 +302,11 @@ function AuthForm() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
+              className={validationErrors.confirmPassword ? 'border-red-500' : ''}
             />
+            {validationErrors.confirmPassword && (
+              <p className="text-red-500 text-sm mt-1">{validationErrors.confirmPassword}</p>
+            )}
           </div>
         )}
 
