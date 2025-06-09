@@ -857,16 +857,16 @@ export default function NotificationsPage() {
         </TabsContent>
 
         <TabsContent value="history" className="space-y-3 md:space-y-4">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <h2 className="text-xl md:text-2xl font-bold">
               Notification History
             </h2>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary" className="text-sm">
                 {notifications.filter((n) => !n.is_read).length} unread
               </Badge>
               {notifications.some((n) => !n.is_read) && (
-                <Button variant="outline" size="sm" onClick={markAllAsRead}>
+                <Button variant="outline" size="sm" onClick={markAllAsRead} className="w-full sm:w-auto">
                   Mark all as read
                 </Button>
               )}

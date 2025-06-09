@@ -242,7 +242,7 @@ export default function RegisterFormPage() {
       const result = await response.json()
 
       // Redirect to success page
-      window.location.href = `/register/success`
+      window.location.href = `/register/verify`
 
     } catch (error) {
       console.error("Error submitting form:", error)

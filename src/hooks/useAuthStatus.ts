@@ -82,7 +82,7 @@ export function useAuthStatus() {
 
   const requireSeller = () => {
     if (!status.isLoading && !status.isSeller) {
-      router.push('/auth')
+      router.push('/register')
       return false
     }
     return true
@@ -90,7 +90,7 @@ export function useAuthStatus() {
 
   const requireVerified = () => {
     if (!status.isLoading && !status.isVerified) {
-      router.push('/auth')
+      router.push('/register/verify')
       return false
     }
     return true

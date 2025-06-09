@@ -846,8 +846,8 @@ export default function ListingPage({ params }: Props) {
               <Card>
                 <CardContent className="p-6">
                   <div className="space-y-4">
-                    <div className="flex items-start gap-4">
-                      <div className="w-24 h-24 rounded-lg overflow-hidden border-2 border-primary/20 flex items-center justify-center bg-background">
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden border-2 border-primary/20 flex items-center justify-center bg-background">
                         {listing.seller.companyLogo ? (
                           <Image
                             src={listing.seller.companyLogo}
@@ -862,13 +862,13 @@ export default function ListingPage({ params }: Props) {
                           </div>
                         )}
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                           <div>
-                            <h3 className="font-semibold text-lg">{listing.seller.name}</h3>
+                            <h3 className="font-semibold text-lg truncate">{listing.seller.name}</h3>
                             <p className="text-sm text-muted-foreground">{listing.seller.type}</p>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <div className="flex items-center gap-1">
                               {listing.seller && Array.from({ length: 5 }).map((_, index) => {
                                 const rating = listing.seller!.stats.averageRating;
@@ -911,7 +911,7 @@ export default function ListingPage({ params }: Props) {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
                         <span>{listing.seller.location.city}, {getCountryLabel(listing.seller.location.country)}</span>
