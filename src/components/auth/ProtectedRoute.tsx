@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuthStatus } from '@/hooks/useAuthStatus'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -22,13 +22,17 @@ export function ProtectedRoute({
     requireSeller: checkSeller, 
     requireVerified: checkVerified 
   } = useAuthStatus()
+  const [isAuthorized, setIsAuthorized] = useState(false)
 
   useEffect(() => {
     if (isLoading) return
 
-    if (requireAuth && !checkAuth()) return
-    if (requireSeller && !checkSeller()) return
-    if (requireVerified && !checkVerified()) return
+    const authorized = 
+      (!requireAuth || checkAuth()) &&
+      (!requireSeller || checkSeller()) &&
+      (!requireVerified || checkVerified())
+
+    setIsAuthorized(authorized)
   }, [isLoading, requireAuth, requireSeller, requireVerified, checkAuth, checkSeller, checkVerified])
 
   if (isLoading) {
@@ -39,6 +43,10 @@ export function ProtectedRoute({
         </div>
       </div>
     )
+  }
+
+  if (!isAuthorized) {
+    return null
   }
 
   return <>{children}</>

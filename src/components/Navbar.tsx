@@ -84,20 +84,22 @@ export function Navbar() {
         {/* Mobile Navigation */}
         <div className="flex flex-1 items-center justify-end md:hidden">
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
-              <Link href="/notifications" className="relative">
-                <Bell className="h-4 w-4" />
-                {unreadNotifications > 0 && (
-                  <Badge 
-                    variant="destructive" 
-                    className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
-                  >
-                    {unreadNotifications}
-                  </Badge>
-                )}
-                <span className="sr-only">Notifications</span>
-              </Link>
-            </Button>
+            {user && (
+              <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
+                <Link href="/notifications" className="relative">
+                  <Bell className="h-4 w-4" />
+                  {unreadNotifications > 0 && (
+                    <Badge 
+                      variant="destructive" 
+                      className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
+                    >
+                      {unreadNotifications}
+                    </Badge>
+                  )}
+                  <span className="sr-only">Notifications</span>
+                </Link>
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -128,20 +130,22 @@ export function Navbar() {
 
           {/* Account */}
           <div className="flex items-center gap-2 lg:gap-4">
-            <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
-              <Link href="/notifications" className="relative">
-                <Bell className="h-4 w-4" />
-                {unreadNotifications > 0 && (
-                  <Badge 
-                    variant="destructive" 
-                    className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
-                  >
-                    {unreadNotifications}
-                  </Badge>
-                )}
-                <span className="sr-only">Notifications</span>
-              </Link>
-            </Button>
+            {user && (
+              <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
+                <Link href="/notifications" className="relative">
+                  <Bell className="h-4 w-4" />
+                  {unreadNotifications > 0 && (
+                    <Badge 
+                      variant="destructive" 
+                      className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
+                    >
+                      {unreadNotifications}
+                    </Badge>
+                  )}
+                  <span className="sr-only">Notifications</span>
+                </Link>
+              </Button>
+            )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-9 w-9">

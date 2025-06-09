@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import WatchForm from "@/components/forms/WatchForm"
 import { useToast } from "@/components/ui/use-toast"
-import { useAuthGuard } from "@/hooks/useAuthGuard"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 export default function EditWatchPage({ params }: { params: { id: string } }) {
   const router = useRouter()

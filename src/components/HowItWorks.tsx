@@ -1,7 +1,10 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
-import { BadgeCheck, Search, Bell, Shield, Clock, MessageSquare } from "lucide-react"
+import { BadgeCheck, Search, Bell, Shield, Clock, MessageSquare, CreditCard } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { ArrowRight } from "lucide-react"
 
 const features = [
   {
@@ -25,14 +28,9 @@ const features = [
     icon: Clock,
   },
   {
-    title: "Integrated Communication",
-    description: "Chat directly on the platform or via WhatsApp/Telegram. Keep a history of all your conversations.",
-    icon: MessageSquare,
-  },
-  {
-    title: "Professional Badges",
-    description: "Validate your professional status and gain buyers' trust with verification badges.",
-    icon: BadgeCheck,
+    title: "Simple Pricing",
+    description: "Clear monthly subscription with no hidden fees or commissions. Keep 100% of your sales.",
+    icon: CreditCard,
   },
 ]
 
@@ -65,6 +63,15 @@ export function HowItWorks() {
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        <div className="text-center mt-12">
+          <Link href="/pricing">
+            <Button size="lg" className="gap-2">
+              View Pricing Plans
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

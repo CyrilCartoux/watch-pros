@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/dialog";
 import { useSearchParams, useRouter } from "next/navigation";
 import { countries } from "@/data/form-options";
-import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 type Notification = {

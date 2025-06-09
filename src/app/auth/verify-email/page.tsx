@@ -60,7 +60,7 @@ export default function VerifyEmailPage() {
               transition={{ delay: 0.6 }}
             >
               <Button asChild variant="outline" size="lg" className="min-w-[200px] transition-all hover:shadow-md">
-                <Link href="/auth/login">
+                <Link href="/auth">
                   Return to login
                 </Link>
               </Button>

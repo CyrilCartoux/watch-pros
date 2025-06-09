@@ -15,8 +15,6 @@ import { useAuth } from "@/contexts/AuthContext"
 import { ReviewDialog } from "@/components/ReviewDialog"
 import { countries } from "@/data/form-options"
 import { useToast } from "@/components/ui/use-toast"
-import { useAuthGuard } from "@/hooks/useAuthGuard"
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 interface Seller {
   id: string

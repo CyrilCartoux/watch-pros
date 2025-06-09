@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { CheckCircle2, Building2, User, AlertCircle } from "lucide-react"
 import Link from "next/link"
-import { useAuthGuard } from "@/hooks/useAuthGuard"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 

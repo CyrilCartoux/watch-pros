@@ -12,7 +12,6 @@ import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { countries, titles, phonePrefixes } from "@/data/form-options"
-import { useAuthGuard } from "@/hooks/useAuthGuard"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 // Constants for file validation

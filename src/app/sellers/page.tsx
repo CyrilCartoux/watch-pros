@@ -26,7 +26,6 @@ import {
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useAuthGuard } from "@/hooks/useAuthGuard"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 interface Seller {

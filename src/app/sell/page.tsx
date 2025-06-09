@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Watch, Gift } from "lucide-react"
 import Link from "next/link"
-import { useAuthGuard } from "@/hooks/useAuthGuard"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 export default function SellPage() {
