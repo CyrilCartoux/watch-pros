@@ -2,13 +2,14 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Star, Shield, Award, MapPin, Coins, SlidersHorizontal, ChevronDown, ChevronUp, X } from "lucide-react"
+import { Star, Shield, Award, MapPin, Coins, SlidersHorizontal, ChevronDown, ChevronUp, X, Search } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { countries } from "@/data/form-options"
+import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
@@ -68,6 +69,7 @@ interface Filters {
   country: string
   cryptoFriendly: boolean
   minRating: number
+  search: string
 }
 
 function getCountryFlag(countryCode: string): string {
@@ -76,6 +78,23 @@ function getCountryFlag(countryCode: string): string {
     .split('')
     .map(char => 127397 + char.charCodeAt(0))
   return String.fromCodePoint(...codePoints)
+}
+
+// Hook pour throttler les valeurs
+function useThrottle<T>(value: T, delay: number): T {
+  const [throttledValue, setThrottledValue] = useState<T>(value)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setThrottledValue(value)
+    }, delay)
+
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [value, delay])
+
+  return throttledValue
 }
 
 export default function SellersListPage() {
@@ -88,7 +107,8 @@ export default function SellersListPage() {
     return {
       country: params.get("country") || "",
       cryptoFriendly: params.get("cryptoFriendly") === "true",
-      minRating: parseFloat(params.get("minRating") || "0")
+      minRating: parseFloat(params.get("minRating") || "0"),
+      search: params.get("search") || ""
     }
   }
 
@@ -105,6 +125,9 @@ export default function SellersListPage() {
     totalItems: 0,
     itemsPerPage: 10
   })
+
+  // Throttle the search input
+  const throttledSearch = useThrottle(filters.search, 500) // 500ms delay
 
   const updateURL = (newFilters: Filters, page: number = 1) => {
     const params = new URLSearchParams()
@@ -138,7 +161,8 @@ export default function SellersListPage() {
     const emptyFilters = {
       country: "",
       cryptoFriendly: false,
-      minRating: 0
+      minRating: 0,
+      search: ""
     }
     setTempFilters(emptyFilters)
     setFilters(emptyFilters)
@@ -174,6 +198,7 @@ export default function SellersListPage() {
       if (filters.country) params.append("country", filters.country)
       if (filters.cryptoFriendly) params.append("cryptoFriendly", "true")
       if (filters.minRating > 0) params.append("minRating", filters.minRating.toString())
+      if (throttledSearch) params.append("search", throttledSearch)
 
       const response = await fetch(`/api/sellers?${params}`)
       if (!response.ok) {
@@ -191,7 +216,11 @@ export default function SellersListPage() {
 
   useEffect(() => {
     fetchSellers(currentPage)
-  }, [currentPage, filters])
+  }, [currentPage, filters.country, filters.cryptoFriendly, filters.minRating, throttledSearch])
+
+  const handleSearch = (value: string) => {
+    setFilters(prev => ({ ...prev, search: value }))
+  }
 
   const renderFilters = () => (
     <div className="space-y-8">
@@ -306,75 +335,86 @@ export default function SellersListPage() {
 
   return (
     <ProtectedRoute requireSeller requireVerified>
-
-    <main className="min-h-screen bg-background py-8">
-      <div className="container">
+      <div className="container py-8 space-y-8">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Our Certified Sellers</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Discover our selection of certified professional sellers, experts in luxury watches.
-            Each seller is rigorously selected to ensure an exceptional buying experience.
+        <div className="flex flex-col gap-4">
+          <h1 className="text-3xl font-bold">Sellers</h1>
+          <p className="text-muted-foreground">
+            Browse our verified sellers and find the perfect watch for you.
           </p>
         </div>
 
-        {/* Filters and Sort */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-          <div className="flex items-center justify-between sm:justify-start gap-4">
-            <h2 className="text-xl sm:text-2xl font-bold">
-              {pagination.totalItems.toLocaleString()} sellers
-            </h2>
+        {/* Search and Filters */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search sellers by name or company..."
+              className="pl-9"
+              value={filters.search}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
           </div>
-        </div>
-
-        {/* Filters Button and Active Filters */}
-        <div className="lg:col-span-4 flex flex-wrap items-center gap-2 mb-6">
-          <Button 
-            variant="outline" 
-            size="sm"
+          <Button
+            variant="outline"
             onClick={() => setIsFiltersOpen(true)}
+            className="flex items-center gap-2"
           >
-            <SlidersHorizontal className="h-4 w-4 mr-2" />
+            <SlidersHorizontal className="h-4 w-4" />
             Filters
           </Button>
-
-          {/* Active Filters */}
-          {filters.country && (
-            <div className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-sm">
-              <span>{getCountryFlag(filters.country)} {countries.find(c => c.value === filters.country)?.label}</span>
-              <button
-                onClick={() => removeFilter("country")}
-                className="hover:bg-primary/20 rounded-full p-0.5"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </div>
-          )}
-          {filters.minRating > 0 && (
-            <div className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-sm">
-              <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-              <span>{filters.minRating}+ stars</span>
-              <button
-                onClick={() => removeFilter("minRating")}
-                className="hover:bg-primary/20 rounded-full p-0.5"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </div>
-          )}
-          {filters.cryptoFriendly && (
-            <div className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-sm">
-              <Coins className="h-3 w-3 text-amber-500" />
-              <span>Accepts crypto</span>
-              <button
-                onClick={() => removeFilter("cryptoFriendly")}
-                className="hover:bg-primary/20 rounded-full p-0.5"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </div>
-          )}
         </div>
+
+        {/* Active Filters */}
+        {Object.entries(filters).some(([key, value]) => value && key !== "search") && (
+          <div className="flex flex-wrap gap-2">
+            {filters.country && (
+              <Badge variant="secondary" className="flex items-center gap-1">
+                <MapPin className="h-3 w-3" />
+                {countries.find(c => c.value === filters.country)?.label}
+                <button
+                  onClick={() => removeFilter("country")}
+                  className="ml-1 hover:text-destructive"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            {filters.cryptoFriendly && (
+              <Badge variant="secondary" className="flex items-center gap-1">
+                <Coins className="h-3 w-3" />
+                Crypto Friendly
+                <button
+                  onClick={() => removeFilter("cryptoFriendly")}
+                  className="ml-1 hover:text-destructive"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            {filters.minRating > 0 && (
+              <Badge variant="secondary" className="flex items-center gap-1">
+                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                {filters.minRating}+ stars
+                <button
+                  onClick={() => removeFilter("minRating")}
+                  className="ml-1 hover:text-destructive"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClearFilters}
+              className="h-6 px-2"
+            >
+              Clear all
+            </Button>
+          </div>
+        )}
 
         {/* Sellers list */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -539,7 +579,6 @@ export default function SellersListPage() {
           </DialogContent>
         </Dialog>
       </div>
-    </main>
     </ProtectedRoute>
   )
 }

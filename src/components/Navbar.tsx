@@ -213,13 +213,15 @@ export function Navbar() {
       </div>
 
       {/* Mobile Menu */}
-      {isMenuOpen && user && (
+      {isMenuOpen && (
         <div className="md:hidden shadow-lg" ref={menuRef}>
           <div className="container space-y-3 py-3 bg-background">
             <SearchBar />
-            <div className="px-2 py-1.5 text-sm text-muted-foreground truncate">
-              {user.email}
-            </div>
+            {user && (
+              <div className="px-2 py-1.5 text-sm text-muted-foreground truncate">
+                {user.email}
+              </div>
+            )}
             <div className="flex flex-col gap-1">
               <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
                 <Link href="/listings" onClick={handleLinkClick}>Buy</Link>
@@ -231,50 +233,61 @@ export function Navbar() {
                 <Link href="/sellers" onClick={handleLinkClick}>View Sellers</Link>
               </Button>
             </div>
-            <div className="flex flex-col gap-1 pt-3 border-t">
-              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/account?tab=dashboard" onClick={handleLinkClick} className="flex items-center gap-2">
-                  <LayoutDashboard className="h-4 w-4" />
-                  Dashboard
-                </Link>
-              </Button>
-              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/account?tab=listings" onClick={handleLinkClick} className="flex items-center gap-2">
-                  <Tag className="h-4 w-4" />
-                  My Listings
-                </Link>
-              </Button>
-              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/account?tab=messages" onClick={handleLinkClick} className="flex items-center gap-2">
-                  <MessageSquare className="h-4 w-4" />
-                  Messages
-                </Link>
-              </Button>
-              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/account?tab=favorites" onClick={handleLinkClick} className="flex items-center gap-2">
-                  <Heart className="h-4 w-4" />
-                  Favorites
-                </Link>
-              </Button>
-              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/account?tab=settings" onClick={handleLinkClick} className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Settings
-                </Link>
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="w-full justify-start h-9 text-red-600 hover:text-red-600 hover:bg-red-50"
-                onClick={() => {
-                  signOut()
-                  handleLinkClick()
-                }}
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
-            </div>
+            {user ? (
+              <div className="flex flex-col gap-1 pt-3 border-t">
+                <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
+                  <Link href="/account?tab=dashboard" onClick={handleLinkClick} className="flex items-center gap-2">
+                    <LayoutDashboard className="h-4 w-4" />
+                    Dashboard
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
+                  <Link href="/account?tab=listings" onClick={handleLinkClick} className="flex items-center gap-2">
+                    <Tag className="h-4 w-4" />
+                    My Listings
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
+                  <Link href="/account?tab=messages" onClick={handleLinkClick} className="flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4" />
+                    Messages
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
+                  <Link href="/account?tab=favorites" onClick={handleLinkClick} className="flex items-center gap-2">
+                    <Heart className="h-4 w-4" />
+                    Favorites
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
+                  <Link href="/account?tab=settings" onClick={handleLinkClick} className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    Settings
+                  </Link>
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full justify-start h-9 text-red-600 hover:text-red-600 hover:bg-red-50"
+                  onClick={() => {
+                    signOut()
+                    handleLinkClick()
+                  }}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1 pt-3 border-t">
+                <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
+                  <Link href="/auth" onClick={handleLinkClick} className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    Login / Signup
+                  </Link>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}

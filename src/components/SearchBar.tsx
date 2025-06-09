@@ -7,17 +7,13 @@ import { Button } from "./ui/button"
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "./ui/command"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { brandsList } from "@/data/brands-list"
-import { modelsList } from "@/data/models-list"
+import { models } from "@/data/models"
 
 interface Model {
-  label: string
-  slug: string
-  brand: string
-}
-
-interface ModelsList {
-  [key: string]: Model[]
+  model_label: string
+  model_slug: string
+  brand_label: string
+  brand_slug: string
 }
 
 interface SearchResult {
@@ -39,6 +35,15 @@ export function SearchBar({ className }: SearchBarProps) {
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  // Get unique brands from models data
+  const uniqueBrands = Object.entries(models).map(([brandSlug, brandModels]) => {
+    const firstModel = brandModels[0]
+    return {
+      label: firstModel.brand_label,
+      slug: brandSlug
+    }
+  })
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -65,7 +70,7 @@ export function SearchBar({ className }: SearchBarProps) {
     const newResults: SearchResult[] = []
 
     // Search in brands
-    brandsList.forEach(brand => {
+    uniqueBrands.forEach(brand => {
       if (brand.label.toLowerCase().includes(searchLower)) {
         newResults.push({
           type: "brand",
@@ -77,19 +82,16 @@ export function SearchBar({ className }: SearchBarProps) {
     })
 
     // Search in models
-    Object.entries(modelsList as ModelsList).forEach(([brandSlug, models]) => {
-      const brand = brandsList.find(b => b.slug === brandSlug)
-      if (!brand) return
-
-      models.forEach((model: Model) => {
+    Object.entries(models).forEach(([brandSlug, brandModels]) => {
+      brandModels.forEach(model => {
         // Check if search matches "brand model" or just "model"
-        const fullSearch = `${brand.label} ${model.label}`.toLowerCase()
-        if (fullSearch.includes(searchLower) || model.label.toLowerCase().includes(searchLower)) {
+        const fullSearch = `${model.brand_label} ${model.model_label}`.toLowerCase()
+        if (fullSearch.includes(searchLower) || model.model_label.toLowerCase().includes(searchLower)) {
           newResults.push({
             type: "model",
-            label: `${brand.label} ${model.label}`,
-            brandSlug,
-            modelSlug: model.slug
+            label: `${model.brand_label} ${model.model_label}`,
+            brandSlug: model.brand_slug,
+            modelSlug: model.model_slug
           })
         }
       })
@@ -129,7 +131,7 @@ export function SearchBar({ className }: SearchBarProps) {
       const single = tokens[0].toLowerCase()
       
       // Check if it's a brand
-      const brand = brandsList.find(b => 
+      const brand = uniqueBrands.find(b => 
         b.slug === single || b.label.toLowerCase() === single
       )
       
@@ -145,7 +147,7 @@ export function SearchBar({ className }: SearchBarProps) {
       }
     } else {
       // Multiple tokens - try to find brand and model
-      const brand = brandsList.find(b => 
+      const brand = uniqueBrands.find(b => 
         tokens.some(token => 
           b.slug === token.toLowerCase() || 
           b.label.toLowerCase() === token.toLowerCase()
@@ -155,19 +157,19 @@ export function SearchBar({ className }: SearchBarProps) {
       if (brand) {
         params.set('brand', brand.slug)
         
-        // Look for matching model in the brand's models
-        const brandModels = (modelsList as ModelsList)[brand.slug] || []
-        const model = brandModels.find((m: Model) => 
+        // Look for matching model
+        const brandModels = models[brand.slug] || []
+        const model = brandModels.find(m => 
           tokens.some(token => 
-            m.slug === token.toLowerCase() || 
-            m.label.toLowerCase() === token.toLowerCase()
+            m.model_slug === token.toLowerCase() || 
+            m.model_label.toLowerCase() === token.toLowerCase()
           )
         )
 
         if (model) {
-          params.set('model', model.slug)
+          params.set('model', model.model_slug)
           // Update the search input with the brand and model name
-          setSearch(`${brand.label} ${model.label}`)
+          setSearch(`${model.brand_label} ${model.model_label}`)
         } else {
           // If only brand is found, update with brand name
           setSearch(brand.label)

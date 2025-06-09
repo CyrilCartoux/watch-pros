@@ -49,6 +49,7 @@ export async function GET(request: Request) {
     const country = searchParams.get('country')
     const cryptoFriendly = searchParams.get('cryptoFriendly')
     const minRating = searchParams.get('minRating')
+    const search = searchParams.get('search')
 
     const supabase = await createClient()
 
@@ -86,6 +87,14 @@ export async function GET(request: Request) {
         )
       `, { count: 'exact' })
       .eq('identity_verified', true) // Only get verified sellers
+
+    // Apply text search if search parameter is provided
+    if (search) {
+      query = query.textSearch('search_vector', search, {
+        type: 'plain',  // Utilise une recherche plus simple que 'websearch'
+        config: 'english'
+      })
+    }
 
     // Apply filters using the new indexes
     if (country) {
