@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
-import { Building2, MapPin, CreditCard, FileText, CheckCircle2, Upload, Check } from "lucide-react"
+import { Building2, MapPin, CreditCard, FileText, CheckCircle2, Upload, Check, Shield, Lock, Clock, ChevronDown } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
@@ -15,6 +15,7 @@ import { countries, titles, phonePrefixes } from "@/data/form-options"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { SubscriptionStep } from '@/components/SubscriptionStep'
 import { plans } from "@/data/subscription-plans"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 // Constants for file validation
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -74,30 +75,6 @@ const addressSchema = z.object({
   oss: z.boolean().optional(),
 })
 
-// Validation schema for banking details
-const bankingSchema = z.object({
-  paymentMethod: z.enum(["card", "sepa"]),
-  cardHolder: z.string().optional(),
-  cardNumber: z.string().optional(),
-  expiryDate: z.string().optional(),
-  cvc: z.string().optional(),
-  authorization: z.boolean().optional(),
-  accountHolder: z.string().optional(),
-  sepaStreet: z.string().optional(),
-  sepaPostalCode: z.string().optional(),
-  sepaCity: z.string().optional(),
-  sepaCountry: z.string().optional(),
-  bankName: z.string().optional(),
-  iban: z.string().optional(),
-  bic: z.string().optional(),
-}).refine((data) => {
-  if (data.paymentMethod === "card") {
-    return data.cardHolder && data.cardNumber && data.expiryDate && data.cvc && data.authorization
-  }
-  return true
-}, {
-  message: "Please fill in all required fields",
-})
 
 // Validation schema for documents
 const documentsSchema = z.object({
@@ -128,13 +105,11 @@ export default function RegisterFormPage() {
   const [isFormValid, setIsFormValid] = useState({
     account: false,
     address: false,
-    banking: false,
     documents: false,
   })
   const [isSubmitted, setIsSubmitted] = useState({
     account: false,
     address: false,
-    banking: false,
     documents: false,
   })
   const [companyLogoPreview, setCompanyLogoPreview] = useState<string | null>(null)
@@ -147,11 +122,6 @@ export default function RegisterFormPage() {
 
   const addressForm = useForm({
     resolver: zodResolver(addressSchema),
-    mode: "onSubmit",
-  })
-
-  const bankingForm = useForm({
-    resolver: zodResolver(bankingSchema),
     mode: "onSubmit",
   })
 
@@ -168,12 +138,10 @@ export default function RegisterFormPage() {
     //     return true
     //   case "address":
     //     return isFormValid.account
-    //   case "banking":
-    //     return isFormValid.account && isFormValid.address
     //   case "documents":
-    //     return isFormValid.account && isFormValid.address && isFormValid.banking
+    //     return isFormValid.account && isFormValid.address
     //   case "summary":
-    //     return isFormValid.account && isFormValid.address && isFormValid.banking
+    //     return isFormValid.account && isFormValid.address
     //   default:
     //     return false
     // }
@@ -184,19 +152,17 @@ export default function RegisterFormPage() {
     const validateForms = async () => {
       const accountValid = await accountForm.trigger()
       const addressValid = await addressForm.trigger()
-      const bankingValid = await bankingForm.trigger()
       const documentsValid = await documentsForm.trigger()
 
       setIsFormValid({
         account: accountValid,
         address: addressValid,
-        banking: bankingValid,
         documents: documentsValid,
       })
     }
 
     validateForms()
-  }, [accountForm, addressForm, bankingForm, documentsForm])
+  }, [accountForm, addressForm, documentsForm])
 
   const handleSubmit = async () => {
     try {
@@ -204,10 +170,9 @@ export default function RegisterFormPage() {
       // Check that all forms are valid
       const isAccountValid = await accountForm.trigger()
       const isAddressValid = await addressForm.trigger()
-      const isBankingValid = await bankingForm.trigger()
       const isDocumentsValid = await documentsForm.trigger()
 
-      if (!isAccountValid || !isAddressValid || !isBankingValid || !isDocumentsValid) {
+      if (!isAccountValid || !isAddressValid || !isDocumentsValid) {
         console.error("Some forms are not valid")
         return
       }
@@ -216,7 +181,6 @@ export default function RegisterFormPage() {
       const formData = {
         account: accountForm.getValues(),
         address: addressForm.getValues(),
-        banking: bankingForm.getValues(),
         documents: documentsForm.getValues()
       }
 
@@ -224,7 +188,6 @@ export default function RegisterFormPage() {
       const submitData = new FormData()
       submitData.append('account', JSON.stringify(formData.account))
       submitData.append('address', JSON.stringify(formData.address))
-      submitData.append('banking', JSON.stringify(formData.banking))
       submitData.append('companyLogo', formData.account.companyLogo)
       submitData.append('idCardFront', formData.documents.idCardFront)
       submitData.append('idCardBack', formData.documents.idCardBack)
@@ -277,17 +240,6 @@ export default function RegisterFormPage() {
         }
         if (isValid) {
           console.log("Address form values:", addressForm.getValues())
-          setCurrentTab("banking")
-        }
-        break
-      case "banking":
-        setIsSubmitted(prev => ({ ...prev, banking: true }))
-        isValid = await bankingForm.trigger()
-        if (!isValid) {
-          console.log("Banking form errors:", bankingForm.formState.errors)
-        }
-        if (isValid) {
-          console.log("Banking form values:", bankingForm.getValues())
           setCurrentTab("documents")
         }
         break
@@ -319,11 +271,8 @@ export default function RegisterFormPage() {
       case "address":
         setCurrentTab("account")
         break
-      case "banking":
-        setCurrentTab("address")
-        break
       case "documents":
-        setCurrentTab("banking")
+        setCurrentTab("address")
         break
       case "subscription":
         setCurrentTab("documents")
@@ -397,7 +346,7 @@ export default function RegisterFormPage() {
           }} 
           className="w-full"
         >
-          <TabsList className="grid w-full grid-cols-5 mb-8">
+          <TabsList className="grid w-full grid-cols-4 mb-8">
             <TabsTrigger 
               value="account" 
               className="flex items-center gap-2"
@@ -413,14 +362,6 @@ export default function RegisterFormPage() {
             >
               <MapPin className="w-4 h-4" />
               <span className="hidden sm:inline">Address</span>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="banking" 
-              className="flex items-center gap-2"
-              disabled={!isTabAccessible("banking")}
-            >
-              <CreditCard className="w-4 h-4" />
-              <span className="hidden sm:inline">Banking</span>
             </TabsTrigger>
             <TabsTrigger 
               value="documents" 
@@ -821,281 +762,6 @@ export default function RegisterFormPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="banking">
-            <Card>
-              <CardContent className="p-6">
-                <div className="mb-8">
-                  <h2 className="text-2xl font-semibold mb-2">Please enter your banking details</h2>
-                  <p className="text-muted-foreground">
-                    Your data is secured through the PCI DSS (Payment Card Industry Data Security Standard) system implemented by Saferpay. For security reasons, 1 euro will be blocked but not debited from your bank account. This process serves to verify the authenticity of the provided data.
-                  </p>
-                </div>
-
-                <form onSubmit={(e) => {
-                  e.preventDefault()
-                  handleNext()
-                }} className="space-y-6">
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="paymentMethod">Payment Method *</Label>
-                      <Controller
-                        name="paymentMethod"
-                        control={bankingForm.control}
-                        defaultValue="card"
-                        render={({ field }) => (
-                          <Select 
-                            onValueChange={(value) => {
-                              field.onChange(value);
-                              setPaymentMethod(value);
-                            }}
-                            value={field.value}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a payment method" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="card">Credit Card</SelectItem>
-                              <SelectItem value="sepa">SEPA Direct Debit</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-                      <FormError error={bankingForm.formState.errors.paymentMethod?.message as string} isSubmitted={isSubmitted.banking} />
-                    </div>
-
-                    {/* Credit Card Form */}
-                    <div className="space-y-4" id="cardForm">
-                      <div>
-                        <Label htmlFor="cardHolder">Cardholder Name *</Label>
-                        <Input id="cardHolder" placeholder="Name as it appears on card" {...bankingForm.register("cardHolder")} />
-                        <FormError error={bankingForm.formState.errors.cardHolder?.message as string} isSubmitted={isSubmitted.banking} />
-                      </div>
-
-                      <Controller
-                        name="cardNumber"
-                        control={bankingForm.control}
-                        render={({ field }) => (
-                          <Input
-                            {...field}
-                            id="cardNumber"
-                            placeholder="1234 5678 9012 3456"
-                            maxLength={19}
-                            onChange={(e) => {
-                              let value = e.target.value.replace(/\D/g, "");
-                              let formatted = "";
-                              for (let i = 0; i < value.length; i++) {
-                                if (i > 0 && i % 4 === 0) {
-                                  formatted += " ";
-                                }
-                                formatted += value[i];
-                              }
-                              field.onChange(formatted);
-                            }}
-                          />
-                        )}
-                      />
-                      <FormError error={bankingForm.formState.errors.cardNumber?.message as string} isSubmitted={isSubmitted.banking} />
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="expiryDate">Expiry Date *</Label>
-                          <Controller
-                            name="expiryDate"
-                            control={bankingForm.control}
-                            render={({ field }) => (
-                              <Input
-                                {...field}
-                                id="expiryDate"
-                                placeholder="MM/YY"
-                                maxLength={5}
-                                onChange={(e) => {
-                                  let value = e.target.value.replace(/\D/g, "");
-                                  if (value.length >= 2) {
-                                    value = value.slice(0, 2) + "/" + value.slice(2);
-                                  }
-                                  field.onChange(value);
-                                }}
-                              />
-                            )}
-                          />
-                          <FormError error={bankingForm.formState.errors.expiryDate?.message as string} isSubmitted={isSubmitted.banking} />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="cvc">Security Code (CVC) *</Label>
-                          <Input 
-                            id="cvc" 
-                            placeholder="123"
-                            maxLength={3}
-                            type="password"
-                            {...bankingForm.register("cvc")}
-                          />
-                          <FormError error={bankingForm.formState.errors.cvc?.message as string} isSubmitted={isSubmitted.banking} />
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-2 mt-6">
-                        <input
-                          type="checkbox"
-                          id="authorization"
-                          className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                          {...bankingForm.register("authorization")}
-                          required
-                        />
-                        <Label htmlFor="authorization" className="text-sm">
-                          I hereby authorize Watch Pros GmbH, until revoked, to debit the indicated amounts from my credit card.
-                        </Label>
-                      </div>
-                      <FormError error={bankingForm.formState.errors.authorization?.message as string} isSubmitted={isSubmitted.banking} />
-                    </div>
-
-                    {/* SEPA Form */}
-                    <div className="space-y-4 hidden" id="sepaForm">
-                      <div>
-                        <Label htmlFor="accountHolder">Account Holder (if different from company)</Label>
-                        <Input id="accountHolder" placeholder="Account holder name" {...bankingForm.register("accountHolder")} />
-                        <FormError error={bankingForm.formState.errors.accountHolder?.message as string} isSubmitted={isSubmitted.banking} />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="sepaStreet">Street *</Label>
-                        <Input id="sepaStreet" placeholder="Bank address" {...bankingForm.register("sepaStreet")} />
-                        <FormError error={bankingForm.formState.errors.sepaStreet?.message as string} isSubmitted={isSubmitted.banking} />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="sepaPostalCode">Postal Code *</Label>
-                          <Input id="sepaPostalCode" placeholder="Postal code" {...bankingForm.register("sepaPostalCode")} />
-                          <FormError error={bankingForm.formState.errors.sepaPostalCode?.message as string} isSubmitted={isSubmitted.banking} />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="sepaCity">City *</Label>
-                          <Input id="sepaCity" placeholder="City" {...bankingForm.register("sepaCity")} />
-                          <FormError error={bankingForm.formState.errors.sepaCity?.message as string} isSubmitted={isSubmitted.banking} />
-                        </div>
-                      </div>
-
-                      <div>
-                        <Label htmlFor="sepaCountry">Country *</Label>
-                        <Controller
-                          name="sepaCountry"
-                          control={bankingForm.control}
-                          defaultValue=""
-                          render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select a country" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {countries.map((country) => (
-                                  <SelectItem key={country.value} value={country.value}>
-                                    {country.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
-                        <FormError error={bankingForm.formState.errors.sepaCountry?.message as string} isSubmitted={isSubmitted.banking} />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="bankName">Bank *</Label>
-                        <Input id="bankName" placeholder="Your bank name" {...bankingForm.register("bankName")} />
-                        <FormError error={bankingForm.formState.errors.bankName?.message as string} isSubmitted={isSubmitted.banking} />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="iban">IBAN *</Label>
-                        <Controller
-                          name="iban"
-                          control={bankingForm.control}
-                          render={({ field }) => (
-                            <Input
-                              {...field}
-                              id="iban"
-                              placeholder="FR76 XXXX XXXX XXXX XXXX XXXX XXX"
-                              maxLength={34}
-                              onChange={(e) => {
-                                let value = e.target.value.replace(/\s/g, "").toUpperCase();
-                                let formatted = "";
-                                for (let i = 0; i < value.length; i++) {
-                                  if (i > 0 && i % 4 === 0) {
-                                    formatted += " ";
-                                  }
-                                  formatted += value[i];
-                                }
-                                field.onChange(formatted);
-                              }}
-                            />
-                          )}
-                        />
-                        <FormError error={bankingForm.formState.errors.iban?.message as string} isSubmitted={isSubmitted.banking} />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="bic">BIC *</Label>
-                        <Controller
-                          name="bic"
-                          control={bankingForm.control}
-                          render={({ field }) => (
-                            <Input
-                              {...field}
-                              id="bic"
-                              placeholder="BNPAFRPP"
-                              maxLength={11}
-                              onChange={(e) => {
-                                let value = e.target.value.toUpperCase();
-                                field.onChange(value);
-                              }}
-                            />
-                          )}
-                        />
-                        <FormError error={bankingForm.formState.errors.bic?.message as string} isSubmitted={isSubmitted.banking} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center pt-6">
-                    <p className="text-sm text-muted-foreground">* Required field</p>
-                    <div className="space-x-4">
-                      <Button type="button" variant="outline" size="lg" onClick={handleBack}>
-                        Back
-                      </Button>
-                      <Button type="submit" size="lg">
-                        Continue
-                      </Button>
-                    </div>
-                  </div>
-                </form>
-
-                <div className="mt-6 space-y-4">
-                  <div className="flex items-center justify-center">
-                    <img 
-                      src="/images/saferpay-logo.png" 
-                      alt="Powered by Saferpay" 
-                      className="h-8"
-                    />
-                  </div>
-                  
-                  <div className="p-4 bg-muted/50 rounded-lg">
-                    <p className="text-sm text-muted-foreground text-center">
-                      For security reasons, you will be redirected to your bank's website.
-                    </p>
-                  </div>
-
-                  <div className="p-4 bg-muted/50 rounded-lg hidden" id="sepaNote">
-                    <p className="text-sm text-muted-foreground">
-                      Important note: To be validated, the SEPA direct debit requires your signature. Please print the SEPA mandate that will appear in the next step and send it back to us by mail or upload it via the "Upload Documents" section.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           <TabsContent value="documents">
             <Card>
               <CardContent className="p-6">
@@ -1235,28 +901,67 @@ export default function RegisterFormPage() {
               <CardContent className="p-6">
                 <div className="space-y-6">
                   <div className="space-y-4">
+                  <div className="space-y-4 mb-6">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Shield className="h-4 w-4 text-primary" />
+                    <span>Paiement 100% sécurisé via Stripe</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Lock className="h-4 w-4 text-primary" />
+                    <span>Vos données bancaires sont cryptées et jamais stockées</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <CreditCard className="h-4 w-4 text-primary" />
+                    <span>Cartes bancaires et prélèvements SEPA acceptés</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <CheckCircle2 className="h-4 w-4 text-primary" />
+                    <span>Annulation possible à tout moment</span>
+                  </div>
+                </div>
                     <h3 className="text-lg font-medium">Choose Your Plan</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+                    {/* Early Bird Banner */}
+                    <div className="mt-4 bg-primary/5 rounded-lg p-3 border border-primary/10">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-primary/10 p-1.5 rounded-full">
+                          <Clock className="h-4 w-4 text-primary" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-medium">Early Bird Special</h4>
+                          <p className="text-xs text-muted-foreground">
+                            Join now and lock in our early-bird pricing forever. Limited spots available.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                       {plans.map((plan, index) => (
                         <Card 
                           key={plan.name + index}
-                          className={`cursor-pointer transition-colors ${
-                            selectedPlan === plan.priceId ? 'border-primary' : ''
+                          className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
+                            selectedPlan === plan.priceId 
+                              ? 'border-primary ring-2 ring-primary/20 scale-[1.02]' 
+                              : 'hover:border-primary/50'
                           }`}
                           onClick={() => setSelectedPlan(plan.priceId)}
                         >
-                          <CardHeader className="p-2 sm:p-3">
-                            <CardTitle className="text-sm sm:text-base">{plan.name}</CardTitle>
-                            <CardDescription className="text-[10px] sm:text-xs line-clamp-2">{plan.description}</CardDescription>
+                          <CardHeader className="p-4 pb-2">
+                            <CardTitle className="text-lg font-semibold">{plan.name}</CardTitle>
+                            <CardDescription className="text-sm line-clamp-2">{plan.description}</CardDescription>
                           </CardHeader>
-                          <CardContent className="p-2 sm:p-3 pt-0">
-                            <div className="text-base sm:text-lg font-bold">€{plan.price.early}</div>
-                            <p className="text-[10px] sm:text-xs text-muted-foreground">per month</p>
-                            <ul className="mt-1 sm:mt-2 space-y-0.5 sm:space-y-1">
-                              {plan.features.map((feature) => (
-                                <li key={feature} className="flex items-center gap-1">
-                                  <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary" />
-                                  <span className="text-[10px] sm:text-xs line-clamp-1">{feature}</span>
+                          <CardContent className="p-4 pt-2">
+                            <div className="mb-4">
+                              <div className="flex items-baseline gap-2">
+                                <span className="text-2xl font-bold">€{plan.price.early}</span>
+                                <span className="text-sm text-muted-foreground line-through">€{plan.price.regular}</span>
+                              </div>
+                              <p className="text-xs text-muted-foreground">par mois</p>
+                            </div>
+                            <ul className="space-y-2">
+                              {plan.features.map((feature, i) => (
+                                <li key={i} className="flex items-start gap-2">
+                                  <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                                  <span className="text-sm line-clamp-1">{feature}</span>
                                 </li>
                               ))}
                             </ul>
@@ -1265,7 +970,7 @@ export default function RegisterFormPage() {
                       ))}
                     </div>
                   </div>
-
+                              
                   {selectedPlan && (
                     <SubscriptionStep
                       plan={selectedPlan}
@@ -1281,6 +986,45 @@ export default function RegisterFormPage() {
                       }}
                     />
                   )}
+
+                  {/* FAQ Section */}
+                  <div className="mt-8">
+                    <Accordion type="single" collapsible className="w-full">
+                      <AccordionItem value="faq">
+                        <AccordionTrigger className="text-sm font-medium text-muted-foreground hover:no-underline">
+                          Frequently Asked Questions
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="grid gap-4 pt-2">
+                            <div className="space-y-2">
+                              <h5 className="text-sm font-medium">Can I change my plan later?</h5>
+                              <p className="text-sm text-muted-foreground">
+                                Yes, you can upgrade or downgrade your plan at any time. Changes will be reflected in your next billing cycle.
+                              </p>
+                            </div>
+                            <div className="space-y-2">
+                              <h5 className="text-sm font-medium">What happens if I exceed my listing limit?</h5>
+                              <p className="text-sm text-muted-foreground">
+                                You'll be notified when you're close to your limit. You can either upgrade your plan or archive some listings.
+                              </p>
+                            </div>
+                            <div className="space-y-2">
+                              <h5 className="text-sm font-medium">Is there a long-term commitment?</h5>
+                              <p className="text-sm text-muted-foreground">
+                                No, all plans are billed monthly and can be cancelled at any time. Early-bird pricing is locked in for as long as you maintain an active account.
+                              </p>
+                            </div>
+                            <div className="space-y-2">
+                              <h5 className="text-sm font-medium">Do you charge commission on sales?</h5>
+                              <p className="text-sm text-muted-foreground">
+                                No, we don't take any commission on sales. You keep 100% of your revenue.
+                              </p>
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -1304,11 +1048,6 @@ export default function RegisterFormPage() {
                 isValid: addressForm.formState.isValid,
                 errors: addressForm.formState.errors,
                 values: addressForm.getValues()
-              },
-              banking: {
-                isValid: bankingForm.formState.isValid,
-                errors: bankingForm.formState.errors,
-                values: bankingForm.getValues()
               },
               documents: {
                 isValid: documentsForm.formState.isValid,
