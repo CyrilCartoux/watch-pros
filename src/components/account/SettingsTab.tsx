@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Badge } from "@/components/ui/badge"
-import { Coins, Shield, Loader2, CheckCircle2 } from "lucide-react"
+import { Coins, Shield, Loader2, CheckCircle2, CreditCard, Calendar } from "lucide-react"
 import Image from "next/image"
 import { countries } from "@/data/form-options"
 import { useToast } from "@/components/ui/use-toast"
@@ -56,6 +56,26 @@ interface Seller {
     averageRating: number
     lastUpdated: string
   }
+}
+
+interface Subscription {
+  status: 'active' | 'incomplete' | 'incomplete_expired' | 'trialing' | 'past_due' | 'canceled' | 'unpaid'
+  pm_type: 'card' | 'sepa_debit' | null
+  pm_last4: string | null
+  pm_brand: string | null
+  current_period_start: string | null
+  current_period_end: string | null
+  plan: {
+    name: string
+    description: string
+    price: {
+      early: number
+      regular: number
+    }
+    features: string[]
+    maxListings: number | null
+    highlighted?: boolean
+  } | null
 }
 
 function SettingsTabSkeleton() {
@@ -189,10 +209,12 @@ export function SettingsTab() {
   const { toast } = useToast()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [seller, setSeller] = useState<Seller | null>(null)
+  const [subscription, setSubscription] = useState<Subscription | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [isUpdating, setIsUpdating] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
+  const [subscriptionError, setSubscriptionError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchData() {
@@ -218,6 +240,18 @@ export function SettingsTab() {
           }
           const sellerData = await response.json()
           setSeller(sellerData)
+        }
+
+        // Fetch subscription data
+        const subscriptionResponse = await fetch('/api/subscriptions')
+        if (!subscriptionResponse.ok) {
+          throw new Error('Failed to fetch subscription data')
+        }
+        const subscriptionData = await subscriptionResponse.json()
+        if (subscriptionData.error) {
+          setSubscriptionError(subscriptionData.error)
+        } else {
+          setSubscription(subscriptionData.subscription)
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
@@ -327,6 +361,34 @@ export function SettingsTab() {
       })
     } finally {
       setIsUpdating(false)
+    }
+  }
+
+  const getPaymentMethodIcon = (brand: string | null) => {
+    switch (brand?.toLowerCase()) {
+      case 'visa':
+        return '💳'
+      case 'mastercard':
+        return '💳'
+      case 'amex':
+        return '💳'
+      default:
+        return '💳'
+    }
+  }
+
+  const getSubscriptionStatusBadge = (status: string) => {
+    switch (status) {
+      case 'active':
+        return <Badge className="bg-green-500/10 text-green-600 hover:bg-green-500/20">Active</Badge>
+      case 'trialing':
+        return <Badge className="bg-blue-500/10 text-blue-600 hover:bg-blue-500/20">Trial</Badge>
+      case 'incomplete':
+        return <Badge className="bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20">Incomplete</Badge>
+      case 'past_due':
+        return <Badge className="bg-red-500/10 text-red-600 hover:bg-red-500/20">Past Due</Badge>
+      default:
+        return <Badge variant="secondary">{status}</Badge>
     }
   }
 
@@ -535,6 +597,91 @@ export function SettingsTab() {
               Modifier le mot de passe
             </Button>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Subscription */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Subscription</CardTitle>
+          <CardDescription>Your subscription and payment information</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {subscriptionError ? (
+            <div className="text-center py-6">
+              <p className="text-red-500 mb-4">{subscriptionError}</p>
+              <Button variant="outline" onClick={() => window.location.reload()}>
+                Retry
+              </Button>
+            </div>
+          ) : subscription ? (
+            <>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-muted-foreground" />
+                  <span className="font-medium">Payment Method</span>
+                </div>
+                {getSubscriptionStatusBadge(subscription.status)}
+              </div>
+
+              {subscription.plan && (
+                <div className="bg-muted/50 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <h3 className="font-semibold text-lg">{subscription.plan.name}</h3>
+                      <p className="text-sm text-muted-foreground">{subscription.plan.description}</p>
+                    </div>
+                    <Badge variant={subscription.plan.highlighted ? "default" : "secondary"}>
+                      {subscription.plan.maxListings ? `${subscription.plan.maxListings} listings` : 'Unlimited'}
+                    </Badge>
+                  </div>
+                  <div className="mt-4 space-y-2">
+                    {subscription.plan.features.map((feature, index) => (
+                      <div key={index} className="flex items-center gap-2 text-sm">
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                        <span>{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label>Card Type</Label>
+                  <div className="flex items-center gap-2">
+                    <span>{getPaymentMethodIcon(subscription.pm_brand)}</span>
+                    <span className="capitalize">{subscription.pm_brand || 'Not set'}</span>
+                    {subscription.pm_last4 && (
+                      <span className="text-muted-foreground">•••• {subscription.pm_last4}</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Next Billing Date</Label>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span>
+                      {subscription.current_period_end
+                        ? new Date(subscription.current_period_end).toLocaleDateString()
+                        : 'Not available'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-6">
+              <p className="text-muted-foreground mb-4">No active subscription found</p>
+              <p className="text-sm text-muted-foreground mb-6">
+                Subscribe to access premium features and start selling on our platform.
+              </p>
+              <Button>
+                Subscribe Now
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 
