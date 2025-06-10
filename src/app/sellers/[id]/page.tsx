@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Star, MapPin, Phone, Mail, Globe, Building2, ChevronLeft, ChevronRight, MessageSquare, CheckCircle2, ThumbsUp, Coins, Shield } from "lucide-react"
+import { Star, MapPin, Phone, Mail, Globe, Building2, ChevronLeft, ChevronRight, MessageSquare, CheckCircle2, ThumbsUp, Coins, Shield, ChevronDown, ChevronUp } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useState } from "react"
@@ -86,6 +86,41 @@ interface SellerPageProps {
   }
 }
 
+function ReviewComment({ comment }: { comment: string }) {
+  const [isExpanded, setIsExpanded] = useState(false)
+  const maxLength = 150 // Maximum characters to show before truncating
+
+  if (comment.length <= maxLength) {
+    return <p className="text-sm text-muted-foreground">{comment}</p>
+  }
+
+  return (
+    <div className="space-y-2">
+      <p className="text-sm text-muted-foreground">
+        {isExpanded ? comment : `${comment.slice(0, maxLength)}...`}
+      </p>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        {isExpanded ? (
+          <>
+            See less
+            <ChevronUp className="ml-1 h-3 w-3" />
+          </>
+        ) : (
+          <>
+            See more
+            <ChevronDown className="ml-1 h-3 w-3" />
+          </>
+        )}
+      </Button>
+    </div>
+  )
+}
+
 export default function SellerDetailPage({ params }: SellerPageProps) {
   const { toast } = useToast()
   const [currentListing, setCurrentListing] = useState(0)
@@ -100,6 +135,9 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false)
   const { user } = useAuth()
   const [isDeletingReview, setIsDeletingReview] = useState<string | null>(null)
+  const [reviewsPage, setReviewsPage] = useState(1)
+  const [showAllReviews, setShowAllReviews] = useState(false)
+  const reviewsPerPage = 6
   
   useEffect(() => {
     const fetchSeller = async () => {
@@ -323,6 +361,13 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
     }
   }
 
+  const paginatedReviews = seller.reviews?.slice(
+    0,
+    showAllReviews ? undefined : reviewsPerPage * reviewsPage
+  )
+
+  const hasMoreReviews = seller.reviews && seller.reviews.length > reviewsPerPage * reviewsPage
+
   return (
     <ProtectedRoute requireSeller requireVerified>
     <main className="min-h-screen bg-background py-8">
@@ -497,35 +542,63 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
 
         {/* Reviews */}
         <div className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">Peer Reviews</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold">Peer Reviews</h2>
+            {seller.reviews && seller.reviews.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {seller.reviews.length} reviews
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAllReviews(!showAllReviews)}
+                  className="gap-1"
+                >
+                  {showAllReviews ? (
+                    <>
+                      Show Less
+                      <ChevronUp className="h-4 w-4" />
+                    </>
+                  ) : (
+                    <>
+                      Show All
+                      <ChevronDown className="h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {seller.reviews && seller.reviews?.length === 0 ? (
+            {seller.reviews && seller.reviews.length === 0 ? (
               <Card>
                 <CardContent className="p-6 text-center">
                   <p className="text-muted-foreground">No reviews yet</p>
                 </CardContent>
               </Card>
             ) : (
-              seller.reviews?.map((review) => (
+              paginatedReviews?.map((review) => (
                 <Card key={review.id}>
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between gap-2 mb-4">
                       <div className="flex items-center gap-2">
-                      <div className="w-10 h-10 rounded-lg overflow-hidden border-2 border-primary/20 flex items-center justify-center bg-background">
-                        {review.reviewerCompanyLogo ? (
-                          <Image
-                            src={review.reviewerCompanyLogo}
-                            alt={`${review.reviewerName} logo`}
-                            width={96}
-                            height={96}
-                            className="w-full h-full object-contain"
-                          />
-                        ) : (
-                          <div className="text-3xl font-bold text-primary">
-                            {review.reviewerName ? review.reviewerName.slice(0, 1) : 'A'}
-                          </div>
-                        )}
-                      </div>
+                        <div className="w-10 h-10 rounded-lg overflow-hidden border-2 border-primary/20 flex items-center justify-center bg-background">
+                          {review.reviewerCompanyLogo ? (
+                            <Image
+                              src={review.reviewerCompanyLogo}
+                              alt={`${review.reviewerName} logo`}
+                              width={96}
+                              height={96}
+                              className="w-full h-full object-contain"
+                            />
+                          ) : (
+                            <div className="text-3xl font-bold text-primary">
+                              {review.reviewerName ? review.reviewerName.slice(0, 1) : 'A'}
+                            </div>
+                          )}
+                        </div>
                         <div>
                           <Link 
                             href={`/sellers/${review.reviewerName}`}
@@ -580,12 +653,25 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                         />
                       ))}
                     </div>
-                    <p className="text-sm text-muted-foreground">{review.comment}</p>
+                    <ReviewComment comment={review.comment} />
                   </CardContent>
                 </Card>
               ))
             )}
           </div>
+
+          {!showAllReviews && hasMoreReviews && (
+            <div className="flex justify-center mt-8">
+              <Button
+                variant="outline"
+                onClick={() => setReviewsPage(prev => prev + 1)}
+                className="gap-2"
+              >
+                Load More Reviews
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Contact Information */}

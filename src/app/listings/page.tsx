@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import { ListingCard } from "@/components/ListingCard"
 import {
   Select,
@@ -28,6 +28,7 @@ import { useFavorites } from "@/hooks/useFavorites"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { ListingType } from "@/types/enums/listings-enum"
 import { SearchBar } from "@/components/SearchBar"
+import debounce from "lodash.debounce"
 
 interface Brand {
   id: string
@@ -125,7 +126,7 @@ export default function ListingsPage() {
   const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites()
   
   // Initialize filters from URL params
-  const getInitialFilters = () => {
+  const initialFilters = useMemo(() => {
     const params = new URLSearchParams(searchParams.toString())
     return {
       search: params.get("search") || "",
@@ -142,9 +143,9 @@ export default function ListingsPage() {
       shippingDelay: params.get("shippingDelay") || "",
       listingType: params.get("listingType") || "",
     }
-  }
+  }, [searchParams])
 
-  const [filters, setFilters] = useState<Filters>(getInitialFilters())
+  const [filters, setFilters] = useState<Filters>(initialFilters)
   const [tempFilters, setTempFilters] = useState<Filters>(filters)
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
@@ -168,17 +169,16 @@ export default function ListingsPage() {
   const [isLoadingModels, setIsLoadingModels] = useState(false)
 
   // Debounce function pour optimiser les recherches
-  const debounce = (func: Function, wait: number) => {
-    let timeout: NodeJS.Timeout
-    return (...args: any[]) => {
-      clearTimeout(timeout)
-      timeout = setTimeout(() => func(...args), wait)
-    }
-  }
+  const debouncedFilterChange = useMemo(
+    () => debounce((key: keyof Filters, value: string) => {
+      setTempFilters(prev => ({ ...prev, [key]: value }))
+    }, 300),
+    []
+  )
 
-  const handleFilterChange = debounce((key: keyof Filters, value: string) => {
-    setTempFilters(prev => ({ ...prev, [key]: value }))
-  }, 300)
+  const handleFilterChange = useCallback((key: keyof Filters, value: string) => {
+    debouncedFilterChange(key, value)
+  }, [debouncedFilterChange])
 
   // Validation des paramètres d'URL
   const validateURLParams = (params: URLSearchParams) => {
@@ -233,18 +233,18 @@ export default function ListingsPage() {
     }
   }
 
-  const updateURL = (newFilters: Filters, page: number = 1, sort: string = sortBy) => {
+  const updateURL = useCallback((f = filters, pg = currentPage, sort = sortBy) => {
     const params = new URLSearchParams()
     
     // Add non-empty filters to URL
-    Object.entries(newFilters).forEach(([key, value]) => {
+    Object.entries(f).forEach(([key, value]) => {
       if (value) {
         params.set(key, value)
       }
     })
 
     // Add pagination and sorting
-    if (page > 1) params.set("page", page.toString())
+    if (pg > 1) params.set("page", pg.toString())
     if (sort !== "relevance") params.set("sort", sort)
 
     // Validate parameters before updating URL
@@ -256,9 +256,9 @@ export default function ListingsPage() {
 
     // Update URL without reloading the page
     router.push(`/listings?${params.toString()}`, { scroll: false })
-  }
+  }, [filters, currentPage, sortBy, router])
 
-  const handleBrandChange = (value: string) => {
+  const handleBrandChange = useCallback((value: string) => {
     setSelectedBrand(value)
     setTempFilters(prev => ({ ...prev, brand: value, model: "" }))
     
@@ -271,21 +271,21 @@ export default function ListingsPage() {
         setIsLoadingModels(false)
       })
     }
-  }
+  }, [brands, fetchModels])
 
-  const handleModelChange = (value: string) => {
+  const handleModelChange = useCallback((value: string) => {
     setSelectedModel(value)
     setTempFilters(prev => ({ ...prev, model: value }))
-  }
+  }, [])
 
-  const handleApplyFilters = () => {
+  const handleApplyFilters = useCallback(() => {
     setFilters(tempFilters)
     setCurrentPage(1)
     updateURL(tempFilters, 1)
     setIsFiltersOpen(false)
-  }
+  }, [tempFilters, updateURL])
 
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     const emptyFilters = {
       search: "",
       brand: "",
@@ -306,7 +306,21 @@ export default function ListingsPage() {
     setCurrentPage(1)
     updateURL(emptyFilters, 1)
     setIsFiltersOpen(false)
-  }
+  }, [updateURL])
+
+  const toggleSection = useCallback((section: string) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }))
+  }, [])
+
+  const removeFilter = useCallback((key: keyof Filters) => {
+    const newFilters = { ...filters, [key]: "" }
+    setTempFilters(newFilters)
+    setFilters(newFilters)
+    updateURL(newFilters)
+  }, [filters, updateURL])
 
   // Initialize filters from URL on mount
   useEffect(() => {
@@ -321,7 +335,6 @@ export default function ListingsPage() {
           return
         }
 
-        const initialFilters = getInitialFilters()
         setFilters(initialFilters)
         setTempFilters(initialFilters)
 
@@ -431,13 +444,6 @@ export default function ListingsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const toggleSection = (section: string) => {
-    setOpenSections(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }))
   }
 
   const FilterSection = ({ title, children, section }: { title: string, children: React.ReactNode, section: string }) => (
@@ -752,26 +758,19 @@ export default function ListingsPage() {
     }
   }
 
-  const removeFilter = (key: keyof Filters) => {
-    const newFilters = { ...filters, [key]: "" }
-    setTempFilters(newFilters)
-    setFilters(newFilters)
-    updateURL(newFilters)
-  }
-
   // Update URL when page changes
   useEffect(() => {
     if (currentPage > 1) {
-      updateURL(filters, currentPage)
+      updateURL()
     }
-  }, [currentPage])
+  }, [currentPage, updateURL])
 
   // Update URL when sort changes
   useEffect(() => {
     if (sortBy !== "relevance") {
-      updateURL(filters, currentPage, sortBy)
+      updateURL()
     }
-  }, [sortBy])
+  }, [sortBy, updateURL])
 
   return (
     <ProtectedRoute requireSeller requireVerified>
