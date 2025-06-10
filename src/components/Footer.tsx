@@ -29,10 +29,6 @@ const navigation = {
 export function Footer() {
   return (
     <>
-      <Head>
-        {/* Les métadonnées peuvent être centralisées dans votre layout global */}
-      </Head>
-
       <footer role="contentinfo" className="bg-muted/50">
         <div className="container py-12 md:py-16">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
