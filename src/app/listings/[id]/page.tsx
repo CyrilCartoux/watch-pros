@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Heart, Share2, Shield, Clock, Package, Star, ChevronLeft, ChevronRight, CheckCircle2, MessageSquare, Bell, MapPin, Phone, Mail, Coins } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -113,6 +113,16 @@ export default function ListingPage({ params }: Props) {
   const [finalPrice, setFinalPrice] = useState("")
   const [isSubmittingSale, setIsSubmittingSale] = useState(false)
 
+  const nextImage = useCallback(() => {
+    if (!listing) return
+    setCurrentImage(i => (i + 1) % listing.images.length)
+  }, [listing])
+
+  const prevImage = useCallback(() => {
+    if (!listing) return
+    setCurrentImage(i => (i - 1 + listing.images.length) % listing.images.length)
+  }, [listing])
+
   useEffect(() => {
     const fetchListing = async () => {
       try {
@@ -164,10 +174,10 @@ export default function ListingPage({ params }: Props) {
   const onTouchEnd = () => {
     if (!listing) return
     if (touchStart - touchEnd > 75) {
-      setCurrentImage((prev) => (prev === listing.images.length - 1 ? 0 : prev + 1))
+      nextImage()
     }
     if (touchStart - touchEnd < -75) {
-      setCurrentImage((prev) => (prev === 0 ? listing.images.length - 1 : prev - 1))
+      prevImage()
     }
   }
 
@@ -494,7 +504,7 @@ export default function ListingPage({ params }: Props) {
                 variant="outline"
                 size="icon"
                 className="absolute left-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-10 h-10"
-                onClick={() => setCurrentImage((prev) => (prev === 0 ? listing.images.length - 1 : prev - 1))}
+                onClick={prevImage}
               >
                 <ChevronLeft className="h-6 w-6" />
               </Button>
@@ -502,7 +512,7 @@ export default function ListingPage({ params }: Props) {
                 variant="outline"
                 size="icon"
                 className="absolute right-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-10 h-10"
-                onClick={() => setCurrentImage((prev) => (prev === listing.images.length - 1 ? 0 : prev + 1))}
+                onClick={nextImage}
               >
                 <ChevronRight className="h-6 w-6" />
               </Button>

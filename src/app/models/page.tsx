@@ -15,6 +15,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
+import { useRouter, useSearchParams } from "next/navigation"
+
 interface Brand {
   id: string
   slug: string
@@ -32,25 +34,29 @@ interface Model {
 }
 
 export default function ModelsPage() {
-  const { toast } = useToast()
-  const [activeTab, setActiveTab] = useState("featured")
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "featured")
   const [searchQuery, setSearchQuery] = useState("")
-  const [sortBy, setSortBy] = useState("popularity")
-  const [notifications, setNotifications] = useState<Record<string, boolean>>({})
   const [brands, setBrands] = useState<Brand[]>([])
   const [allModels, setAllModels] = useState<Model[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [isSubscribing, setIsSubscribing] = useState<Record<string, boolean>>({})
+
+  // Single effect for tab synchronization
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("tab", activeTab)
+    router.push(`?${params.toString()}`, { scroll: false })
+  }, [activeTab, router, searchParams])
 
   // Fetch brands, models and subscriptions in parallel
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [brandsResponse, modelsResponse, subscriptionsResponse] = await Promise.all([
+        const [brandsResponse, modelsResponse] = await Promise.all([
           fetch("/api/brands"),
           fetch("/api/models/all"),
-          fetch("/api/subscribe-model")
         ])
 
         if (!brandsResponse.ok) {
@@ -59,25 +65,14 @@ export default function ModelsPage() {
         if (!modelsResponse.ok) {
           throw new Error("Failed to fetch models")
         }
-        if (!subscriptionsResponse.ok) {
-          throw new Error("Failed to fetch subscriptions")
-        }
 
-        const [brandsData, modelsData, subscriptionsData] = await Promise.all([
+        const [brandsData, modelsData] = await Promise.all([
           brandsResponse.json(),
           modelsResponse.json(),
-          subscriptionsResponse.json()
         ])
 
         setBrands(brandsData.brands)
         setAllModels(modelsData.models)
-        
-        // Initialize notifications state from subscriptions
-        const initialNotifications = subscriptionsData.subscriptions.reduce((acc: Record<string, boolean>, sub: any) => {
-          acc[sub.model.id] = true
-          return acc
-        }, {})
-        setNotifications(initialNotifications)
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to fetch data")
       } finally {
@@ -87,51 +82,6 @@ export default function ModelsPage() {
 
     fetchData()
   }, [])
-
-  const toggleNotification = async (model: Model) => {
-    try {
-      setIsSubscribing(prev => ({ ...prev, [model.id]: true }))
-      
-      const isSubscribing = !notifications[model.id]
-      const method = isSubscribing ? 'POST' : 'DELETE'
-      
-      const response = await fetch('/api/subscribe-model', {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model_id: model.id,
-        }),
-      })
-
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to toggle notification')
-      }
-
-    setNotifications(prev => ({
-      ...prev,
-        [model.id]: !prev[model.id]
-      }))
-
-      toast({
-        title: isSubscribing ? "Notification enabled" : "Notification disabled",
-        description: isSubscribing 
-          ? `You will be notified about new listings for ${model.brands.label} ${model.label}`
-          : `You will no longer receive notifications for ${model.brands.label} ${model.label}`,
-      })
-    } catch (err) {
-      console.error('Error toggling notification:', err)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to update notification settings",
-      })
-    } finally {
-      setIsSubscribing(prev => ({ ...prev, [model.id]: false }))
-    }
-  }
 
   // Définir l'ordre des marques populaires
   const popularBrandsOrder = ["rolex", "audemars-piguet", "patek-philippe"]
@@ -260,37 +210,6 @@ export default function ModelsPage() {
                           fill
                           className="object-contain p-1"
                         />
-                        <div className="absolute top-1 right-1">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button
-                                  onClick={(e) => {
-                                    e.preventDefault()
-                                    toggleNotification(model)
-                                  }}
-                                  disabled={isSubscribing[model.id]}
-                                  className={`p-1 rounded-full backdrop-blur-sm transition-colors ${
-                                    notifications[model.id] 
-                                      ? "bg-red-500 hover:bg-red-600" 
-                                      : "bg-background/80 hover:bg-background/90"
-                                  } ${isSubscribing[model.id] ? "opacity-50 cursor-not-allowed" : ""}`}
-                                >
-                                  {isSubscribing[model.id] ? (
-                                    <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
-                                  ) : (
-                                    <Bell className={`h-3 w-3 ${notifications[model.id] ? "text-white" : "text-muted-foreground"}`} />
-                                  )}
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                {notifications[model.id] 
-                                  ? "Disable notifications" 
-                                  : "Enable notifications"}
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
                       </div>
                       <CardContent className="p-1.5">
                         <div className="flex items-center gap-0.5 mb-0.5">
@@ -354,37 +273,6 @@ export default function ModelsPage() {
                           fill
                           className="object-contain p-1"
                         />
-                        <div className="absolute top-1 right-1">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <button
-                                  onClick={(e) => {
-                                    e.preventDefault()
-                                    toggleNotification(model)
-                                  }}
-                                  disabled={isSubscribing[model.id]}
-                                  className={`p-1 rounded-full backdrop-blur-sm transition-colors ${
-                                    notifications[model.id] 
-                                      ? "bg-red-500 hover:bg-red-600" 
-                                      : "bg-background/80 hover:bg-background/90"
-                                  } ${isSubscribing[model.id] ? "opacity-50 cursor-not-allowed" : ""}`}
-                                >
-                                  {isSubscribing[model.id] ? (
-                                    <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
-                                  ) : (
-                                    <Bell className={`h-3 w-3 ${notifications[model.id] ? "text-white" : "text-muted-foreground"}`} />
-                                  )}
-                                </button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                {notifications[model.id] 
-                                  ? "Disable notifications" 
-                                  : "Enable notifications"}
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
                       </div>
                       <CardContent className="p-1.5">
                         <div className="flex items-center gap-0.5 mb-0.5">

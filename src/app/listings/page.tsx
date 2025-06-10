@@ -322,78 +322,8 @@ export default function ListingsPage() {
     updateURL(newFilters)
   }, [filters, updateURL])
 
-  // Initialize filters from URL on mount
-  useEffect(() => {
-    const initializeFromURL = async () => {
-      try {
-        setError(null)
-        const params = new URLSearchParams(searchParams.toString())
-        const { validParams, errors } = validateURLParams(params)
-        
-        if (errors) {
-          setError(errors.join(", "))
-          return
-        }
-
-        setFilters(initialFilters)
-        setTempFilters(initialFilters)
-
-        // Initialize brand selection if brand is in URL
-        const brandSlug = searchParams.get("brand")
-        if (brandSlug) {
-          const brand = brands.find((b: Brand) => b.slug === brandSlug)
-          if (brand) {
-            setSelectedBrand(brandSlug)
-            setSelectedBrandId(brand.id)
-            await fetchModels(brand.id)
-          } else {
-            setError(`Brand "${brandSlug}" not found`)
-          }
-        }
-
-        setIsInitialized(true)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to initialize filters")
-        setIsInitialized(true) // Still set initialized to true to allow retry
-      }
-    }
-
-    if (brands.length > 0) {
-      initializeFromURL()
-    }
-  }, [brands])
-
-  // Watch for URL changes and update filters
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search)
-    const newFilters = {
-      search: params.get("query") || "",
-      brand: params.get("brand") || "",
-      model: params.get("model") || "",
-      reference: params.get("reference") || "",
-      seller: params.get("seller") || "",
-      year: params.get("year") || "",
-      dialColor: params.get("dialColor") || "",
-      condition: params.get("condition") || "",
-      included: params.get("included") || "",
-      minPrice: params.get("minPrice") || "",
-      maxPrice: params.get("maxPrice") || "",
-      shippingDelay: params.get("shippingDelay") || "",
-      listingType: params.get("listingType") || "",
-    }
-    setFilters(newFilters)
-    setCurrentPage(Number(params.get("page")) || 1)
-    setSortBy(params.get("sort") || "")
-  }, [searchParams])
-
-  // Fetch listings when filters change
-  useEffect(() => {
-    fetchListings()
-  }, [filters, currentPage, sortBy])
-
   const fetchListings = async () => {
-    if (!isInitialized) return
-
+    const controller = new AbortController()
     setIsLoading(true)
     setError(null)
     try {
@@ -425,7 +355,9 @@ export default function ListingsPage() {
         }
       })
 
-      const response = await fetch(`/api/listings?${params}`)
+      const response = await fetch(`/api/listings?${params}`, {
+        signal: controller.signal
+      })
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
         throw new Error(errorData.error || 'Failed to fetch listings')
@@ -435,7 +367,8 @@ export default function ListingsPage() {
       setListings(data.listings || [])
       setTotalItems(data.total || 0)
       setTotalPages(data.totalPages || 0)
-    } catch (error) {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'AbortError') return
       console.error('Error fetching listings:', error)
       setError(error instanceof Error ? error.message : 'Failed to fetch listings')
       setListings([])
@@ -444,7 +377,54 @@ export default function ListingsPage() {
     } finally {
       setIsLoading(false)
     }
+    return () => controller.abort()
   }
+
+  // Fetch listings when component mounts or when URL changes
+  useEffect(() => {
+    if (brands.length > 0) {
+      fetchListings()
+    }
+  }, [brands, filters, currentPage, sortBy])
+
+  // Initialize filters from URL on mount
+  useEffect(() => {
+    const initializeFromURL = async () => {
+      try {
+        setError(null)
+        const params = new URLSearchParams(searchParams.toString())
+        const { validParams, errors } = validateURLParams(params)
+        
+        if (errors) {
+          setError(errors.join(", "))
+          return
+        }
+
+        // Update filters from URL
+        setFilters(initialFilters)
+        setTempFilters(initialFilters)
+
+        // Initialize brand selection if brand is in URL
+        const brandSlug = searchParams.get("brand")
+        if (brandSlug) {
+          const brand = brands.find((b: Brand) => b.slug === brandSlug)
+          if (brand) {
+            setSelectedBrand(brandSlug)
+            setSelectedBrandId(brand.id)
+            await fetchModels(brand.id)
+          } else {
+            setError(`Brand "${brandSlug}" not found`)
+          }
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to initialize filters")
+      }
+    }
+
+    if (brands.length > 0) {
+      initializeFromURL()
+    }
+  }, [brands, initialFilters])
 
   const FilterSection = ({ title, children, section }: { title: string, children: React.ReactNode, section: string }) => (
     <div className="space-y-4">
