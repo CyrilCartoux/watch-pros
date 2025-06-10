@@ -16,6 +16,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { SubscriptionStep } from '@/components/SubscriptionStep'
 import { plans } from "@/data/subscription-plans"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { PaymentTab } from "@/components/forms/PaymentTab"
 
 // Constants for file validation
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -901,129 +902,82 @@ export default function RegisterFormPage() {
               <CardContent className="p-6">
                 <div className="space-y-6">
                   <div className="space-y-4">
-                  <div className="space-y-4 mb-6">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Shield className="h-4 w-4 text-primary" />
-                    <span>Paiement 100% sécurisé via Stripe</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Lock className="h-4 w-4 text-primary" />
-                    <span>Vos données bancaires sont cryptées et jamais stockées</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <CreditCard className="h-4 w-4 text-primary" />
-                    <span>Cartes bancaires et prélèvements SEPA acceptés</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    <span>Annulation possible à tout moment</span>
-                  </div>
-                </div>
-                    <h3 className="text-lg font-medium">Choose Your Plan</h3>
-                    {/* Early Bird Banner */}
-                    <div className="mt-4 bg-primary/5 rounded-lg p-3 border border-primary/10">
-                      <div className="flex items-center gap-3">
-                        <div className="bg-primary/10 p-1.5 rounded-full">
-                          <Clock className="h-4 w-4 text-primary" />
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-medium">Early Bird Special</h4>
-                          <p className="text-xs text-muted-foreground">
-                            Join now and lock in our early-bird pricing forever. Limited spots available.
-                          </p>
-                        </div>
+                    <div className="space-y-4 mb-6">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Shield className="h-4 w-4 text-primary" />
+                        <span>Paiement 100% sécurisé via Stripe</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Lock className="h-4 w-4 text-primary" />
+                        <span>Vos données bancaires sont cryptées et jamais stockées</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <CreditCard className="h-4 w-4 text-primary" />
+                        <span>Cartes bancaires et prélèvements SEPA acceptés</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <CheckCircle2 className="h-4 w-4 text-primary" />
+                        <span>Annulation possible à tout moment</span>
                       </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                      {plans.map((plan, index) => (
-                        <Card 
-                          key={plan.name + index}
-                          className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
-                            selectedPlan === plan.priceId 
-                              ? 'border-primary ring-2 ring-primary/20 scale-[1.02]' 
-                              : 'hover:border-primary/50'
+
+                    <h3 className="text-lg font-medium">Choose Your Plan</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {plans.map((plan) => (
+                        <Card
+                          key={plan.priceId}
+                          className={`cursor-pointer transition-all ${
+                            selectedPlan === plan.priceId
+                              ? "border-primary ring-2 ring-primary"
+                              : "hover:border-primary/50"
                           }`}
                           onClick={() => setSelectedPlan(plan.priceId)}
                         >
-                          <CardHeader className="p-4 pb-2">
-                            <CardTitle className="text-lg font-semibold">{plan.name}</CardTitle>
-                            <CardDescription className="text-sm line-clamp-2">{plan.description}</CardDescription>
-                          </CardHeader>
-                          <CardContent className="p-4 pt-2">
-                            <div className="mb-4">
-                              <div className="flex items-baseline gap-2">
-                                <span className="text-2xl font-bold">€{plan.price.early}</span>
-                                <span className="text-sm text-muted-foreground line-through">€{plan.price.regular}</span>
+                          <CardContent className="p-6">
+                            <div className="space-y-4">
+                              <div>
+                                <h4 className="font-semibold text-lg">{plan.name}</h4>
+                                <p className="text-2xl font-bold mt-2">
+                                  €{plan.price.early}<span className="text-sm font-normal text-muted-foreground">/month</span>
+                                </p>
+                                <p className="text-sm text-muted-foreground line-through">€{plan.price.regular}/month</p>
                               </div>
-                              <p className="text-xs text-muted-foreground">par mois</p>
+                              <ul className="space-y-2">
+                                {plan.features.map((feature, index) => (
+                                  <li key={index} className="flex items-center gap-2 text-sm">
+                                    <CheckCircle2 className="w-4 h-4 text-primary" />
+                                    {feature}
+                                  </li>
+                                ))}
+                              </ul>
                             </div>
-                            <ul className="space-y-2">
-                              {plan.features.map((feature, i) => (
-                                <li key={i} className="flex items-start gap-2">
-                                  <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                                  <span className="text-sm line-clamp-1">{feature}</span>
-                                </li>
-                              ))}
-                            </ul>
                           </CardContent>
                         </Card>
                       ))}
                     </div>
-                  </div>
-                              
-                  {selectedPlan && (
-                    <SubscriptionStep
-                      plan={selectedPlan}
-                      onSuccess={(subscriptionId) => {
-                        // Handle successful subscription
-                        console.log('Subscription successful:', subscriptionId)
-                        // You might want to update the user's profile or redirect
-                      }}
-                      onError={(error) => {
-                        // Handle subscription error
-                        console.error('Subscription error:', error)
-                        // You might want to show an error message to the user
-                      }}
-                    />
-                  )}
 
-                  {/* FAQ Section */}
-                  <div className="mt-8">
-                    <Accordion type="single" collapsible className="w-full">
-                      <AccordionItem value="faq">
-                        <AccordionTrigger className="text-sm font-medium text-muted-foreground hover:no-underline">
-                          Frequently Asked Questions
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="grid gap-4 pt-2">
-                            <div className="space-y-2">
-                              <h5 className="text-sm font-medium">Can I change my plan later?</h5>
-                              <p className="text-sm text-muted-foreground">
-                                Yes, you can upgrade or downgrade your plan at any time. Changes will be reflected in your next billing cycle.
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <h5 className="text-sm font-medium">What happens if I exceed my listing limit?</h5>
-                              <p className="text-sm text-muted-foreground">
-                                You'll be notified when you're close to your limit. You can either upgrade your plan or archive some listings.
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <h5 className="text-sm font-medium">Is there a long-term commitment?</h5>
-                              <p className="text-sm text-muted-foreground">
-                                No, all plans are billed monthly and can be cancelled at any time. Early-bird pricing is locked in for as long as you maintain an active account.
-                              </p>
-                            </div>
-                            <div className="space-y-2">
-                              <h5 className="text-sm font-medium">Do you charge commission on sales?</h5>
-                              <p className="text-sm text-muted-foreground">
-                                No, we don't take any commission on sales. You keep 100% of your revenue.
-                              </p>
-                            </div>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
+                    {selectedPlan && (
+                      <div className="mt-8">
+                        <h3 className="text-lg font-medium mb-4">Payment Information</h3>
+                        <PaymentTab selectedPlan={selectedPlan} />
+                      </div>
+                    )}
+
+                    <div className="flex justify-between items-center pt-6">
+                      <p className="text-sm text-muted-foreground">* Required field</p>
+                      <div className="space-x-4">
+                        <Button type="button" variant="outline" size="lg" onClick={handleBack}>
+                          Back
+                        </Button>
+                        <Button 
+                          type="submit" 
+                          size="lg"
+                          disabled={!selectedPlan}
+                        >
+                          Complete Registration
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </CardContent>

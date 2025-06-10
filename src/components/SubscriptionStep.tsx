@@ -1,36 +1,51 @@
-'use client'
+"use client";
 
-import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
-import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { AlertCircle } from 'lucide-react'
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  PaymentElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+);
 
 interface SubscriptionStepProps {
-  plan: string
-  onSuccess: (subscriptionId: string) => void
-  onError: (error: string) => void
+  plan: string;
+  onSuccess: (subscriptionId: string) => void;
+  onError: (error: string) => void;
 }
 
-function SubscriptionForm({ onSuccess, onError }: Omit<SubscriptionStepProps, 'plan'>) {
-  const stripe = useStripe()
-  const elements = useElements()
-  const [error, setError] = useState<string | null>(null)
-  const [processing, setProcessing] = useState(false)
+function SubscriptionForm({
+  onSuccess,
+  onError,
+}: Omit<SubscriptionStepProps, "plan">) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [error, setError] = useState<string | null>(null);
+  const [processing, setProcessing] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!stripe || !elements) {
-      return
+      return;
     }
 
-    setProcessing(true)
-    setError(null)
+    setProcessing(true);
+    setError(null);
 
     try {
       const { error: submitError } = await stripe.confirmPayment({
@@ -38,21 +53,21 @@ function SubscriptionForm({ onSuccess, onError }: Omit<SubscriptionStepProps, 'p
         confirmParams: {
           return_url: `${window.location.origin}/register/verify`,
         },
-      })
+      });
 
       if (submitError) {
-        setError(submitError.message || 'An error occurred')
-        onError(submitError.message || 'An error occurred')
+        setError(submitError.message || "An error occurred");
+        onError(submitError.message || "An error occurred");
       } else {
-        onSuccess('subscription_success')
+        onSuccess("subscription_success");
       }
     } catch (err) {
-      setError('An unexpected error occurred')
-      onError('An unexpected error occurred')
+      setError("An unexpected error occurred");
+      onError("An unexpected error occurred");
     } finally {
-      setProcessing(false)
+      setProcessing(false);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -65,45 +80,45 @@ function SubscriptionForm({ onSuccess, onError }: Omit<SubscriptionStepProps, 'p
         </div>
       )}
       <PaymentElement />
-      <Button 
-        type="submit" 
-        disabled={!stripe || processing}
-        className="w-full"
-      >
-        {processing ? 'Processing...' : 'Subscribe Now'}
+      <Button type="submit" disabled={!stripe || processing} className="w-full">
+        {processing ? "Processing..." : "Subscribe Now"}
       </Button>
     </form>
-  )
+  );
 }
 
-export function SubscriptionStep({ plan, onSuccess, onError }: SubscriptionStepProps) {
-  const [clientSecret, setClientSecret] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+export function SubscriptionStep({
+  plan,
+  onSuccess,
+  onError,
+}: SubscriptionStepProps) {
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Create subscription intent
-    fetch('/api/create-subscription-intent', {
-      method: 'POST',
+    // Create subscription
+    fetch("/api/create-subscription", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ plan }),
+      body: JSON.stringify({ priceId: plan }),
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.error) {
-          onError(data.error)
+          onError(data.error);
         } else {
-          setClientSecret(data.clientSecret)
+          setClientSecret(data.clientSecret);
         }
       })
       .catch((err) => {
-        onError('Failed to initialize payment')
+        onError("Failed to initialize payment");
       })
       .finally(() => {
-        setLoading(false)
-      })
-  }, [plan, onError])
+        setLoading(false);
+      });
+  }, [plan, onError]);
 
   if (loading) {
     return (
@@ -114,7 +129,7 @@ export function SubscriptionStep({ plan, onSuccess, onError }: SubscriptionStepP
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (!clientSecret) {
@@ -127,7 +142,7 @@ export function SubscriptionStep({ plan, onSuccess, onError }: SubscriptionStepP
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -139,14 +154,14 @@ export function SubscriptionStep({ plan, onSuccess, onError }: SubscriptionStepP
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Elements 
-          stripe={stripePromise} 
+        <Elements
+          stripe={stripePromise}
           options={{
             clientSecret,
             appearance: {
-              theme: 'stripe',
+              theme: "stripe",
               variables: {
-                colorPrimary: '#0f172a',
+                colorPrimary: "#0f172a",
               },
             },
           }}
@@ -155,5 +170,5 @@ export function SubscriptionStep({ plan, onSuccess, onError }: SubscriptionStepP
         </Elements>
       </CardContent>
     </Card>
-  )
-} 
+  );
+}
