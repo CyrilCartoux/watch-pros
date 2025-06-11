@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Star, Shield, Award, MapPin, Coins, SlidersHorizontal, ChevronDown, ChevronUp, X, Search } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { countries } from "@/data/form-options"
@@ -27,6 +27,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useRouter, useSearchParams } from "next/navigation"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
+import debounce from "lodash.debounce"
 
 interface Seller {
   account: {
@@ -100,18 +101,15 @@ export default function SellersListPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
-  // Initialize filters from URL params
-  const getInitialFilters = () => {
-    const params = new URLSearchParams(searchParams.toString())
-    return {
-      country: params.get("country") || "",
-      cryptoFriendly: params.get("cryptoFriendly") === "true",
-      minRating: parseFloat(params.get("minRating") || "0"),
-      search: params.get("search") || ""
-    }
-  }
+  // Mémoriser les filtres initiaux
+  const initialFilters = useMemo(() => ({
+    country: searchParams.get("country") || "",
+    cryptoFriendly: searchParams.get("cryptoFriendly") === "true",
+    minRating: +searchParams.get("minRating")! || 0,
+    search: searchParams.get("search") || ""
+  }), [searchParams])
 
-  const [filters, setFilters] = useState<Filters>(getInitialFilters())
+  const [filters, setFilters] = useState<Filters>(initialFilters)
   const [tempFilters, setTempFilters] = useState<Filters>(filters)
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
@@ -145,18 +143,17 @@ export default function SellersListPage() {
     router.push(`/sellers?${params.toString()}`, { scroll: false })
   }
 
-  const handleFilterChange = (key: keyof Filters, value: any) => {
+  const handleFilterChange = useCallback((key: keyof Filters, value: any) => {
     setTempFilters(prev => ({ ...prev, [key]: value }))
-  }
+  }, [])
 
-  const handleApplyFilters = () => {
+  const handleApplyFilters = useCallback(() => {
     setFilters(tempFilters)
     setCurrentPage(1)
-    updateURL(tempFilters, 1)
     setIsFiltersOpen(false)
-  }
+  }, [tempFilters])
 
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     const emptyFilters = {
       country: "",
       cryptoFriendly: false,
@@ -166,23 +163,42 @@ export default function SellersListPage() {
     setTempFilters(emptyFilters)
     setFilters(emptyFilters)
     setCurrentPage(1)
-    updateURL(emptyFilters, 1)
     setIsFiltersOpen(false)
-  }
+  }, [])
 
-  const removeFilter = (key: keyof Filters) => {
+  const removeFilter = useCallback((key: keyof Filters) => {
     const newFilters = { ...filters, [key]: key === "cryptoFriendly" ? false : "" }
     setTempFilters(newFilters)
     setFilters(newFilters)
-    updateURL(newFilters)
-  }
+  }, [filters])
 
-  // Update URL when page changes
+  const handleSearch = useCallback((value: string) => {
+    setFilters(prev => ({ ...prev, search: value }))
+  }, [])
+
+  // Mettre à jour l'URL sans recharger la page
   useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString())
+    
+    // Mettre à jour les filtres dans l'URL
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value) {
+        params.set(key, value.toString())
+      } else {
+        params.delete(key)
+      }
+    })
+
+    // Mettre à jour la pagination
     if (currentPage > 1) {
-      updateURL(filters, currentPage)
+      params.set("page", currentPage.toString())
+    } else {
+      params.delete("page")
     }
-  }, [currentPage])
+
+    // Mettre à jour l'URL sans recharger la page
+    router.push(`/sellers?${params.toString()}`, { scroll: false })
+  }, [filters, currentPage, router, searchParams])
 
   const fetchSellers = async (page: number) => {
     try {
@@ -197,7 +213,7 @@ export default function SellersListPage() {
       if (filters.country) params.append("country", filters.country)
       if (filters.cryptoFriendly) params.append("cryptoFriendly", "true")
       if (filters.minRating > 0) params.append("minRating", filters.minRating.toString())
-      if (throttledSearch) params.append("search", throttledSearch)
+      if (filters.search) params.append("search", filters.search)
 
       const response = await fetch(`/api/sellers?${params}`)
       if (!response.ok) {
@@ -215,11 +231,7 @@ export default function SellersListPage() {
 
   useEffect(() => {
     fetchSellers(currentPage)
-  }, [currentPage, filters.country, filters.cryptoFriendly, filters.minRating, throttledSearch])
-
-  const handleSearch = (value: string) => {
-    setFilters(prev => ({ ...prev, search: value }))
-  }
+  }, [currentPage, filters.country, filters.cryptoFriendly, filters.minRating, filters.search])
 
   const renderFilters = () => (
     <div className="space-y-8">

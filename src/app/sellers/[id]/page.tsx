@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Star, MapPin, Phone, Mail, Globe, Building2, ChevronLeft, ChevronRight, MessageSquare, CheckCircle2, ThumbsUp, Coins, Shield, ChevronDown, ChevronUp } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo, useCallback } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
@@ -138,7 +138,48 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
   const [reviewsPage, setReviewsPage] = useState(1)
   const [showAllReviews, setShowAllReviews] = useState(false)
   const reviewsPerPage = 6
-  
+
+  // Mémoriser les calculs de pagination des reviews
+  const paginatedReviews = useMemo(
+    () => seller?.reviews?.slice(0, showAllReviews ? undefined : reviewsPerPage * reviewsPage),
+    [seller?.reviews, showAllReviews, reviewsPage]
+  )
+
+  const hasMoreReviews = useMemo(
+    () => (seller?.reviews?.length ?? 0) > reviewsPerPage * reviewsPage,
+    [seller?.reviews, reviewsPage]
+  )
+
+  // Stabiliser les handlers du carrousel
+  const nextListing = useCallback(() => {
+    if (!seller?.listings?.length) return
+    setCurrentListing(prev => (prev + 1) % seller.listings.length)
+  }, [seller?.listings])
+
+  const prevListing = useCallback(() => {
+    if (!seller?.listings?.length) return
+    setCurrentListing(prev => (prev - 1 + seller.listings.length) % seller.listings.length)
+  }, [seller?.listings])
+
+  // Stabiliser les handlers des dialogues
+  const handleOpenContactDialog = useCallback(() => {
+    setIsContactDialogOpen(true)
+  }, [])
+
+  const handleCloseContactDialog = useCallback(() => {
+    setIsContactDialogOpen(false)
+    setMessage("")
+    setIsMessageSuccess(false)
+  }, [])
+
+  const handleOpenReviewDialog = useCallback(() => {
+    setIsReviewDialogOpen(true)
+  }, [])
+
+  const handleCloseReviewDialog = useCallback(() => {
+    setIsReviewDialogOpen(false)
+  }, [])
+
   useEffect(() => {
     const fetchSeller = async () => {
       try {
@@ -229,20 +270,6 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
           </div>
         </div>
       </main>
-    )
-  }
-
-  const nextListing = () => {
-    if (!seller?.listings?.length) return
-    setCurrentListing((prev) => 
-      prev === seller.listings?.length - 1 ? 0 : prev + 1
-    )
-  }
-
-  const prevListing = () => {
-    if (!seller?.listings?.length) return
-    setCurrentListing((prev) => 
-      prev === 0 ? seller.listings?.length - 1 : prev - 1
     )
   }
 
@@ -361,13 +388,6 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
     }
   }
 
-  const paginatedReviews = seller.reviews?.slice(
-    0,
-    showAllReviews ? undefined : reviewsPerPage * reviewsPage
-  )
-
-  const hasMoreReviews = seller.reviews && seller.reviews.length > reviewsPerPage * reviewsPage
-
   return (
     <ProtectedRoute requireSeller requireVerified>
     <main className="min-h-screen bg-background py-8">
@@ -413,7 +433,7 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                     </div>
                   </div>
                   <Button
-                    onClick={() => setIsReviewDialogOpen(true)}
+                    onClick={handleOpenReviewDialog}
                     size="sm"
                     className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white"
                     disabled={isSubmittingReview}
@@ -457,7 +477,7 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                 {/* Desktop Action Buttons */}
                 <div className="hidden md:flex flex-wrap gap-2 justify-center md:justify-start">
                   <Button
-                    onClick={() => setIsReviewDialogOpen(true)}
+                    onClick={handleOpenReviewDialog}
                     className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
                     disabled={isSubmittingReview}
                   >
@@ -531,7 +551,7 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
 
               <Button 
                 className="w-full flex items-center justify-center gap-2"
-                onClick={() => setIsContactDialogOpen(true)}
+                onClick={handleOpenContactDialog}
               >
                 <MessageSquare className="h-4 w-4" />
                 Contact seller
@@ -896,7 +916,7 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                 <>
                   <Button
                     variant="outline"
-                    onClick={() => setIsContactDialogOpen(false)}
+                    onClick={handleCloseContactDialog}
                   >
                     Cancel
                   </Button>
@@ -915,7 +935,7 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
         {/* Review Dialog */}
         <ReviewDialog
           isOpen={isReviewDialogOpen}
-          onClose={() => setIsReviewDialogOpen(false)}
+          onClose={handleCloseReviewDialog}
           onSubmit={handleSubmitReview}
           isSubmitting={isSubmittingReview}
           title={`Review ${seller.account.companyName}`}

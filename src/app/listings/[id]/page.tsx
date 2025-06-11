@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Heart, Share2, Shield, Clock, Package, Star, ChevronLeft, ChevronRight, CheckCircle2, MessageSquare, Bell, MapPin, Phone, Mail, Coins } from "lucide-react"
+import { Heart, Share2, Shield, Clock, Package, Star, ChevronLeft, ChevronRight, CheckCircle2, MessageSquare, Bell, MapPin, Phone, Mail, Coins, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useState, useEffect, useCallback } from "react"
@@ -89,8 +89,11 @@ interface Props {
 export default function ListingPage({ params }: Props) {
   const [currentImage, setCurrentImage] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
+  const [isFullscreenOpen, setIsFullscreenOpen] = useState(false)
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
+  const [isNavigating, setIsNavigating] = useState(false)
+  const [touchTimeout, setTouchTimeout] = useState<NodeJS.Timeout | null>(null)
   const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false)
   const [offerAmount, setOfferAmount] = useState("")
   const [isSubmittingOffer, setIsSubmittingOffer] = useState(false)
@@ -122,6 +125,23 @@ export default function ListingPage({ params }: Props) {
     if (!listing) return
     setCurrentImage(i => (i - 1 + listing.images.length) % listing.images.length)
   }, [listing])
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const onTouchEnd = () => {
+    if (touchStart - touchEnd > 75) {
+      nextImage()
+    }
+    if (touchStart - touchEnd < -75) {
+      prevImage()
+    }
+  }
 
   useEffect(() => {
     const fetchListing = async () => {
@@ -163,21 +183,10 @@ export default function ListingPage({ params }: Props) {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX)
-  }
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX)
-  }
-
-  const onTouchEnd = () => {
-    if (!listing) return
-    if (touchStart - touchEnd > 75) {
-      nextImage()
-    }
-    if (touchStart - touchEnd < -75) {
-      prevImage()
+  const handleImageClick = (e: React.MouseEvent) => {
+    // Only open dialog if we're not in a touch interaction
+    if (!touchTimeout && !isNavigating) {
+      setIsFullscreenOpen(true)
     }
   }
 
@@ -488,10 +497,11 @@ export default function ListingPage({ params }: Props) {
           <div className="space-y-4">
             {/* Main Image */}
             <div 
-              className="relative aspect-square rounded-lg overflow-hidden bg-muted"
+              className="relative aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer"
               onTouchStart={onTouchStart}
               onTouchMove={onTouchMove}
               onTouchEnd={onTouchEnd}
+              onClick={() => setIsFullscreenOpen(true)}
             >
               <Image
                 src={listing.images[currentImage]}
@@ -504,7 +514,11 @@ export default function ListingPage({ params }: Props) {
                 variant="outline"
                 size="icon"
                 className="absolute left-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-10 h-10"
-                onClick={prevImage}
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  prevImage()
+                }}
               >
                 <ChevronLeft className="h-6 w-6" />
               </Button>
@@ -512,7 +526,11 @@ export default function ListingPage({ params }: Props) {
                 variant="outline"
                 size="icon"
                 className="absolute right-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-10 h-10"
-                onClick={nextImage}
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  nextImage()
+                }}
               >
                 <ChevronRight className="h-6 w-6" />
               </Button>
@@ -538,6 +556,53 @@ export default function ListingPage({ params }: Props) {
               ))}
             </div>
           </div>
+
+          {/* Fullscreen Image Dialog */}
+          <Dialog open={isFullscreenOpen} onOpenChange={setIsFullscreenOpen}>
+            <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 bg-black/95">
+              <div className="relative w-full h-full">
+                <div className="absolute top-4 right-4 z-50">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-white hover:bg-white/10"
+                    onClick={() => setIsFullscreenOpen(false)}
+                  >
+                    <X className="h-6 w-6" />
+                  </Button>
+                </div>
+                <div className="relative w-full h-[80vh]">
+                  <Image
+                    src={listing.images[currentImage]}
+                    alt={listing.title}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-white hover:bg-white/10"
+                    onClick={prevImage}
+                  >
+                    <ChevronLeft className="h-6 w-6" />
+                  </Button>
+                  <div className="text-white text-sm">
+                    {currentImage + 1} / {listing.images.length}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-white hover:bg-white/10"
+                    onClick={nextImage}
+                  >
+                    <ChevronRight className="h-6 w-6" />
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
 
           {/* Right Column - Details */}
           <div className="space-y-6">

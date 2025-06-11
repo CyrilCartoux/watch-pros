@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
-import { Building2, MapPin, CreditCard, FileText, CheckCircle2, Upload, Check, Shield, Lock, Clock, ChevronDown } from "lucide-react"
+import { Building2, MapPin, CreditCard, FileText, CheckCircle2, Upload, Check, Shield, Lock, Clock, ChevronDown, AlertCircle } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
@@ -16,7 +16,21 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { SubscriptionStep } from '@/components/SubscriptionStep'
 import { plans } from "@/data/subscription-plans"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { PaymentTab } from "@/components/forms/PaymentTab"
+import { Elements } from "@stripe/react-stripe-js"
+import { loadStripe } from "@stripe/stripe-js"
+import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js"
+import { useToast } from "@/components/ui/use-toast"
+import { useRouter } from "next/navigation"
+
+// Déclarer le type global pour window
+declare global {
+  interface Window {
+    handleStripePayment: () => Promise<void>;
+    isPaymentFormComplete: boolean;
+  }
+}
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 // Constants for file validation
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -99,6 +113,74 @@ const FormError = ({ error, isSubmitted }: { error?: string, isSubmitted: boolea
   return <p className="text-sm text-red-500 mt-1">{error}</p>
 }
 
+// Add this new component
+function PaymentFormWrapper({ 
+  onPaymentComplete, 
+  onPaymentError,
+  onPaymentFormChange 
+}: { 
+  onPaymentComplete: () => void,
+  onPaymentError: (error: string) => void,
+  onPaymentFormChange: (isComplete: boolean) => void
+}) {
+  const stripe = useStripe()
+  const elements = useElements()
+  const [error, setError] = useState<string | null>(null)
+
+  const handlePayment = async () => {
+    if (!stripe || !elements) {
+      onPaymentError('Payment system not initialized')
+      return
+    }
+
+    try {
+      const { error: paymentError } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/register/verify`,
+        },
+      })
+
+      if (paymentError) {
+        setError(paymentError.message || 'Payment failed')
+        onPaymentError(paymentError.message || 'Payment failed')
+        return
+      }
+
+      onPaymentComplete()
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred'
+      setError(errorMessage)
+      onPaymentError(errorMessage)
+    }
+  }
+
+  // Expose handlePayment to parent
+  useEffect(() => {
+    // @ts-ignore - we're adding a custom property to window
+    window.handleStripePayment = handlePayment
+  }, [handlePayment])
+
+  return (
+    <div className="space-y-6">
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-center gap-2 text-red-700">
+            <AlertCircle className="h-4 w-4" />
+            <p className="text-sm">{error}</p>
+          </div>
+        </div>
+      )}
+      <PaymentElement 
+        onChange={(e) => {
+          console.log('e.complete', e.complete)
+          onPaymentFormChange(Boolean(e.complete))
+        }}
+      />
+    </div>
+  )
+}
+
 export default function RegisterFormPage() {
   const [paymentMethod, setPaymentMethod] = useState("card")
   const [currentTab, setCurrentTab] = useState("account")
@@ -115,6 +197,11 @@ export default function RegisterFormPage() {
   })
   const [companyLogoPreview, setCompanyLogoPreview] = useState<string | null>(null)
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
+  const [clientSecret, setClientSecret] = useState<string | null>(null)
+  const [loadingPayment, setLoadingPayment] = useState(true)
+  const { toast } = useToast()
+  const router = useRouter()
+  const [isPaymentFormComplete, setIsPaymentFormComplete] = useState(false)
 
   const accountForm = useForm({
     resolver: zodResolver(accountSchema),
@@ -207,12 +294,32 @@ export default function RegisterFormPage() {
 
       const result = await response.json()
 
+      // If seller registration is successful, proceed with payment
+      if (selectedPlan) {
+        try {
+          // @ts-ignore - we know this exists from the useEffect in PaymentFormWrapper
+          await window.handleStripePayment()
+        } catch (paymentError) {
+          console.error("Payment error:", paymentError)
+          toast({
+            title: "Payment Error",
+            description: paymentError instanceof Error ? paymentError.message : "An error occurred during payment",
+            variant: "destructive",
+          })
+          return
+        }
+      }
+
       // Redirect to success page
       window.location.href = `/register/verify`
 
     } catch (error) {
       console.error("Error submitting form:", error)
-      // Here you could show an error message to the user
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      })
     } finally {
       setIsLoading(false)
     }
@@ -322,6 +429,126 @@ export default function RegisterFormPage() {
         reader.readAsDataURL(file)
       }
     }
+  }
+
+  useEffect(() => {
+    if (selectedPlan) {
+      // Create subscription
+      fetch("/api/create-subscription", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ priceId: selectedPlan }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.error) {
+            toast({
+              title: "Error",
+              description: data.error,
+              variant: "destructive",
+            })
+          } else {
+            setClientSecret(data.clientSecret)
+          }
+        })
+        .catch((err) => {
+          toast({
+            title: "Error",
+            description: "Failed to initialize payment",
+            variant: "destructive",
+          })
+        })
+        .finally(() => {
+          setLoadingPayment(false)
+        })
+    }
+  }, [selectedPlan])
+
+  const handlePaymentSuccess = (subscriptionId: string) => {
+    toast({
+      title: "Subscription successful!",
+      description: "Your account has been activated.",
+    })
+    router.push('/account')
+  }
+
+  const handlePaymentError = (error: string) => {
+    toast({
+      title: "Error",
+      description: error,
+      variant: "destructive",
+    })
+  }
+
+  const renderPaymentForm = () => {
+    if (loadingPayment) {
+      return (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-center h-40">
+              <p>Loading payment form...</p>
+            </div>
+          </CardContent>
+        </Card>
+      )
+    }
+
+    if (!clientSecret) {
+      return (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 p-4 text-red-800 bg-red-100 rounded-lg">
+              <AlertCircle className="h-5 w-5" />
+              <p>Failed to load payment form</p>
+            </div>
+          </CardContent>
+        </Card>
+      )
+    }
+
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Payment Information</CardTitle>
+          <CardDescription>
+            Enter your payment details to complete your registration
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Elements
+            stripe={stripePromise}
+            options={{
+              clientSecret,
+              appearance: {
+                theme: "stripe",
+                variables: {
+                  colorPrimary: "#0f172a",
+                },
+              },
+            }}
+          >
+            <PaymentFormWrapper 
+              onPaymentComplete={() => {
+                toast({
+                  title: "Payment successful!",
+                  description: "Your account has been activated.",
+                })
+              }}
+              onPaymentError={(error) => {
+                toast({
+                  title: "Payment Error",
+                  description: error,
+                  variant: "destructive",
+                })
+              }}
+              onPaymentFormChange={setIsPaymentFormComplete}
+            />
+          </Elements>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
@@ -905,19 +1132,19 @@ export default function RegisterFormPage() {
                     <div className="space-y-4 mb-6">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Shield className="h-4 w-4 text-primary" />
-                        <span>Paiement 100% sécurisé via Stripe</span>
+                        <span>100% secure payment via Stripe</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Lock className="h-4 w-4 text-primary" />
-                        <span>Vos données bancaires sont cryptées et jamais stockées</span>
+                        <span>Your payment details are encrypted and never stored</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <CreditCard className="h-4 w-4 text-primary" />
-                        <span>Cartes bancaires et prélèvements SEPA acceptés</span>
+                        <span>Credit cards and SEPA direct debits accepted</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <CheckCircle2 className="h-4 w-4 text-primary" />
-                        <span>Annulation possible à tout moment</span>
+                        <span>Cancel anytime</span>
                       </div>
                     </div>
 
@@ -959,9 +1186,39 @@ export default function RegisterFormPage() {
                     {selectedPlan && (
                       <div className="mt-8">
                         <h3 className="text-lg font-medium mb-4">Payment Information</h3>
-                        <PaymentTab selectedPlan={selectedPlan} />
+                        {renderPaymentForm()}
                       </div>
                     )}
+
+                    <div className="mt-8">
+                      <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="faq">
+                          <AccordionTrigger className="text-lg font-medium">
+                            Frequently Asked Questions
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4">
+                              <div>
+                                <h4 className="font-medium mb-2">Can I change my plan later?</h4>
+                                <p className="text-muted-foreground">Yes, you can upgrade or downgrade your plan at any time. Changes will be reflected in your next billing cycle.</p>
+                              </div>
+                              <div>
+                                <h4 className="font-medium mb-2">What happens if I exceed my listing limit?</h4>
+                                <p className="text-muted-foreground">You'll be notified when you're close to your limit. You can either upgrade your plan or archive some listings.</p>
+                              </div>
+                              <div>
+                                <h4 className="font-medium mb-2">Is there a long-term commitment?</h4>
+                                <p className="text-muted-foreground">No, all plans are billed monthly and can be cancelled at any time. Early-bird pricing is locked in for as long as you maintain an active account.</p>
+                              </div>
+                              <div>
+                                <h4 className="font-medium mb-2">Do you charge commission on sales?</h4>
+                                <p className="text-muted-foreground">No, we don't take any commission on sales. You keep 100% of your revenue.</p>
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </div>
 
                     <div className="flex justify-between items-center pt-6">
                       <p className="text-sm text-muted-foreground">* Required field</p>
@@ -971,8 +1228,9 @@ export default function RegisterFormPage() {
                         </Button>
                         <Button 
                           type="submit" 
+                          onClick={() => handleSubmit()}
                           size="lg"
-                          disabled={!selectedPlan}
+                          disabled={!selectedPlan || (selectedPlan && isPaymentFormComplete === false)}
                         >
                           Complete Registration
                         </Button>

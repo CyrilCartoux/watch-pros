@@ -90,7 +90,7 @@ export function useAuthStatus() {
 
   const requireVerified = () => {
     if (!status.isLoading && !status.isVerified) {
-      router.push('/register/verify')
+      router.push('/register/pending')
       return false
     }
     return true
