@@ -9,6 +9,7 @@ interface AuthStatus {
   isAuthenticated: boolean
   isSeller: boolean
   isVerified: boolean
+  isRejected: boolean
   isLoading: boolean
 }
 
@@ -18,6 +19,7 @@ export function useAuthStatus() {
     isAuthenticated: false,
     isSeller: false,
     isVerified: false,
+    isRejected: false,
     isLoading: true
   })
   const router = useRouter()
@@ -32,6 +34,7 @@ export function useAuthStatus() {
           isAuthenticated: false,
           isSeller: false,
           isVerified: false,
+          isRejected: false,
           isLoading: false
         })
         return
@@ -49,6 +52,7 @@ export function useAuthStatus() {
           isAuthenticated: true,
           isSeller: false,
           isVerified: false,
+          isRejected: false,
           isLoading: false
         })
         return
@@ -57,7 +61,7 @@ export function useAuthStatus() {
       // Vérifier la validation d'identité
       const { data: seller } = await supabase
         .from('sellers')
-        .select('identity_verified')
+        .select('identity_verified, identity_rejected')
         .eq('id', profile.seller_id)
         .single()
 
@@ -65,6 +69,7 @@ export function useAuthStatus() {
         isAuthenticated: true,
         isSeller: true,
         isVerified: seller?.identity_verified || false,
+        isRejected: seller?.identity_rejected || false,
         isLoading: false
       })
     }

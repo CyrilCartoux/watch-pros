@@ -447,7 +447,7 @@ export default function RegisterFormPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ priceId: selectedPlan }),
+        body: JSON.stringify({ priceId: selectedPlan, account: accountForm.getValues(), address: addressForm.getValues() }),
       })
         .then((res) => res.json())
         .then((data) => {

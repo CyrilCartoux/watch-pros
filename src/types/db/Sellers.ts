@@ -22,6 +22,7 @@
 //     user_id uuid null,
 //     crypto_friendly boolean not null default false,
 //     identity_verified boolean not null default false,
+//     identity_rejected boolean not null default false,
 //     constraint sellers_pkey primary key (id),
 //     constraint sellers_email_key unique (email),
 //     constraint sellers_user_id_fkey foreign KEY (user_id) references auth.users (id) on delete CASCADE
@@ -85,6 +86,7 @@
  * @property {boolean} crypto_friendly - Whether the seller accepts cryptocurrency payments
  * @property {boolean} identity_verified - Whether the seller's identity has been verified
  * @property {string} search_vector - Full-text search vector for efficient text search
+ * @property {boolean} identity_rejected - Whether the seller's identity has been rejected
  */
 export type Seller = {
     /** Unique identifier (UUID) for the seller */
@@ -127,4 +129,6 @@ export type Seller = {
     identity_verified: boolean
     /** Full-text search vector for efficient text search */
     search_vector?: string
+    /** Whether the seller's identity has been rejected */
+    identity_rejected: boolean
 }

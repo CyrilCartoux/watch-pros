@@ -54,9 +54,21 @@ export default function SellAccessoryPage() {
         body: formData
       })
 
+      const responseData = await response.json()
+
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create listing')
+        if (
+          responseData.error === "Listing quota exceeded for this subscription"
+        ) {
+          toast({
+            title: "Error",
+            description:
+              "You have reached the maximum number of listings for your subscription. Please upgrade to a higher plan.",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw new Error(responseData.error || "Failed to create listing");
       }
 
       router.push("/sell/success")

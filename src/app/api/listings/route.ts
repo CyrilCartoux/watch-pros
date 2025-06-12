@@ -290,6 +290,12 @@ export async function POST(request: Request) {
     if (listingError) {
       console.error('Error creating listing:', listingError)
       console.error('Full error details:', JSON.stringify(listingError, null, 2))
+      if (listingError.message.includes('Quota exceeded')) {
+        return NextResponse.json(
+          { error: 'Listing quota exceeded for this subscription' },
+          { status: 400 }
+        )
+      }
       return NextResponse.json(
         { error: 'Failed to create listing', details: listingError },
         { status: 500 }
