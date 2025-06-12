@@ -55,39 +55,11 @@ interface Seller {
   last_name: string;
   email: string;
   country: string;
-  title: string;
   phone_prefix: string;
   phone: string;
   created_at: string;
   updated_at: string;
   seller_addresses: SellerAddress[];
-}
-
-interface DatabaseListing {
-  id: string;
-  reference: string;
-  title: string;
-  description: string;
-  year: string;
-  condition: string;
-  price: number;
-  currency: string;
-  shipping_delay: string;
-  listing_type: string;
-  gender: string;
-  serial_number: string;
-  dial_color: string | null;
-  diameter_min: number;
-  diameter_max: number;
-  movement: string | null;
-  case_material: string;
-  bracelet_material: string;
-  bracelet_color: string;
-  included: string;
-  brands: Brand;
-  models: Model;
-  listing_images: ListingImage[];
-  sellers: Seller;
 }
 
 export async function GET(
@@ -123,7 +95,6 @@ export async function GET(
           last_name,
           email,
           country,
-          title,
           phone_prefix,
           phone,
           created_at,
@@ -197,7 +168,6 @@ export async function GET(
         name: listing.sellers.watch_pros_name,
         companyLogo: listing.sellers.company_logo_url,
         type: listing.sellers.company_status,
-        description: listing.sellers.title,
         cryptoFriendly: listing.sellers.crypto_friendly,
         location: {
           address: listing.sellers.seller_addresses[0]?.street || '',

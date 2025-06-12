@@ -24,30 +24,6 @@ interface Model {
   label: string;
 }
 
-interface DatabaseListing {
-  id: string;
-  reference: string;
-  title: string;
-  description: string;
-  year: string;
-  condition: string;
-  price: number;
-  currency: string;
-  shipping_delay: string;
-  listing_type: string;
-  brands: Brand;
-  models: Model;
-  listing_images: ListingImage[];
-  seller: {
-    id: string;
-    name: string;
-    logo: string;
-    type: string;
-  } | null;
-  type: string;
-  dialColor: string | null;
-  included: string;
-}
 
 // Constants for image optimization
 const MAX_WIDTH = 1200
