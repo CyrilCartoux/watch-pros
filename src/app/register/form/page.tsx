@@ -11,7 +11,7 @@ import { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { countries, titles, phonePrefixes } from "@/data/form-options"
+import { countries, phonePrefixes } from "@/data/form-options"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { SubscriptionStep } from '@/components/SubscriptionStep'
 import { plans } from "@/data/subscription-plans"
@@ -57,7 +57,6 @@ const accountSchema = z.object({
   watchProsName: z.string().min(1, "Watch Pros name is required"),
   companyStatus: z.string().min(1, "Company status is required"),
   country: z.string().min(1, "Country is required"),
-  title: z.string().min(1, "Title is required"),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Invalid email"),
@@ -173,13 +172,18 @@ function PaymentFormWrapper({
       )}
       <PaymentElement 
         onChange={(e) => {
-          console.log('e.complete', e.complete)
           onPaymentFormChange(Boolean(e.complete))
         }}
       />
     </div>
   )
 }
+
+// Add this function near the top of the file, after the imports
+const getActualPrefix = (value: string) => {
+  // Extract the actual prefix from values like "+1-us" or "+1-ca"
+  return value.split('-')[0];
+};
 
 export default function RegisterFormPage() {
   const [paymentMethod, setPaymentMethod] = useState("card")
@@ -196,7 +200,7 @@ export default function RegisterFormPage() {
     documents: false,
   })
   const [companyLogoPreview, setCompanyLogoPreview] = useState<string | null>(null)
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
+  const [selectedPlan, setSelectedPlan] = useState<string | null | undefined>(null)
   const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [loadingPayment, setLoadingPayment] = useState(true)
   const { toast } = useToast()
@@ -267,8 +271,12 @@ export default function RegisterFormPage() {
 
       // Get all values
       const formData = {
-        account: accountForm.getValues(),
-        address: addressForm.getValues(),
+        account: {
+          ...accountForm.getValues(),
+        },
+        address: {
+          ...addressForm.getValues(),
+        },
         documents: documentsForm.getValues()
       }
 
@@ -711,29 +719,6 @@ export default function RegisterFormPage() {
                           )}
                         />
                         <FormError error={accountForm.formState.errors?.country?.message as string} isSubmitted={isSubmitted.account} />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="title">Title *</Label>
-                        <Controller
-                          name="title"
-                          control={accountForm.control}
-                          render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {titles.map((title) => (
-                                  <SelectItem key={title.value} value={title.value}>
-                                    {title.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
-                        <FormError error={accountForm.formState.errors.title?.message as string} isSubmitted={isSubmitted.account} />
                       </div>
                     </div>
 
@@ -1230,9 +1215,16 @@ export default function RegisterFormPage() {
                           type="submit" 
                           onClick={() => handleSubmit()}
                           size="lg"
-                          disabled={!selectedPlan || (selectedPlan && isPaymentFormComplete === false)}
+                          disabled={!selectedPlan || ((selectedPlan as any) && isPaymentFormComplete === false) || isLoading}
                         >
-                          Complete Registration
+                          {isLoading ? (
+                            <div className="flex items-center gap-2">
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                              <span>Processing...</span>
+                            </div>
+                          ) : (
+                            "Complete Registration"
+                          )}
                         </Button>
                       </div>
                     </div>

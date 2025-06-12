@@ -24,7 +24,6 @@ interface Seller {
   id_card_front_url: string
   id_card_back_url: string
   proof_of_address_url: string
-  title: string
   phone_prefix: string
   phone: string
   created_at: string
@@ -66,7 +65,6 @@ export async function GET(request: Request) {
         last_name,
         email,
         country,
-        title,
         phone_prefix,
         phone,
         created_at,
@@ -80,7 +78,7 @@ export async function GET(request: Request) {
           postal_code,
           website
         ),
-        seller_stats!inner (
+        seller_stats (
           total_reviews,
           average_rating,
           last_updated
@@ -115,6 +113,9 @@ export async function GET(request: Request) {
 
     const { data: sellers, error: sellersError, count } = await query
 
+    console.log('sellers', sellers?.length)
+    console.log('sellersError', sellersError)
+
     if (sellersError) {
       console.error('Error fetching sellers:', sellersError)
       return NextResponse.json(
@@ -123,9 +124,6 @@ export async function GET(request: Request) {
       )
     }
 
-    console.log('sellers', sellers)
-
-    // Transformer les données pour correspondre à la structure attendue
     const transformedSellers = (sellers as any[]).map(seller => ({
       account: {
         companyName: seller.company_name,
@@ -136,7 +134,6 @@ export async function GET(request: Request) {
         lastName: seller.last_name,
         email: seller.email,
         country: seller.country,
-        title: seller.title,
         phonePrefix: seller.phone_prefix,
         phone: seller.phone,
         cryptoFriendly: seller.crypto_friendly
@@ -159,7 +156,6 @@ export async function GET(request: Request) {
       }
     }))
 
-    // Calculer le nombre total de pages
     const totalPages = count ? Math.ceil(count / limit) : 0
 
     return NextResponse.json({

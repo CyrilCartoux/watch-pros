@@ -14,7 +14,6 @@ interface RegisterSellerRequest {
     email: string
     username: string
     country: string
-    title: string
     phonePrefix: string
     phone: string
     language: string
@@ -133,7 +132,10 @@ export async function POST(request: Request) {
     const banking = JSON.parse(formData.get('banking') as string)
 
     // Add user_id to account object as UUID
-    account.user_id = user.id
+    account.user_id = user.id 
+
+    // Ensure cryptoFriendly is a boolean
+    account.cryptoFriendly = Boolean(account.cryptoFriendly)
 
     // Get and validate files
     const idCardFront = formData.get('idCardFront') as File

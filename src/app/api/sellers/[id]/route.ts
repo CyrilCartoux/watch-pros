@@ -53,7 +53,6 @@ interface Seller {
   last_name: string
   email: string
   country: string
-  title: string
   phone_prefix: string
   phone: string
   created_at: string
@@ -70,7 +69,6 @@ interface Seller {
 
 interface Listing {
   id: string
-  title: string
   price: number
   currency: string
   reference: string
@@ -99,7 +97,6 @@ interface SellerUpdateRequest {
     lastName?: string
     email?: string
     country?: string
-    title?: string
     phonePrefix?: string
     phone?: string
     cryptoFriendly?: boolean
@@ -136,7 +133,6 @@ export async function GET(
         last_name,
         email,
         country,
-        title,
         phone_prefix,
         phone,
         created_at,
@@ -167,7 +163,6 @@ export async function GET(
     }
 
     const { data: seller, error: sellerError } = await query.maybeSingle()
-    console.log('seller', seller)
 
     if (sellerError) {
       console.error('Error fetching seller:', sellerError)
@@ -195,7 +190,6 @@ export async function GET(
       .from('listings')
       .select(`
         id,
-        title,
         price,
         currency,
         reference,
@@ -286,8 +280,6 @@ export async function GET(
       ]) || []
     )
 
-    console.log('(seller.seller_stats as any)?.total_reviews ', (seller.seller_stats as any)?.total_reviews )
-
     // Transformer les données pour correspondre à la structure attendue
     const transformedSeller = {
       id: seller.id,
@@ -300,7 +292,6 @@ export async function GET(
         lastName: seller.last_name,
         email: seller.email,
         country: seller.country,
-        title: seller.title,
         phonePrefix: seller.phone_prefix,
         phone: seller.phone,
         cryptoFriendly: seller.crypto_friendly
@@ -396,7 +387,6 @@ export async function PUT(
       if (updateData.account.lastName) sellerUpdates.last_name = updateData.account.lastName
       if (updateData.account.email) sellerUpdates.email = updateData.account.email
       if (updateData.account.country) sellerUpdates.country = updateData.account.country
-      if (updateData.account.title) sellerUpdates.title = updateData.account.title
       if (updateData.account.phonePrefix) sellerUpdates.phone_prefix = updateData.account.phonePrefix
       if (updateData.account.phone) sellerUpdates.phone = updateData.account.phone
       if (updateData.account.cryptoFriendly !== undefined) sellerUpdates.crypto_friendly = updateData.account.cryptoFriendly
@@ -478,7 +468,6 @@ export async function PUT(
         last_name,
         email,
         country,
-        title,
         phone_prefix,
         phone,
         created_at,
@@ -518,7 +507,6 @@ export async function PUT(
         lastName: updatedSeller.last_name,
         email: updatedSeller.email,
         country: updatedSeller.country,
-        title: updatedSeller.title,
         phonePrefix: updatedSeller.phone_prefix,
         phone: updatedSeller.phone,
         cryptoFriendly: updatedSeller.crypto_friendly

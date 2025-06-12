@@ -1070,11 +1070,7 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
                   <Button 
                     type="button"
                     onClick={() => {
-                      console.log('Submit button clicked');
-                      console.log('Form values:', form.getValues());
-                      console.log('Form errors:', form.formState.errors);
                       form.handleSubmit((data) => {
-                        console.log('Form submitted with data:', data);
                         onSubmit(data);
                       })();
                     }}

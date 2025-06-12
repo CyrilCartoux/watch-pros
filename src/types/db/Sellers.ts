@@ -11,7 +11,6 @@
 //     last_name text not null,
 //     email text not null,
 //     country text not null,
-//     title text not null,
 //     phone_prefix text not null,
 //     phone text not null,
 //     created_at timestamp with time zone not null default timezone ('utc'::text, now()),
@@ -74,7 +73,6 @@
  * @property {string} last_name - Last name of the contact person
  * @property {string} email - Contact email address
  * @property {string} country - Country of operation
- * @property {string} title - Professional title of the contact person
  * @property {string} phone_prefix - International phone prefix
  * @property {string} phone - Phone number
  * @property {string} created_at - ISO 8601 timestamp of when the seller was created
@@ -105,8 +103,6 @@ export type Seller = {
     email: string
     /** Country of operation */
     country: string
-    /** Professional title of the contact person */
-    title: string
     /** International phone prefix */
     phone_prefix: string
     /** Phone number */

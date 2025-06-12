@@ -83,8 +83,6 @@ export async function GET(request: Request) {
     // Filter parameters
     const brand = searchParams.get('brand') || searchParams.get('brand_id')
     const model = searchParams.get('model') || searchParams.get('model_id')
-    console.log('brand', brand)
-    console.log('model', model)
     const reference = searchParams.get('reference')
     const seller = searchParams.get('seller')
     const year = searchParams.get('year')
@@ -170,35 +168,12 @@ export async function GET(request: Request) {
     // Apply limit
     query = query.limit(limit)
 
-    console.log('Query parameters:', {
-      brand,
-      model,
-      reference,
-      condition,
-      dialColor,
-      included,
-      minPrice,
-      maxPrice,
-      shippingDelay,
-      listingType,
-      sort,
-      order,
-      limit,
-      after
-    })
-
     const { data: listings, error, count } = await query
 
     if (error) {
       console.error('Error fetching listings:', error)
       return NextResponse.json({ error: 'Failed to fetch listings' }, { status: 500 })
     }
-
-    console.log('Response:', {
-      total: count,
-      listingsCount: listings?.length,
-      firstListing: listings?.[0]?.brand_id
-    })
 
     return NextResponse.json({
       listings,

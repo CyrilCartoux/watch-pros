@@ -163,7 +163,6 @@ export async function DELETE(request: Request) {
     const body = await request.json()
     const parse = Schema.safeParse(body)
     if (!parse.success) {
-      console.log('parse', parse)
       return NextResponse.json(
         { error: 'Invalid request', details: parse.error.format() },
         { status: 400 }
@@ -175,8 +174,6 @@ export async function DELETE(request: Request) {
     
     // Get the current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
-    console.log('user', user)
-    console.log('userError', userError)
     
     if (userError || !user) {
       return NextResponse.json(

@@ -50,8 +50,6 @@ export async function POST(request: Request) {
       expand: ['latest_invoice.confirmation_secret'],
     });
 
-    console.log('Subscription created:', subscription.id)
-    
     // Save subscription details to database
     const { error: subscriptionError } = await supabase
       .from('subscriptions')

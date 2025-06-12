@@ -274,7 +274,6 @@ export async function DELETE(
 
     // Delete images from storage
     if (listingImages && listingImages.length > 0) {
-      console.log('deleting images', listingImages)
       const imagePaths = listingImages.map(img => {
         // Extract the path from the URL
         const url = new URL(img.url)
@@ -282,7 +281,6 @@ export async function DELETE(
         return path || ''
       }).filter(path => path !== '')
 
-      console.log('imagesPaths', imagePaths)
 
       if (imagePaths.length > 0) {
         const { error: storageError } = await supabase.storage
@@ -465,7 +463,6 @@ export async function PUT(
 
     // Handle image uploads
     const images = formData.getAll('images')
-    console.log('Received images:', images.length, 'items')
     
     if (images.length > 0) {
       // Delete existing images

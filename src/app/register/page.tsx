@@ -57,10 +57,10 @@ export default function RegisterPage() {
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                   <span className="text-primary font-semibold">3</span>
                 </div>
-                <h3 className="font-semibold text-lg">Start your trial period</h3>
+                <h3 className="font-semibold text-lg">Choose your subscription plan</h3>
               </div>
               <p className="text-muted-foreground">
-                Once your data and documents are verified, you can start your trial period. Post listings and sell your watches worldwide.
+                Select the subscription plan that best fits your needs. Start posting listings and selling your watches worldwide immediately after verification.
               </p>
             </CardContent>
           </Card>
@@ -69,7 +69,7 @@ export default function RegisterPage() {
         {/* Legal Information */}
         <div className="bg-muted/50 rounded-lg p-6 mb-12">
           <p className="text-muted-foreground mb-6">
-            As Watch Pros is based in Germany, we must comply with current European legislation. This means we need certain information about your business. This way, you can focus entirely on selling your watches during your trial period.
+            As Watch Pros is based in France, we must comply with current European legislation. This means we need certain information about your business to ensure a secure and compliant marketplace for all professionals.
           </p>
         </div>
 
@@ -85,17 +85,15 @@ export default function RegisterPage() {
               <p className="text-sm text-muted-foreground mb-4">Legal Entity / Corporation</p>
               <ul className="space-y-2">
                 {[
-                  "Business registration number",
-                  "Business registration extract",
+                  "Company name and status",
+                  "SIREN/SIRET number",
                   "Tax identification number",
                   "VAT number",
-                  "Bank details for payments",
+                  "Company address",
                   "Proof of address",
                   "ID document",
-                  "Legal status",
-                  "Chrono24 shareholder declaration",
-                  "DAC 7: required data",
-                  "VAT information"
+                  "Company logo",
+                  "Contact information"
                 ].map((item, index) => (
                   <li key={index} className="flex items-center gap-2 text-sm">
                     <CheckCircle2 className="w-4 h-4 text-primary" />
@@ -116,14 +114,15 @@ export default function RegisterPage() {
               <p className="text-sm text-muted-foreground mb-4">Individual / Sole Proprietor</p>
               <ul className="space-y-2">
                 {[
+                  "Full name and title",
                   "Tax identification number",
                   "VAT number",
-                  "Bank details for payments",
+                  "Business address",
                   "Proof of address",
                   "ID document",
+                  "Contact information",
                   "Professional activity declaration",
-                  "DAC 7: required data",
-                  "VAT information"
+                  "Company logo (optional)"
                 ].map((item, index) => (
                   <li key={index} className="flex items-center gap-2 text-sm">
                     <CheckCircle2 className="w-4 h-4 text-primary" />
@@ -148,8 +147,9 @@ export default function RegisterPage() {
             <ul className="space-y-2">
               {[
                 "You have a registered business or a company registered with the commercial register",
-                "Your inventory includes at least 50 watches",
-                "50 of your watches cost at least €2,000 each"
+                "You are authorized to sell watches professionally",
+                "You can provide all required documentation",
+                "You agree to our terms of service and subscription conditions"
               ].map((item, index) => (
                 <li key={index} className="flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-primary" />
@@ -158,7 +158,7 @@ export default function RegisterPage() {
               ))}
             </ul>
             <p className="text-sm text-muted-foreground mt-4">
-              Please note that we reserve the right to refuse registrations.
+              Please note that we reserve the right to refuse registrations. All subscriptions are billed monthly and can be cancelled at any time.
             </p>
           </CardContent>
         </Card>

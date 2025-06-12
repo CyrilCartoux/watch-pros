@@ -10,7 +10,6 @@ export function PushManager() {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
       setSupported(true)
       navigator.serviceWorker.register('/sw.js').then(() => {
-        console.log('Service Worker enregistré')
         // on peut ensuite vérifier si déjà abonné
         navigator.serviceWorker.ready.then(async (registration) => {
           const existing = await registration.pushManager.getSubscription()

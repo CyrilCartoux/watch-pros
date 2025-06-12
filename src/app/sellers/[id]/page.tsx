@@ -294,15 +294,11 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
         throw new Error(data.error || 'Failed to send message')
       }
 
-      const { conversationId } = await response.json()
-      
       setIsMessageSuccess(true)
       setTimeout(() => {
         setIsContactDialogOpen(false)
         setIsMessageSuccess(false)
         setMessage("")
-        // Rediriger vers la conversation
-        window.location.href = `/messages?conversation=${conversationId}`
       }, 2000)
     } catch (error) {
       console.error(error)

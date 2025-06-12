@@ -277,14 +277,14 @@ export default function ListingPage({ params }: Props) {
 
     setIsSubmittingMessage(true)
     try {
-      const response = await fetch("/api/messages", {
+      const response = await fetch("/api/conversations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          listing_id: listing?.id,
-          message,
+          otherUserId: listing!.seller?.id,
+          initialMessage: message,
         }),
       })
 
