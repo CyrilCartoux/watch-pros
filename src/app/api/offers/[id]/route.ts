@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 import { sendEmail, emailTemplates } from '@/lib/email'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 
 const UpdateOfferSchema = z.object({
   action: z.enum(['accept', 'decline'])
@@ -63,7 +64,8 @@ export async function PATCH(
           status
         ),
         seller:sellers!offers_seller_id_fkey (
-          email
+          email,
+          user_id
         )
       `)
       .eq('id', params.id)
@@ -113,6 +115,26 @@ export async function PATCH(
       } catch (emailError) {
         console.error('Error sending email:', emailError)
         // We don't want to fail the request if the email fails
+      }
+
+      // Create notification for the buyer
+      try {
+        const { error: notificationError } = await supabaseAdmin
+          .from('notifications')
+          .insert({
+            user_id: offer.seller.user_id,
+            listing_id: offer.listing.id,
+            type: 'sold_listing',
+            title: 'Offer Accepted',
+            message: `Your offer of ${offer.offer.toLocaleString()} ${offer.currency} for ${offer.listing.title} has been accepted.`
+          })
+
+        if (notificationError) {
+          console.error('Error creating notification:', notificationError)
+        }
+      } catch (notificationError) {
+        console.error('Error creating notification:', notificationError)
+        // We don't want to fail the request if the notification creation fails
       }
     }
 
