@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
+import { useToast } from '@/components/ui/use-toast'
 import {
   Accordion,
   AccordionContent,
@@ -19,10 +20,43 @@ export default function HelpPage() {
     email: '',
     message: ''
   })
+  const [isLoading, setIsLoading] = useState(false)
+  const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement form submission
+    setIsLoading(true)
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send message')
+      }
+
+      toast({
+        title: "Success",
+        description: "Message sent successfully!",
+      })
+      setFormData({ subject: '', email: '', message: '' })
+    } catch (error) {
+      console.error('Error sending message:', error)
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to send message. Please try again.",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -190,8 +224,8 @@ export default function HelpPage() {
                 className="min-h-[150px]"
               />
             </div>
-            <Button type="submit" className="w-full">
-              Send Message
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Sending...' : 'Send Message'}
             </Button>
           </form>
         </section>

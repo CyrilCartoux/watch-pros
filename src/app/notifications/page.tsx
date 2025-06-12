@@ -703,154 +703,180 @@ export default function NotificationsPage() {
             <h2 className="text-xl md:text-2xl font-bold mb-4">
               Custom Alerts
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-              {modelSubscriptions.map((alert) => (
-                <Card
-                  key={alert.id}
-                  className="hover:bg-muted/50 transition-colors"
-                >
-                  <CardContent className="p-3 md:p-4">
-                    <div className="flex items-start gap-3 md:gap-4">
-                      <Link
-                        href={`/models/${alert.model?.id}`}
-                        className="relative w-12 h-12 md:w-14 md:h-14"
-                      >
-                        <Image
-                          src={`/images/brands/${alert.brand?.slug}.png`}
-                          alt={alert.brand?.label || "Brand"}
-                          fill
-                          className="rounded-md object-contain p-1"
-                        />
-                      </Link>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between">
-                          <div>
-                              <h3 className="font-medium text-sm md:text-base">
-                                {alert.model?.label}
-                              </h3>
-                            <p className="text-xs md:text-sm text-muted-foreground mt-1">
-                              {alert.brand?.label}
-                            </p>
-                            <div className="mt-2 space-y-1">
-                              {alert.reference && (
-                                <div className="flex items-center gap-1 text-xs md:text-sm">
-                                  <span className="text-muted-foreground">
-                                    Reference:
-                                  </span>
-                                  <span className="font-medium">
-                                    {alert.reference}
-                                  </span>
-                                </div>
-                              )}
-                              {alert.max_price && (
-                                <div className="flex items-center gap-1 text-xs md:text-sm">
-                                  <span className="text-muted-foreground">
-                                    Max price:
-                                  </span>
-                                  <span className="font-medium">
-                                    {alert.max_price.toLocaleString()} EUR
-                                  </span>
-                                </div>
-                              )}
-                              {alert.location && (
-                                <div className="flex items-center gap-1 text-xs md:text-sm">
-                                  <span className="text-muted-foreground">
-                                    Location:
-                                  </span>
-                                  <span className="font-medium">
-                                    {countries.find(country => country.value === alert.location)?.label}
-                                  </span>
-                                </div>
-                              )}
+            {modelSubscriptions.length === 0 ? (
+              <div className="text-center py-8">
+                <Bell className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">No custom alerts</h3>
+                <p className="text-muted-foreground mb-4">
+                  You haven't created any custom alerts yet.
+                </p>
+                <Button asChild>
+                  <Link href="/alerts/create">
+                    <Bell className="h-4 w-4 mr-2" />
+                    Create Alert
+                  </Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                {modelSubscriptions.map((alert) => (
+                  <Card
+                    key={alert.id}
+                    className="hover:bg-muted/50 transition-colors"
+                  >
+                    <CardContent className="p-3 md:p-4">
+                      <div className="flex items-start gap-3 md:gap-4">
+                        <Link
+                          href={`/models/${alert.model?.id}`}
+                          className="relative w-12 h-12 md:w-14 md:h-14"
+                        >
+                          <Image
+                            src={`/images/brands/${alert.brand?.slug}.png`}
+                            alt={alert.brand?.label || "Brand"}
+                            fill
+                            className="rounded-md object-contain p-1"
+                          />
+                        </Link>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between">
+                            <div>
+                                <h3 className="font-medium text-sm md:text-base">
+                                  {alert.model?.label}
+                                </h3>
+                              <p className="text-xs md:text-sm text-muted-foreground mt-1">
+                                {alert.brand?.label}
+                              </p>
+                              <div className="mt-2 space-y-1">
+                                {alert.reference && (
+                                  <div className="flex items-center gap-1 text-xs md:text-sm">
+                                    <span className="text-muted-foreground">
+                                      Reference:
+                                    </span>
+                                    <span className="font-medium">
+                                      {alert.reference}
+                                    </span>
+                                  </div>
+                                )}
+                                {alert.max_price && (
+                                  <div className="flex items-center gap-1 text-xs md:text-sm">
+                                    <span className="text-muted-foreground">
+                                      Max price:
+                                    </span>
+                                    <span className="font-medium">
+                                      {alert.max_price.toLocaleString()} EUR
+                                    </span>
+                                  </div>
+                                )}
+                                {alert.location && (
+                                  <div className="flex items-center gap-1 text-xs md:text-sm">
+                                    <span className="text-muted-foreground">
+                                      Location:
+                                    </span>
+                                    <span className="font-medium">
+                                      {countries.find(country => country.value === alert.location)?.label}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
                             </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground hover:text-destructive"
+                              onClick={() =>
+                                handleDeleteClick(
+                                  "model",
+                                  alert.id,
+                                  alert.model?.label || "Alert"
+                                )
+                              }
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              <span className="sr-only">Delete alert</span>
+                            </Button>
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground hover:text-destructive"
-                            onClick={() =>
-                              handleDeleteClick(
-                                "model",
-                                alert.id,
-                                alert.model?.label || "Alert"
-                              )
-                            }
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Delete alert</span>
-                          </Button>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
           {/* Listing Alerts */}
           <div>
             <h2 className="text-xl md:text-2xl font-bold mb-4">
               Listings you follow
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-              {listingSubscriptions.map((subscription) => (
-                <Card
-                  key={subscription.id}
-                  className="hover:bg-muted/50 transition-colors"
-                >
-                  <CardContent className="p-3 md:p-4">
-                    <div className="flex gap-3 md:gap-4">
-                      <Link
-                        href={`/listings/${subscription.listing.id}`}
-                        className="relative w-20 h-20 md:w-24 md:h-24"
-                      >
-                        <Image
-                          src={
-                            subscription.listing.listing_images[0]?.url
-                          }
-                          alt={subscription.listing.title}
-                          fill
-                          className="rounded-md object-cover"
-                        />
-                      </Link>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between">
-                          <div className="min-w-0 flex-1">
-                            <Link
-                              href={`/listings/${subscription.listing.id}`}
-                              className="hover:underline block"
-                            >
-                              <h3 className="font-medium truncate text-sm md:text-base">
-                                {subscription.listing.title}
-                              </h3>
-                            </Link>
-                            <p className="text-base md:text-lg font-bold mt-1">
-                              {subscription.listing.price.toLocaleString()}{" "}
-                              {subscription.listing.currency}
-                            </p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground hover:text-destructive flex-shrink-0"
-                            onClick={() =>
-                              handleDeleteClick(
-                                "listing",
-                                subscription.listing.id,
-                                subscription.listing.title
-                              )
+            {listingSubscriptions.length === 0 ? (
+              <div className="text-center py-8">
+                <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">No followed listings</h3>
+                <p className="text-muted-foreground">
+                  You haven't followed any listings yet. Browse listings to start following them.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                {listingSubscriptions.map((subscription) => (
+                  <Card
+                    key={subscription.id}
+                    className="hover:bg-muted/50 transition-colors"
+                  >
+                    <CardContent className="p-3 md:p-4">
+                      <div className="flex gap-3 md:gap-4">
+                        <Link
+                          href={`/listings/${subscription.listing.id}`}
+                          className="relative w-20 h-20 md:w-24 md:h-24"
+                        >
+                          <Image
+                            src={
+                              subscription.listing.listing_images[0]?.url
                             }
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Delete subscription</span>
-                          </Button>
+                            alt={subscription.listing.title}
+                            fill
+                            className="rounded-md object-cover"
+                          />
+                        </Link>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between">
+                            <div className="min-w-0 flex-1">
+                              <Link
+                                href={`/listings/${subscription.listing.id}`}
+                                className="hover:underline block"
+                              >
+                                <h3 className="font-medium truncate text-sm md:text-base">
+                                  {subscription.listing.title}
+                                </h3>
+                              </Link>
+                              <p className="text-base md:text-lg font-bold mt-1">
+                                {subscription.listing.price.toLocaleString()}{" "}
+                                {subscription.listing.currency}
+                              </p>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground hover:text-destructive flex-shrink-0"
+                              onClick={() =>
+                                handleDeleteClick(
+                                  "listing",
+                                  subscription.listing.id,
+                                  subscription.listing.title
+                                )
+                              }
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              <span className="sr-only">Delete subscription</span>
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </TabsContent>
 
@@ -870,86 +896,96 @@ export default function NotificationsPage() {
               )}
             </div>
           </div>
-          {notifications.map((notification) => (
-            <Card
-              key={notification.id}
-              className={`hover:bg-muted/50 transition-colors ${!notification.is_read ? "border-primary/50" : ""}`}
-            >
-              <CardContent className="p-3 md:p-4">
-                <div className="flex gap-3 md:gap-4">
-                  <Link
-                    href={
-                      notification.listing
-                        ? `/listings/${notification.listing.id}`
-                        : `/models/${notification.model?.id}`
-                    }
-                    className="relative w-14 h-14 md:w-16 md:h-16"
-                  >
-                    <Image
-                      src={
+          {notifications.length === 0 ? (
+            <div className="text-center py-8">
+              <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium mb-2">No notifications yet</h3>
+              <p className="text-muted-foreground">
+                Your notification history will appear here when you receive notifications.
+              </p>
+            </div>
+          ) : (
+            notifications.map((notification) => (
+              <Card
+                key={notification.id}
+                className={`hover:bg-muted/50 transition-colors ${!notification.is_read ? "border-primary/50" : ""}`}
+              >
+                <CardContent className="p-3 md:p-4">
+                  <div className="flex gap-3 md:gap-4">
+                    <Link
+                      href={
                         notification.listing
-                          ? notification.listing.listing_images?.[0]?.url ||
-                            `/api/listings/${notification.listing.id}/image`
-                          : `/images/brands/${notification.model?.brand.slug}.png`
+                          ? `/listings/${notification.listing.id}`
+                          : `/models/${notification.model?.id}`
                       }
-                      alt={notification.title}
-                      fill
-                      className="rounded-md object-cover"
-                    />
-                  </Link>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <Link
-                          href={
-                            notification.listing
-                              ? `/listings/${notification.listing.id}`
-                              : `/models/${notification.model?.id}`
-                          }
-                          className="hover:underline"
-                        >
-                          <h3 className="font-medium text-sm md:text-base">
-                            {notification.title}
-                          </h3>
-                        </Link>
-                        <p className="text-xs md:text-sm text-muted-foreground mt-1">
-                          {notification.message}
-                        </p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Clock className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
-                          <p className="text-xs md:text-sm text-muted-foreground">
-                            {new Date(notification.created_at).toLocaleString()}
+                      className="relative w-14 h-14 md:w-16 md:h-16"
+                    >
+                      <Image
+                        src={
+                          notification.listing
+                            ? notification.listing.listing_images?.[0]?.url ||
+                              `/api/listings/${notification.listing.id}/image`
+                            : `/images/brands/${notification.model?.brand.slug}.png`
+                        }
+                        alt={notification.title}
+                        fill
+                        className="rounded-md object-cover"
+                      />
+                    </Link>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <Link
+                            href={
+                              notification.listing
+                                ? `/listings/${notification.listing.id}`
+                                : `/models/${notification.model?.id}`
+                            }
+                            className="hover:underline"
+                          >
+                            <h3 className="font-medium text-sm md:text-base">
+                              {notification.title}
+                            </h3>
+                          </Link>
+                          <p className="text-xs md:text-sm text-muted-foreground mt-1">
+                            {notification.message}
                           </p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Clock className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground" />
+                            <p className="text-xs md:text-sm text-muted-foreground">
+                              {new Date(notification.created_at).toLocaleString()}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-1 md:gap-2">
-                        {!notification.is_read && (
+                        <div className="flex items-center gap-1 md:gap-2">
+                          {!notification.is_read && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 md:h-10 md:w-10"
+                              onClick={() => markAsRead(notification.id)}
+                            >
+                              <CheckCircle2 className="h-4 w-4" />
+                              <span className="sr-only">Mark as read</span>
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 md:h-10 md:w-10"
-                            onClick={() => markAsRead(notification.id)}
+                            onClick={() => removeNotification(notification.id)}
                           >
-                            <CheckCircle2 className="h-4 w-4" />
-                            <span className="sr-only">Mark as read</span>
+                            <XCircle className="h-4 w-4" />
+                            <span className="sr-only">Delete</span>
                           </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 md:h-10 md:w-10"
-                          onClick={() => removeNotification(notification.id)}
-                        >
-                          <XCircle className="h-4 w-4" />
-                          <span className="sr-only">Delete</span>
-                        </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))
+          )}
         </TabsContent>
       </Tabs>
 
