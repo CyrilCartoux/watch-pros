@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 
 const Schema = z.object({
-  listing_id: z.string().uuid('Invalid listing ID'),
+  id: z.string().uuid('Invalid listing ID'),
 })
 
 export async function GET() {
@@ -81,7 +81,7 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
-    const { listing_id } = parse.data
+    const { id } = parse.data
     
     const supabase = await createClient()
     
@@ -99,7 +99,7 @@ export async function POST(request: Request) {
     const { data: listing, error: listingErr } = await supabaseAdmin
       .from('listings')
       .select('id, status, seller_id')
-      .eq('id', listing_id)
+      .eq('id', id)
       .single()
 
     if (listingErr || !listing) {
@@ -136,7 +136,7 @@ export async function POST(request: Request) {
       .from('listing_subscriptions')
       .upsert({
         user_id: user.id,
-        listing_id,
+        listing_id: id,
       })
 
     if (subErr) {
@@ -163,17 +163,20 @@ export async function DELETE(request: Request) {
     const body = await request.json()
     const parse = Schema.safeParse(body)
     if (!parse.success) {
+      console.log('parse', parse)
       return NextResponse.json(
         { error: 'Invalid request', details: parse.error.format() },
         { status: 400 }
       )
     }
-    const { listing_id } = parse.data
+    const { id } = parse.data
     
     const supabase = await createClient()
     
     // Get the current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
+    console.log('user', user)
+    console.log('userError', userError)
     
     if (userError || !user) {
       return NextResponse.json(
@@ -187,7 +190,7 @@ export async function DELETE(request: Request) {
       .from('listing_subscriptions')
       .delete()
       .eq('user_id', user.id)
-      .eq('listing_id', listing_id)
+      .eq('listing_id', id)
 
     if (deleteErr) {
       console.error('Error deleting listing subscription:', deleteErr)

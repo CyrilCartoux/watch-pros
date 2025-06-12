@@ -80,7 +80,7 @@ export async function GET(request: Request) {
           postal_code,
           website
         ),
-        seller_stats (
+        seller_stats!inner (
           total_reviews,
           average_rating,
           last_updated
@@ -91,7 +91,7 @@ export async function GET(request: Request) {
     // Apply text search if search parameter is provided
     if (search) {
       query = query.textSearch('search_vector', search, {
-        type: 'plain',  // Utilise une recherche plus simple que 'websearch'
+        type: 'plain',
         config: 'english'
       })
     }

@@ -370,7 +370,7 @@ export default function ListingPage({ params }: Props) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          listing_id: listing.id,
+          id: listing.id,
         }),
       })
 

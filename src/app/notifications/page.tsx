@@ -806,8 +806,7 @@ export default function NotificationsPage() {
                       >
                         <Image
                           src={
-                            subscription.listing.listing_images[0]?.url ||
-                            `/api/listings/${subscription.listing.id}/image`
+                            subscription.listing.listing_images[0]?.url
                           }
                           alt={subscription.listing.title}
                           fill
