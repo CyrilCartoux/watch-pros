@@ -279,6 +279,7 @@ export default function NotificationsPage() {
     name: string;
   } | null>(null);
   const [offerFilter, setOfferFilter] = useState<'all' | 'pending' | 'accepted' | 'declined'>('all');
+  const [loadingOffers, setLoadingOffers] = useState<{ [key: string]: boolean }>({});
 
   // Update URL when tab changes
   useEffect(() => {
@@ -471,6 +472,7 @@ export default function NotificationsPage() {
 
   const handleOfferAction = async (offerId: string, action: 'accept' | 'decline') => {
     try {
+      setLoadingOffers(prev => ({ ...prev, [offerId]: true }));
       const response = await fetch(`/api/offers/${offerId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -488,6 +490,8 @@ export default function NotificationsPage() {
     } catch (err) {
       console.error(`Error ${action}ing offer:`, err);
       setError(`Failed to ${action} offer`);
+    } finally {
+      setLoadingOffers(prev => ({ ...prev, [offerId]: false }));
     }
   };
 
@@ -751,17 +755,37 @@ export default function NotificationsPage() {
                                 <Button 
                                   className="w-full bg-green-600 hover:bg-green-700"
                                   onClick={() => handleOfferAction(offer.id, 'accept')}
+                                  disabled={loadingOffers[offer.id]}
                                 >
-                                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                                  Accept Offer
+                                  {loadingOffers[offer.id] ? (
+                                    <div className="flex items-center justify-center">
+                                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                      Accepting...
+                                    </div>
+                                  ) : (
+                                    <>
+                                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                                      Accept Offer
+                                    </>
+                                  )}
                                 </Button>
                                 <Button
                                   variant="destructive"
                                   className="w-full"
                                   onClick={() => handleOfferAction(offer.id, 'decline')}
+                                  disabled={loadingOffers[offer.id]}
                                 >
-                                  <XCircle className="h-4 w-4 mr-2" />
-                                  Decline Offer
+                                  {loadingOffers[offer.id] ? (
+                                    <div className="flex items-center justify-center">
+                                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                                      Declining...
+                                    </div>
+                                  ) : (
+                                    <>
+                                      <XCircle className="h-4 w-4 mr-2" />
+                                      Decline Offer
+                                    </>
+                                  )}
                                 </Button>
                               </div>
                             )}

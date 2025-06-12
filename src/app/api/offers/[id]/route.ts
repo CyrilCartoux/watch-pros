@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
+import { sendEmail, emailTemplates } from '@/lib/email'
 
 const UpdateOfferSchema = z.object({
   action: z.enum(['accept', 'decline'])
@@ -23,16 +24,16 @@ export async function PATCH(
       )
     }
 
-    // Get the seller ID for the current user from profiles
+    // Get the user's profile
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('seller_id')
       .eq('id', user.id)
       .single()
 
-    if (profileError || !profile?.seller_id) {
+    if (profileError || !profile) {
       return NextResponse.json(
-        { error: 'Seller profile not found' },
+        { error: 'Profile not found' },
         { status: 404 }
       )
     }
@@ -50,13 +51,19 @@ export async function PATCH(
 
     const { action } = result.data
 
-    // Get the offer and verify ownership
+    // Get the offer and check if the user is the owner of the listing
     const { data: offer, error: offerError } = await supabase
       .from('offers')
       .select(`
         *,
         listing:listings!offers_listing_id_fkey (
-          seller_id
+          id,
+          title,
+          seller_id,
+          status
+        ),
+        seller:sellers!offers_seller_id_fkey (
+          email
         )
       `)
       .eq('id', params.id)
@@ -69,7 +76,7 @@ export async function PATCH(
       )
     }
 
-    // Verify that the current user owns the listing
+    // Check if the user is the owner of the listing
     if (offer.listing.seller_id !== profile.seller_id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -77,38 +84,35 @@ export async function PATCH(
       )
     }
 
-    // Update the offer status
+    // Update the offer
     const { error: updateError } = await supabase
       .from('offers')
-      .update({
-        is_accepted: action === 'accept'
-      })
+      .update({ is_accepted: action === 'accept' })
       .eq('id', params.id)
 
     if (updateError) {
-      console.error('Error updating offer:', updateError)
       return NextResponse.json(
         { error: 'Failed to update offer' },
         { status: 500 }
       )
     }
 
-    // If the offer is accepted, update the listing status to 'sold'
-    if (action === 'accept') {
-      const { error: listingError } = await supabase
-        .from('listings')
-        .update({
-          status: 'sold',
-          final_price: offer.offer
+    // If the offer is accepted, update the listing status to sold
+    if (action === 'accept') {    
+      // Send email to the buyer
+      try {
+        await sendEmail({
+          to: offer.seller.email,
+          ...emailTemplates.offerAccepted(
+            offer.listing.title,
+            offer.offer,
+            offer.currency,
+            offer.listing.id
+          )
         })
-        .eq('id', offer.listing_id)
-
-      if (listingError) {
-        console.error('Error updating listing:', listingError)
-        return NextResponse.json(
-          { error: 'Failed to update listing' },
-          { status: 500 }
-        )
+      } catch (emailError) {
+        console.error('Error sending email:', emailError)
+        // We don't want to fail the request if the email fails
       }
     }
 

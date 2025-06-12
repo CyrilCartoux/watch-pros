@@ -169,6 +169,37 @@ export const emailTemplates = {
     `,
   }),
 
+  offerAccepted: (listingTitle: string, offerAmount: number, currency: string, listingId: string) => ({
+    subject: `Your Offer Has Been Accepted: ${listingTitle}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #2c3e50; margin-bottom: 10px;">Offer Accepted!</h1>
+          <p style="color: #7f8c8d; font-size: 16px;">Great news! Your offer has been accepted</p>
+        </div>
+        
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 30px;">
+          <h2 style="color: #2c3e50; margin-top: 0;">${listingTitle}</h2>
+          <p style="font-size: 24px; color: #27ae60; font-weight: bold; margin: 20px 0;">
+            ${offerAmount.toLocaleString()} ${currency}
+          </p>
+        </div>
+
+        <div style="text-align: center;">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/listings/${listingId}" 
+             style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">
+            View Details
+          </a>
+        </div>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
+          <p>This email was sent because your offer was accepted on Watch Pros.</p>
+          <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
+        </div>
+      </div>
+    `,
+  }),
+
   newWatchMatch: (
     brandName: string,
     modelName: string,
