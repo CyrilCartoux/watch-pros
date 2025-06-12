@@ -123,6 +123,24 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
     }
   }, [isEditing, initialData])
 
+  // Initialize brand and model from slugs
+  useEffect(() => {
+    if (isEditing && initialData?.brand && initialData?.model) {
+      const brandData = brands.find(b => b.slug === initialData.brand)
+      if (brandData) {
+        setSelectedBrand(brandData.id)
+        form.setValue('brand', brandData.id)
+        fetchModels(brandData.id).then(() => {
+          const modelData = models[brandData.id]?.find(m => m.slug === initialData.model)
+          if (modelData) {
+            setSelectedModel(modelData.id)
+            form.setValue('model', modelData.id)
+          }
+        })
+      }
+    }
+  }, [isEditing, initialData, brands, models])
+
   const form = useForm<FormData>({
     resolver: zodResolver(watchSchema),
     defaultValues: {

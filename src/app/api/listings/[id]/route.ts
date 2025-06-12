@@ -399,7 +399,7 @@ export async function PUT(
     const { data: brandData, error: brandError } = await supabase
       .from('brands')
       .select('id')
-      .eq('slug', brand)
+      .or(`id.eq.${brand},slug.eq.${brand}`)
       .single()
 
     if (brandError || !brandData) {
@@ -412,7 +412,7 @@ export async function PUT(
     const { data: modelData, error: modelError } = await supabase
       .from('models')
       .select('id')
-      .eq('slug', model)
+      .or(`id.eq.${model},slug.eq.${model}`)
       .eq('brand_id', brandData.id)
       .single()
 
