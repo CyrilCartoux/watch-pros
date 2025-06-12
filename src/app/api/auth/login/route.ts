@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     logApiSuccess(data, 'login')
     return NextResponse.json({ 
       data,
-      redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`
+      redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL}`
     })
   } catch (error) {
     logApiError(error as ErrorWithMessage, 'login', request)

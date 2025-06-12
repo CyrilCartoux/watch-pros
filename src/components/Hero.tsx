@@ -67,38 +67,6 @@ export function Hero() {
         </ul>
       </motion.div>
 
-      {/* — Section "Our Impact" */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="max-w-4xl mx-auto mb-8 md:mb-12 px-4 md:px-0"
-      >
-        <h2 className="text-lg md:text-2xl font-semibold mb-4 md:mb-6 text-center">Our Impact</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-          {/* Statistiques avec aria-label pour accessibilité */}
-          <div className="bg-card p-3 md:p-4 rounded-lg border" aria-label="500+ Active Dealers">
-            <Users className="w-5 h-5 md:w-6 md:h-6 text-primary mx-auto mb-1.5 md:mb-2" aria-hidden="true"/>
-            <div className="text-lg md:text-2xl font-bold">500+</div>
-            <div className="text-xs md:text-sm text-muted-foreground">Active Dealers</div>
-          </div>
-          <div className="bg-card p-3 md:p-4 rounded-lg border" aria-label="10 k+ Monthly Listings">
-            <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-primary mx-auto mb-1.5 md:mb-2" aria-hidden="true"/>
-            <div className="text-lg md:text-2xl font-bold">10 k+</div>
-            <div className="text-xs md:text-sm text-muted-foreground">Monthly Listings</div>
-          </div>
-          <div className="bg-card p-3 md:p-4 rounded-lg border" aria-label="100 % Verified Sellers">
-            <Shield className="w-5 h-5 md:w-6 md:h-6 text-primary mx-auto mb-1.5 md:mb-2" aria-hidden="true"/>
-            <div className="text-lg md:text-2xl font-bold">100 %</div>
-            <div className="text-xs md:text-sm text-muted-foreground">Verified Sellers</div>
-          </div>
-          <div className="bg-card p-3 md:p-4 rounded-lg border" aria-label="24/7 Support">
-            <Clock className="w-5 h-5 md:w-6 md:h-6 text-primary mx-auto mb-1.5 md:mb-2" aria-hidden="true"/>
-            <div className="text-lg md:text-2xl font-bold">24/7</div>
-            <div className="text-xs md:text-sm text-muted-foreground">Support</div>
-          </div>
-        </div>
-      </motion.div>
 
       {/* — CTA Principaux */}
       <motion.div 

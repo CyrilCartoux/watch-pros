@@ -61,6 +61,22 @@ export async function POST(request: Request) {
     const oldStatus = oldRecord.status
     const newStatus = newRecord.status
     const wasSold = oldStatus !== 'sold' && newStatus === 'sold'
+    const priceChanged = newPrice !== oldPrice
+    const priceDropped = priceChanged && newPrice < oldPrice
+
+    // Early return if no relevant changes
+    if (!wasSold && !priceDropped) {
+      console.log('ℹ️ No relevant changes detected (price drop or sale)')
+      return NextResponse.json({
+        ok: true,
+        stats: {
+          wasSold: false,
+          priceChanged: false,
+          emailsSent: 0,
+          emailsFailed: 0,
+        }
+      })
+    }
 
     // Fetch listing details with brand and model names
     const { data: listingDetails, error: listingError } = await supabaseAdmin
@@ -102,7 +118,8 @@ export async function POST(request: Request) {
       oldPrice,
       newPrice,
       wasSold,
-      priceChanged: newPrice !== oldPrice,
+      priceChanged,
+      priceDropped,
       priceDiff: newPrice - oldPrice,
       oldStatus,
       newStatus,
@@ -196,7 +213,7 @@ export async function POST(request: Request) {
     }
 
     // 2. HANDLE "PRICE DROP"
-    if (newPrice < oldPrice) {
+    if (priceDropped) {
       console.log('📉 Price drop detected, searching subscribers...')
       // Get all user_ids following this listing
       const { data: subsPrice, error: subsPriceErr } = await supabaseAdmin
@@ -271,7 +288,8 @@ export async function POST(request: Request) {
 
     const stats = {
       wasSold,
-      priceChanged: newPrice !== oldPrice,
+      priceChanged,
+      priceDropped,
       emailsSent: totalEmailsSent,
       emailsFailed: totalEmailsFailed,
     }

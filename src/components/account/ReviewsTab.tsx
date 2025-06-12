@@ -3,39 +3,90 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Star } from "lucide-react"
 import Image from "next/image"
+import { useEffect, useState } from "react"
+import { useToast } from "@/components/ui/use-toast"
 
-const mockReviews = [
-  {
-    id: 1,
-    user: {
-      name: "John Doe",
-      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop",
-    },
-    rating: 5,
-    comment: "Excellent vendeur, très professionnel et réactif. La montre était exactement comme décrite.",
-    date: "2024-03-15",
-    listing: {
-      title: "Rolex Submariner 2023",
-      image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=200&h=200&fit=crop"
-    }
-  },
-  {
-    id: 2,
-    user: {
-      name: "Jane Smith",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
-    },
-    rating: 4,
-    comment: "Très bon service, livraison rapide. La montre est en parfait état.",
-    date: "2024-03-10",
-    listing: {
-      title: "Omega Seamaster 300M",
-      image: "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=200&h=200&fit=crop"
-    }
+interface Review {
+  id: string
+  rating: number
+  comment: string
+  createdAt: string
+  reviewer: {
+    id: string
+    name: string
+    avatar: string | null
   }
-]
+}
 
 export function ReviewsTab() {
+  const [reviews, setReviews] = useState<Review[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const { toast } = useToast()
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await fetch('/api/reviews/me')
+        if (!response.ok) {
+          throw new Error('Failed to fetch reviews')
+        }
+        const data = await response.json()
+        setReviews(data.reviews)
+      } catch (error) {
+        console.error('Error fetching reviews:', error)
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les avis",
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchReviews()
+  }, [toast])
+
+  // Calculer la moyenne des avis
+  const averageRating = reviews.length > 0
+    ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
+    : 0
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Avis reçus</CardTitle>
+            <CardDescription>Les retours de vos acheteurs</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="animate-pulse space-y-4">
+              <div className="h-8 bg-muted rounded w-1/3"></div>
+              <div className="h-4 bg-muted rounded w-1/4"></div>
+            </div>
+          </CardContent>
+        </Card>
+        <div className="space-y-4">
+          {[1, 2].map((i) => (
+            <Card key={i}>
+              <CardContent className="p-6">
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 bg-muted rounded-full"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-muted rounded w-1/4"></div>
+                    <div className="h-4 bg-muted rounded w-3/4"></div>
+                    <div className="h-4 bg-muted rounded w-1/2"></div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Résumé des avis */}
@@ -48,16 +99,16 @@ export function ReviewsTab() {
           <div className="flex items-center gap-4 mb-6">
             <div className="flex items-center gap-1">
               <Star className="h-8 w-8 fill-primary text-primary" />
-              <p className="text-4xl font-bold">4.8</p>
+              <p className="text-4xl font-bold">{averageRating.toFixed(1)}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Basé sur 123 avis</p>
+              <p className="text-sm text-muted-foreground">Basé sur {reviews.length} avis</p>
               <div className="flex items-center gap-1 mt-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
                     key={star}
                     className={`h-4 w-4 ${
-                      star <= 4 ? "fill-primary text-primary" : "text-muted"
+                      star <= Math.round(averageRating) ? "fill-primary text-primary" : "text-muted"
                     }`}
                   />
                 ))}
@@ -69,52 +120,58 @@ export function ReviewsTab() {
 
       {/* Liste des avis */}
       <div className="space-y-4">
-        {mockReviews.map((review) => (
-          <Card key={review.id}>
-            <CardContent className="p-6">
-              <div className="flex gap-4">
-                <div className="flex-shrink-0">
-                  <Image
-                    src={review.user.avatar}
-                    alt={review.user.name}
-                    width={48}
-                    height={48}
-                    className="rounded-full"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="font-medium">{review.user.name}</p>
-                    <span className="text-sm text-muted-foreground">
-                      {new Date(review.date).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1 my-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className={`h-4 w-4 ${
-                          star <= review.rating ? "fill-primary text-primary" : "text-muted"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-sm text-muted-foreground">{review.comment}</p>
-                  <div className="mt-4 flex items-center gap-2">
-                    <Image
-                      src={review.listing.image}
-                      alt={review.listing.title}
-                      width={64}
-                      height={64}
-                      className="rounded-md object-cover"
-                    />
-                    <p className="text-sm font-medium">{review.listing.title}</p>
-                  </div>
-                </div>
-              </div>
+        {reviews.length === 0 ? (
+          <Card>
+            <CardContent className="p-6 text-center text-muted-foreground">
+              Aucun avis reçu pour le moment
             </CardContent>
           </Card>
-        ))}
+        ) : (
+          reviews.map((review) => (
+            <Card key={review.id}>
+              <CardContent className="p-6">
+                <div className="flex gap-4">
+                  <div className="flex-shrink-0">
+                    {review.reviewer.avatar ? (
+                      <Image
+                        src={review.reviewer.avatar}
+                        alt={review.reviewer.name}
+                        width={48}
+                        height={48}
+                        className="rounded-full"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                        <span className="text-lg font-medium">
+                          {review.reviewer.name.charAt(0).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-medium">{review.reviewer.name}</p>
+                      <span className="text-sm text-muted-foreground">
+                        {new Date(review.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 my-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`h-4 w-4 ${
+                            star <= review.rating ? "fill-primary text-primary" : "text-muted"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-sm text-muted-foreground">{review.comment}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
     </div>
   )
