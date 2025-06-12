@@ -1,35 +1,35 @@
 "use client"
 
-import Head from "next/head"                        
+import Head from "next/head"
 import { Card, CardContent } from "@/components/ui/card"
-import { Search, Bell, Shield, Clock, CreditCard, ArrowRight } from "lucide-react"
+import { Search, Bell, Shield, Clock, CreditCard } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
 const features = [
   {
-    title: "Recherche ultra-ciblée",
-    description: "Trouvez la montre idéale en quelques clics : filtrez par marque, modèle, état et disponibilité immédiate.",
+    title: "Targeted Search",
+    description: "Find the perfect watch in seconds: filter by brand, model, condition, and immediate availability.",
     icon: Search,
   },
   {
-    title: "Vendeurs vérifiés",
-    description: "Trust badges et KYC pro pour garantir la fiabilité de chaque transaction.",
+    title: "Verified Dealers",
+    description: "Every seller is verified for trust and security. Professional KYC for every account.",
     icon: Shield,
   },
   {
-    title: "Alertes en temps réel",
-    description: "Recevez une notification instantanée quand votre modèle recherché est en ligne.",
+    title: "Instant Alerts",
+    description: "Get notified the moment a watch you want is listed. Never miss an opportunity.",
     icon: Bell,
   },
   {
-    title: "Disponibilité instantanée",
-    description: "Visualisez en un coup d’œil les montres disponibles, sans aller-retour de messages.",
+    title: "Real-Time Availability",
+    description: "See which watches are available right now, no endless messaging required.",
     icon: Clock,
   },
   {
-    title: "Tarification transparente",
-    description: "Abonnement mensuel clair, zéro commission : conservez 100 % de vos ventes.",
+    title: "Transparent Pricing",
+    description: "Clear monthly subscription, zero commission: keep 100% of your sales.",
     icon: CreditCard,
   },
 ]
@@ -38,56 +38,34 @@ export function HowItWorks() {
   return (
     <>
       <Head>
-        <title>Why Choose Watch Pros? Leading Luxury B2B Watch Marketplace</title>
+        <title>How it works – Watch Pros B2B Marketplace</title>
         <meta
           name="description"
-          content="Découvrez Watch Pros, la référence B2B pour les montres de luxe : recherche avancée, vendeurs vérifiés, alertes en temps réel et tarification claire. Trouvez la montre parfaite dès maintenant !"
+          content="Discover Watch Pros: the B2B marketplace for luxury watches. Targeted search, verified dealers, instant alerts, and transparent pricing. Find your next watch now!"
         />
-        <link rel="canonical" href="https://votresite.com/how-it-works" />
+        <link rel="canonical" href="https://yourdomain.com/how-it-works" />
       </Head>
 
-      <section className="py-24">
-        {/* — Micro-CTA en haut */}
-        <div className="text-center mb-8">
-          <p className="italic">Prêt à booster vos ventes de montres de luxe ?</p>
-          <Link href="/pricing" passHref>
-            <Button
-              size="default"
-              className="mt-4 gap-2"
-              title="Voir nos offres et démarrer"
-              aria-label="Voir nos offres et démarrer"
-            >
-              Voir nos offres et démarrer
-              <ArrowRight className="w-4 h-4" aria-hidden="true" />
-            </Button>
-          </Link>
-        </div>
-
-        <div className="container">
+      <section className="py-20 md:py-32 bg-background">
+        <div className="container max-w-3xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold tracking-tight mb-4">
-              Why choose Watch Pros?
+            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4 text-primary">
+              How it works
             </h2>
-            <p className="text-base max-w-2xl mx-auto text-muted-foreground">
-              Une plateforme pensée par et pour les pros : plus rapide que WhatsApp, plus simple que Chrono24.
+            <p className="text-base md:text-xl text-muted-foreground max-w-xl mx-auto">
+              Watch Pros makes buying and selling watches between professionals simple, fast, and secure.
             </p>
           </div>
 
-          {/* — Features reformulées et structurées */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-10 mb-12">
             {features.map((feat, i) => (
-              <Card key={i} className="border-none shadow-lg bg-white">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div
-                      className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center"
-                      aria-hidden="true"
-                    >
-                      <feat.icon className="w-6 h-6 text-primary" />
-                    </div>
-                    <h3 className="text-xl font-semibold">{feat.title}</h3>
+              <Card key={i} className="bg-background border-none shadow-none">
+                <CardContent className="p-0 flex flex-col items-center text-center">
+                  <div className="mb-4 flex items-center justify-center w-12 h-12 rounded-full bg-muted">
+                    <feat.icon className="w-6 h-6 text-primary" />
                   </div>
-                  <p className="text-sm leading-relaxed">
+                  <h3 className="text-lg font-semibold mb-2">{feat.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     {feat.description}
                   </p>
                 </CardContent>
@@ -95,22 +73,19 @@ export function HowItWorks() {
             ))}
           </div>
 
-          {/* — Statistique clé */}
-          <div className="text-center mt-12 italic text-muted-foreground">
-            Déjà plus de <strong>500</strong> professionnels nous font confiance.
+          <div className="text-center text-muted-foreground mb-12">
+            <span className="text-sm">Already trusted by <strong>500+</strong> professionals.</span>
           </div>
 
-          {/* — CTA principal en fin de section */}
-          <div className="text-center mt-12">
-            <Link href="/pricing" passHref>
+          <div className="text-center">
+            <Link href="/register" passHref>
               <Button
                 size="lg"
-                className="gap-2"
-                title="Voir nos offres et démarrer"
-                aria-label="Voir nos offres et démarrer"
+                className="h-12 px-8 text-base md:text-lg font-semibold shadow-md"
+                title="Create Your Pro Account"
+                aria-label="Create Your Pro Account"
               >
-                Voir nos offres et démarrer
-                <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                Create Your Pro Account
               </Button>
             </Link>
           </div>

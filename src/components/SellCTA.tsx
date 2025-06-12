@@ -14,8 +14,8 @@ interface SellCTAProps {
 
 export function SellCTA({
   className = "",
-  title = "Prêt à libérer le potentiel de votre business horloger ?", // 🎯 Titre plus engageant
-  description = "Rejoignez Watch Pros, la place de marché B2B pour montres de luxe : visibilité mondiale et zéro commission."
+  title = "Ready to unlock your watch business potential?", // 🎯 More engaging title
+  description = "Join Watch Pros, the B2B marketplace for luxury watches: global visibility and zero commission."
 }: SellCTAProps) {
   return (
     <>
@@ -23,7 +23,7 @@ export function SellCTA({
         <title>Sell Your Luxury Watches | Join Watch Pros B2B Marketplace</title>
         <meta
           name="description"
-          content="Rejoignez Watch Pros, la place de marché B2B pour montres de luxe : sans commission, vendeurs vérifiés et visibilité mondiale. Commencez à vendre dès aujourd’hui !"
+          content="Join Watch Pros, the B2B marketplace for luxury watches: no commission, verified sellers and global visibility. Start selling today!"
         />
         <link rel="canonical" href="https://votresite.com/sell" />
       </Head>
@@ -31,25 +31,25 @@ export function SellCTA({
       <section className={`py-16 bg-muted/50 ${className}`} aria-labelledby="sell-cta-title">
         <div className="container">
           <div className="max-w-4xl mx-auto text-center space-y-6">
-            {/* — Titre H2 optimisé */}
+            {/* — Optimized H2 title */}
             <h2 id="sell-cta-title" className="text-3xl font-bold tracking-tight">
               {title}
             </h2>
-            {/* — Description fractionnée pour plus de lisibilité */}
+            {/* — Split description for better readability */}
             <p className="text-lg text-muted-foreground">
               {description.split(" : ")[0]}.
               <br />
               {description.split(" : ")[1]}.
             </p>
 
-            {/* — Micro-preuve sociale */}
+            {/* — Social proof */}
             <p className="italic text-sm text-muted-foreground">
-              Déjà plus de <strong>500</strong> vendeurs professionnels actifs.
+              Already over <strong>500</strong> active professional sellers.
             </p>
 
-            {/* — Choix d’actions */}
+            {/* — Action choices */}
             <div className="grid md:grid-cols-2 gap-6">
-              {/* Carte 1 : Create account */}
+              {/* Card 1 : Create account */}
               <Card className="shadow-lg">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-4 mb-4">
@@ -62,7 +62,7 @@ export function SellCTA({
                     <div className="text-left">
                       <h3 className="font-semibold text-lg">Create Professional Account</h3>
                       <p className="text-sm text-muted-foreground">
-                        Accédez à notre plateforme B2B et démarrez vos ventes.
+                        Access our B2B platform and start your sales.
                       </p>
                     </div>
                   </div>
@@ -79,7 +79,7 @@ export function SellCTA({
                 </CardContent>
               </Card>
 
-              {/* Carte 2 : Post listing */}
+              {/* Card 2 : Post listing */}
               <Card className="shadow-lg">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-4 mb-4">
@@ -92,7 +92,7 @@ export function SellCTA({
                     <div className="text-left">
                       <h3 className="font-semibold text-lg">Post Your First Listing</h3>
                       <p className="text-sm text-muted-foreground">
-                        Mettez en ligne votre première montre en quelques clics.
+                        List your first watch in just a few clicks.
                       </p>
                     </div>
                   </div>

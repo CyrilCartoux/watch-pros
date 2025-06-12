@@ -1,111 +1,87 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { SearchBar } from "@/components/SearchBar"
 import Link from "next/link"
-import { ArrowRight, Check, Users, Shield, Clock, TrendingUp } from "lucide-react"
+import { ArrowRight, User, Briefcase, ShieldCheck, Tag } from "lucide-react"
 import { motion } from "framer-motion"
 
 export function Hero() {
   return (
-    <section 
-      aria-label="Hero section – Luxury B2B Watch Marketplace"
-      className="relative pt-8 md:pt-16 min-h-[500px] md:min-h-[700px] flex flex-col items-center justify-center bg-gradient-to-b from-primary/5 to-background"
+    <section
+      aria-label="Hero section – B2B Watch Marketplace for Professionals"
+      className="relative flex flex-col items-center justify-center min-h-[420px] md:min-h-[600px] px-4 py-12 md:py-24 bg-background"
     >
-      {/* — Badge Early Bird */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="inline-flex items-center gap-1.5 md:gap-2 bg-primary/10 text-primary px-3 md:px-4 py-1.5 md:py-2 rounded-full mb-4 md:mb-6"
-      >
-        <Clock className="w-3.5 h-3.5 md:w-4 md:h-4" aria-hidden="true"/>
-        <span className="text-xs md:text-sm font-medium">Early Bird Pricing – Limited Time Offer</span>
-      </motion.div>
-
-      {/* — Titre principal optimisé */}
-      <motion.h1 
+      <motion.h1
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-2xl md:text-5xl font-bold tracking-tight mb-3 md:mb-6 text-center px-4"
+        className="text-3xl md:text-6xl font-extrabold tracking-tight text-center mb-4 md:mb-6 text-primary"
       >
-        Luxury B2B Watch Marketplace
+        The B2B Marketplace<br className="hidden md:block" /> for Watch Professionals
       </motion.h1>
-
-      {/* — Paragraphe transformé en listes pour la lisibilité */}
-      <motion.div 
+      <motion.p
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="text-sm md:text-xl text-muted-foreground max-w-2xl mx-auto mb-6 md:mb-12 px-4 md:px-0"
+        className="text-base md:text-2xl text-muted-foreground text-center max-w-xl mx-auto mb-8 md:mb-12 font-normal"
       >
-        <p className="mb-1.5 md:mb-2"><strong>✓ Connect with verified professionals</strong></p>
-        <p className="mb-1.5 md:mb-2"><strong>✓ Keep 100 % of your sales – no commission</strong></p>
-        <p><strong>✓ Simple monthly subscription</strong></p>
-      </motion.div>
-
-      {/* — Section "Key Benefits" structurée */}
-      <motion.div 
+        Buy and sell luxury watches with trusted professionals. No commission. 100% B2B. Simple. Secure.
+      </motion.p>
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="max-w-3xl mx-auto mb-6 md:mb-8 px-4 md:px-0"
+        className="w-full flex justify-center"
       >
-        <h2 className="text-lg md:text-2xl font-semibold mb-3 md:mb-4 text-center">Key Benefits</h2>
-        <ul className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 list-none">
-          <li className="flex items-center gap-2">
-            <Check className="h-4 w-4 md:h-5 md:w-5 text-primary" aria-hidden="true"/>
-            <span className="text-xs md:text-sm font-medium">100 % B2B platform</span>
-          </li>
-          <li className="flex items-center gap-2">
-            <Check className="h-4 w-4 md:h-5 md:w-5 text-primary" aria-hidden="true"/>
-            <span className="text-xs md:text-sm font-medium">No commission on sales</span>
-          </li>
-          <li className="flex items-center gap-2">
-            <Check className="h-4 w-4 md:h-5 md:w-5 text-primary" aria-hidden="true"/>
-            <span className="text-xs md:text-sm font-medium">Only verified dealers</span>
-          </li>
-        </ul>
+        <Link href="/auth" passHref>
+          <Button
+            size="lg"
+            className="h-12 px-8 text-base md:text-lg font-semibold shadow-md"
+            title="Connect to the platform"
+            aria-label="Connect to the platform"
+          >
+            Connect to the platform
+            <ArrowRight className="w-4 h-4 ml-2" aria-hidden="true" />
+          </Button>
+        </Link>
       </motion.div>
 
-
-      {/* — CTA Principaux */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="max-w-4xl mx-auto space-y-3 md:space-y-4 px-4 md:px-0"
-      >
-        <div className="flex flex-col sm:flex-row justify-center gap-2 md:gap-4">
-          <Link href="/sell" passHref className="w-full sm:w-auto">
-            <Button 
-              size="lg" 
-              className="w-full sm:w-auto gap-2 h-11 md:h-12" 
-              title="Start Selling Now" 
-              aria-label="Start Selling Now"
-            >
-              Start Selling Now
-              <ArrowRight className="w-4 h-4" aria-hidden="true"/>
-            </Button>
-          </Link>
-          <Link href="/register" passHref className="w-full sm:w-auto">
-            <Button 
-              size="lg" 
-              variant="outline" 
-              className="w-full sm:w-auto gap-2 h-11 md:h-12" 
-              title="Create Your Pro Account" 
-              aria-label="Create Your Pro Account"
-            >
-              Create Your Pro Account
-              <ArrowRight className="w-4 h-4" aria-hidden="true"/>
-            </Button>
-          </Link>
-        </div>
-
-        {/* FOMO renforcé */}
-        <div className="text-xs md:text-sm text-muted-foreground mt-3 md:mt-4 text-center">
-          <p>Join now and lock in our early-bird pricing forever. Only a few spots left!</p>
-        </div>
-      </motion.div>
+      {/* Steps section */}
+      <div className="w-full max-w-4xl mx-auto mt-10 md:mt-16 px-2 md:px-0">
+        <ol className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8">
+          <li className="flex flex-col items-center text-center p-4 rounded-xl transition hover:bg-muted/60">
+            <div className="flex flex-col items-center mb-2">
+              <User className="w-7 h-7 text-primary mb-1" />
+            </div>
+            <span className="font-semibold mb-1">Connect to the platform</span>
+            <Link href="/auth" passHref>
+              <Button variant="link" className="p-0 h-auto text-primary font-medium">Sign in / Sign up</Button>
+            </Link>
+          </li>
+          <li className="flex flex-col items-center text-center p-4 rounded-xl transition hover:bg-muted/60">
+            <div className="flex flex-col items-center mb-2">
+              <Briefcase className="w-7 h-7 text-primary mb-1" />
+            </div>
+            <span className="font-semibold mb-1">Create your seller account</span>
+            <Link href="/register" passHref>
+              <Button variant="link" className="p-0 h-auto text-primary font-medium">Register as seller</Button>
+            </Link>
+          </li>
+          <li className="flex flex-col items-center text-center p-4 rounded-xl transition hover:bg-muted/60">
+            <div className="flex flex-col items-center mb-2">
+              <ShieldCheck className="w-7 h-7 text-primary mb-1" />
+            </div>
+            <span className="font-semibold mb-1">Wait for verification</span>
+            <span className="text-sm text-muted-foreground">We verify all professionals for a secure marketplace.</span>
+          </li>
+          <li className="flex flex-col items-center text-center p-4 rounded-xl transition hover:bg-muted/60">
+            <div className="flex flex-col items-center mb-2">
+              <Tag className="w-7 h-7 text-primary mb-1" />
+            </div>
+            <span className="font-semibold mb-1">Sell your watches</span>
+            <span className="text-sm text-muted-foreground">List and sell to trusted professionals worldwide.</span>
+          </li>
+        </ol>
+      </div>
     </section>
   )
 }

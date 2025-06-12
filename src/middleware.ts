@@ -33,30 +33,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/auth/login', request.url))
   }
 
-  // Récupérer le profil de l'utilisateur
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('seller_id')
-    .eq('id', session.user.id)
-    .single()
-
-  // Si l'utilisateur n'a pas d'identité de vendeur, rediriger vers la page d'inscription vendeur
-  if (!profile?.seller_id) {
-    return NextResponse.redirect(new URL('/seller/register', request.url))
-  }
-
-  // Vérifier si l'identité du vendeur est validée
-  const { data: seller } = await supabase
-    .from('sellers')
-    .select('identity_verified')
-    .eq('id', profile.seller_id)
-    .single()
-
-  // Si l'identité n'est pas validée, rediriger vers la page d'attente de validation
-  if (!seller?.identity_verified) {
-    return NextResponse.redirect(new URL('/seller/pending', request.url))
-  }
-
   return NextResponse.next()
 }
 
