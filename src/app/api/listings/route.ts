@@ -141,8 +141,9 @@ export async function GET(request: Request) {
     // Apply sorting
     query = query.order(sort, { ascending: order === 'asc' })
 
-    // Apply limit
-    query = query.limit(limit)
+    // Apply pagination (offset/limit)
+    const offset = (page - 1) * limit
+    query = query.range(offset, offset + limit - 1)
 
     const { data: listings, error, count } = await query
 

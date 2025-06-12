@@ -398,11 +398,11 @@ export function SettingsTab() {
 
   return (
     <div className="space-y-6">
-      {/* Profil */}
+      {/* Profile */}
       <Card>
         <CardHeader>
-          <CardTitle>Profil</CardTitle>
-          <CardDescription>Informations de votre compte</CardDescription>
+          <CardTitle>Profile</CardTitle>
+          <CardDescription>Your account information</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {seller && (
@@ -448,14 +448,14 @@ export function SettingsTab() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label>Prénom</Label>
+              <Label>First Name</Label>
               <Input
                 value={seller?.account.firstName || profile.first_name || ''}
                 onChange={(e) => handleInputChange("firstName", e.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label>Nom</Label>
+              <Label>Last Name</Label>
               <Input
                 value={seller?.account.lastName || profile.last_name || ''}
                 onChange={(e) => handleInputChange("lastName", e.target.value)}
@@ -465,7 +465,7 @@ export function SettingsTab() {
 
           {seller && (
             <div className="space-y-2">
-              <Label>Nom de l'entreprise</Label>
+              <Label>Company Name</Label>
               <Input
                 value={seller.account.companyName}
                 onChange={(e) => handleInputChange("companyName", e.target.value)}
@@ -475,16 +475,16 @@ export function SettingsTab() {
         </CardContent>
       </Card>
 
-      {/* Adresse */}
+      {/* Address */}
       {seller && seller.address && (
         <Card>
           <CardHeader>
-            <CardTitle>Adresse</CardTitle>
-            <CardDescription>Adresse de votre entreprise</CardDescription>
+            <CardTitle>Address</CardTitle>
+            <CardDescription>Your company address</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label>Rue</Label>
+              <Label>Street</Label>
               <Input
                 value={seller.address.street}
                 onChange={(e) => handleAddressChange("street", e.target.value)}
@@ -492,14 +492,14 @@ export function SettingsTab() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label>Code postal</Label>
+                <Label>Postal Code</Label>
                 <Input
                   value={seller.address.postalCode}
                   onChange={(e) => handleAddressChange("postalCode", e.target.value)}
                 />
               </div>
               <div className="space-y-2">
-                <Label>Ville</Label>
+                <Label>City</Label>
                 <Input
                   value={seller.address.city}
                   onChange={(e) => handleAddressChange("city", e.target.value)}
@@ -507,7 +507,7 @@ export function SettingsTab() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Site web</Label>
+              <Label>Website</Label>
               <Input
                 value={seller.address.website}
                 onChange={(e) => handleAddressChange("website", e.target.value)}
@@ -523,7 +523,7 @@ export function SettingsTab() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Numéro TVA</Label>
+                <Label>VAT Number</Label>
                 <Input
                   value={seller.address.vatNumber}
                   disabled
@@ -547,11 +547,11 @@ export function SettingsTab() {
       <Card>
         <CardHeader>
           <CardTitle>Contact</CardTitle>
-          <CardDescription>Informations de contact</CardDescription>
+          <CardDescription>Contact information</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label>Adresse e-mail</Label>
+            <Label>Email address</Label>
             <Input
               type="email"
               value={seller?.account.email || profile.email || ''}
@@ -562,14 +562,14 @@ export function SettingsTab() {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label>Indicatif téléphonique</Label>
+                  <Label>Phone Prefix</Label>
                   <Input
                     value={seller.account.phonePrefix}
                     onChange={(e) => handleInputChange("phonePrefix", e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Téléphone</Label>
+                  <Label>Phone</Label>
                   <Input
                     value={seller.account.phone}
                     onChange={(e) => handleInputChange("phone", e.target.value)}
@@ -577,7 +577,7 @@ export function SettingsTab() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Titre</Label>
+                <Label>Title</Label>
                 <Input
                   value={seller.account.title}
                   onChange={(e) => handleInputChange("title", e.target.value)}
@@ -586,7 +586,7 @@ export function SettingsTab() {
             </>
           )}
           <div className="space-y-2">
-            <Label>Mot de passe</Label>
+            <Label>Password</Label>
             <Input
               type="password"
               value="********"
@@ -594,7 +594,7 @@ export function SettingsTab() {
               className="bg-muted"
             />
             <Button variant="outline" className="mt-2">
-              Modifier le mot de passe
+              Change Password
             </Button>
           </div>
         </CardContent>

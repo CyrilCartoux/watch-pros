@@ -55,7 +55,7 @@ export function MessagesTab() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const supabase = useMemo(() => createClient(), [])
 
-  // Charger les conversations
+  // Load conversations
   useEffect(() => {
     if (!user) return
 
@@ -122,7 +122,7 @@ export function MessagesTab() {
     loadConversations()
   }, [user, supabase])
 
-  // S'abonner aux nouveaux messages
+  // Subscribe to new messages
   useEffect(() => {
     if (!user || !selectedConversation) return
 
@@ -140,7 +140,7 @@ export function MessagesTab() {
           const newMessage = payload.new as Message
           setMessages(prev => [...prev, newMessage])
           
-          // Mettre à jour la dernière conversation
+          // Update last conversation
           setConversations(prev => 
             prev.map(conv => 
               conv.id === selectedConversation.id
@@ -149,7 +149,7 @@ export function MessagesTab() {
             )
           )
 
-          // Marquer le message comme lu si c'est l'autre utilisateur qui l'a envoyé
+          // Mark message as read if sent by other user
           if (newMessage.sender_id !== user.id) {
             try {
               const { error } = await supabase
@@ -159,7 +159,7 @@ export function MessagesTab() {
 
               if (error) {
                 console.error('Failed to mark message as read:', error)
-                // Optionnel : réessayer après un délai
+                // Optional: retry after delay
                 setTimeout(async () => {
                   const { error: retryError } = await supabase
                     .from('messages')
@@ -184,7 +184,7 @@ export function MessagesTab() {
     }
   }, [user, selectedConversation, supabase])
 
-  // Charger les messages d'une conversation
+  // Load messages for a conversation
   const loadMessages = async (conversationId: string) => {
     setLoadingMessages(true)
     try {
@@ -198,7 +198,7 @@ export function MessagesTab() {
 
       setMessages(data)
       
-      // Marquer les messages comme lus
+      // Mark messages as read
       const unreadMessages = data.filter(
         (msg: Message) => !msg.read && msg.sender_id !== user?.id
       )
@@ -235,10 +235,10 @@ export function MessagesTab() {
     const messageContent = newMessage.trim()
     setNewMessage("")
 
-    // Sauvegarder l'ancien dernier message
+    // Save old last message
     const oldLastMessage = selectedConversation.last_message
 
-    // Créer un message temporaire
+    // Create temporary message
     const tempMessage: Message = {
       id: 'temp-' + Date.now(),
       conversation_id: selectedConversation.id,
@@ -248,7 +248,7 @@ export function MessagesTab() {
       read: false
     }
 
-    // Ajouter le message à l'UI immédiatement
+    // Add message to UI immediately
     setMessages(prev => [...prev, tempMessage])
     setConversations(prev => 
       prev.map(conv => 
@@ -271,7 +271,7 @@ export function MessagesTab() {
 
       if (error) throw error
 
-      // Remplacer le message temporaire par le vrai message
+      // Replace temporary message with real message
       setMessages(prev => 
         prev.map(msg => 
           msg.id === tempMessage.id ? data : msg
@@ -291,7 +291,7 @@ export function MessagesTab() {
         description: "Failed to send message",
         variant: "destructive",
       })
-      // Retirer le message temporaire en cas d'erreur
+      // Remove temporary message on error
       setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id))
       setConversations(prev => 
         prev.map(conv => 
@@ -315,21 +315,21 @@ export function MessagesTab() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
-      {/* Liste des conversations */}
+      {/* Conversations list */}
       <div className={`md:col-span-1 border rounded-lg overflow-hidden flex flex-col h-full ${showMobileConversation ? 'hidden md:flex' : 'flex'}`}>
-        {/* Filtres */}
+        {/* Filters */}
         <div className="p-4 border-b">
           <div className="flex gap-2">
             <button className="px-3 py-1.5 text-sm font-medium rounded-md bg-primary text-primary-foreground">
-              Tout
+              All
             </button>
             <button className="px-3 py-1.5 text-sm font-medium rounded-md hover:bg-muted">
-              Non lus
+              Unread
             </button>
           </div>
         </div>
 
-        {/* Liste */}
+        {/* List */}
         <div className="flex-1 overflow-y-auto">
           <div className="divide-y">
             {conversations.map((conversation) => (
@@ -369,11 +369,11 @@ export function MessagesTab() {
         </div>
       </div>
 
-      {/* Détail de la conversation */}
+      {/* Conversation details */}
       <div className={`md:col-span-2 border rounded-lg overflow-hidden flex flex-col h-full ${!showMobileConversation ? 'hidden md:flex' : 'flex'}`}>
         {selectedConversation ? (
           <>
-            {/* Header avec infos du vendeur */}
+            {/* Header with seller info */}
             <div className="p-4 border-b">
               <div className="flex items-center gap-3">
                 <button 
@@ -443,13 +443,13 @@ export function MessagesTab() {
               )}
             </div>
 
-            {/* Input pour nouveau message */}
+            {/* Input for new message */}
             <form onSubmit={handleSendMessage} className="p-4 border-t">
               <div className="flex gap-2">
                 <Input
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Écrivez votre message..."
+                  placeholder="Write your message..."
                   className="flex-1"
                 />
                 <Button type="submit" size="icon">
@@ -460,7 +460,7 @@ export function MessagesTab() {
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-muted-foreground">
-            Sélectionnez une conversation pour commencer
+            Select a conversation to start
           </div>
         )}
       </div>

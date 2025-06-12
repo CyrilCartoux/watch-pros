@@ -30,15 +30,20 @@ export default function MyListings() {
   const [finalPrice, setFinalPrice] = useState("")
   const [isSubmittingSale, setIsSubmittingSale] = useState(false)
   const { toast } = useToast()
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const itemsPerPage = 12
 
   useEffect(() => {
-    fetch("/api/listings/me")
+    setLoading(true)
+    fetch(`/api/listings/me?page=${currentPage}&limit=${itemsPerPage}`)
       .then(res => res.json())
       .then(data => {
         if (data.error) {
           setError(data.error)
         } else {
-          setListings(data)
+          setListings(data.listings)
+          setTotalPages(data.totalPages)
         }
       })
       .catch(err => {
@@ -46,7 +51,7 @@ export default function MyListings() {
         console.error('Error fetching listings:', err)
       })
       .finally(() => setLoading(false))
-  }, [])
+  }, [currentPage])
 
   const handlePause = async (id: string) => {
     await fetch(`/api/listings/${id}/toggle-status`, { method: "POST" })
@@ -311,6 +316,34 @@ export default function MyListings() {
               </CardContent>
             </Card>
           ))}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex justify-center gap-2 mt-8">
+          <Button
+            variant="outline"
+            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <Button
+              key={page}
+              variant={currentPage === page ? "default" : "outline"}
+              onClick={() => setCurrentPage(page)}
+            >
+              {page}
+            </Button>
+          ))}
+          <Button
+            variant="outline"
+            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </Button>
         </div>
       )}
 

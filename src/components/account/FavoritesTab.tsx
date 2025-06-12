@@ -13,7 +13,7 @@ export function FavoritesTab() {
   if (error) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-500">Une erreur est survenue lors du chargement des favoris.</p>
+        <p className="text-red-500">An error occurred while loading favorites.</p>
       </div>
     )
   }
@@ -43,9 +43,9 @@ export function FavoritesTab() {
     return (
       <div className="text-center py-8">
         <Heart className="mx-auto h-12 w-12 text-muted-foreground" />
-        <h3 className="mt-4 text-lg font-medium">Aucun favori</h3>
+        <h3 className="mt-4 text-lg font-medium">No favorites</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          Vous n'avez pas encore ajouté de montres à vos favoris.
+          You haven't added any watches to your favorites yet.
         </p>
       </div>
     )
@@ -54,7 +54,7 @@ export function FavoritesTab() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold mb-4">Montres favorites</h2>
+        <h2 className="text-2xl font-bold mb-4">Favorite Watches</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {favorites.map((favorite) => (
             <Link href={`/listings/${favorite.listing_id}`} key={favorite.id}>
@@ -89,4 +89,4 @@ export function FavoritesTab() {
       </div>
     </div>
   )
-} 
+}

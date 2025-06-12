@@ -31,7 +31,7 @@ interface DatabaseListing {
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const supabase = await createClient()
 
@@ -59,8 +59,14 @@ export async function GET() {
       )
     }
 
-    // Get all listings for this seller
-    const { data: listings, error: listingsError } = await supabase
+    // Pagination params
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '12')
+    const offset = (page - 1) * limit
+
+    // Get all listings for this seller (paginated)
+    const { data: listings, error: listingsError, count } = await supabase
       .from('listings')
       .select(`
         id,
@@ -82,9 +88,10 @@ export async function GET() {
           url,
           order_index
         )
-      `)
+      `, { count: 'exact' })
       .eq('seller_id', seller.id)
       .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
 
     if (listingsError) {
       console.error('Error fetching listings:', listingsError)
@@ -108,7 +115,13 @@ export async function GET() {
       updatedAt: listing.updated_at
     }))
 
-    return NextResponse.json(transformedListings)
+    return NextResponse.json({
+      listings: transformedListings,
+      total: count || 0,
+      page,
+      limit,
+      totalPages: Math.ceil((count || 0) / limit)
+    })
   } catch (error) {
     console.error('Error in listings/me API:', error)
     return NextResponse.json(

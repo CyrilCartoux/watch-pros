@@ -35,8 +35,8 @@ export function ReviewsTab() {
       } catch (error) {
         console.error('Error fetching reviews:', error)
         toast({
-          title: "Erreur",
-          description: "Impossible de charger les avis",
+          title: "Error",
+          description: "Unable to load reviews",
           variant: "destructive",
         })
       } finally {
@@ -47,7 +47,7 @@ export function ReviewsTab() {
     fetchReviews()
   }, [toast])
 
-  // Calculer la moyenne des avis
+  // Calculate average rating
   const averageRating = reviews.length > 0
     ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
     : 0
@@ -57,8 +57,8 @@ export function ReviewsTab() {
       <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle>Avis reçus</CardTitle>
-            <CardDescription>Les retours de vos acheteurs</CardDescription>
+            <CardTitle>Reviews received</CardTitle>
+            <CardDescription>Feedback from your buyers</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="animate-pulse space-y-4">
@@ -89,11 +89,11 @@ export function ReviewsTab() {
 
   return (
     <div className="space-y-6">
-      {/* Résumé des avis */}
+      {/* Reviews summary */}
       <Card>
         <CardHeader>
-          <CardTitle>Avis reçus</CardTitle>
-          <CardDescription>Les retours de vos acheteurs</CardDescription>
+          <CardTitle>Reviews received</CardTitle>
+          <CardDescription>Feedback from your buyers</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4 mb-6">
@@ -102,7 +102,7 @@ export function ReviewsTab() {
               <p className="text-4xl font-bold">{averageRating.toFixed(1)}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Basé sur {reviews.length} avis</p>
+              <p className="text-sm text-muted-foreground">Based on {reviews.length} reviews</p>
               <div className="flex items-center gap-1 mt-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
@@ -118,12 +118,12 @@ export function ReviewsTab() {
         </CardContent>
       </Card>
 
-      {/* Liste des avis */}
+      {/* Reviews list */}
       <div className="space-y-4">
         {reviews.length === 0 ? (
           <Card>
             <CardContent className="p-6 text-center text-muted-foreground">
-              Aucun avis reçu pour le moment
+              No reviews received yet
             </CardContent>
           </Card>
         ) : (
@@ -175,4 +175,4 @@ export function ReviewsTab() {
       </div>
     </div>
   )
-} 
+}
