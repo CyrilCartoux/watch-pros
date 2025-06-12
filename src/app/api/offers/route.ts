@@ -143,6 +143,7 @@ export async function POST(request: Request) {
       .from('offers')
       .insert({
         seller_id: seller.id,
+        receiver_seller_id: listing.seller_id,
         listing_id,
         offer,
         currency

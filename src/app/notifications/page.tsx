@@ -104,6 +104,7 @@ type Offer = {
   offer: number;
   currency: string;
   created_at: string;
+  is_accepted: boolean | null;
   seller: {
     id: string;
     watch_pros_name: string;
@@ -277,6 +278,7 @@ export default function NotificationsPage() {
     id: string;
     name: string;
   } | null>(null);
+  const [offerFilter, setOfferFilter] = useState<'all' | 'pending' | 'accepted' | 'declined'>('all');
 
   // Update URL when tab changes
   useEffect(() => {
@@ -336,7 +338,7 @@ export default function NotificationsPage() {
   // Fetch offers
   const fetchOffers = async () => {
     try {
-      const response = await fetch("/api/offers");
+      const response = await fetch("/api/offers/me");
       if (!response.ok) throw new Error("Failed to fetch offers");
       const data = await response.json();
       setOffers(data.offers);
@@ -467,6 +469,41 @@ export default function NotificationsPage() {
     }
   };
 
+  const handleOfferAction = async (offerId: string, action: 'accept' | 'decline') => {
+    try {
+      const response = await fetch(`/api/offers/${offerId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      });
+
+      if (!response.ok) throw new Error(`Failed to ${action} offer`);
+
+      // Update the offer in the local state instead of removing it
+      setOffers(prev => prev.map(offer => 
+        offer.id === offerId 
+          ? { ...offer, is_accepted: action === 'accept' }
+          : offer
+      ));
+    } catch (err) {
+      console.error(`Error ${action}ing offer:`, err);
+      setError(`Failed to ${action} offer`);
+    }
+  };
+
+  const filteredOffers = offers.filter(offer => {
+    switch (offerFilter) {
+      case 'pending':
+        return offer.is_accepted === null;
+      case 'accepted':
+        return offer.is_accepted === true;
+      case 'declined':
+        return offer.is_accepted === false;
+      default:
+        return true;
+    }
+  });
+
   if (loading) {
     return (
       <div className="container py-4 md:py-8">
@@ -479,7 +516,7 @@ export default function NotificationsPage() {
           <TabsList className="w-full sm:w-auto">
             <TabsTrigger value="offers" className="flex-1 sm:flex-none">
               Offers
-              {offers.length > 0 && (
+              {offers.length > 0 && offers.some(o => o.is_accepted === null) && (
                 <div className="w-2 h-2 rounded-full bg-destructive ml-2" />
               )}
             </TabsTrigger>
@@ -568,7 +605,7 @@ export default function NotificationsPage() {
         <TabsList className="w-full sm:w-auto">
           <TabsTrigger value="offers" className="flex-1 sm:flex-none">
             Offers
-            {offers.length > 0 && (
+            {offers.length > 0 && offers.some(o => o.is_accepted === null) && (
               <div className="w-2 h-2 rounded-full bg-destructive ml-2" />
             )}
           </TabsTrigger>
@@ -599,101 +636,143 @@ export default function NotificationsPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {offers.map((offer) => (
-                <Card
-                  key={offer.id}
-                  className="border-primary/20 hover:border-primary/40 transition-colors"
+            <>
+              <div className="flex flex-wrap gap-2 mb-4">
+                <Button
+                  variant={offerFilter === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setOfferFilter('all')}
                 >
-                  <CardContent className="p-4 md:p-6">
-                    <div className="flex flex-col md:flex-row gap-4 md:gap-6">
-                      <Link
-                        href={`/listings/${offer.listing.id}`}
-                        className="relative w-full md:w-48 h-48 md:h-32"
-                      >
-                        <Image
-                          src={
-                            offer.listing.listing_images[0]?.url ||
-                            `/api/listings/${offer.listing.id}/image`
-                          }
-                          alt={offer.listing.title}
-                          fill
-                          className="rounded-md object-cover"
-                        />
-                      </Link>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-                          <div className="space-y-2">
-                            <div>
-                              <Link
-                                href={`/listings/${offer.listing.id}`}
-                                className="hover:underline"
-                              >
-                                <h3 className="font-medium text-lg">
-                                  {offer.listing.title}
-                                </h3>
-                              </Link>
-                              <Link
-                                href={`/sellers/${offer.seller.watch_pros_name}`}
-                                className="hover:underline"
-                              >
-                                <p className="text-sm text-muted-foreground">
-                                  Offered by {offer.seller.watch_pros_name}
-                                </p>
-                              </Link>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="flex items-center gap-1">
-                                <DollarSign className="h-4 w-4 text-primary" />
-                                <span className="text-2xl font-bold text-primary">
-                                  {offer.offer.toLocaleString()}{" "}
-                                  {offer.currency}
+                  All
+                </Button>
+                <Button
+                  variant={offerFilter === 'pending' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setOfferFilter('pending')}
+                >
+                  Pending
+                </Button>
+                <Button
+                  variant={offerFilter === 'accepted' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setOfferFilter('accepted')}
+                >
+                  Accepted
+                </Button>
+                <Button
+                  variant={offerFilter === 'declined' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setOfferFilter('declined')}
+                >
+                  Declined
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4">
+                {filteredOffers.map((offer) => (
+                  <Card
+                    key={offer.id}
+                    className={`border-primary/20 hover:border-primary/40 transition-colors ${
+                      offer.is_accepted === true ? 'border-green-500/50' :
+                      offer.is_accepted === false ? 'border-red-500/50' :
+                      'border-primary/20'
+                    }`}
+                  >
+                    <CardContent className="p-4 md:p-6">
+                      <div className="flex flex-col md:flex-row gap-4 md:gap-6">
+                        <Link
+                          href={`/listings/${offer.listing?.id}`}
+                          className="relative w-full md:w-48 h-48 md:h-32"
+                        >
+                          <Image
+                            src={
+                              offer.listing.listing_images[0]?.url ||
+                              `/api/listings/${offer.listing.id}/image`
+                            }
+                            alt={offer.listing.title}
+                            fill
+                            className="rounded-md object-cover"
+                          />
+                        </Link>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                            <div className="space-y-2">
+                              <div>
+                                <Link
+                                  href={`/listings/${offer.listing.id}`}
+                                  className="hover:underline"
+                                >
+                                  <h3 className="font-medium text-lg">
+                                    {offer.listing.title}
+                                  </h3>
+                                </Link>
+                                <Link
+                                  href={`/sellers/${offer.seller.watch_pros_name}`}
+                                  className="hover:underline"
+                                >
+                                  <p className="text-sm text-muted-foreground">
+                                    Offered by {offer.seller.watch_pros_name}
+                                  </p>
+                                </Link>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1">
+                                  <DollarSign className="h-4 w-4 text-primary" />
+                                  <span className="text-2xl font-bold text-primary">
+                                    {offer.offer.toLocaleString()}{" "}
+                                    {offer.currency}
+                                  </span>
+                                </div>
+                                <Badge variant="outline" className="ml-2">
+                                  {(
+                                    (offer.offer / offer.listing.price) *
+                                    100
+                                  ).toFixed(0)}
+                                  % of asking price
+                                </Badge>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Clock className="h-4 w-4" />
+                                <span>
+                                  {new Date(offer.created_at).toLocaleString()}
                                 </span>
                               </div>
-                              <Badge variant="outline" className="ml-2">
-                                {(
-                                  (offer.offer / offer.listing.price) *
-                                  100
-                                ).toFixed(0)}
-                                % of asking price
-                              </Badge>
+                              {offer.is_accepted !== null && (
+                                <Badge
+                                  variant={offer.is_accepted ? "success" : "destructive"}
+                                  className="mt-2"
+                                >
+                                  {offer.is_accepted ? "Accepted" : "Declined"}
+                                </Badge>
+                              )}
                             </div>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Clock className="h-4 w-4" />
-                              <span>
-                                {new Date(offer.created_at).toLocaleString()}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="flex flex-col gap-2">
-                            <Button asChild className="w-full">
-                              <Link
-                                href={`/messages?user=${offer.seller.watch_pros_name}`}
-                              >
-                                <MessageSquare className="h-4 w-4 mr-2" />
-                                Contact Buyer
-                              </Link>
-                            </Button>
-                            <Button
-                              variant="outline"
-                              className="w-full"
-                              asChild
-                            >
-                              <Link
-                                href={`/sellers/${offer.seller.watch_pros_name}`}
-                              >
-                                <User className="h-4 w-4 mr-2" />
-                                See Buyer Page
-                              </Link>
-                            </Button>
+                            {offer.is_accepted === null && (
+                              <div className="flex flex-col gap-2">
+                                <Button 
+                                  className="w-full bg-green-600 hover:bg-green-700"
+                                  onClick={() => handleOfferAction(offer.id, 'accept')}
+                                >
+                                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                                  Accept Offer
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  className="w-full"
+                                  onClick={() => handleOfferAction(offer.id, 'decline')}
+                                >
+                                  <XCircle className="h-4 w-4 mr-2" />
+                                  Decline Offer
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </>
           )}
         </TabsContent>
 
