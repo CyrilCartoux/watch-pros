@@ -2,9 +2,6 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 
-// Admin email configuration
-const ADMIN_EMAIL = 'cyril.cartoux@gmail.com'
-
 async function isAdmin(supabase: any) {
   const {
     data: { session },

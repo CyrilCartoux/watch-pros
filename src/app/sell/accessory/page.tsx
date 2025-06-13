@@ -5,6 +5,25 @@ import { useRouter } from "next/navigation"
 import AccessoryForm from "@/components/forms/AccessoryForm"
 import { useToast } from "@/components/ui/use-toast"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
+import { Check } from "lucide-react"
+
+const steps = [
+  {
+    id: 1,
+    name: "Accessory Details",
+    description: "Basic information about your accessory",
+  },
+  {
+    id: 2,
+    name: "Condition & Price",
+    description: "Specify condition and set your price",
+  },
+  {
+    id: 3,
+    name: "Photos & Documents",
+    description: "Add photos and supporting documents",
+  },
+]
 
 export default function SellAccessoryPage() {
   const router = useRouter()
@@ -95,6 +114,22 @@ export default function SellAccessoryPage() {
           <p className="text-muted-foreground text-sm sm:text-lg">
             Complete the information below to create your listing
           </p>
+        </div>
+
+        {/* Stepper */}
+        <div className="mb-8">
+          <nav aria-label="Progress">
+            <ol role="list" className="space-y-4 md:flex md:space-x-8 md:space-y-0">
+              {steps.map((step, index) => (
+                <li key={step.id} className="md:flex-1">
+                  <div className="group flex flex-col border-l-4 border-primary py-2 pl-4 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
+                    <span className="text-sm font-medium text-primary">{step.name}</span>
+                    <span className="text-sm text-muted-foreground">{step.description}</span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </nav>
         </div>
 
         <AccessoryForm

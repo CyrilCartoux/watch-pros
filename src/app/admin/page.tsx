@@ -11,9 +11,6 @@ type SellerWithAddress = Seller & {
   seller_addresses: SellerAddress[]
 }
 
-// Admin email configuration
-const ADMIN_EMAIL = 'cyril.cartoux@gmail.com'
-
 export default function AdminPage() {
   const [pendingSellers, setPendingSellers] = useState<SellerWithAddress[]>([])
   const [loading, setLoading] = useState(true)

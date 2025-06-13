@@ -380,13 +380,6 @@ export default function ListingsPage() {
     return () => controller.abort()
   }
 
-  // Fetch listings when component mounts or when URL changes
-  useEffect(() => {
-    if (brands.length > 0) {
-      fetchListings()
-    }
-  }, [brands, filters, currentPage, sortBy])
-
   // Initialize filters from URL on mount
   useEffect(() => {
     const initializeFromURL = async () => {
@@ -411,7 +404,18 @@ export default function ListingsPage() {
           if (brand) {
             setSelectedBrand(brandSlug)
             setSelectedBrandId(brand.id)
+            setIsLoadingModels(true)
             await fetchModels(brand.id)
+            setIsLoadingModels(false)
+
+            // Initialize model selection if model is in URL
+            const modelSlug = searchParams.get("model")
+            if (modelSlug && models[brand.id]) {
+              const model = models[brand.id].find((m: Model) => m.slug === modelSlug)
+              if (model) {
+                setSelectedModel(modelSlug)
+              }
+            }
           } else {
             setError(`Brand "${brandSlug}" not found`)
           }
@@ -424,7 +428,14 @@ export default function ListingsPage() {
     if (brands.length > 0) {
       initializeFromURL()
     }
-  }, [brands, initialFilters])
+  }, [brands, initialFilters, searchParams, models])
+
+  // Fetch listings when component mounts or when URL changes
+  useEffect(() => {
+    if (brands.length > 0 && !isLoadingModels) {
+      fetchListings()
+    }
+  }, [brands, filters, currentPage, sortBy, isLoadingModels])
 
   const FilterSection = ({ title, children, section }: { title: string, children: React.ReactNode, section: string }) => (
     <div className="space-y-4">

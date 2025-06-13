@@ -220,13 +220,10 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
         fieldsToValidate = ["included", "condition"]
         break
       case 3:
-        fieldsToValidate = ["images"]
-        break
-      case 4:
         fieldsToValidate = ["price"]
         break
-      case 5:
-        fieldsToValidate = ["documents"]
+      case 4:
+        fieldsToValidate = ["images", "documents"]
         break
     }
 
@@ -775,49 +772,6 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
               )}
 
               {step === 3 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Watch Photos</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Add up to 10 photos of your watch. Accepted formats: JPG, PNG, WEBP. Maximum size: 5MB per photo.
-                  </p>
-
-                  <FormError error={form.formState.errors.images?.message as string} isSubmitted={isStepSubmitted} />
-                  
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {imagePreviews.map((preview, index) => (
-                      <div key={index} className="relative aspect-square">
-                        <img
-                          src={preview}
-                          alt={`Preview ${index + 1}`}
-                          className="w-full h-full object-cover rounded-lg"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute top-2 right-2 w-6 h-6 bg-background/80 rounded-full flex items-center justify-center hover:bg-background"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                    
-                    {imagePreviews.length < 10 && (
-                      <label className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
-                        <Upload className="w-8 h-8 text-muted-foreground mb-2" />
-                        <input
-                          type="file"
-                          accept="image/jpeg,image/png,image/webp"
-                          className="hidden"
-                          onChange={handleImageChange}
-                          multiple
-                        />
-                      </label>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {step === 4 && (
                 <div className="space-y-6">
                   <h3 className="text-lg font-semibold">Set Your Sale Price</h3>
                   
@@ -888,9 +842,48 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                 </div>
               )}
 
-              {step === 5 && (
+              {step === 4 && (
+                
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Important Documents</h3>
+                  <h3 className="text-lg font-semibold">Watch Photos</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Add up to 10 photos of your watch. Accepted formats: JPG, PNG, WEBP. Maximum size: 5MB per photo.
+                  </p>
+
+                  <FormError error={form.formState.errors.images?.message as string} isSubmitted={isStepSubmitted} />
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={index} className="relative aspect-square">
+                        <img
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute top-2 right-2 w-6 h-6 bg-background/80 rounded-full flex items-center justify-center hover:bg-background"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                    
+                    {imagePreviews.length < 10 && (
+                      <label className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
+                        <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          className="hidden"
+                          onChange={handleImageChange}
+                          multiple
+                        />
+                      </label>
+                    )}
+                  </div>
+                  <h3 className="text-lg font-semibold">Important Documents (optional)</h3>
                   <p className="text-sm text-muted-foreground mb-4">
                     Add important documents such as invoices, certificates of authenticity, etc. These documents will only be visible to the final buyer after transaction validation.
                   </p>
@@ -953,7 +946,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                     Back
                   </Button>
                 )}
-                {step < 5 ? (
+                {step < 4 ? (
                   <Button 
                     type="button" 
                     onClick={nextStep}

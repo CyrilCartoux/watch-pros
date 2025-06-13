@@ -182,10 +182,10 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
         fieldsToValidate = ['condition']
         break
       case 3:
-        fieldsToValidate = ['images']
+        fieldsToValidate = ['price', 'shippingDelay']
         break
       case 4:
-        fieldsToValidate = ['price', 'shippingDelay']
+        fieldsToValidate = ['images']
         break
     }
 
@@ -214,12 +214,13 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
 
   // Auto-complete title when brand, model or reference changes
   useEffect(() => {
+    const accessoryType = form.watch("accessory_type")
     const brand = brands.find(b => b.id === form.watch("brand"))?.label
     const model = selectedBrand && models[selectedBrand]?.find(m => m.id === form.watch("model"))?.label
     const reference = form.watch("reference")
 
     if (brand && model && reference) {
-      const suggestedTitle = `${brand} - ${model} - ${reference}`
+      const suggestedTitle = `${accessoryType} - ${brand} - ${model} - ${reference}`
       form.setValue("title", suggestedTitle)
     }
   }, [form.watch("brand"), form.watch("model"), form.watch("reference"), brands, models, selectedBrand])
@@ -882,48 +883,6 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
               )}
 
               {step === 3 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Accessory photos</h3>
-                  <FormError error={form.formState.errors.images?.message} isSubmitted={isStepSubmitted} />
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Add up to 10 photos of your accessory. Accepted formats: JPG, PNG, WEBP. Maximum size: 5MB per photo.
-                  </p>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {imagePreviews.map((preview, index) => (
-                      <div key={index} className="relative aspect-square">
-                        <img
-                          src={preview}
-                          alt={`Preview ${index + 1}`}
-                          className="w-full h-full object-cover rounded-lg"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(index)}
-                          className="absolute top-2 right-2 w-6 h-6 bg-background/80 rounded-full flex items-center justify-center hover:bg-background"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ))}
-                    
-                    {imagePreviews.length < 10 && (
-                      <label className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
-                        <Upload className="w-8 h-8 text-muted-foreground mb-2" />
-                        <input
-                          type="file"
-                          accept="image/jpeg,image/png,image/webp"
-                          className="hidden"
-                          onChange={handleImageChange}
-                          multiple
-                        />
-                      </label>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {step === 4 && (
                 <div className="space-y-6">
                   <h3 className="text-lg font-semibold">Set your selling price</h3>                      
                   <div className="space-y-4">
@@ -993,9 +952,46 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
                 </div>
               )}
 
-              {step === 5 && (
+              {step === 4 && (
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Important documents</h3>
+                  <h3 className="text-lg font-semibold">Accessory photos</h3>
+                  <FormError error={form.formState.errors.images?.message} isSubmitted={isStepSubmitted} />
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Add up to 10 photos of your accessory. Accepted formats: JPG, PNG, WEBP. Maximum size: 5MB per photo.
+                  </p>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={index} className="relative aspect-square">
+                        <img
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute top-2 right-2 w-6 h-6 bg-background/80 rounded-full flex items-center justify-center hover:bg-background"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                    
+                    {imagePreviews.length < 10 && (
+                      <label className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
+                        <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/webp"
+                          className="hidden"
+                          onChange={handleImageChange}
+                          multiple
+                        />
+                      </label>
+                    )}
+                  </div>
+                  <h3 className="text-lg font-semibold">Important documents (optional)</h3>
                   <p className="text-sm text-muted-foreground mb-4">
                     Add important documents such as invoices, certificates of authenticity, etc. These documents will only be visible to the final buyer after transaction validation.
                   </p>
@@ -1058,7 +1054,7 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
                     Back
                   </Button>
                 )}
-                {step < 5 ? (
+                {step < 4 ? (
                   <Button 
                     type="button" 
                     onClick={nextStep}
