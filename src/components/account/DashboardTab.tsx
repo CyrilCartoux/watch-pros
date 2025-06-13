@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import { createClient } from "@/lib/supabase/client"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
 import { Skeleton } from "@/components/ui/skeleton"
 
 interface DashboardData {
@@ -222,18 +222,17 @@ export function DashboardTab() {
       <Card>
         <CardHeader>
           <CardTitle>Monthly Activity</CardTitle>
-          <CardDescription>Listings and sales over the last 12 months</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data.monthly}>
-                <CartesianGrid strokeDasharray="3 3" />
+              <BarChart data={data.monthly || []}>
                 <XAxis dataKey="month" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="total" name="Total Listings" fill="#8884d8" />
-                <Bar dataKey="sold" name="Sold Items" fill="#82ca9d" />
+                <Legend />
+                <Bar dataKey="total" name="Listings" fill="#8884d8" />
+                <Bar dataKey="sold" name="Sales" fill="#82ca9d" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -244,21 +243,67 @@ export function DashboardTab() {
       <Card>
         <CardHeader>
           <CardTitle>Brand Distribution</CardTitle>
-          <CardDescription>Your listings by brand</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {data.by_brand.map((brand) => (
+            {(data.by_brand || []).map((brand) => (
               <div key={brand.label} className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">{brand.label}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {brand.sold} sold of {brand.cnt} total
-                  </p>
+                <span className="text-sm font-medium">{brand.label}</span>
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-muted-foreground">
+                    {brand.sold} sold
+                  </span>
+                  <span className="text-sm font-medium">
+                    €{(brand.avg_sale_price || 0).toLocaleString()}
+                  </span>
                 </div>
-                <div className="text-right">
-                  <p className="font-medium">€{(brand.avg_sale_price || 0).toLocaleString()}</p>
-                  <p className="text-sm text-muted-foreground">avg. sale price</p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Model Distribution */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Model Distribution</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {(data.by_model || []).map((model) => (
+              <div key={model.label} className="flex items-center justify-between">
+                <span className="text-sm font-medium">{model.label}</span>
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-muted-foreground">
+                    {model.sold} sold
+                  </span>
+                  <span className="text-sm font-medium">
+                    €{(model.avg_sale_price || 0).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Condition Distribution */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Condition Distribution</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {(data.by_condition || []).map((condition) => (
+              <div key={condition.condition} className="flex items-center justify-between">
+                <span className="text-sm font-medium">{condition.condition}</span>
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-muted-foreground">
+                    {condition.sold} sold
+                  </span>
+                  <span className="text-sm font-medium">
+                    €{(condition.avg_sale_price || 0).toLocaleString()}
+                  </span>
                 </div>
               </div>
             ))}
