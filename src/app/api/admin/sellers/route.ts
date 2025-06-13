@@ -5,10 +5,10 @@ import { sendEmail, emailTemplates } from '@/lib/email'
 
 async function isAdmin(supabase: any) {
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  if (!session) {
+  if (!user) {
     return false
   }
 
@@ -16,7 +16,7 @@ async function isAdmin(supabase: any) {
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
-    .eq('id', session.user.id)
+    .eq('id', user.id)
     .single()
 
   return profile?.role === 'admin'
@@ -44,6 +44,18 @@ export async function GET() {
         siren,
         tax_id,
         vat_number
+      ),
+      profiles!profiles_seller_id_fkey (
+        subscriptions (
+          id,
+          status,
+          price_id,
+          current_period_start,
+          current_period_end,
+          pm_type,
+          pm_last4,
+          pm_brand
+        )
       )
     `)
     .eq('identity_verified', false)
@@ -55,7 +67,13 @@ export async function GET() {
     return NextResponse.json({ error: 'Failed to fetch sellers' }, { status: 500 })
   }
 
-  return NextResponse.json({ sellers })
+  // Transform the data to match the expected format
+  const transformedSellers = sellers?.map(seller => ({
+    ...seller,
+    subscriptions: seller.profiles?.[0]?.subscriptions || []
+  }))
+
+  return NextResponse.json({ sellers: transformedSellers })
 }
 
 export async function POST(request: Request) {

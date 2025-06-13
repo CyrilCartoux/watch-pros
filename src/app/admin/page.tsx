@@ -19,6 +19,16 @@ import { Textarea } from "@/components/ui/textarea"
 
 type SellerWithAddress = Seller & {
   seller_addresses: SellerAddress[]
+  subscriptions: {
+    id: string
+    status: 'incomplete' | 'incomplete_expired' | 'trialing' | 'active' | 'past_due' | 'canceled' | 'unpaid'
+    price_id: string
+    current_period_start: string | null
+    current_period_end: string | null
+    pm_type: 'card' | 'sepa_debit' | null
+    pm_last4: string | null
+    pm_brand: string | null
+  }[]
 }
 
 export default function AdminPage() {
@@ -61,9 +71,9 @@ export default function AdminPage() {
 
   const checkAdminAccess = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession()
+      const { data: { user } } = await supabase.auth.getUser()
       
-      if (!session) {
+      if (!user) {
         router.push('/auth')
         return
       }
@@ -72,7 +82,7 @@ export default function AdminPage() {
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
-        .eq('id', session.user.id)
+        .eq('id', user.id)
         .single()
 
       if (profile?.role !== 'admin') {
@@ -400,6 +410,59 @@ export default function AdminPage() {
                           </a>
                         )}
                       </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">Informations de souscription</h3>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <dl className="grid grid-cols-1 gap-4">
+                        {seller.subscriptions?.[0] ? (
+                          <>
+                            <div>
+                              <dt className="text-sm font-medium text-gray-500">Statut</dt>
+                              <dd className="mt-1">
+                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                  seller.subscriptions[0].status === 'active' ? 'bg-green-100 text-green-800' :
+                                  seller.subscriptions[0].status === 'incomplete' ? 'bg-yellow-100 text-yellow-800' :
+                                  'bg-red-100 text-red-800'
+                                }`}>
+                                  {seller.subscriptions[0].status}
+                                </span>
+                              </dd>
+                            </div>
+                            {seller.subscriptions[0].pm_type && (
+                              <div>
+                                <dt className="text-sm font-medium text-gray-500">Méthode de paiement</dt>
+                                <dd className="mt-1 text-sm text-gray-900">
+                                  {seller.subscriptions[0].pm_brand?.toUpperCase()} •••• {seller.subscriptions[0].pm_last4}
+                                </dd>
+                              </div>
+                            )}
+                            {seller.subscriptions[0].current_period_start && (
+                              <div>
+                                <dt className="text-sm font-medium text-gray-500">Début de période</dt>
+                                <dd className="mt-1 text-sm text-gray-900">
+                                  {new Date(seller.subscriptions[0].current_period_start).toLocaleDateString('fr-FR')}
+                                </dd>
+                              </div>
+                            )}
+                            {seller.subscriptions[0].current_period_end && (
+                              <div>
+                                <dt className="text-sm font-medium text-gray-500">Fin de période</dt>
+                                <dd className="mt-1 text-sm text-gray-900">
+                                  {new Date(seller.subscriptions[0].current_period_end).toLocaleDateString('fr-FR')}
+                                </dd>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div>
+                            <dt className="text-sm font-medium text-gray-500">Aucune souscription</dt>
+                            <dd className="mt-1 text-sm text-gray-900">Le vendeur n'a pas encore souscrit à un plan</dd>
+                          </div>
+                        )}
+                      </dl>
                     </div>
                   </div>
                 </div>
