@@ -25,7 +25,6 @@ import { Label } from "@/components/ui/label"
 import { useBrandsAndModels } from "@/hooks/useBrandsAndModels"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useFavorites } from "@/hooks/useFavorites"
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { ListingType } from "@/types/enums/listings-enum"
 import { SearchBar } from "@/components/SearchBar"
 import debounce from "lodash.debounce"
@@ -764,7 +763,6 @@ export default function ListingsPage() {
   }, [sortBy, updateURL])
 
   return (
-    <ProtectedRoute requireSeller requireVerified>
       <main className="min-h-screen bg-background py-8">
         <div className="container">
           {error && (
@@ -960,6 +958,5 @@ export default function ListingsPage() {
           </Dialog>
         </div>
       </main>
-    </ProtectedRoute>
   )
 }

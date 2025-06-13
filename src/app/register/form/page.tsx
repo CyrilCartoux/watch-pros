@@ -12,7 +12,6 @@ import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { countries, phonePrefixes } from "@/data/form-options"
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { SubscriptionStep } from '@/components/SubscriptionStep'
 import { plans } from "@/data/subscription-plans"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
@@ -560,8 +559,6 @@ export default function RegisterFormPage() {
   }
 
   return (
-    <ProtectedRoute requireAuth>
-
     <main className="container py-12">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-12">
@@ -1265,6 +1262,5 @@ export default function RegisterFormPage() {
         </Button>
       </div>
     </main>
-    </ProtectedRoute>
   )
 } 

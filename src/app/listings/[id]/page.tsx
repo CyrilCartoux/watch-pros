@@ -15,7 +15,6 @@ import { watchConditions } from "@/data/watch-conditions"
 import { useFavorites } from "@/hooks/useFavorites"
 import { useAuth } from "@/contexts/AuthContext"
 import { useToast } from "@/components/ui/use-toast"
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { useRouter } from "next/navigation"
 import { countries } from '@/data/form-options'
 import { Badge } from "@/components/ui/badge"
@@ -489,7 +488,6 @@ export default function ListingPage({ params }: Props) {
   }
 
   return (
-    <ProtectedRoute requireSeller requireVerified>
     <main className="min-h-screen bg-background">
       <div className="container py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -1082,6 +1080,5 @@ export default function ListingPage({ params }: Props) {
         </div>
       </div>
     </main>
-    </ProtectedRoute>
   )
 } 

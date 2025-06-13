@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import AccessoryForm from "@/components/forms/AccessoryForm"
 import { useToast } from "@/components/ui/use-toast"
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 export default function EditAccessoryPage({ params }: { params: { id: string } }) {
   const router = useRouter()
@@ -116,7 +115,6 @@ export default function EditAccessoryPage({ params }: { params: { id: string } }
   }
 
   return (
-    <ProtectedRoute requireSeller requireVerified>
     <main className="container py-4 sm:py-12">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-4 sm:mb-12">
@@ -136,6 +134,5 @@ export default function EditAccessoryPage({ params }: { params: { id: string } }
         />
       </div>
     </main>
-    </ ProtectedRoute>
   )
 } 

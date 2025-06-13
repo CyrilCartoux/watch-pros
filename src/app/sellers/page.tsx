@@ -26,7 +26,6 @@ import {
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useRouter, useSearchParams } from "next/navigation"
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import debounce from "lodash.debounce"
 
 interface Seller {
@@ -345,7 +344,6 @@ export default function SellersListPage() {
   }
 
   return (
-    <ProtectedRoute requireSeller requireVerified>
       <div className="container py-8 space-y-8">
         {/* Header */}
         <div className="flex flex-col gap-4">
@@ -590,6 +588,5 @@ export default function SellersListPage() {
           </DialogContent>
         </Dialog>
       </div>
-    </ProtectedRoute>
   )
 }

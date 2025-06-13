@@ -13,7 +13,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import { Button } from "@/components/ui/button"
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 interface BrandData {
   name: string
@@ -80,7 +79,6 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
   }
 
   return (
-    <ProtectedRoute requireSeller requireVerified>
     <main className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative min-h-[200px] md:min-h-[420px] flex flex-col items-center justify-center bg-gradient-to-b from-background to-muted/30 py-6 md:py-16">
@@ -306,6 +304,5 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
         </div>
       </section>
     </main>
-    </ProtectedRoute>
   )
 } 

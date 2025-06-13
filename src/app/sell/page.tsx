@@ -4,11 +4,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Watch, Gift } from "lucide-react"
 import Link from "next/link"
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 export default function SellPage() {
   return (
-    <ProtectedRoute requireSeller requireVerified>
     <main className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative pt-16 md:pt-24 pb-6 md:pb-8 bg-gradient-to-b from-primary/5 to-background">
@@ -102,6 +100,5 @@ export default function SellPage() {
         </div>
       </section>
     </main>
-    </ProtectedRoute>
   )
 }

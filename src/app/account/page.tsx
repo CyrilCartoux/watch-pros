@@ -16,7 +16,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useSearchParams, useRouter } from "next/navigation"
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 export default function AccountPage() {
   const searchParams = useSearchParams()
@@ -29,8 +28,6 @@ export default function AccountPage() {
 
 
   return (
-    <ProtectedRoute requireSeller requireVerified>
-
     <div className="container py-4 md:py-8">
       <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">My Account</h1>
 
@@ -147,6 +144,5 @@ export default function AccountPage() {
         </TabsContent>
       </Tabs>
     </div>
-    </ProtectedRoute>
   )
 }

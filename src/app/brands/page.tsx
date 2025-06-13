@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link"
 import brandsData from "@/data/brands.json"
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 interface Brand {
   name: string
@@ -29,8 +28,6 @@ export default function BrandsPage() {
   }, {} as Record<string, Brand[]>)
 
   return (
-    <ProtectedRoute requireSeller requireVerified>
-
     <main className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative py-12 md:py-20 bg-gradient-to-b from-background to-muted/30">
@@ -373,6 +370,5 @@ export default function BrandsPage() {
         </div>
       </section>
     </main>
-    </ProtectedRoute>
   )
 } 

@@ -4,7 +4,6 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import AccessoryForm from "@/components/forms/AccessoryForm"
 import { useToast } from "@/components/ui/use-toast"
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { Check } from "lucide-react"
 
 const steps = [
@@ -104,7 +103,6 @@ export default function SellAccessoryPage() {
   }
 
   return (
-    <ProtectedRoute requireSeller requireVerified>
     <main className="container py-4 sm:py-12">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-4 sm:mb-12">
@@ -138,6 +136,5 @@ export default function SellAccessoryPage() {
         />
       </div>
     </main>
-    </ProtectedRoute>
   )
 }

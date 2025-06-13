@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import WatchForm from "@/components/forms/WatchForm"
 import { useToast } from "@/components/ui/use-toast"
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 export default function EditWatchPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const { toast } = useToast()
@@ -108,8 +107,6 @@ export default function EditWatchPage({ params }: { params: { id: string } }) {
   }
 
   return (
-    <ProtectedRoute requireSeller requireVerified>
-
     <main className="container py-4 sm:py-12">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-4 sm:mb-12">
@@ -129,6 +126,5 @@ export default function EditWatchPage({ params }: { params: { id: string } }) {
         />
       </div>
     </main>
-    </ProtectedRoute>
   )
 } 

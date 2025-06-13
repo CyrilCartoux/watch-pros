@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import WatchForm from "@/components/forms/WatchForm";
 import { useToast } from "@/components/ui/use-toast";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { Check } from "lucide-react";
 
 const steps = [
@@ -101,7 +100,6 @@ export default function SellWatchPage() {
   };
 
   return (
-    <ProtectedRoute requireSeller requireVerified>
       <main className="container py-4 sm:py-12">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-4 sm:mb-12">
@@ -132,6 +130,5 @@ export default function SellWatchPage() {
           <WatchForm onSubmit={onSubmit} isSubmitting={isSubmitting} />
         </div>
       </main>
-    </ProtectedRoute>
   );
 }

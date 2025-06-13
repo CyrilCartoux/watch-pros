@@ -4,12 +4,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { CheckCircle2, Building2, User, AlertCircle } from "lucide-react"
 import Link from "next/link"
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 
 export default function RegisterPage() {
   return (
-    <ProtectedRoute requireAuth>
     <main className="container py-12">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
@@ -173,6 +171,5 @@ export default function RegisterPage() {
         </div>
       </div>
     </main>
-    </ProtectedRoute>
   )
 }

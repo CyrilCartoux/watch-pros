@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // Routes publiques qui ne nécessitent pas d'authentification
-const PUBLIC_ROUTES = ['/', '/auth', '/register']
+const PUBLIC_ROUTES = ['/', '/auth', '/register', '/subscription', '/pricing']
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
@@ -55,6 +55,7 @@ export async function middleware(request: NextRequest) {
       .from('profiles')
       .select(`
         seller_id,
+        role,
         sellers (
           identity_verified,
           identity_rejected
@@ -71,6 +72,11 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/auth', request.url))
     }
 
+    // Si l'utilisateur est admin et essaie d'accéder à /admin, autoriser l'accès
+    if (profile?.role === 'admin' && path === '/admin') {
+      return res
+    }
+
     const activeSubscriptionStatuses = ['active', 'incomplete']
     const hasActiveSubscription = profile?.subscriptions?.some(
       (sub: { status: string }) => activeSubscriptionStatuses.includes(sub.status)
@@ -81,6 +87,7 @@ export async function middleware(request: NextRequest) {
     console.log('IS VERIFIED', (profile?.sellers as any)?.identity_verified)
     console.log('IS REJECTED', (profile?.sellers as any)?.identity_rejected)
     console.log('IS SELLER', !!profile?.seller_id)
+    console.log('IS ADMIN', profile?.role === 'admin')
 
     // Rediriger en fonction du statut d'authentification
     if (!profile?.seller_id) {
@@ -92,7 +99,7 @@ export async function middleware(request: NextRequest) {
     }
 
     if (!hasActiveSubscription) {
-      return NextResponse.redirect(new URL('/subscription', request.url))
+      return NextResponse.redirect(new URL('/pricing', request.url))
     }
 
     // Si toutes les vérifications sont passées, continuer

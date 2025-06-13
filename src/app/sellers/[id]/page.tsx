@@ -15,7 +15,6 @@ import { useAuth } from "@/contexts/AuthContext"
 import { ReviewDialog } from "@/components/ReviewDialog"
 import { countries } from "@/data/form-options"
 import { useToast } from "@/components/ui/use-toast"
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 interface Seller {
   id: string
@@ -394,7 +393,6 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
   }
 
   return (
-    <ProtectedRoute requireSeller requireVerified>
     <main className="min-h-screen bg-background py-8">
       <div className="container">
         {/* Header */}
@@ -898,6 +896,5 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
         />
       </div>
     </main>
-    </ProtectedRoute>
   )
 } 

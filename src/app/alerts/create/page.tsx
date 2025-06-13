@@ -4,7 +4,6 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import CustomAlertForm from "@/components/forms/CustomAlertForm"
 import { CustomAlertInsert } from "@/types/db/notifications/CustomAlerts"
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 
 export default function CreateAlertPage() {
   const router = useRouter()
@@ -36,8 +35,6 @@ export default function CreateAlertPage() {
   }
 
   return (
-    <ProtectedRoute requireSeller requireVerified>
-
     <main className="container py-4 sm:py-12">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-4 sm:mb-12">
@@ -57,6 +54,5 @@ export default function CreateAlertPage() {
         </div>
       </div>
     </main>
-    </ProtectedRoute>
   )
 } 

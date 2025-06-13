@@ -40,6 +40,21 @@ export async function POST(request: Request) {
       )
     }
 
+    // Vérifier que le price_id existe dans subscription_plans
+    const { data: subscriptionPlan, error: planError } = await supabase
+      .from('subscription_plans')
+      .select('price_id')
+      .eq('price_id', priceId)
+      .single()
+
+    if (planError || !subscriptionPlan) {
+      console.error('Invalid price_id:', priceId)
+      return NextResponse.json(
+        { error: 'Invalid subscription plan' },
+        { status: 400 }
+      )
+    }
+
     // Get or create Stripe customer
     const { data: profile } = await supabase
       .from('profiles')
@@ -69,8 +84,7 @@ export async function POST(request: Request) {
           taxId: address.taxId,
           vatNumber: address.vatNumber
         }
-      }
-    )
+      })
       stripeCustomerId = customer.id
       await supabaseAdmin
         .from('profiles')

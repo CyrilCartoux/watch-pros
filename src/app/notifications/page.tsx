@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/dialog";
 import { useSearchParams, useRouter } from "next/navigation";
 import { countries } from "@/data/form-options";
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 type Notification = {
   id: string;
@@ -586,7 +585,6 @@ export default function NotificationsPage() {
   }
 
   return (
-    <ProtectedRoute requireSeller requireVerified>
     <div className="container py-4 md:py-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
         <h1 className="text-2xl md:text-3xl font-bold">Notification Center</h1>
@@ -1114,6 +1112,5 @@ export default function NotificationsPage() {
         </DialogContent>
       </Dialog>
     </div>
-    </ProtectedRoute>
   );
 }

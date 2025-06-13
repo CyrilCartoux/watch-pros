@@ -3,25 +3,30 @@
  * @see {@link Subscription} for the TypeScript type definition
  */
 // create table public.subscriptions (
-//   id                   uuid          primary key default gen_random_uuid(),
-//   user_id              uuid          not null references profiles(id),
-//   stripe_customer_id   text          not null,
-//   stripe_subscription_id text        not null unique,
-//   price_id             text          not null,
-//   product_id           text          null,
-//   status               text          not null,
-//   payment_method_id    text          null,
-//   pm_type              text          null,
-//   pm_last4             text          null,
-//   pm_brand             text          null,
-//   trial_end            timestamptz   null,
-//   current_period_start timestamptz   null,
-//   current_period_end   timestamptz   null,
-//   cancel_at_period_end boolean       default false,
-//   canceled_at          timestamptz   null,
-//   created_at           timestamptz   default now()
-// );
+//   id uuid not null default gen_random_uuid (),
+//   user_id uuid not null,
+//   stripe_customer_id text not null,
+//   stripe_subscription_id text not null,
+//   price_id text not null,
+//   product_id text null,
+//   status text not null,
+//   payment_method_id text null,
+//   pm_type text null,
+//   pm_last4 text null,
+//   pm_brand text null,
+//   trial_end timestamp with time zone null,
+//   current_period_start timestamp with time zone null,
+//   current_period_end timestamp with time zone null,
+//   cancel_at_period_end boolean null default false,
+//   canceled_at timestamp with time zone null,
+//   created_at timestamp with time zone null default now(),
+//   constraint subscriptions_pkey primary key (id),
+//   constraint subscriptions_stripe_subscription_id_key unique (stripe_subscription_id),
+//   constraint subscriptions_price_id_fkey foreign KEY (price_id) references subscription_plans (price_id),
+//   constraint subscriptions_user_id_fkey foreign KEY (user_id) references profiles (id)
 
+
+// ) TABLESPACE pg_default;
 export type SubscriptionStatus = 
   | 'incomplete' 
   | 'incomplete_expired' 

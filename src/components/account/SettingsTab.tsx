@@ -12,6 +12,7 @@ import Image from "next/image"
 import { countries } from "@/data/form-options"
 import { useToast } from "@/components/ui/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useRouter } from 'next/navigation'
 
 interface Profile {
   id: string
@@ -215,6 +216,7 @@ export function SettingsTab() {
   const [isUpdating, setIsUpdating] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
   const [subscriptionError, setSubscriptionError] = useState<string | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
     async function fetchData() {
@@ -702,6 +704,15 @@ export function SettingsTab() {
                   </div>
                 </div>
               </div>
+
+              <div className="flex justify-end mt-6">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/subscription')}
+                >
+                  Manage Subscription
+                </Button>
+              </div>
             </>
           ) : (
             <div className="text-center py-6">
@@ -709,7 +720,7 @@ export function SettingsTab() {
               <p className="text-sm text-muted-foreground mb-6">
                 Subscribe to access premium features and start selling on our platform.
               </p>
-              <Button>
+              <Button onClick={() => router.push('/subscription')}>
                 Subscribe Now
               </Button>
             </div>

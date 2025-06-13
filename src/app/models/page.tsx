@@ -14,7 +14,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
 import { useRouter, useSearchParams } from "next/navigation"
 
 interface Brand {
@@ -135,7 +134,6 @@ export default function ModelsPage() {
   }
 
   return (
-    <ProtectedRoute requireSeller requireVerified>
     <main className="min-h-screen bg-background">
       <div className="container py-8">
         <h1 className="text-3xl md:text-4xl font-bold mb-2">Popular Models</h1>
@@ -289,6 +287,5 @@ export default function ModelsPage() {
         </Tabs>
       </div>
     </main>
-    </ProtectedRoute>
   )
 }
