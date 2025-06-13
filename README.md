@@ -61,7 +61,6 @@ The application uses a PostgreSQL database with the following main tables:
 - `listing_images`: Images associated with listings
 - `sellers`: Seller profiles and information
 - `seller_addresses`: Seller address information
-- `seller_banking`: Seller banking and payment information
 
 ### Key Relationships
 - Listings belong to brands and models

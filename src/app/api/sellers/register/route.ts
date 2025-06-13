@@ -1,3 +1,4 @@
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import sharp from 'sharp'
@@ -36,22 +37,6 @@ interface RegisterSellerRequest {
     oss?: boolean
     faxPrefix?: string
     mobilePrefix: string
-  }
-  banking: {
-    paymentMethod: 'card' | 'sepa'
-    cardHolder?: string
-    cvc?: string
-    isAuthorized?: boolean
-    accountHolder?: string
-    sepaStreet?: string
-    sepaPostalCode?: string
-    sepaCity?: string
-    bankName?: string
-    cardNumber?: string
-    expiryDate?: string
-    sepaCountry?: string
-    iban?: string
-    bic?: string
   }
 }
 
@@ -115,27 +100,37 @@ export async function POST(request: Request) {
   const supabase = await createClient()
   
   try {
+    console.log('🚀 Starting seller registration process...')
+    
     // Get the current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     if (userError || !user) {
+      console.error('❌ User authentication error:', userError)
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
       )
     }
+    console.log('✅ User authenticated:', { userId: user.id })
 
     const formData = await request.formData()
 
     // Parse JSON data from form fields
     const account = JSON.parse(formData.get('account') as string)
     const address = JSON.parse(formData.get('address') as string)
-    const banking = JSON.parse(formData.get('banking') as string)
+
+    console.log('📝 Parsed form data:', {
+      account: { ...account, password: '[REDACTED]' },
+      address,
+    })
 
     // Add user_id to account object as UUID
     account.user_id = user.id 
+    console.log('🔗 Added user_id to account:', account.user_id)
 
     // Ensure cryptoFriendly is a boolean
     account.cryptoFriendly = Boolean(account.cryptoFriendly)
+    console.log('💰 Crypto friendly status:', account.cryptoFriendly)
 
     // Get and validate files
     const idCardFront = formData.get('idCardFront') as File
@@ -143,21 +138,39 @@ export async function POST(request: Request) {
     const proofOfAddress = formData.get('proofOfAddress') as File
     const companyLogo = formData.get('companyLogo') as File
 
+    console.log('📁 Files received:', {
+      idCardFront: { name: idCardFront.name, size: idCardFront.size, type: idCardFront.type },
+      idCardBack: { name: idCardBack.name, size: idCardBack.size, type: idCardBack.type },
+      proofOfAddress: { name: proofOfAddress.name, size: proofOfAddress.size, type: proofOfAddress.type },
+      companyLogo: { name: companyLogo.name, size: companyLogo.size, type: companyLogo.type }
+    })
+
     // Validate files
-    validateFile(idCardFront)
-    validateFile(idCardBack)
-    validateFile(proofOfAddress)
-    validateFile(companyLogo)
+    try {
+      validateFile(idCardFront)
+      validateFile(idCardBack)
+      validateFile(proofOfAddress)
+      validateFile(companyLogo)
+      console.log('✅ All files validated successfully')
+    } catch (error) {
+      console.error('❌ File validation error:', error)
+      throw error
+    }
 
     // Insert seller and related data in a single transaction
+    console.log('🔄 Starting seller registration transaction...')
     const { data: seller, error: registerError } = await supabase.rpc('register_seller', {
       p_account: account,
       p_address: address,
-      p_banking: banking,
       p_trusted: null
     })
 
-    if (registerError) throw registerError
+    if (registerError) {
+      console.error('❌ Seller registration error:', registerError)
+      throw registerError
+    }
+    console.log('✅ Seller registered successfully:', { sellerId: seller.id })
+    console.log('seller after register_seller', seller)
 
     // Upload documents to storage and get their URLs
     const documents = [
@@ -184,15 +197,20 @@ export async function POST(request: Request) {
     ]
 
     const documentUrls: Record<string, string> = {}
+    console.log('📤 Starting document uploads...')
 
     for (const doc of documents) {
       try {
+        console.log(`🔄 Processing ${doc.type}...`)
+        
         // Process file (optimize if image, keep as is if PDF)
         const { buffer, contentType } = await processFile(doc.file)
+        console.log(`✅ ${doc.type} processed:`, { contentType, size: buffer.length })
 
         // Create a unique file name with extension
         const fileExtension = doc.file.type === 'application/pdf' ? 'pdf' : 'jpg'
         const fileName = `${doc.user_id}/${doc.type}-${Date.now()}.${fileExtension}`
+        console.log(`📝 Generated filename for ${doc.type}:`, fileName)
 
         // Upload file to storage
         const { data: uploadData, error: uploadError } = await supabase.storage
@@ -204,9 +222,10 @@ export async function POST(request: Request) {
           })
 
         if (uploadError) {
-          console.error(`Error uploading ${doc.type}:`, uploadError)
+          console.error(`❌ Error uploading ${doc.type}:`, uploadError)
           throw new Error(`Failed to upload ${doc.type}: ${uploadError.message}`)
         }
+        console.log(`✅ ${doc.type} uploaded successfully`)
 
         // Get the public URL
         const { data: { publicUrl } } = supabase.storage
@@ -215,22 +234,25 @@ export async function POST(request: Request) {
 
         // Store the URL in our object
         documentUrls[doc.type] = publicUrl
+        console.log(`🔗 ${doc.type} URL generated:`, publicUrl)
 
       } catch (error) {
-        console.error(`Error processing document ${doc.type}:`, error)
+        console.error(`❌ Error processing document ${doc.type}:`, error)
         // If there's an error, try to clean up any uploaded files
         try {
           const fileExtension = doc.file.type === 'application/pdf' ? 'pdf' : 'jpg'
           await supabase.storage
             .from('sellerdocuments')
             .remove([`${doc.user_id}/${doc.type}-${Date.now()}.${fileExtension}`])
+          console.log(`🧹 Cleaned up ${doc.type} after error`)
         } catch (cleanupError) {
-          console.error('Error cleaning up files:', cleanupError)
+          console.error('❌ Error cleaning up files:', cleanupError)
         }
         throw error
       }
     }
 
+    console.log('📝 Updating seller with document URLs...')
     // Update seller with document URLs
     const { error: updateError } = await supabase
       .from('sellers')
@@ -243,12 +265,14 @@ export async function POST(request: Request) {
       .eq('id', seller.id)
 
     if (updateError) {
-      console.error('Error updating seller with document URLs:', updateError)
+      console.error('❌ Error updating seller with document URLs:', updateError)
       throw new Error('Failed to update seller with document URLs')
     }
+    console.log('✅ Seller updated with document URLs')
 
+    console.log('📝 Updating profile with seller_id...')
     // Update profile with seller_id
-    const { error: profileUpdateError } = await supabase
+    const { error: profileUpdateError } = await supabaseAdmin
       .from('profiles')
       .update({
         seller_id: seller.id
@@ -256,10 +280,12 @@ export async function POST(request: Request) {
       .eq('id', user.id)
 
     if (profileUpdateError) {
-      console.error('Error updating profile with seller_id:', profileUpdateError)
+      console.error('❌ Error updating profile with seller_id:', profileUpdateError)
       throw new Error('Failed to update profile with seller_id')
     }
+    console.log('✅ Profile updated with seller_id')
 
+    console.log('🎉 Seller registration completed successfully')
     return NextResponse.json({
       message: 'Seller registered successfully',
       seller: {
@@ -269,7 +295,7 @@ export async function POST(request: Request) {
     })
 
   } catch (error) {
-    console.error('Error in seller registration:', error)
+    console.error('❌ Error in seller registration:', error)
     return NextResponse.json(
       { 
         error: error instanceof Error ? error.message : 'Internal server error',

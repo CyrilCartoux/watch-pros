@@ -3,13 +3,13 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 
 interface AuthStatus {
   isAuthenticated: boolean
   isSeller: boolean
   isVerified: boolean
   isRejected: boolean
+  hasActiveSubscription: boolean
   isLoading: boolean
 }
 
@@ -20,10 +20,10 @@ export function useAuthStatus() {
     isSeller: false,
     isVerified: false,
     isRejected: false,
+    hasActiveSubscription: false,
     isLoading: true
   })
   const router = useRouter()
-  const supabase = createClient()
 
   useEffect(() => {
     async function checkStatus() {
@@ -35,47 +35,43 @@ export function useAuthStatus() {
           isSeller: false,
           isVerified: false,
           isRejected: false,
+          hasActiveSubscription: false,
           isLoading: false
         })
         return
       }
 
-      // Vérifier le profil vendeur
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('seller_id')
-        .eq('id', user.id)
-        .single()
+      try {
+        const response = await fetch('/api/auth/status')
+        if (!response.ok) {
+          throw new Error('Failed to fetch auth status')
+        }
 
-      if (!profile?.seller_id) {
+        const data = await response.json()
+        console.log({ data })
         setStatus({
-          isAuthenticated: true,
+          isAuthenticated: data.isAuthenticated,
+          isSeller: data.isSeller,
+          isVerified: data.isVerified,
+          isRejected: data.isRejected,
+          hasActiveSubscription: data.hasActiveSubscription,
+          isLoading: false
+        })
+      } catch (error) {
+        console.error('Error checking auth status:', error)
+        setStatus({
+          isAuthenticated: false,
           isSeller: false,
           isVerified: false,
           isRejected: false,
+          hasActiveSubscription: false,
           isLoading: false
         })
-        return
       }
-
-      // Vérifier la validation d'identité
-      const { data: seller } = await supabase
-        .from('sellers')
-        .select('identity_verified, identity_rejected')
-        .eq('id', profile.seller_id)
-        .single()
-
-      setStatus({
-        isAuthenticated: true,
-        isSeller: true,
-        isVerified: seller?.identity_verified || false,
-        isRejected: seller?.identity_rejected || false,
-        isLoading: false
-      })
     }
 
     checkStatus()
-  }, [user, authLoading, supabase])
+  }, [user, authLoading])
 
   const requireAuth = () => {
     if (!status.isLoading && !status.isAuthenticated) {
@@ -101,10 +97,19 @@ export function useAuthStatus() {
     return true
   }
 
+  const requireActiveSubscription = () => {
+    if (!status.isLoading && !status.hasActiveSubscription) {
+      router.push('/pricing')
+      return false
+    }
+    return true
+  }
+
   return {
     ...status,
     requireAuth,
     requireSeller,
-    requireVerified
+    requireVerified,
+    requireActiveSubscription
   }
 } 

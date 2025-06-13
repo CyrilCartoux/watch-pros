@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@/lib/supabase/server'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-05-28.basil'
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
       }
     )
       stripeCustomerId = customer.id
-      await supabase
+      await supabaseAdmin
         .from('profiles')
         .update({ stripe_customer_id: stripeCustomerId })
         .eq('id', user.id)

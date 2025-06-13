@@ -26,11 +26,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Vérifier l'état de connexion initial
-    supabase.auth.getSession().then(({ data: { session } }) => {
-    console.log('user', session?.user);
+    supabase.auth.getUser().then(({ data: { user } }) => {
+    console.log('user', user);
 
-      userRef.current = session?.user ?? null;
-      setUser(session?.user ?? null);
+      userRef.current = user ?? null;
+      setUser(user ?? null);
       setLoading(false);
     });
 

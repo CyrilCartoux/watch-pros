@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { createClient } from "@/lib/supabase/client"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
 import { Skeleton } from "@/components/ui/skeleton"
+import { watchConditions } from "@/data/watch-conditions"
 
 interface DashboardData {
   counts: {
@@ -136,7 +137,7 @@ export function DashboardTab() {
   return (
     <div className="space-y-6">
       {/* Overview Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Listings</CardTitle>
@@ -183,7 +184,7 @@ export function DashboardTab() {
         </Card>
       </div>
       {/* Sales Statistics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
@@ -280,7 +281,7 @@ export function DashboardTab() {
                   <span className="text-sm font-medium">
                     €{(model.avg_sale_price || 0).toLocaleString()}
                   </span>
-                </div>
+              </div>
               </div>
             ))}
           </div>
@@ -296,8 +297,8 @@ export function DashboardTab() {
           <div className="space-y-4">
             {(data.by_condition || []).map((condition) => (
               <div key={condition.condition} className="flex items-center justify-between">
-                <span className="text-sm font-medium">{condition.condition}</span>
-                <div className="flex items-center gap-4">
+                <span className="text-sm font-medium">{watchConditions.find(c => c.slug === condition.condition)?.label}</span>
+            <div className="flex items-center gap-4">
                   <span className="text-sm text-muted-foreground">
                     {condition.sold} sold
                   </span>
@@ -307,7 +308,7 @@ export function DashboardTab() {
                 </div>
               </div>
             ))}
-          </div>
+              </div>
         </CardContent>
       </Card>
 

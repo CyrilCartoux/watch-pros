@@ -58,7 +58,6 @@ interface Seller {
   created_at: string
   updated_at: string
   seller_addresses: SellerAddress[]
-  seller_banking: SellerBanking[]
   seller_stats: {
     total_reviews: number
     average_rating: number

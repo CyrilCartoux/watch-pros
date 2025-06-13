@@ -311,68 +311,6 @@ export interface Database {
           updated_at?: string
         }
       }
-      seller_banking: {
-        Row: {
-          id: string
-          seller_id: string
-          card_holder: string | null
-          cvc: string | null
-          is_authorized: boolean | null
-          account_holder: string | null
-          sepa_street: string | null
-          sepa_postal_code: string | null
-          sepa_city: string | null
-          bank_name: string | null
-          payment_method: string
-          card_number: string | null
-          expiry_date: string | null
-          sepa_country: string | null
-          created_at: string
-          updated_at: string
-          bic: string | null
-          iban: string | null
-        }
-        Insert: {
-          id?: string
-          seller_id: string
-          card_holder?: string | null
-          cvc?: string | null
-          is_authorized?: boolean | null
-          account_holder?: string | null
-          sepa_street?: string | null
-          sepa_postal_code?: string | null
-          sepa_city?: string | null
-          bank_name?: string | null
-          payment_method: string
-          card_number?: string | null
-          expiry_date?: string | null
-          sepa_country?: string | null
-          created_at?: string
-          updated_at?: string
-          bic?: string | null
-          iban?: string | null
-        }
-        Update: {
-          id?: string
-          seller_id?: string
-          card_holder?: string | null
-          cvc?: string | null
-          is_authorized?: boolean | null
-          account_holder?: string | null
-          sepa_street?: string | null
-          sepa_postal_code?: string | null
-          sepa_city?: string | null
-          bank_name?: string | null
-          payment_method?: string
-          card_number?: string | null
-          expiry_date?: string | null
-          sepa_country?: string | null
-          created_at?: string
-          updated_at?: string
-          bic?: string | null
-          iban?: string | null
-        }
-      }
       seller_documents: {
         Row: {
           id: string

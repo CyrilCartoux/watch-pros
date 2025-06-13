@@ -258,5 +258,74 @@ export const emailTemplates = {
       </div>
     `,
   }),
+
+  sellerVerified: (companyName: string) => ({
+    subject: `Your Watch Pros Account Has Been Verified`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #2c3e50; margin-bottom: 10px;">Account Verified!</h1>
+          <p style="color: #7f8c8d; font-size: 16px;">Congratulations! Your Watch Pros seller account has been verified</p>
+        </div>
+        
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 30px;">
+          <h2 style="color: #2c3e50; margin-top: 0;">${companyName}</h2>
+          <p style="font-size: 16px; color: #34495e; margin: 20px 0;">
+            Your account has been successfully verified. You can now start listing watches and managing your inventory on Watch Pros.
+          </p>
+        </div>
+
+        <div style="text-align: center;">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" 
+             style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">
+            Go to Dashboard
+          </a>
+        </div>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
+          <p>This email was sent because your Watch Pros seller account has been verified.</p>
+          <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
+        </div>
+      </div>
+    `,
+  }),
+
+  sellerRejected: (companyName: string, reason: string) => ({
+    subject: `Watch Pros Account Verification Update`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #2c3e50; margin-bottom: 10px;">Account Verification Update</h1>
+          <p style="color: #7f8c8d; font-size: 16px;">Your Watch Pros seller account verification requires additional attention</p>
+        </div>
+        
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 30px;">
+          <h2 style="color: #2c3e50; margin-top: 0;">${companyName}</h2>
+          <p style="font-size: 16px; color: #34495e; margin: 20px 0;">
+            We have reviewed your account verification request and need additional information or clarification.
+          </p>
+          <div style="background-color: white; padding: 15px; border-radius: 4px; margin: 20px 0; border: 1px solid #e0e0e0;">
+            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 10px;">Reason for Rejection:</h3>
+            <p style="color: #34495e; margin: 0; white-space: pre-wrap;">${reason}</p>
+          </div>
+          <p style="font-size: 16px; color: #34495e;">
+            Please address these concerns and resubmit your verification request. If you have any questions, please don't hesitate to contact our support team.
+          </p>
+        </div>
+
+        <div style="text-align: center;">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" 
+             style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">
+            Go to Dashboard
+          </a>
+        </div>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
+          <p>This email was sent regarding your Watch Pros seller account verification.</p>
+          <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
+        </div>
+      </div>
+    `,
+  }),
 } 
 

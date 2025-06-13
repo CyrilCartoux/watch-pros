@@ -121,6 +121,15 @@ function ReviewComment({ comment }: { comment: string }) {
   )
 }
 
+function getCountryFlag(countryCode: string): string {
+  // Convert country code to regional indicator symbols
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+}
+
 export default function SellerDetailPage({ params }: SellerPageProps) {
   const { toast } = useToast()
   const [currentListing, setCurrentListing] = useState(0)
@@ -419,44 +428,6 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                 </div>
                 <p className="text-sm md:text-base text-muted-foreground mb-2 md:mb-4">{seller.account.companyStatus}</p>
 
-                {/* Mobile Stats Bar */}
-                <div className="md:hidden flex items-center justify-between bg-muted/30 rounded-lg p-3 mb-4">
-                  <div className="flex items-center gap-2">
-                    <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                    <div>
-                      <p className="font-semibold">{seller.stats.averageRating.toFixed(1)}</p>
-                      <p className="text-xs text-muted-foreground">{seller.stats.totalReviews} reviews</p>
-                    </div>
-                  </div>
-                  <Button
-                    onClick={handleOpenReviewDialog}
-                    size="sm"
-                    className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white"
-                    disabled={isSubmittingReview}
-                  >
-                    <Star className="h-3 w-3 mr-1" />
-                    Review
-                  </Button>
-                </div>
-
-                {/* Desktop Stats */}
-                <div className="hidden md:flex flex-col md:flex-row items-center gap-1 md:gap-4 mb-2 md:mb-4">
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                    <span className="text-sm md:text-base font-semibold">{seller.stats.averageRating.toFixed(1)}</span>
-                    <span className="text-xs md:text-sm text-muted-foreground">({seller.stats.totalReviews} reviews)</span>
-                  </div>
-                  {seller.account.cryptoFriendly && (
-                    <Badge variant="outline" className="text-xs md:text-sm border-amber-500 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20">
-                      <Coins className="h-3 w-3 mr-1" />
-                      Accepts Crypto
-                    </Badge>
-                  )}
-                  <Badge variant="outline" className="text-xs md:text-sm">
-                    {getCountryFlag(seller.account.country)} {countries.find(c => c.value === seller.account.country)?.label}
-                  </Badge>
-                </div>
-
                 {/* Mobile Tags */}
                 <div className="md:hidden flex flex-wrap gap-2 mb-4">
                   {seller.account.cryptoFriendly && (
@@ -468,18 +439,6 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
                   <Badge variant="outline" className="text-xs">
                     {getCountryFlag(seller.account.country)} {countries.find(c => c.value === seller.account.country)?.label}
                   </Badge>
-                </div>
-
-                {/* Desktop Action Buttons */}
-                <div className="hidden md:flex flex-wrap gap-2 justify-center md:justify-start">
-                  <Button
-                    onClick={handleOpenReviewDialog}
-                    className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
-                    disabled={isSubmittingReview}
-                  >
-                    <Star className="h-4 w-4 mr-2" />
-                    {isSubmittingReview ? "Submitting..." : "Write a Review"}
-                  </Button>
                 </div>
               </div>
             </div>
@@ -941,13 +900,4 @@ export default function SellerDetailPage({ params }: SellerPageProps) {
     </main>
     </ProtectedRoute>
   )
-}
-
-function getCountryFlag(countryCode: string): string {
-  // Convert country code to regional indicator symbols
-  const codePoints = countryCode
-    .toUpperCase()
-    .split('')
-    .map(char => 127397 + char.charCodeAt(0));
-  return String.fromCodePoint(...codePoints);
 } 

@@ -6,6 +6,16 @@ import { Seller } from '@/types/db/Sellers'
 import { SellerAddress } from '@/types/db/SellerAddresses'
 import { useToast } from '@/components/ui/use-toast'
 import { createClient } from '@/lib/supabase/client'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
 
 type SellerWithAddress = Seller & {
   seller_addresses: SellerAddress[]
@@ -15,6 +25,9 @@ export default function AdminPage() {
   const [pendingSellers, setPendingSellers] = useState<SellerWithAddress[]>([])
   const [loading, setLoading] = useState(true)
   const [processingSeller, setProcessingSeller] = useState<string | null>(null)
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
+  const [selectedSeller, setSelectedSeller] = useState<SellerWithAddress | null>(null)
+  const [rejectionReason, setRejectionReason] = useState('')
   const router = useRouter()
   const { toast } = useToast()
   const supabase = createClient()
@@ -130,15 +143,33 @@ export default function AdminPage() {
   }
 
   const handleDecline = async (sellerId: string) => {
+    const seller = pendingSellers.find(s => s.id === sellerId)
+    if (!seller) return
+    
+    setSelectedSeller(seller)
+    setRejectDialogOpen(true)
+  }
+
+  const handleConfirmDecline = async () => {
+    if (!selectedSeller || !rejectionReason.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Veuillez saisir une raison pour le rejet",
+      })
+      return
+    }
+
     try {
-      setProcessingSeller(sellerId)
+      setProcessingSeller(selectedSeller.id)
       const response = await fetch('/api/admin/sellers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          sellerId,
+          sellerId: selectedSeller.id,
+          reason: rejectionReason,
           action: 'decline',
         }),
       })
@@ -152,6 +183,9 @@ export default function AdminPage() {
         description: "Le vendeur a été rejeté avec succès",
       })
       fetchPendingSellers()
+      setRejectDialogOpen(false)
+      setRejectionReason('')
+      setSelectedSeller(null)
     } catch (error) {
       console.error('Error declining seller:', error)
       toast({
@@ -390,6 +424,44 @@ export default function AdminPage() {
           ))}
         </div>
       </div>
+
+      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Rejeter la vérification</DialogTitle>
+            <DialogDescription>
+              Veuillez saisir la raison du rejet. Cette raison sera envoyée par email au vendeur.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Textarea
+              placeholder="Raison du rejet..."
+              value={rejectionReason}
+              onChange={(e) => setRejectionReason(e.target.value)}
+              className="min-h-[100px]"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setRejectDialogOpen(false)
+                setRejectionReason('')
+                setSelectedSeller(null)
+              }}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDecline}
+              disabled={!rejectionReason.trim() || processingSeller === selectedSeller?.id}
+            >
+              {processingSeller === selectedSeller?.id ? 'Traitement...' : 'Confirmer le rejet'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 } 
