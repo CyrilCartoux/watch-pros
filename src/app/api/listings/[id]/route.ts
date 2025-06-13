@@ -667,14 +667,15 @@ export async function PATCH(
     }
 
     // Get the request body
-    const { finalPrice } = await request.json()
+    const { finalPrice, sold_at } = await request.json()
 
     // Update the listing status to sold
     const { data: updatedListing, error: updateError } = await supabase
       .from('listings')
       .update({
         status: 'sold',
-        final_price: finalPrice || null
+        final_price: finalPrice || null,
+        sold_at: sold_at || null
       })
       .eq('id', params.id)
       .eq('seller_id', seller.id)

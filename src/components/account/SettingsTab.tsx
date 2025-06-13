@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Badge } from "@/components/ui/badge"
-import { Coins, Shield, Loader2, CheckCircle2, CreditCard, Calendar } from "lucide-react"
+import { Coins, Shield, Loader2, CheckCircle2, CreditCard, Calendar, Share2 } from "lucide-react"
 import Image from "next/image"
 import { countries } from "@/data/form-options"
 import { useToast } from "@/components/ui/use-toast"
@@ -392,6 +392,30 @@ export function SettingsTab() {
     }
   }
 
+  const handleShareProfile = async () => {
+    try {
+      const shareData = {
+        title: 'Review my Watch Pros Profile',
+        text: `Please review my profile on Watch Pros: ${seller?.account.companyName}`,
+        url: `${window.location.origin}/sellers/${seller?.account.watchProsName}`
+      }
+
+      if (navigator.share) {
+        await navigator.share(shareData)
+      } else {
+        // Fallback for browsers that don't support the Web Share API
+        await navigator.clipboard.writeText(shareData.url)
+        toast({
+          title: "Link copied!",
+          description: "Share this link with your peers to get reviews.",
+          variant: "default",
+        })
+      }
+    } catch (error) {
+      console.error('Error sharing:', error)
+    }
+  }
+
   if (loading) return <SettingsTabSkeleton />
   if (error) return <div>Error: {error}</div>
   if (!profile) return <div>No profile found</div>
@@ -431,7 +455,7 @@ export function SettingsTab() {
                   </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground mb-4">{seller.account.companyStatus}</p>
-                <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                <div className="flex flex-wrap gap-2 justify-center md:justify-start mb-4">
                   {seller.account.cryptoFriendly && (
                     <Badge variant="outline" className="text-xs border-amber-500 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20">
                       <Coins className="h-3 w-3 mr-1" />
@@ -442,6 +466,14 @@ export function SettingsTab() {
                     {getCountryFlag(seller.account.country)} {countries.find(c => c.value === seller.account.country)?.label}
                   </Badge>
                 </div>
+                <Button 
+                  variant="outline" 
+                  className="w-full md:w-auto"
+                  onClick={handleShareProfile}
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Invite peers to review
+                </Button>
               </div>
             </div>
           )}

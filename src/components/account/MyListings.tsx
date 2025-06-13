@@ -102,7 +102,8 @@ export default function MyListings() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          finalPrice: finalPrice ? parseFloat(finalPrice) : null
+          finalPrice: finalPrice ? parseFloat(finalPrice) : null,
+          sold_at: new Date().toISOString()
         }),
       })
 
