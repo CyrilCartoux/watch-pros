@@ -77,10 +77,8 @@ export async function middleware(request: NextRequest) {
       return res
     }
 
-    const activeSubscriptionStatuses = ['active', 'incomplete']
     const hasActiveSubscription = profile?.subscriptions?.some(
-      (sub: { status: string }) => activeSubscriptionStatuses.includes(sub.status)
-    ) || false
+      (sub: { status: string }) => sub.status === 'active')
 
     console.log('PROFILE', profile)
     console.log('HAS ACTIVE SUBSCRIPTION', hasActiveSubscription)
@@ -99,7 +97,7 @@ export async function middleware(request: NextRequest) {
     }
 
     if (!hasActiveSubscription) {
-      return NextResponse.redirect(new URL('/pricing', request.url))
+      return NextResponse.redirect(new URL('/subscription', request.url))
     }
 
     // Si toutes les vérifications sont passées, continuer

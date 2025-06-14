@@ -316,10 +316,6 @@ export default function RegisterFormPage() {
           return
         }
       }
-
-      // Redirect to success page
-      window.location.href = `/register/verify`
-
     } catch (error) {
       console.error("Error submitting form:", error)
       toast({
@@ -472,22 +468,6 @@ export default function RegisterFormPage() {
         })
     }
   }, [selectedPlan])
-
-  const handlePaymentSuccess = (subscriptionId: string) => {
-    toast({
-      title: "Subscription successful!",
-      description: "Your account has been activated.",
-    })
-    router.push('/account')
-  }
-
-  const handlePaymentError = (error: string) => {
-    toast({
-      title: "Error",
-      description: error,
-      variant: "destructive",
-    })
-  }
 
   const renderPaymentForm = () => {
     if (loadingPayment) {

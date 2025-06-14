@@ -11,25 +11,6 @@ export async function POST(request: Request) {
   try {
     const supabase = await createClient()
     const { priceId, account, address } = await request.json()
-    console.log({
-      metadata: { 
-        companyName: account.companyName,
-        companyStatus: account.companyStatus,
-        country: address.country,
-        firstName: account.firstName,
-        lastName: account.lastName,
-        phone: account.phone,
-        phonePrefix: account.phonePrefix,
-        watchProsName: account.watchProsName,
-        addressComplement: address.addressComplement,
-        city: address.city,
-        postalCode: address.postalCode,
-        siren: address.siren,
-        street: address.street,
-        taxId: address.taxId,
-        vatNumber: address.vatNumber
-      }
-    })
     
     // Get the current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
