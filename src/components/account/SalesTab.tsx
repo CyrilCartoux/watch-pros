@@ -3,106 +3,154 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle2, Clock, AlertCircle } from "lucide-react"
 import Image from "next/image"
-import Link from "next/link"
+import { useEffect, useState } from "react"
+import { useToast } from "@/components/ui/use-toast"
 
-const mockSales = [
-  {
-    id: 1,
-    title: "Rolex Submariner 2023",
-    price: 12500,
-    image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=200&h=200&fit=crop",
-    buyer: {
-      name: "John Doe",
-      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop",
-    },
-    status: "completed",
-    date: "2024-03-20",
-    rating: 5
-  },
-  {
-    id: 2,
-    title: "Omega Seamaster 300M",
-    price: 8900,
-    image: "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=200&h=200&fit=crop",
-    buyer: {
-      name: "Jane Smith",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
-    },
-    status: "pending",
-    date: "2024-03-19"
-  },
-  {
-    id: 3,
-    title: "Tudor Black Bay 58",
-    price: 4500,
-    image: "https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=200&h=200&fit=crop",
-    buyer: {
-      name: "Mike Johnson",
-      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop",
-    },
-    status: "cancelled",
-    date: "2024-03-18"
-  }
-]
+interface Sale {
+  id: string
+  title: string
+  price: number
+  status: string
+  type: string
+  brand: string
+  model: string
+  image: string | null
+  createdAt: string
+  updatedAt: string
+  soldAt: string
+}
+
+interface SalesResponse {
+  listings: Sale[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
 
 const statusConfig = {
-  completed: {
+  sold: {
     icon: CheckCircle2,
     color: "text-green-500",
-    label: "Vendu"
+    label: "Sold"
   },
   pending: {
     icon: Clock,
     color: "text-yellow-500",
-    label: "En cours"
+    label: "Pending"
   },
   cancelled: {
     icon: AlertCircle,
     color: "text-red-500",
-    label: "Annulé"
+    label: "Cancelled"
   }
 }
 
 export function SalesTab() {
+  const [sales, setSales] = useState<Sale[]>([])
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({
+    totalSales: 0,
+    totalRevenue: 0
+  })
+  const { toast } = useToast()
+
+  useEffect(() => {
+    fetchSales()
+  }, [])
+
+  const fetchSales = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/listings/me/sold')
+      if (!response.ok) {
+        throw new Error('Failed to fetch sales')
+      }
+      const data: SalesResponse = await response.json()
+      setSales(data.listings)
+
+      // Calculate statistics
+      const totalRevenue = data.listings.reduce((sum, sale) => sum + sale.price, 0)
+      setStats({
+        totalSales: data.total,
+        totalRevenue
+      })
+    } catch (error) {
+      console.error('Error fetching sales:', error)
+      toast({
+        title: "Error",
+        description: "Unable to load sales",
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[1, 2].map((i) => (
+            <Card key={i}>
+              <CardHeader>
+                <div className="h-6 w-32 bg-gray-200 rounded animate-pulse" />
+                <div className="h-4 w-48 bg-gray-200 rounded animate-pulse mt-2" />
+              </CardHeader>
+              <CardContent>
+                <div className="h-8 w-24 bg-gray-200 rounded animate-pulse" />
+                <div className="h-4 w-32 bg-gray-200 rounded animate-pulse mt-2" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <Card key={i}>
+              <CardContent className="p-6">
+                <div className="flex gap-4">
+                  <div className="w-24 h-24 bg-gray-200 rounded animate-pulse" />
+                  <div className="flex-1">
+                    <div className="h-6 w-48 bg-gray-200 rounded animate-pulse" />
+                    <div className="h-8 w-32 bg-gray-200 rounded animate-pulse mt-2" />
+                    <div className="h-4 w-64 bg-gray-200 rounded animate-pulse mt-4" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
-      {/* Résumé des ventes */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Sales Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Ventes totales</CardTitle>
-            <CardDescription>Nombre de montres vendues</CardDescription>
+            <CardTitle>Total Sales</CardTitle>
+            <CardDescription>Number of watches sold</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">45</p>
-            <p className="text-sm text-muted-foreground">+5 ce mois-ci</p>
+            <p className="text-3xl font-bold">{stats.totalSales}</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Chiffre d'affaires</CardTitle>
-            <CardDescription>Total des ventes</CardDescription>
+            <CardTitle>Revenue</CardTitle>
+            <CardDescription>Total sales</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">45,678 €</p>
-            <p className="text-sm text-muted-foreground">+12% ce mois-ci</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Taux de conversion</CardTitle>
-            <CardDescription>Vues vers ventes</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">7.2%</p>
-            <p className="text-sm text-muted-foreground">+2% ce mois-ci</p>
+            <p className="text-3xl font-bold">{stats.totalRevenue.toLocaleString()} €</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Liste des ventes */}
+      {/* Sales List */}
       <div className="space-y-4">
-        {mockSales.map((sale) => {
+        {sales.map((sale) => {
           const status = statusConfig[sale.status as keyof typeof statusConfig]
           const StatusIcon = status.icon
 
@@ -111,13 +159,19 @@ export function SalesTab() {
               <CardContent className="p-6">
                 <div className="flex gap-4">
                   <div className="relative w-24 h-24">
-                    <Image
-                      src={sale.image}
-                      alt={sale.title}
-                      fill
-                      sizes="96px"
-                      className="rounded-md object-cover"
-                    />
+                    {sale.image ? (
+                      <Image
+                        src={sale.image}
+                        alt={sale.title}
+                        fill
+                        sizes="96px"
+                        className="rounded-md object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-100 rounded-md flex items-center justify-center">
+                        <span className="text-gray-400">No image</span>
+                      </div>
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
@@ -129,25 +183,13 @@ export function SalesTab() {
                     </div>
                     <p className="text-lg font-bold mt-1">{sale.price.toLocaleString()} €</p>
                     <div className="flex items-center gap-2 mt-2">
-                      <Image
-                        src={sale.buyer.avatar}
-                        alt={sale.buyer.name}
-                        width={24}
-                        height={24}
-                        className="rounded-full"
-                      />
-                      <p className="text-sm text-muted-foreground">{sale.buyer.name}</p>
                       <span className="text-sm text-muted-foreground">
-                        • {new Date(sale.date).toLocaleDateString()}
+                        {sale.brand} {sale.model}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        • Sold on {new Date(sale.soldAt).toLocaleDateString()}
                       </span>
                     </div>
-                    {sale.status === "completed" && sale.rating && (
-                      <div className="mt-2">
-                        <p className="text-sm text-muted-foreground">
-                          Avis reçu : {sale.rating}/5
-                        </p>
-                      </div>
-                    )}
                   </div>
                 </div>
               </CardContent>
@@ -157,4 +199,4 @@ export function SalesTab() {
       </div>
     </div>
   )
-} 
+}

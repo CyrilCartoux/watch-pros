@@ -1,16 +1,22 @@
-import { createServerClient } from '@supabase/ssr'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // Routes publiques qui ne nécessitent pas d'authentification
 const PUBLIC_ROUTES = ['/', '/auth', '/register', '/subscription', '/pricing']
 
+// Cache pour les routes publiques
+const publicRouteCache = new Set(PUBLIC_ROUTES)
+
+// Cache pour les profils utilisateurs (TTL: 5 minutes)
+const profileCache = new Map<string, { profile: any, timestamp: number }>()
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes en millisecondes
+
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
 
-  // Vérifier si la route est publique
-  if (PUBLIC_ROUTES.some(route => path === route || path.startsWith(`${route}/`))) {
-    console.log('PUBLIC ROUTE')
+  // Vérifier si la route est publique avec le cache
+  if (publicRouteCache.has(path) || PUBLIC_ROUTES.some(route => path.startsWith(`${route}/`))) {
     return NextResponse.next()
   }
 
@@ -22,15 +28,17 @@ export async function middleware(request: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          get: (name) => request.cookies.get(name)?.value,
-          set: (name, value, options) => {
+          get(name: string) {
+            return request.cookies.get(name)?.value
+          },
+          set(name: string, value: string, options: CookieOptions) {
             res.cookies.set({
               name,
               value,
               ...options,
             })
           },
-          remove: (name, options) => {
+          remove(name: string, options: CookieOptions) {
             res.cookies.set({
               name,
               value: '',
@@ -50,26 +58,38 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    // Get user's profile, seller status and subscription in a single query
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select(`
-        seller_id,
-        role,
-        sellers (
-          identity_verified,
-          identity_rejected
-        ),
-        subscriptions (
-          status
-        )
-      `)
-      .eq('id', user.id)
-      .single()
+    // Vérifier le cache pour le profil utilisateur
+    const cachedProfile = profileCache.get(user.id)
+    const now = Date.now()
+    let profile
 
-    if (profileError) {
-      console.error('Error fetching profile:', profileError)
-      return NextResponse.redirect(new URL('/auth', request.url))
+    if (cachedProfile && (now - cachedProfile.timestamp) < CACHE_TTL) {
+      profile = cachedProfile.profile
+    } else {
+      // Optimiser la requête en ne sélectionnant que les champs nécessaires
+      const { data, error: profileError } = await supabase
+        .from('profiles')
+        .select(`
+          seller_id,
+          role,
+          sellers!inner (
+            identity_verified,
+            identity_rejected
+          ),
+          subscriptions!inner (
+            status
+          )
+        `)
+        .eq('id', user.id)
+        .single()
+
+      if (profileError) {
+        return NextResponse.redirect(new URL('/auth', request.url))
+      }
+
+      profile = data
+      // Mettre en cache le profil
+      profileCache.set(user.id, { profile: data, timestamp: now })
     }
 
     // Si l'utilisateur est admin et essaie d'accéder à /admin, autoriser l'accès
@@ -77,22 +97,18 @@ export async function middleware(request: NextRequest) {
       return res
     }
 
+    // Vérifier le statut de l'abonnement avec une seule condition
     const hasActiveSubscription = profile?.subscriptions?.some(
-      (sub: { status: string }) => sub.status === 'active')
-
-    console.log('PROFILE', profile)
-    console.log('HAS ACTIVE SUBSCRIPTION', hasActiveSubscription)
-    console.log('IS VERIFIED', (profile?.sellers as any)?.identity_verified)
-    console.log('IS REJECTED', (profile?.sellers as any)?.identity_rejected)
-    console.log('IS SELLER', !!profile?.seller_id)
-    console.log('IS ADMIN', profile?.role === 'admin')
+      (sub: { status: string }) => sub.status === 'active'
+    )
 
     // Rediriger en fonction du statut d'authentification
     if (!profile?.seller_id) {
       return NextResponse.redirect(new URL('/register', request.url))
     }
 
-    if (!(profile?.sellers as any)?.identity_verified || (profile?.sellers as any)?.identity_rejected) {
+    const seller = profile.sellers as any
+    if (!seller?.identity_verified || seller?.identity_rejected) {
       return NextResponse.redirect(new URL('/register/pending', request.url))
     }
 
@@ -104,7 +120,6 @@ export async function middleware(request: NextRequest) {
     return res
   } catch (error) {
     console.error('Error in middleware:', error)
-    // En cas d'erreur, rediriger vers la page de connexion
     return NextResponse.redirect(new URL('/auth', request.url))
   }
 }
