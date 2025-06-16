@@ -380,7 +380,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                     {/* Popular Models */}
                     {selectedBrand && models[selectedBrand] && (
                       <div className="space-y-2">
-                        <Label>Models {brands.find(b => b.id === selectedBrand)?.label}</Label>
+                        <Label>Models *</Label>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2">
                           {models[selectedBrand]
                             .filter(model => model.popular)

@@ -1,3 +1,4 @@
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
@@ -14,7 +15,7 @@ export async function POST(request: Request) {
     }
 
     // Get the profile ID of the current user
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('id')
       .eq('id', user.id)
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
     }
 
     // Get the profile ID of the seller
-    const { data: sellerProfile } = await supabase
+    const { data: sellerProfile } = await supabaseAdmin
       .from('profiles')
       .select('id')
       .eq('seller_id', otherUserId)

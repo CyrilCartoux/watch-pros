@@ -18,6 +18,8 @@ import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
 import { countries } from '@/data/form-options'
 import { Badge } from "@/components/ui/badge"
+import { brandsList } from "@/data/brands-list"
+import { models } from "@/data/models"
 
 interface ListingData {
   id: string
@@ -1020,11 +1022,11 @@ export default function ListingPage({ params }: Props) {
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Brand</dt>
-                      <dd>{listing.brand}</dd>
+                      <dd>{brandsList.find(b => b.slug === listing.brand)?.label}</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Model</dt>
-                      <dd>{listing.model}</dd>
+                      <dd>{models[listing.brand].find(m => m.model_slug === listing.model)?.model_label}</dd>
                     </div>
                     <div className="flex justify-between">
                       <dt className="text-muted-foreground">Reference number</dt>
