@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef, useMemo } from "react"
+import { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import { ArrowLeft, Send } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/contexts/AuthContext"
@@ -42,6 +42,22 @@ interface Conversation {
     }
   }
   messages?: Message[]
+}
+
+function useChatScroll() {
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const scrollToBottom = useCallback(() => {
+    if (!containerRef.current) return
+
+    const container = containerRef.current
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: 'smooth',
+    })
+  }, [])
+
+  return { containerRef, scrollToBottom }
 }
 
 export function MessagesTab() {
@@ -89,6 +105,9 @@ export function MessagesTab() {
   )
   const [pendingMessages, setPendingMessages] = useState<Set<string>>(new Set())
   const isMounted = useRef(true)
+  const [channel, setChannel] = useState<ReturnType<typeof supabase.channel> | null>(null)
+  const [isConnected, setIsConnected] = useState(false)
+  const { containerRef, scrollToBottom } = useChatScroll()
 
   useEffect(() => {
     return () => {
@@ -186,56 +205,52 @@ export function MessagesTab() {
   useEffect(() => {
     if (!user || !selectedConversation) return
 
-    const channel = supabase.channel(`messages:conversation_id=eq.${selectedConversation.id}`)
+    const newChannel = supabase.channel(`conversation:${selectedConversation.id}`)
 
-    channel
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `conversation_id=eq.${selectedConversation.id}`
-        },
-        async (payload: { new: Message }) => {
-          const newMessage = payload.new
-          
-          // Update messages list
-          setMessages(prev => {
-            const newMessages = [...prev, newMessage]
-            // Use nextTick for scroll
-            queueMicrotask(() => {
-              if (isMounted.current) {
-                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-              }
-            })
-            return newMessages
+    newChannel
+      .on('broadcast', { event: 'message' }, (payload) => {
+        const newMessage = payload.payload as Message
+        console.log('Received broadcast message:', newMessage)
+        
+        // Update messages list
+        setMessages(prev => {
+          const newMessages = [...prev, newMessage]
+          // Use nextTick for scroll
+          queueMicrotask(() => {
+            if (isMounted.current) {
+              messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+            }
           })
-          
-          // Update last conversation
-          setConversations(prev => 
-            prev.map(conv => 
-              conv.id === selectedConversation.id
-                ? { ...conv, last_message: newMessage }
-                : conv
-            )
+          return newMessages
+        })
+        
+        // Update last conversation
+        setConversations(prev => 
+          prev.map(conv => 
+            conv.id === selectedConversation.id
+              ? { ...conv, last_message: newMessage }
+              : conv
           )
+        )
 
-          // Mark message as read if sent by other user
-          if (newMessage.sender_id !== user.id) {
-            unreadMessageIds.current.push(newMessage.id)
-            debouncedMarkAsRead()
-          }
+        // Mark message as read if sent by other user
+        if (newMessage.sender_id !== user.id) {
+          unreadMessageIds.current.push(newMessage.id)
+          debouncedMarkAsRead()
         }
-      )
+      })
       .subscribe((status) => {
+        console.log('Subscription status:', status)
         if (status === 'SUBSCRIBED') {
-          console.log('Subscribed to messages channel')
+          setIsConnected(true)
         }
       })
 
+    setChannel(newChannel)
+
     return () => {
-      supabase.removeChannel(channel)
+      console.log('Cleaning up channel subscription')
+      supabase.removeChannel(newChannel)
     }
   }, [user, selectedConversation, supabase])
 
@@ -281,9 +296,23 @@ export function MessagesTab() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  // Effet pour scroller en bas quand les messages changent
+  useEffect(() => {
+    if (messages.length > 0) {
+      scrollToBottom()
+    }
+  }, [messages, scrollToBottom])
+
+  // Effet pour scroller en bas quand une nouvelle conversation est sélectionnée
+  useEffect(() => {
+    if (selectedConversation) {
+      scrollToBottom()
+    }
+  }, [selectedConversation, scrollToBottom])
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newMessage.trim() || !selectedConversation || !user) return
+    if (!newMessage.trim() || !selectedConversation || !user || !channel || !isConnected) return
 
     const messageContent = newMessage.trim()
     setNewMessage("")
@@ -300,21 +329,12 @@ export function MessagesTab() {
       content: messageContent,
       created_at: new Date().toISOString(),
       read: false,
-      pending: true
+      pending: false
     }
 
     // Add message to UI immediately
     setPendingMessages(prev => new Set([...prev, tempId]))
-    setMessages(prev => {
-      const newMessages = [...prev, tempMessage]
-      // Use nextTick for scroll
-      queueMicrotask(() => {
-        if (isMounted.current) {
-          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-        }
-      })
-      return newMessages
-    })
+    setMessages(prev => [...prev, tempMessage])
     setConversations(prev => 
       prev.map(conv => 
         conv.id === selectedConversation.id
@@ -324,6 +344,14 @@ export function MessagesTab() {
     )
 
     try {
+      // Send message through broadcast channel
+      await channel.send({
+        type: 'broadcast',
+        event: 'message',
+        payload: tempMessage
+      })
+
+      // Save message to database
       const { data, error } = await supabase
         .from('messages')
         .insert({
@@ -336,30 +364,26 @@ export function MessagesTab() {
 
       if (error) throw error
 
-      // Only update if component is still mounted
-      if (isMounted.current) {
-        // Replace temporary message with real message
-        setMessages(prev => 
-          prev.map(msg => 
-            msg.id === tempId ? data : msg
-          )
+      // Replace temporary message with real message
+      setMessages(prev => 
+        prev.map(msg => 
+          msg.id === tempId ? data : msg
         )
-        setConversations(prev => 
-          prev.map(conv => 
-            conv.id === selectedConversation.id
-              ? { ...conv, last_message: data }
-              : conv
-          )
+      )
+      setConversations(prev => 
+        prev.map(conv => 
+          conv.id === selectedConversation.id
+            ? { ...conv, last_message: data }
+            : conv
         )
-        setPendingMessages(prev => {
-          const next = new Set(prev)
-          next.delete(tempId)
-          return next
-        })
-      }
+      )
+      setPendingMessages(prev => {
+        const next = new Set(prev)
+        next.delete(tempId)
+        return next
+      })
     } catch (err) {
       console.error('Error sending message:', err)
-      // Only update if component is still mounted
       if (isMounted.current) {
         toast({
           title: "Error",
@@ -501,7 +525,7 @@ export function MessagesTab() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div ref={containerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
               {loadingMessages ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
