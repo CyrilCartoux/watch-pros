@@ -132,6 +132,34 @@ export async function POST(request: Request) {
     account.cryptoFriendly = Boolean(account.cryptoFriendly)
     console.log('💰 Crypto friendly status:', account.cryptoFriendly)
 
+    // Check if seller already exists with same email or watch_pros_name
+    const { data: existingSeller, error: checkError } = await supabase
+      .from('sellers')
+      .select('email, watch_pros_name')
+      .or(`email.eq.${account.email},watch_pros_name.eq.${account.watchProsName}`)
+      .maybeSingle()
+
+    if (checkError) {
+      console.error('❌ Error checking existing seller:', checkError)
+      throw new Error('Failed to check existing seller')
+    }
+
+    if (existingSeller) {
+      console.error('❌ Seller already exists:', existingSeller)
+      if (existingSeller.email === account.email) {
+        return NextResponse.json(
+          { error: 'A seller with this email already exists' },
+          { status: 400 }
+        )
+      }
+      if (existingSeller.watch_pros_name === account.watchProsName) {
+        return NextResponse.json(
+          { error: 'A seller with this username already exists' },
+          { status: 400 }
+        )
+      }
+    }
+
     // Get and validate files
     const idCardFront = formData.get('idCardFront') as File
     const idCardBack = formData.get('idCardBack') as File

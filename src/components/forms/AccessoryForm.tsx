@@ -13,8 +13,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Checkbox } from '@/components/ui/checkbox'
 import { dialColors, movements } from '@/data/watch-properties'
 import { accessoryTypes, braceletColors, braceletMaterials, lensMaterials, frequencyUnits, glassTypes } from '@/data/accessory-properties'
-import { brandsList } from '@/data/brands-list'
-import { modelsList } from '@/data/models-list'
 import Image from 'next/image'
 import { useBrandsAndModels } from '@/hooks/useBrandsAndModels'
 
@@ -219,8 +217,8 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
     const model = selectedBrand && models[selectedBrand]?.find(m => m.id === form.watch("model"))?.label
     const reference = form.watch("reference")
 
-    if (brand && model && reference) {
-      const suggestedTitle = `${accessoryType} - ${brand} - ${model} - ${reference}`
+    if (accessoryType && brand && model) {
+      const suggestedTitle = `${accessoryType} - ${brand} - ${model}${reference ? ` - ${reference}` : ''}`
       form.setValue("title", suggestedTitle)
     }
   }, [form.watch("brand"), form.watch("model"), form.watch("reference"), brands, models, selectedBrand])
@@ -337,7 +335,7 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
 
                   {/* Popular brands */}
                   <div className="space-y-2">
-                    <Label>Popular brands</Label>
+                    <Label>Popular brands *</Label>
                     <div className="grid grid-cols-5 sm:grid-cols-3 md:grid-cols-5 gap-1 sm:gap-2">
                       {popularBrands.map((brand) => (
                         <button
@@ -388,7 +386,7 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
                   {/* Popular models */}
                   {selectedBrand && models[selectedBrand] && (
                     <div className="space-y-2">
-                      <Label>Models {brands.find(b => b.id === selectedBrand)?.label}</Label>
+                      <Label>Models *</Label>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2">
                         {models[selectedBrand].filter(m => m.popular).map((model) => (
                           <button

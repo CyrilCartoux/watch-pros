@@ -220,7 +220,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
         fieldsToValidate = ["included", "condition"]
         break
       case 3:
-        fieldsToValidate = ["price"]
+        fieldsToValidate = ["price", "shippingDelay"]
         break
       case 4:
         fieldsToValidate = ["images", "documents"]

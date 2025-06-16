@@ -1,6 +1,7 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { supabaseAdmin } from './lib/supabase/admin'
 
 // Routes publiques qui ne nécessitent pas d'authentification
 const PUBLIC_ROUTES = ['/', '/auth', '/register', '/subscription', '/pricing']
@@ -10,7 +11,7 @@ const publicRouteCache = new Set(PUBLIC_ROUTES)
 
 // Cache pour les profils utilisateurs (TTL: 5 minutes)
 const profileCache = new Map<string, { profile: any, timestamp: number }>()
-const CACHE_TTL = 5 * 60 * 1000 // 5 minutes en millisecondes
+const CACHE_TTL = 1 * 60 * 1000 // 5 minutes en millisecondes
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
@@ -52,6 +53,8 @@ export async function middleware(request: NextRequest) {
     // Vérifier l'utilisateur de manière sécurisée
     const { data: { user }, error: userError } = await supabase.auth.getUser()
 
+    console.log('USER')
+
     if (userError || !user) {
       const redirectUrl = new URL('/auth', request.url)
       redirectUrl.searchParams.set('redirect', path)
@@ -64,19 +67,22 @@ export async function middleware(request: NextRequest) {
     let profile
 
     if (cachedProfile && (now - cachedProfile.timestamp) < CACHE_TTL) {
+      console.log('PROFILE CACHE HIT')
+      console.log(cachedProfile)
       profile = cachedProfile.profile
     } else {
       // Optimiser la requête en ne sélectionnant que les champs nécessaires
-      const { data, error: profileError } = await supabase
+      console.log('select from profiles with user.id', user.id)
+      const { data, error: profileError } = await supabaseAdmin
         .from('profiles')
         .select(`
           seller_id,
           role,
-          sellers!inner (
+          sellers (
             identity_verified,
             identity_rejected
           ),
-          subscriptions!inner (
+          subscriptions (
             status
           )
         `)
@@ -84,18 +90,25 @@ export async function middleware(request: NextRequest) {
         .single()
 
       if (profileError) {
+        console.log('PROFILE ERROR')
+        console.log(profileError)
         return NextResponse.redirect(new URL('/auth', request.url))
       }
 
       profile = data
       // Mettre en cache le profil
       profileCache.set(user.id, { profile: data, timestamp: now })
+      console.log('PROFILE CACHE SET')
+      console.log(profile)
     }
 
     // Si l'utilisateur est admin et essaie d'accéder à /admin, autoriser l'accès
     if (profile?.role === 'admin' && path === '/admin') {
       return res
     }
+
+    console.log('PROFILE CACHE MISS')
+    console.log(profile)
 
     // Vérifier le statut de l'abonnement avec une seule condition
     const hasActiveSubscription = profile?.subscriptions?.some(

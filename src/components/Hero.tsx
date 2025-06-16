@@ -48,7 +48,13 @@ export function Hero() {
       {/* Steps section */}
       <div className="w-full max-w-4xl mx-auto mt-10 md:mt-16 px-2 md:px-0">
         <ol className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-8">
-          <li className="flex flex-col items-center text-center p-4 rounded-xl transition hover:bg-muted/60">
+          <motion.li
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            whileHover={{ scale: 1.02 }}
+            className="flex flex-col items-center text-center p-4 rounded-xl transition hover:bg-muted/60"
+          >
             <div className="flex flex-col items-center mb-2">
               <User className="w-7 h-7 text-primary mb-1" />
             </div>
@@ -56,8 +62,14 @@ export function Hero() {
             <Link href="/auth" passHref>
               <Button variant="link" className="p-0 h-auto text-primary font-medium">Sign in / Sign up</Button>
             </Link>
-          </li>
-          <li className="flex flex-col items-center text-center p-4 rounded-xl transition hover:bg-muted/60">
+          </motion.li>
+          <motion.li
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            whileHover={{ scale: 1.02 }}
+            className="flex flex-col items-center text-center p-4 rounded-xl transition hover:bg-muted/60"
+          >
             <div className="flex flex-col items-center mb-2">
               <Briefcase className="w-7 h-7 text-primary mb-1" />
             </div>
@@ -65,21 +77,33 @@ export function Hero() {
             <Link href="/register" passHref>
               <Button variant="link" className="p-0 h-auto text-primary font-medium">Register as seller</Button>
             </Link>
-          </li>
-          <li className="flex flex-col items-center text-center p-4 rounded-xl transition hover:bg-muted/60">
+          </motion.li>
+          <motion.li
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            whileHover={{ scale: 1.02 }}
+            className="flex flex-col items-center text-center p-4 rounded-xl transition hover:bg-muted/60"
+          >
             <div className="flex flex-col items-center mb-2">
               <ShieldCheck className="w-7 h-7 text-primary mb-1" />
             </div>
             <span className="font-semibold mb-1">Wait for verification</span>
             <span className="text-sm text-muted-foreground">We verify all professionals for a secure marketplace.</span>
-          </li>
-          <li className="flex flex-col items-center text-center p-4 rounded-xl transition hover:bg-muted/60">
+          </motion.li>
+          <motion.li
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            whileHover={{ scale: 1.02 }}
+            className="flex flex-col items-center text-center p-4 rounded-xl transition hover:bg-muted/60"
+          >
             <div className="flex flex-col items-center mb-2">
               <Tag className="w-7 h-7 text-primary mb-1" />
             </div>
             <span className="font-semibold mb-1">Sell your watches</span>
             <span className="text-sm text-muted-foreground">List and sell to trusted professionals worldwide.</span>
-          </li>
+          </motion.li>
         </ol>
       </div>
     </section>

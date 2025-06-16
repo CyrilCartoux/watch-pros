@@ -222,41 +222,6 @@ export default function SubscriptionPage() {
     }
   }
 
-  const handleSubscribe = async (plan: Plan) => {
-    try {
-      setIsUpdating(true)
-      setSelectedPlan(plan)
-      
-      // Create subscription
-      const response = await fetch('/api/create-subscription', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          priceId: plan.priceId,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to create subscription')
-      }
-
-      const data = await response.json()
-      setClientSecret(data.clientSecret)
-      setShowPaymentForm(true)
-    } catch (error) {
-      console.error('Error creating subscription:', error)
-      toast({
-        title: "Error",
-        description: "Failed to initialize payment. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsUpdating(false)
-    }
-  }
-
   const handlePaymentComplete = async () => {
     try {
       setIsUpdating(true)
@@ -392,7 +357,7 @@ export default function SubscriptionPage() {
                     onClick={() => handlePlanSelect(plan)}
                     disabled={isCurrentPlan}
                   >
-                    {isCurrentPlan ? 'Current Plan' : 'Change Plan'}
+                    {isCurrentPlan ? 'Current Plan' : subscriptionData?.hasActiveSubscription ? 'Change Plan' : 'Subscribe'}
                   </Button>
                 </CardFooter>
               </Card>

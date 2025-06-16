@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation"
 // Déclarer le type global pour window
 declare global {
   interface Window {
-    handleStripePayment: () => Promise<void>;
+    handleStripePayment: () => Promise<boolean>;
     isPaymentFormComplete: boolean;
   }
 }
@@ -142,14 +142,16 @@ function PaymentFormWrapper({
       if (paymentError) {
         setError(paymentError.message || 'Payment failed')
         onPaymentError(paymentError.message || 'Payment failed')
-        return
+        return false
       }
 
       onPaymentComplete()
+      return true
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred'
       setError(errorMessage)
       onPaymentError(errorMessage)
+      return false
     }
   }
 
@@ -255,7 +257,8 @@ export default function RegisterFormPage() {
     validateForms()
   }, [accountForm, addressForm, documentsForm])
 
-  const handleSubmit = async () => {
+  // Handle seller registration (Step 3)
+  const handleSellerRegistration = async () => {
     try {
       setIsLoading(true)
       // Check that all forms are valid
@@ -299,28 +302,42 @@ export default function RegisterFormPage() {
         throw new Error(error.message || 'Error registering seller')
       }
 
-      const result = await response.json()
-
-      // If seller registration is successful, proceed with payment
-      if (selectedPlan) {
-        try {
-          // @ts-ignore - we know this exists from the useEffect in PaymentFormWrapper
-          await window.handleStripePayment()
-        } catch (paymentError) {
-          console.error("Payment error:", paymentError)
-          toast({
-            title: "Payment Error",
-            description: paymentError instanceof Error ? paymentError.message : "An error occurred during payment",
-            variant: "destructive",
-          })
-          return
-        }
-      }
+      await response.json()
+      
+      // If registration successful, move to subscription step
+      handleNext()
+      
     } catch (error) {
       console.error("Error submitting form:", error)
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "An error occurred",
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Handle subscription payment (Step 4)
+  const handleSubscriptionPayment = async () => {
+    try {
+      setIsLoading(true)
+      
+      if (!selectedPlan) {
+        throw new Error("Please select a subscription plan")
+      }
+
+      // @ts-ignore - we know this exists from the useEffect in PaymentFormWrapper
+      const paymentSuccessful = await window.handleStripePayment()
+      if (!paymentSuccessful) {
+        throw new Error("Payment failed")
+      }
+    } catch (error) {
+      console.error("Payment error:", error)
+      toast({
+        title: "Payment Error",
+        description: error instanceof Error ? error.message : "An error occurred during payment",
         variant: "destructive",
       })
     } finally {
@@ -1070,8 +1087,20 @@ export default function RegisterFormPage() {
                       <Button type="button" variant="outline" size="lg" onClick={handleBack}>
                         Back
                       </Button>
-                      <Button type="submit" size="lg">
-                        Continue
+                      <Button 
+                        type="button" 
+                        onClick={handleSellerRegistration}
+                        size="lg"
+                        disabled={isLoading}
+                      >
+                        {isLoading ? (
+                          <div className="flex items-center gap-2">
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                            <span>Processing...</span>
+                          </div>
+                        ) : (
+                          "Complete Registration"
+                        )}
                       </Button>
                     </div>
                   </div>
@@ -1189,8 +1218,8 @@ export default function RegisterFormPage() {
                           Back
                         </Button>
                         <Button 
-                          type="submit" 
-                          onClick={() => handleSubmit()}
+                          type="button" 
+                          onClick={handleSubscriptionPayment}
                           size="lg"
                           disabled={!selectedPlan || ((selectedPlan as any) && isPaymentFormComplete === false) || isLoading}
                         >
@@ -1200,7 +1229,7 @@ export default function RegisterFormPage() {
                               <span>Processing...</span>
                             </div>
                           ) : (
-                            "Complete Registration"
+                            "Complete Payment"
                           )}
                         </Button>
                       </div>
@@ -1211,35 +1240,6 @@ export default function RegisterFormPage() {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
-
-      {/* Add debug button to see all errors */}
-      <div className="fixed bottom-4 right-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            console.log("Form States:", {
-              account: {
-                isValid: accountForm.formState.isValid,
-                errors: accountForm.formState.errors,
-                values: accountForm.getValues()
-              },
-              address: {
-                isValid: addressForm.formState.isValid,
-                errors: addressForm.formState.errors,
-                values: addressForm.getValues()
-              },
-              documents: {
-                isValid: documentsForm.formState.isValid,
-                errors: documentsForm.formState.errors,
-                values: documentsForm.getValues()
-              }
-            })
-          }}
-        >
-          Debug Form
-        </Button>
       </div>
     </main>
   )
