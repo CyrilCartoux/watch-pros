@@ -358,6 +358,7 @@ export default function RegisterFormPage() {
         if (isValid) {
           console.log("Account form values:", accountForm.getValues())
           setCurrentTab("address")
+          window.scrollTo({ top: 0, behavior: 'smooth' })
         }
         break
       case "address":
@@ -369,6 +370,7 @@ export default function RegisterFormPage() {
         if (isValid) {
           console.log("Address form values:", addressForm.getValues())
           setCurrentTab("documents")
+          window.scrollTo({ top: 0, behavior: 'smooth' })
         }
         break
       case "documents":
@@ -380,6 +382,7 @@ export default function RegisterFormPage() {
         if (isValid) {
           console.log("Documents form values:", documentsForm.getValues())
           setCurrentTab("subscription")
+          window.scrollTo({ top: 0, behavior: 'smooth' })
         }
         break
       case "subscription":

@@ -5,8 +5,40 @@ import { Card, CardContent } from "@/components/ui/card"
 import { CheckCircle2, Building2, AlertCircle } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { useAuthStatus } from "@/hooks/useAuthStatus"
+import { useToast } from "@/components/ui/use-toast"
 
 export default function RegisterPage() {
+  const { isSeller, isVerified, isLoading } = useAuthStatus()
+  const { toast } = useToast()
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (isSeller) {
+      e.preventDefault()
+      if (!isVerified) {
+        toast({
+          title: "Vérification en cours",
+          description: "Votre compte est en cours de vérification. Vous recevrez un email une fois la vérification terminée.",
+        })
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Compte déjà créé",
+          description: "Vous avez déjà un compte vendeur. Vous ne pouvez pas en créer un autre.",
+        })
+      }
+    }
+  }
+
+  const getButtonText = () => {
+    if (isLoading) return "Loading..."
+    if (isSeller) {
+      if (!isVerified) return "Verification Pending"
+      return "Account Already Created"
+    }
+    return "Create my account"
+  }
+
   return (
     <main className="container py-12">
       <div className="max-w-4xl mx-auto">
@@ -112,9 +144,14 @@ export default function RegisterPage() {
           transition={{ delay: 0.5 }}
           className="text-center"
         >
-          <Link href="/register/form">
-            <Button size="lg" className="px-8">
-              Create my account
+          <Link href="/register/form" onClick={handleClick}>
+            <Button 
+              size="lg" 
+              className="px-8"
+              disabled={isLoading || isSeller}
+              variant={isSeller && !isVerified ? "secondary" : "default"}
+            >
+              {getButtonText()}
             </Button>
           </Link>
         </motion.div>

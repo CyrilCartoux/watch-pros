@@ -116,6 +116,7 @@ export default function ListingPage({ params }: Props) {
   const [isDeclareSaleDialogOpen, setIsDeclareSaleDialogOpen] = useState(false)
   const [finalPrice, setFinalPrice] = useState("")
   const [isSubmittingSale, setIsSubmittingSale] = useState(false)
+  const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false)
 
   const nextImage = useCallback(() => {
     if (!listing) return
@@ -293,16 +294,15 @@ export default function ListingPage({ params }: Props) {
         throw new Error("Failed to send message")
       }
 
-      toast({
-        title: "Message sent",
-        description: "Your message has been sent successfully",
-      })
+      setIsMessageSuccess(true)
       setMessage("")
+      setIsMessageDialogOpen(false)
     } catch (error) {
+      console.error('Error sending message:', error)
       toast({
-        title: "Error",
-        description: "Failed to send message",
         variant: "destructive",
+        title: "Error",
+        description: "Failed to send message. Please try again.",
       })
     } finally {
       setIsSubmittingMessage(false)

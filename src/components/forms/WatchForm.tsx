@@ -291,12 +291,14 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
     if (isValid) {
       setIsStepSubmitted(false)
       setStep(prev => prev + 1)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
 
   const prevStep = () => {
     setIsStepSubmitted(false)
     setStep(prev => prev - 1)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const nextImage = (e: React.MouseEvent) => {
