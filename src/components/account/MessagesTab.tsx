@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/components/ui/use-toast"
+import { debounce } from "lodash"
 
 interface Message {
   id: string
@@ -17,6 +18,7 @@ interface Message {
   content: string
   created_at: string
   read: boolean
+  pending?: boolean
 }
 
 interface Conversation {
@@ -52,82 +54,141 @@ export function MessagesTab() {
   const [showMobileConversation, setShowMobileConversation] = useState(false)
   const [loading, setLoading] = useState(true)
   const [loadingMessages, setLoadingMessages] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const [offset, setOffset] = useState(0)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const supabase = useMemo(() => createClient(), [])
+  const unreadMessageIds = useRef<string[]>([])
+  const debouncedMarkAsRead = useMemo(
+    () => debounce(async () => {
+      if (unreadMessageIds.current.length === 0) return
+
+      const idsToMark = [...unreadMessageIds.current]
+      unreadMessageIds.current = []
+
+      try {
+        const { error } = await supabase
+          .from('messages')
+          .update({ read: true })
+          .in('id', idsToMark)
+
+        if (error) {
+          console.error('Failed to mark messages as read:', error)
+          // Retry after delay
+          setTimeout(() => {
+            unreadMessageIds.current = [...idsToMark, ...unreadMessageIds.current]
+            debouncedMarkAsRead()
+          }, 2000)
+        }
+      } catch (err) {
+        console.error('Error marking messages as read:', err)
+      }
+    }, 1000),
+    [supabase]
+  )
+  const [pendingMessages, setPendingMessages] = useState<Set<string>>(new Set())
+  const isMounted = useRef(true)
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false
+    }
+  }, [])
 
   // Load conversations
   useEffect(() => {
     if (!user) return
-
-    async function loadConversations() {
-      try {
-        const { data, error } = await supabase
-          .from('conversations')
-          .select(`
-            *,
-            messages:messages(
-              id,
-              content,
-              created_at,
-              sender_id,
-              read
-            ),
-            participant1:profiles!conversations_participant1_id_fkey(
-              id,
-              first_name,
-              last_name,
-              seller_id,
-              seller:sellers!inner(
-                watch_pros_name,
-                company_status,
-                company_logo_url
-              )
-            ),
-            participant2:profiles!conversations_participant2_id_fkey(
-              id,
-              first_name,
-              last_name,
-              seller_id,
-              seller:sellers!inner(
-                watch_pros_name,
-                company_status,
-                company_logo_url
-              )
-            )
-          `)
-          .order('updated_at', { ascending: false })
-
-        if (error) throw error
-
-        const formattedConversations = data.map((conv: any) => ({
-          ...conv,
-          last_message: conv.messages?.[0],
-          other_user: conv.participant1_id === user?.id ? {
-            ...conv.participant2,
-            avatar_url: conv.participant2.seller?.company_logo_url
-          } : {
-            ...conv.participant1,
-            avatar_url: conv.participant1.seller?.company_logo_url
-          }
-        }))
-
-        setConversations(formattedConversations)
-      } catch (err) {
-        console.error('Error loading conversations:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
     loadConversations()
   }, [user, supabase])
+
+  async function loadConversations(reset = true) {
+    try {
+      if (reset) {
+        setOffset(0)
+        setHasMore(true)
+      }
+      
+      const { data, error, count } = await supabase
+        .from('conversations')
+        .select(`
+          *,
+          messages:messages(
+            id,
+            content,
+            created_at,
+            sender_id,
+            read
+          ),
+          participant1:profiles!conversations_participant1_id_fkey(
+            id,
+            first_name,
+            last_name,
+            seller_id,
+            seller:sellers!inner(
+              watch_pros_name,
+              company_status,
+              company_logo_url
+            )
+          ),
+          participant2:profiles!conversations_participant2_id_fkey(
+            id,
+            first_name,
+            last_name,
+            seller_id,
+            seller:sellers!inner(
+              watch_pros_name,
+              company_status,
+              company_logo_url
+            )
+          )
+        `, { count: 'exact' })
+        .order('updated_at', { ascending: false })
+        .range(offset, offset + 19)
+
+      if (error) throw error
+
+      const formattedConversations = data.map((conv: any) => ({
+        ...conv,
+        last_message: conv.messages?.[0],
+        other_user: conv.participant1_id === user?.id ? {
+          ...conv.participant2,
+          avatar_url: conv.participant2.seller?.company_logo_url
+        } : {
+          ...conv.participant1,
+          avatar_url: conv.participant1.seller?.company_logo_url
+        }
+      }))
+
+      setConversations(prev => reset ? formattedConversations : [...prev, ...formattedConversations])
+      setHasMore(data.length === 20)
+      setOffset(prev => prev + 20)
+    } catch (err) {
+      console.error('Error loading conversations:', err)
+      toast({
+        title: "Error",
+        description: "Failed to load conversations",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+      setLoadingMore(false)
+    }
+  }
+
+  const handleLoadMore = async () => {
+    if (loadingMore || !hasMore) return
+    setLoadingMore(true)
+    await loadConversations(false)
+  }
 
   // Subscribe to new messages
   useEffect(() => {
     if (!user || !selectedConversation) return
 
-    const channel = supabase
-      .channel(`conversation:${selectedConversation.id}`)
+    const channel = supabase.channel(`messages:conversation_id=eq.${selectedConversation.id}`)
+
+    channel
       .on(
         'postgres_changes',
         {
@@ -136,9 +197,20 @@ export function MessagesTab() {
           table: 'messages',
           filter: `conversation_id=eq.${selectedConversation.id}`
         },
-        async (payload) => {
-          const newMessage = payload.new as Message
-          setMessages(prev => [...prev, newMessage])
+        async (payload: { new: Message }) => {
+          const newMessage = payload.new
+          
+          // Update messages list
+          setMessages(prev => {
+            const newMessages = [...prev, newMessage]
+            // Use nextTick for scroll
+            queueMicrotask(() => {
+              if (isMounted.current) {
+                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+              }
+            })
+            return newMessages
+          })
           
           // Update last conversation
           setConversations(prev => 
@@ -151,33 +223,16 @@ export function MessagesTab() {
 
           // Mark message as read if sent by other user
           if (newMessage.sender_id !== user.id) {
-            try {
-              const { error } = await supabase
-                .from('messages')
-                .update({ read: true })
-                .eq('id', newMessage.id)
-
-              if (error) {
-                console.error('Failed to mark message as read:', error)
-                // Optional: retry after delay
-                setTimeout(async () => {
-                  const { error: retryError } = await supabase
-                    .from('messages')
-                    .update({ read: true })
-                    .eq('id', newMessage.id)
-                  
-                  if (retryError) {
-                    console.error('Failed to mark message as read after retry:', retryError)
-                  }
-                }, 2000)
-              }
-            } catch (err) {
-              console.error('Error marking message as read:', err)
-            }
+            unreadMessageIds.current.push(newMessage.id)
+            debouncedMarkAsRead()
           }
         }
       )
-      .subscribe()
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          console.log('Subscribed to messages channel')
+        }
+      })
 
     return () => {
       supabase.removeChannel(channel)
@@ -204,10 +259,8 @@ export function MessagesTab() {
       )
       
       if (unreadMessages.length > 0) {
-        await supabase
-          .from('messages')
-          .update({ read: true })
-          .in('id', unreadMessages.map(msg => msg.id))
+        unreadMessageIds.current = unreadMessages.map(msg => msg.id)
+        debouncedMarkAsRead()
       }
     } catch (err) {
       console.error('Error loading messages:', err)
@@ -239,17 +292,29 @@ export function MessagesTab() {
     const oldLastMessage = selectedConversation.last_message
 
     // Create temporary message
+    const tempId = 'temp-' + Date.now()
     const tempMessage: Message = {
-      id: 'temp-' + Date.now(),
+      id: tempId,
       conversation_id: selectedConversation.id,
       sender_id: user.id,
       content: messageContent,
       created_at: new Date().toISOString(),
-      read: false
+      read: false,
+      pending: true
     }
 
     // Add message to UI immediately
-    setMessages(prev => [...prev, tempMessage])
+    setPendingMessages(prev => new Set([...prev, tempId]))
+    setMessages(prev => {
+      const newMessages = [...prev, tempMessage]
+      // Use nextTick for scroll
+      queueMicrotask(() => {
+        if (isMounted.current) {
+          messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+        }
+      })
+      return newMessages
+    })
     setConversations(prev => 
       prev.map(conv => 
         conv.id === selectedConversation.id
@@ -271,35 +336,51 @@ export function MessagesTab() {
 
       if (error) throw error
 
-      // Replace temporary message with real message
-      setMessages(prev => 
-        prev.map(msg => 
-          msg.id === tempMessage.id ? data : msg
+      // Only update if component is still mounted
+      if (isMounted.current) {
+        // Replace temporary message with real message
+        setMessages(prev => 
+          prev.map(msg => 
+            msg.id === tempId ? data : msg
+          )
         )
-      )
-      setConversations(prev => 
-        prev.map(conv => 
-          conv.id === selectedConversation.id
-            ? { ...conv, last_message: data }
-            : conv
+        setConversations(prev => 
+          prev.map(conv => 
+            conv.id === selectedConversation.id
+              ? { ...conv, last_message: data }
+              : conv
+          )
         )
-      )
+        setPendingMessages(prev => {
+          const next = new Set(prev)
+          next.delete(tempId)
+          return next
+        })
+      }
     } catch (err) {
       console.error('Error sending message:', err)
-      toast({
-        title: "Error",
-        description: "Failed to send message",
-        variant: "destructive",
-      })
-      // Remove temporary message on error
-      setMessages(prev => prev.filter(msg => msg.id !== tempMessage.id))
-      setConversations(prev => 
-        prev.map(conv => 
-          conv.id === selectedConversation.id
-            ? { ...conv, last_message: oldLastMessage }
-            : conv
+      // Only update if component is still mounted
+      if (isMounted.current) {
+        toast({
+          title: "Error",
+          description: "Failed to send message",
+          variant: "destructive",
+        })
+        // Remove temporary message on error
+        setMessages(prev => prev.filter(msg => msg.id !== tempId))
+        setConversations(prev => 
+          prev.map(conv => 
+            conv.id === selectedConversation.id
+              ? { ...conv, last_message: oldLastMessage }
+              : conv
+          )
         )
-      )
+        setPendingMessages(prev => {
+          const next = new Set(prev)
+          next.delete(tempId)
+          return next
+        })
+      }
     }
   }
 
@@ -322,9 +403,6 @@ export function MessagesTab() {
           <div className="flex gap-2">
             <button className="px-3 py-1.5 text-sm font-medium rounded-md bg-primary text-primary-foreground">
               All
-            </button>
-            <button className="px-3 py-1.5 text-sm font-medium rounded-md hover:bg-muted">
-              Unread
             </button>
           </div>
         </div>
@@ -366,6 +444,27 @@ export function MessagesTab() {
               </button>
             ))}
           </div>
+          
+          {/* Load more button */}
+          {hasMore && (
+            <div className="p-4 text-center">
+              <Button
+                variant="outline"
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                className="w-full"
+              >
+                {loadingMore ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
+                    Loading...
+                  </>
+                ) : (
+                  'Load more'
+                )}
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -427,8 +526,13 @@ export function MessagesTab() {
                           message.sender_id === user?.id 
                             ? "bg-primary text-primary-foreground" 
                             : "bg-muted"
-                        }`}>
+                        } ${message.pending ? "opacity-50" : ""}`}>
                           <p>{message.content}</p>
+                          {message.pending && (
+                            <div className="mt-1 flex justify-end">
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+                            </div>
+                          )}
                         </div>
                         <span className={`text-xs text-muted-foreground mt-1 block ${
                           message.sender_id === user?.id ? "text-right" : ""
