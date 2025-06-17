@@ -445,7 +445,7 @@ export default function SubscriptionPage() {
 
       {/* Payment Form Dialog */}
       <Dialog open={showPaymentForm} onOpenChange={setShowPaymentForm}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Complete Your Subscription</DialogTitle>
             <DialogDescription>
@@ -461,7 +461,7 @@ export default function SubscriptionPage() {
               </div>
             </DialogDescription>
           </DialogHeader>
-          <div className="py-4">
+          <div className="py-4 overflow-y-auto flex-1">
             {clientSecret && (
               <Elements
                 stripe={stripePromise}
@@ -483,7 +483,7 @@ export default function SubscriptionPage() {
               </Elements>
             )}
           </div>
-          <DialogFooter>
+          <DialogFooter className="flex-shrink-0">
             <Button
               variant="outline"
               onClick={() => {

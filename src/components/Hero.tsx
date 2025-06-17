@@ -2,10 +2,12 @@
 
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { ArrowRight, User, Briefcase, ShieldCheck, Tag } from "lucide-react"
+import { ArrowRight, User, Briefcase, ShieldCheck, Tag, CheckCircle2 } from "lucide-react"
 import { motion } from "framer-motion"
+import { useAuthStatus } from "@/hooks/useAuthStatus"
 
 export function Hero() {
+  const { isAuthenticated, isSeller, isVerified, hasActiveSubscription } = useAuthStatus()
   return (
     <section
       aria-label="Hero section – B2B Watch Marketplace for Professionals"
@@ -55,13 +57,18 @@ export function Hero() {
             whileHover={{ scale: 1.02 }}
             className="flex flex-col items-center text-center p-4 rounded-xl transition hover:bg-muted/60"
           >
-            <div className="flex flex-col items-center mb-2">
+            <div className="flex flex-col items-center mb-2 relative">
               <User className="w-7 h-7 text-primary mb-1" />
+              {isAuthenticated && (
+                <CheckCircle2 className="w-5 h-5 text-green-500 absolute -top-2 -right-2 bg-background rounded-full" />
+              )}
             </div>
             <span className="font-semibold mb-1">Connect to the platform</span>
-            <Link href="/auth" passHref>
-              <Button variant="link" className="p-0 h-auto text-primary font-medium">Sign in / Sign up</Button>
-            </Link>
+            {!isAuthenticated && (
+              <Link href="/auth" passHref>
+                <Button variant="link" className="p-0 h-auto text-primary font-medium">Sign in / Sign up</Button>
+              </Link>
+            )}
           </motion.li>
           <motion.li
             initial={{ opacity: 0, y: 20 }}
@@ -70,13 +77,18 @@ export function Hero() {
             whileHover={{ scale: 1.02 }}
             className="flex flex-col items-center text-center p-4 rounded-xl transition hover:bg-muted/60"
           >
-            <div className="flex flex-col items-center mb-2">
+            <div className="flex flex-col items-center mb-2 relative">
               <Briefcase className="w-7 h-7 text-primary mb-1" />
+              {isSeller && (
+                <CheckCircle2 className="w-5 h-5 text-green-500 absolute -top-2 -right-2 bg-background rounded-full" />
+              )}
             </div>
             <span className="font-semibold mb-1">Create your seller account</span>
-            <Link href="/register" passHref>
-              <Button variant="link" className="p-0 h-auto text-primary font-medium">Register as seller</Button>
-            </Link>
+            {!isSeller && (
+              <Link href="/register" passHref>
+                <Button variant="link" className="p-0 h-auto text-primary font-medium">Register as seller</Button>
+              </Link>
+            )}
           </motion.li>
           <motion.li
             initial={{ opacity: 0, y: 20 }}
@@ -85,8 +97,11 @@ export function Hero() {
             whileHover={{ scale: 1.02 }}
             className="flex flex-col items-center text-center p-4 rounded-xl transition hover:bg-muted/60"
           >
-            <div className="flex flex-col items-center mb-2">
+            <div className="flex flex-col items-center mb-2 relative">
               <ShieldCheck className="w-7 h-7 text-primary mb-1" />
+              {isVerified && (
+                <CheckCircle2 className="w-5 h-5 text-green-500 absolute -top-2 -right-2 bg-background rounded-full" />
+              )}
             </div>
             <span className="font-semibold mb-1">Wait for verification</span>
             <span className="text-sm text-muted-foreground">We verify all professionals for a secure marketplace.</span>
@@ -98,8 +113,11 @@ export function Hero() {
             whileHover={{ scale: 1.02 }}
             className="flex flex-col items-center text-center p-4 rounded-xl transition hover:bg-muted/60"
           >
-            <div className="flex flex-col items-center mb-2">
+            <div className="flex flex-col items-center mb-2 relative">
               <Tag className="w-7 h-7 text-primary mb-1" />
+              {hasActiveSubscription && (
+                <CheckCircle2 className="w-5 h-5 text-green-500 absolute -top-2 -right-2 bg-background rounded-full" />
+              )}
             </div>
             <span className="font-semibold mb-1">Sell your watches</span>
             <span className="text-sm text-muted-foreground">List and sell to trusted professionals worldwide.</span>

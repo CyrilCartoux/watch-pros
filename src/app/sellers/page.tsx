@@ -79,22 +79,6 @@ function getCountryFlag(countryCode: string): string {
   return String.fromCodePoint(...codePoints)
 }
 
-// Hook pour throttler les valeurs
-function useThrottle<T>(value: T, delay: number): T {
-  const [throttledValue, setThrottledValue] = useState<T>(value)
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setThrottledValue(value)
-    }, delay)
-
-    return () => {
-      clearTimeout(timer)
-    }
-  }, [value, delay])
-
-  return throttledValue
-}
 
 export default function SellersListPage() {
   const router = useRouter()
@@ -122,25 +106,6 @@ export default function SellersListPage() {
     itemsPerPage: 10
   })
 
-  // Throttle the search input
-  const throttledSearch = useThrottle(filters.search, 500) // 500ms delay
-
-  const updateURL = (newFilters: Filters, page: number = 1) => {
-    const params = new URLSearchParams()
-    
-    // Add non-empty filters to URL
-    Object.entries(newFilters).forEach(([key, value]) => {
-      if (value) {
-        params.set(key, value.toString())
-      }
-    })
-
-    // Add pagination and sorting
-    if (page > 1) params.set("page", page.toString())
-
-    // Update URL without reloading the page
-    router.push(`/sellers?${params.toString()}`, { scroll: false })
-  }
 
   const handleFilterChange = useCallback((key: keyof Filters, value: any) => {
     setTempFilters(prev => ({ ...prev, [key]: value }))
@@ -213,6 +178,8 @@ export default function SellersListPage() {
       if (filters.cryptoFriendly) params.append("cryptoFriendly", "true")
       if (filters.minRating > 0) params.append("minRating", filters.minRating.toString())
       if (filters.search) params.append("search", filters.search)
+        
+      console.log('FETCH');
 
       const response = await fetch(`/api/sellers?${params}`)
       if (!response.ok) {
