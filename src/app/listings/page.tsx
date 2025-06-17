@@ -246,7 +246,7 @@ export default function ListingsPage() {
     return () => controller.abort()
   }
 
-  // Initialize filters from URL on mount
+  // Initialize filters from URL on mount and when URL changes
   useEffect(() => {
     const initializeFromURL = async () => {
       try {
@@ -262,23 +262,23 @@ export default function ListingsPage() {
         // Update filters from URL
         setFilters(initialFilters)
         setTempFilters(initialFilters)
+        
+        // Fetch listings with the new filters
+        await fetchListings()
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to initialize filters")
       }
     }
 
     initializeFromURL()
-  }, [initialFilters, searchParams])
-
-  // Fetch listings when component mounts or when URL changes
-  useEffect(() => {
-    fetchListings()
-  }, [filters, currentPage, sortBy])
+  }, [searchParams]) // Only depend on searchParams
 
   // Update URL when page changes
   useEffect(() => {
     if (currentPage > 1) {
       updateURL()
+      // Scroll to top smoothly when page changes
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }, [currentPage, updateURL])
 
@@ -286,6 +286,8 @@ export default function ListingsPage() {
   useEffect(() => {
     if (sortBy !== "relevance") {
       updateURL()
+      // Scroll to top smoothly when sort changes
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }, [sortBy, updateURL])
 

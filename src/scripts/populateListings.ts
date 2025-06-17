@@ -1126,11 +1126,11 @@ const brands = [
 
 // Configuration
 const BATCH_SIZE = 1000; // Number of listings to insert at once
-const TOTAL_LISTINGS = 10000; // Total number of listings to generate
+const TOTAL_LISTINGS = 5000; // Total number of listings to generate
 
 // Initialize Supabase client
 const supabaseUrl = 'https://yxherqptduszoafpsapp.supabase.co'; // TODO REPLACE
-const supabaseKey = '' // TODO REPLACE WITH SERVICE ROLE KEY
+const supabaseKey = 'eyJ' // TODO REPLACE WITH SERVICE ROLE KEY
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -1186,6 +1186,8 @@ async function generateListings() {
       const seller = faker.helpers.arrayElement(sellers);
       const year = generateRandomYear().toString();
       const diameter = generateRandomDiameter();
+      const status = Math.random() < 0.25 ? 'sold' : 'active';
+      const price = generateRandomPrice();
       
       const listing = {
         reference_id: faker.string.uuid(),
@@ -1210,9 +1212,11 @@ async function generateListings() {
         price: generateRandomPrice(),
         currency: 'EUR',
         shipping_delay: faker.helpers.arrayElement(shippingDelays),
-        status: 'active',
+        status,
         listing_type: 'watch',
         country: faker.helpers.arrayElement(countries),
+        sold_at: status === 'sold' ? faker.date.between({ from: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000), to: new Date() }).toISOString() : null,
+        final_price: status === 'sold' ? price - (price * 0.05) : null,
       };
 
       listings.push(listing);

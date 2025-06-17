@@ -63,7 +63,16 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '12')
+    const status = searchParams.get('status') || 'active'
     const offset = (page - 1) * limit
+
+    // Validate status
+    if (!['active', 'sold', 'inactive'].includes(status)) {
+      return NextResponse.json(
+        { error: 'Invalid status' },
+        { status: 400 }
+      )
+    }
 
     // Get all listings for this seller (paginated)
     const { data: listings, error: listingsError, count } = await supabase
@@ -76,6 +85,8 @@ export async function GET(request: Request) {
         listing_type,
         created_at,
         updated_at,
+        sold_at,
+        final_price,
         brands (
           slug,
           label
@@ -90,7 +101,8 @@ export async function GET(request: Request) {
         )
       `, { count: 'exact' })
       .eq('seller_id', seller.id)
-      .order('created_at', { ascending: false })
+      .eq('status', status)
+      .order(status === 'sold' ? 'sold_at' : 'created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 
     if (listingsError) {
@@ -112,7 +124,9 @@ export async function GET(request: Request) {
       model: listing.models.label,
       image: listing.listing_images?.[0]?.url || null,
       createdAt: listing.created_at,
-      updatedAt: listing.updated_at
+      updatedAt: listing.updated_at,
+      soldAt: listing.sold_at,
+      finalPrice: listing.final_price
     }))
 
     return NextResponse.json({

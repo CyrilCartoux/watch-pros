@@ -20,6 +20,7 @@ interface DatabaseListing {
   id: string;
   title: string;
   price: number;
+  final_price: number;
   status: string;
   listing_type: string;
   created_at: string;
@@ -66,6 +67,24 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '12')
     const offset = (page - 1) * limit
 
+    // Get total sum of sold watches
+    const { data: totalSum, error: sumError } = await supabase
+      .from('listings')
+      .select('final_price')
+      .eq('seller_id', seller.id)
+      .eq('status', 'sold')
+      .not('final_price', 'is', null)
+
+    if (sumError) {
+      console.error('Error fetching total sum:', sumError)
+      return NextResponse.json(
+        { error: 'Failed to fetch total sum' },
+        { status: 500 }
+      )
+    }
+
+    const totalAmount = totalSum.reduce((sum, listing) => sum + (listing.final_price || 0), 0)
+
     // Get all sold listings for this seller (paginated)
     const { data: listings, error: listingsError, count } = await supabase
       .from('listings')
@@ -73,6 +92,7 @@ export async function GET(request: Request) {
         id,
         title,
         price,
+        final_price,
         status,
         listing_type,
         created_at,
@@ -109,6 +129,7 @@ export async function GET(request: Request) {
       id: listing.id,
       title: listing.title,
       price: listing.price,
+      finalPrice: listing.final_price,
       status: listing.status,
       type: listing.listing_type,
       brand: listing.brands.label,
@@ -122,6 +143,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       listings: transformedListings,
       total: count || 0,
+      totalAmount,
       page,
       limit,
       totalPages: Math.ceil((count || 0) / limit)

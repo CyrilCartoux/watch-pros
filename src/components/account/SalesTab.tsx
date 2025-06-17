@@ -5,6 +5,15 @@ import { CheckCircle2, Clock, AlertCircle } from "lucide-react"
 import Image from "next/image"
 import { useEffect, useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
+import { Button } from "@/components/ui/button"
+import { ChevronLeft, ChevronRight } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface Sale {
   id: string
@@ -23,6 +32,7 @@ interface Sale {
 interface SalesResponse {
   listings: Sale[]
   total: number
+  totalAmount: number
   page: number
   limit: number
   totalPages: number
@@ -30,50 +40,46 @@ interface SalesResponse {
 
 const statusConfig = {
   sold: {
-    icon: CheckCircle2,
-    color: "text-green-500",
-    label: "Sold"
+    label: "Vendu",
+    color: "text-green-600",
+    icon: CheckCircle2
   },
-  pending: {
-    icon: Clock,
-    color: "text-yellow-500",
-    label: "Pending"
+  active: {
+    label: "Actif",
+    color: "text-blue-600",
+    icon: Clock
   },
-  cancelled: {
-    icon: AlertCircle,
-    color: "text-red-500",
-    label: "Cancelled"
+  inactive: {
+    label: "Inactif",
+    color: "text-gray-600",
+    icon: AlertCircle
   }
 }
 
 export function SalesTab() {
   const [sales, setSales] = useState<Sale[]>([])
   const [loading, setLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const [stats, setStats] = useState({
     totalSales: 0,
-    totalRevenue: 0
+    totalAmount: 0
   })
   const { toast } = useToast()
-
-  useEffect(() => {
-    fetchSales()
-  }, [])
 
   const fetchSales = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/listings/me/sold')
+      const response = await fetch(`/api/listings/me/sold?page=${currentPage}&limit=12`)
       if (!response.ok) {
         throw new Error('Failed to fetch sales')
       }
       const data: SalesResponse = await response.json()
       setSales(data.listings)
-
-      // Calculate statistics
-      const totalRevenue = data.listings.reduce((sum, sale) => sum + sale.price, 0)
+      setTotalPages(data.totalPages)
       setStats({
         totalSales: data.total,
-        totalRevenue
+        totalAmount: data.totalAmount
       })
     } catch (error) {
       console.error('Error fetching sales:', error)
@@ -85,6 +91,15 @@ export function SalesTab() {
     } finally {
       setLoading(false)
     }
+  }
+
+  useEffect(() => {
+    fetchSales()
+  }, [currentPage])
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   if (loading) {
@@ -140,10 +155,10 @@ export function SalesTab() {
         <Card>
           <CardHeader>
             <CardTitle>Revenue</CardTitle>
-            <CardDescription>Total sales</CardDescription>
+            <CardDescription>Total sales amount</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{stats.totalRevenue.toLocaleString()} €</p>
+            <p className="text-3xl font-bold">{stats.totalAmount.toLocaleString()} €</p>
           </CardContent>
         </Card>
       </div>
@@ -196,6 +211,96 @@ export function SalesTab() {
             </Card>
           )
         })}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div className="flex items-center space-x-1">
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              const pageNumber = i + 1
+              if (totalPages <= 5) {
+                return (
+                  <Button
+                    key={pageNumber}
+                    variant={currentPage === pageNumber ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handlePageChange(pageNumber)}
+                  >
+                    {pageNumber}
+                  </Button>
+                )
+              }
+              if (pageNumber === 1 || pageNumber === totalPages) {
+                return (
+                  <Button
+                    key={pageNumber}
+                    variant={currentPage === pageNumber ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handlePageChange(pageNumber)}
+                  >
+                    {pageNumber}
+                  </Button>
+                )
+              }
+              if (pageNumber === 2 && currentPage > 3) {
+                return <span key="start-ellipsis">...</span>
+              }
+              if (pageNumber === totalPages - 1 && currentPage < totalPages - 2) {
+                return <span key="end-ellipsis">...</span>
+              }
+              if (Math.abs(currentPage - pageNumber) <= 1) {
+                return (
+                  <Button
+                    key={pageNumber}
+                    variant={currentPage === pageNumber ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handlePageChange(pageNumber)}
+                  >
+                    {pageNumber}
+                  </Button>
+                )
+              }
+              return null
+            })}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-muted-foreground">
+            Page {currentPage} sur {totalPages}
+          </span>
+          <Select
+            value={currentPage.toString()}
+            onValueChange={(value) => handlePageChange(parseInt(value))}
+          >
+            <SelectTrigger className="w-[100px]">
+              <SelectValue placeholder="Page" />
+            </SelectTrigger>
+            <SelectContent>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <SelectItem key={i + 1} value={(i + 1).toString()}>
+                  {i + 1}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
     </div>
   )

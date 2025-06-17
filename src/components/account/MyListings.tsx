@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function MyListings() {
   const [listings, setListings] = useState<any[]>([])
@@ -39,11 +40,12 @@ export default function MyListings() {
   const { toast } = useToast()
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [status, setStatus] = useState<'active' | 'sold' | 'inactive'>('active')
   const itemsPerPage = 12
 
   useEffect(() => {
     setLoading(true)
-    fetch(`/api/listings/me?page=${currentPage}&limit=${itemsPerPage}`)
+    fetch(`/api/listings/me?page=${currentPage}&limit=${itemsPerPage}&status=${status}`)
       .then(res => res.json())
       .then(data => {
         if (data.error) {
@@ -58,7 +60,7 @@ export default function MyListings() {
         console.error('Error fetching listings:', err)
       })
       .finally(() => setLoading(false))
-  }, [currentPage])
+  }, [currentPage, status])
 
   const handlePause = async (id: string) => {
     await fetch(`/api/listings/${id}/toggle-status`, { method: "POST" })
@@ -185,241 +187,258 @@ export default function MyListings() {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">My Listings</h2>
-        <Link href="/sell">
-          <Button size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            New Listing
-          </Button>
-        </Link>
-      </div>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4">
+        <h2 className="text-2xl font-bold">My Listings</h2>
+        
+        {/* Status Filter Tabs */}
+        <Tabs defaultValue="active" value={status} onValueChange={(value) => setStatus(value as 'active' | 'sold' | 'inactive')}>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="active">Active</TabsTrigger>
+            <TabsTrigger value="sold">Sold</TabsTrigger>
+            <TabsTrigger value="inactive">Inactive</TabsTrigger>
+          </TabsList>
+        </Tabs>
 
-      {listings.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-8 text-center">
-            <p className="text-muted-foreground mb-4">You haven't created any listings yet.</p>
-            <Link href="/sell">
-              <Button size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Create your first listing
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
-          {listings.map((listing) => (
-            <Card key={listing.id} className="overflow-hidden">
-              <div className="relative aspect-[3/4]">
-                {listing.image ? (
-                  <Image
-                    src={listing.image}
-                    alt={listing.title}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-muted flex items-center justify-center">
-                    <span className="text-muted-foreground text-xs">No image</span>
-                  </div>
-                )}
-                <Badge 
-                  variant={listing.status === "active" ? "default" : "secondary"}
-                  className="absolute top-2 right-2 text-[10px]"
-                >
-                  {listing.status}
-                </Badge>
+        {error && (
+          <div className="p-4 bg-destructive/10 text-destructive rounded-lg">
+            <p className="font-medium">Error</p>
+            <p className="text-sm">{error}</p>
+          </div>
+        )}
+
+        {loading ? (
+          <div className="grid grid-cols-2 gap-3 md:gap-4">
+            {Array.from({ length: itemsPerPage }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="bg-gray-200 h-64 rounded-lg mb-4"></div>
+                <div className="space-y-3">
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                </div>
               </div>
-              <CardContent className="p-2 md:p-3 space-y-1.5 md:space-y-2">
-                <div>
-                  <h3 className="font-semibold text-xs md:text-sm line-clamp-1">{listing.title}</h3>
-                  <p className="text-base md:text-lg font-bold text-primary">
-                    {listing.price.toLocaleString()} €
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {listing.brand && (
-                    <Badge variant="outline" className="text-[10px] md:text-xs">{listing.brand}</Badge>
-                  )}
-                  {listing.model && (
-                    <Badge variant="outline" className="text-[10px] md:text-xs">{listing.model}</Badge>
-                  )}
-                </div>
-                <div className="flex gap-1 pt-1">
-                  {listing.status === "active" ? (
-                    <>
+            ))}
+          </div>
+        ) : listings.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">No {status} listings found</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-3 md:gap-4">
+              {listings.map((listing) => (
+                <Card key={listing.id} className="overflow-hidden">
+                  <div className="relative aspect-[3/4]">
+                    {listing.image ? (
+                      <Image
+                        src={listing.image}
+                        alt={listing.title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-muted flex items-center justify-center">
+                        <span className="text-muted-foreground text-xs">No image</span>
+                      </div>
+                    )}
+                    <Badge 
+                      variant={listing.status === "active" ? "default" : "secondary"}
+                      className="absolute top-2 right-2 text-[10px]"
+                    >
+                      {listing.status}
+                    </Badge>
+                  </div>
+                  <CardContent className="p-2 md:p-3 space-y-1.5 md:space-y-2">
+                    <div>
+                      <h3 className="font-semibold text-xs md:text-sm line-clamp-1">{listing.title}</h3>
+                      <p className="text-base md:text-lg font-bold text-primary">
+                        {listing.price.toLocaleString()} €
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {listing.brand && (
+                        <Badge variant="outline" className="text-[10px] md:text-xs">{listing.brand}</Badge>
+                      )}
+                      {listing.model && (
+                        <Badge variant="outline" className="text-[10px] md:text-xs">{listing.model}</Badge>
+                      )}
+                    </div>
+                    <div className="flex gap-1 pt-1">
+                      {listing.status === "active" ? (
+                        <>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="flex-1 h-7 md:h-8 text-xs"
+                            onClick={() => handlePause(listing.id)}
+                          >
+                            <Pause className="h-3 w-3 md:mr-1" />
+                            <span className="hidden md:inline">Pause</span>
+                          </Button>
+                          <Link href={`/sell/${listing.type}/${listing.id}/edit`} className="flex-1">
+                            <Button variant="outline" size="sm" className="w-full h-7 md:h-8 text-xs">
+                              <Edit className="h-3 w-3 md:mr-1" />
+                              <span className="hidden md:inline">Edit</span>
+                            </Button>
+                          </Link>
+                          <Button 
+                            variant="destructive" 
+                            size="sm"
+                            className="flex-1 h-7 md:h-8 text-xs"
+                            onClick={() => openDeleteDialog(listing.id)}
+                          >
+                            <Trash2 className="h-3 w-3 md:mr-1" />
+                            <span className="hidden md:inline">Delete</span>
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="flex-1 h-7 md:h-8 text-xs"
+                            onClick={() => handlePause(listing.id)}
+                          >
+                            <Play className="h-3 w-3 md:mr-1" />
+                            <span className="hidden md:inline">Activate</span>
+                          </Button>
+                          <Link href={`/sell/${listing.type}/${listing.id}/edit`} className="flex-1">
+                            <Button variant="outline" size="sm" className="w-full h-7 md:h-8 text-xs">
+                              <Edit className="h-3 w-3 md:mr-1" />
+                              <span className="hidden md:inline">Edit</span>
+                            </Button>
+                          </Link>
+                          <Button 
+                            variant="destructive" 
+                            size="sm"
+                            className="flex-1 h-7 md:h-8 text-xs"
+                            onClick={() => openDeleteDialog(listing.id)}
+                          >
+                            <Trash2 className="h-3 w-3 md:mr-1" />
+                            <span className="hidden md:inline">Delete</span>
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                    {listing.status === "active" ? (
                       <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="flex-1 h-7 md:h-8 text-xs"
-                        onClick={() => handlePause(listing.id)}
+                        className="w-full h-9 md:h-10 text-sm bg-green-600 hover:bg-green-700 mt-2"
+                        onClick={() => openDeclareSaleDialog(listing.id)}
                       >
-                        <Pause className="h-3 w-3 md:mr-1" />
-                        <span className="hidden md:inline">Pause</span>
+                        <DollarSign className="h-4 w-4 mr-2" />
+                        Declare Sale
                       </Button>
-                      <Link href={`/sell/${listing.type}/${listing.id}/edit`} className="flex-1">
-                        <Button variant="outline" size="sm" className="w-full h-7 md:h-8 text-xs">
-                          <Edit className="h-3 w-3 md:mr-1" />
-                          <span className="hidden md:inline">Edit</span>
-                        </Button>
-                      </Link>
+                    ) : listing.status === "sold" ? (
                       <Button 
-                        variant="destructive" 
-                        size="sm"
-                        className="flex-1 h-7 md:h-8 text-xs"
-                        onClick={() => openDeleteDialog(listing.id)}
+                        className="w-full h-9 md:h-10 text-sm bg-green-600 mt-2"
+                        disabled
                       >
-                        <Trash2 className="h-3 w-3 md:mr-1" />
-                        <span className="hidden md:inline">Delete</span>
+                        <CheckCircle2 className="h-4 w-4 mr-2" />
+                        Sold
+                      </Button>
+                    ) : null}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex flex-col items-center gap-4 mt-8">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                  >
+                    Previous
+                  </Button>
+                  
+                  {/* First page */}
+                  {currentPage > 3 && (
+                    <>
+                      <Button
+                        variant="outline"
+                        onClick={() => setCurrentPage(1)}
+                      >
+                        1
+                      </Button>
+                      {currentPage > 4 && <span className="px-2">...</span>}
+                    </>
+                  )}
+
+                  {/* Page numbers */}
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        onClick={() => setCurrentPage(pageNum)}
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+
+                  {/* Last page */}
+                  {currentPage < totalPages - 2 && (
+                    <>
+                      {currentPage < totalPages - 3 && <span className="px-2">...</span>}
+                      <Button
+                        variant="outline"
+                        onClick={() => setCurrentPage(totalPages)}
+                      >
+                        {totalPages}
                       </Button>
                     </>
-                  ) : (
-                    <>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="flex-1 h-7 md:h-8 text-xs"
-                        onClick={() => handlePause(listing.id)}
-                      >
-                        <Play className="h-3 w-3 md:mr-1" />
-                        <span className="hidden md:inline">Activate</span>
-                      </Button>
-                      <Link href={`/sell/${listing.type}/${listing.id}/edit`} className="flex-1">
-                        <Button variant="outline" size="sm" className="w-full h-7 md:h-8 text-xs">
-                          <Edit className="h-3 w-3 md:mr-1" />
-                          <span className="hidden md:inline">Edit</span>
-                        </Button>
-                      </Link>
-                      <Button 
-                        variant="destructive" 
-                        size="sm"
-                        className="flex-1 h-7 md:h-8 text-xs"
-                        onClick={() => openDeleteDialog(listing.id)}
-                      >
-                        <Trash2 className="h-3 w-3 md:mr-1" />
-                        <span className="hidden md:inline">Delete</span>
-                      </Button>
-                    </>
                   )}
+
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </Button>
                 </div>
-                {listing.status === "active" ? (
-                  <Button 
-                    className="w-full h-9 md:h-10 text-sm bg-green-600 hover:bg-green-700 mt-2"
-                    onClick={() => openDeclareSaleDialog(listing.id)}
+
+                {/* Page selector */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Go to page:</span>
+                  <Select
+                    value={currentPage.toString()}
+                    onValueChange={(value) => setCurrentPage(Number(value))}
                   >
-                    <DollarSign className="h-4 w-4 mr-2" />
-                    Declare Sale
-                  </Button>
-                ) : listing.status === "sold" ? (
-                  <Button 
-                    className="w-full h-9 md:h-10 text-sm bg-green-600 mt-2"
-                    disabled
-                  >
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
-                    Sold
-                  </Button>
-                ) : null}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      {totalPages > 1 && (
-        <div className="flex flex-col items-center gap-4 mt-8">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </Button>
-            
-            {/* First page */}
-            {currentPage > 3 && (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentPage(1)}
-                >
-                  1
-                </Button>
-                {currentPage > 4 && <span className="px-2">...</span>}
-              </>
+                    <SelectTrigger className="w-[100px]">
+                      <SelectValue placeholder="Page" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <SelectItem key={page} value={page.toString()}>
+                          {page}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <span className="text-sm text-muted-foreground">
+                    of {totalPages}
+                  </span>
+                </div>
+              </div>
             )}
-
-            {/* Page numbers */}
-            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-              let pageNum;
-              if (totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (currentPage <= 3) {
-                pageNum = i + 1;
-              } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
-              } else {
-                pageNum = currentPage - 2 + i;
-              }
-              return (
-                <Button
-                  key={pageNum}
-                  variant={currentPage === pageNum ? "default" : "outline"}
-                  onClick={() => setCurrentPage(pageNum)}
-                >
-                  {pageNum}
-                </Button>
-              );
-            })}
-
-            {/* Last page */}
-            {currentPage < totalPages - 2 && (
-              <>
-                {currentPage < totalPages - 3 && <span className="px-2">...</span>}
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentPage(totalPages)}
-                >
-                  {totalPages}
-                </Button>
-              </>
-            )}
-
-            <Button
-              variant="outline"
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </Button>
-          </div>
-
-          {/* Page selector */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Go to page:</span>
-            <Select
-              value={currentPage.toString()}
-              onValueChange={(value) => setCurrentPage(Number(value))}
-            >
-              <SelectTrigger className="w-[100px]">
-                <SelectValue placeholder="Page" />
-              </SelectTrigger>
-              <SelectContent>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <SelectItem key={page} value={page.toString()}>
-                    {page}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <span className="text-sm text-muted-foreground">
-              of {totalPages}
-            </span>
-          </div>
-        </div>
-      )}
+          </>
+        )}
+      </div>
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
