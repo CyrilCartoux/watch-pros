@@ -113,7 +113,6 @@ export function SearchBar({ className }: SearchBarProps) {
 
     const params = new URLSearchParams()
     const trimmed = query.trim()
-    const tokens = trimmed.split(/\s+/)
 
     // Find if the query matches a model result from suggestions
     const modelResult = results.find(result => result.type === "model" && result.label === query)
@@ -126,59 +125,36 @@ export function SearchBar({ className }: SearchBarProps) {
       }
       // Update the search input with the selected value
       setSearch(modelResult.label)
-    } else if (tokens.length === 1) {
-      // Single token - could be a reference number or brand
-      const single = tokens[0].toLowerCase()
-      
-      // Check if it's a brand
-      const brand = uniqueBrands.find(b => 
-        b.slug === single || b.label.toLowerCase() === single
-      )
-      
-      if (brand) {
-        params.set('brand', brand.slug)
-        // Update the search input with the brand name
-        setSearch(brand.label)
-      } else {
-        // If not a brand, treat as reference number
-        params.set('reference', trimmed)
-        // Keep the reference number in the search input
-        setSearch(trimmed)
-      }
     } else {
-      // Multiple tokens - try to find brand and model
-      const brand = uniqueBrands.find(b => 
-        tokens.some(token => 
-          b.slug === token.toLowerCase() || 
-          b.label.toLowerCase() === token.toLowerCase()
-        )
-      )
-
-      if (brand) {
-        params.set('brand', brand.slug)
-        
-        // Look for matching model
-        const brandModels = models[brand.slug] || []
-        const model = brandModels.find(m => 
-          tokens.some(token => 
-            m.model_slug === token.toLowerCase() || 
-            m.model_label.toLowerCase() === token.toLowerCase()
-          )
-        )
-
-        if (model) {
-          params.set('model', model.model_slug)
-          // Update the search input with the brand and model name
-          setSearch(`${model.brand_label} ${model.model_label}`)
-        } else {
-          // If only brand is found, update with brand name
-          setSearch(brand.label)
-        }
+      // Check if it's a brand from suggestions
+      const brandResult = results.find(result => result.type === "brand" && result.label === query)
+      
+      if (brandResult) {
+        params.set('brand', brandResult.brandSlug)
+        setSearch(brandResult.label)
       } else {
-        // If no brand/model match found, use as free text search
-        params.set('query', trimmed)
-        // Keep the original search text
-        setSearch(trimmed)
+        // Check if it's a brand in uniqueBrands
+        const brand = uniqueBrands.find(b => 
+          b.label.toLowerCase() === trimmed.toLowerCase() || 
+          b.slug === trimmed.toLowerCase()
+        )
+
+        if (brand) {
+          params.set('brand', brand.slug)
+          setSearch(brand.label)
+        } else {
+          // Check if it looks like a reference number (alphanumeric with possible dots)
+          const isReference = /^[A-Za-z0-9.]+$/.test(trimmed)
+          
+          if (isReference) {
+            params.set('reference', trimmed)
+            setSearch(trimmed)
+          } else {
+            // If no brand/model/reference match found, use as free text search
+            params.set('query', trimmed)
+            setSearch(trimmed)
+          }
+        }
       }
     }
 

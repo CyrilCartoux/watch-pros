@@ -502,33 +502,96 @@ export default function SellersListPage() {
 
         {/* Pagination */}
         {!loading && pagination.totalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-8">
-            <Button
-              variant="outline"
-              onClick={() => fetchSellers(pagination.currentPage - 1)}
-              disabled={pagination.currentPage === 1}
-            >
-              Previous
-            </Button>
+          <div className="flex flex-col items-center gap-4 mt-8">
             <div className="flex items-center gap-2">
-              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
-                <Button
-                  key={page}
-                  variant={page === pagination.currentPage ? "default" : "outline"}
-                  onClick={() => fetchSellers(page)}
-                  className="w-10"
-                >
-                  {page}
-                </Button>
-              ))}
+              <Button
+                variant="outline"
+                onClick={() => fetchSellers(pagination.currentPage - 1)}
+                disabled={pagination.currentPage === 1}
+              >
+                Previous
+              </Button>
+              
+              {/* First page */}
+              {pagination.currentPage > 3 && (
+                <>
+                  <Button
+                    variant="outline"
+                    onClick={() => fetchSellers(1)}
+                  >
+                    1
+                  </Button>
+                  {pagination.currentPage > 4 && <span className="px-2">...</span>}
+                </>
+              )}
+
+              {/* Page numbers */}
+              {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                let pageNum;
+                if (pagination.totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (pagination.currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (pagination.currentPage >= pagination.totalPages - 2) {
+                  pageNum = pagination.totalPages - 4 + i;
+                } else {
+                  pageNum = pagination.currentPage - 2 + i;
+                }
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={pageNum === pagination.currentPage ? "default" : "outline"}
+                    onClick={() => fetchSellers(pageNum)}
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+
+              {/* Last page */}
+              {pagination.currentPage < pagination.totalPages - 2 && (
+                <>
+                  {pagination.currentPage < pagination.totalPages - 3 && <span className="px-2">...</span>}
+                  <Button
+                    variant="outline"
+                    onClick={() => fetchSellers(pagination.totalPages)}
+                  >
+                    {pagination.totalPages}
+                  </Button>
+                </>
+              )}
+
+              <Button
+                variant="outline"
+                onClick={() => fetchSellers(pagination.currentPage + 1)}
+                disabled={pagination.currentPage === pagination.totalPages}
+              >
+                Next
+              </Button>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => fetchSellers(pagination.currentPage + 1)}
-              disabled={pagination.currentPage === pagination.totalPages}
-            >
-              Next
-            </Button>
+
+            {/* Page selector */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Go to page:</span>
+              <Select
+                value={pagination.currentPage.toString()}
+                onValueChange={(value) => fetchSellers(Number(value))}
+              >
+                <SelectTrigger className="w-[100px]">
+                  <SelectValue placeholder="Page" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((page) => (
+                    <SelectItem key={page} value={page.toString()}>
+                      {page}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <span className="text-sm text-muted-foreground">
+                of {pagination.totalPages}
+              </span>
+            </div>
           </div>
         )}
 

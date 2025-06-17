@@ -18,6 +18,13 @@ import {
 import { useToast } from "@/components/ui/use-toast"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 export default function MyListings() {
   const [listings, setListings] = useState<any[]>([])
@@ -321,30 +328,96 @@ export default function MyListings() {
       )}
 
       {totalPages > 1 && (
-        <div className="flex justify-center gap-2 mt-8">
-          <Button
-            variant="outline"
-            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </Button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+        <div className="flex flex-col items-center gap-4 mt-8">
+          <div className="flex items-center gap-2">
             <Button
-              key={page}
-              variant={currentPage === page ? "default" : "outline"}
-              onClick={() => setCurrentPage(page)}
+              variant="outline"
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
             >
-              {page}
+              Previous
             </Button>
-          ))}
-          <Button
-            variant="outline"
-            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </Button>
+            
+            {/* First page */}
+            {currentPage > 3 && (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentPage(1)}
+                >
+                  1
+                </Button>
+                {currentPage > 4 && <span className="px-2">...</span>}
+              </>
+            )}
+
+            {/* Page numbers */}
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = currentPage - 2 + i;
+              }
+              return (
+                <Button
+                  key={pageNum}
+                  variant={currentPage === pageNum ? "default" : "outline"}
+                  onClick={() => setCurrentPage(pageNum)}
+                >
+                  {pageNum}
+                </Button>
+              );
+            })}
+
+            {/* Last page */}
+            {currentPage < totalPages - 2 && (
+              <>
+                {currentPage < totalPages - 3 && <span className="px-2">...</span>}
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentPage(totalPages)}
+                >
+                  {totalPages}
+                </Button>
+              </>
+            )}
+
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+
+          {/* Page selector */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Go to page:</span>
+            <Select
+              value={currentPage.toString()}
+              onValueChange={(value) => setCurrentPage(Number(value))}
+            >
+              <SelectTrigger className="w-[100px]">
+                <SelectValue placeholder="Page" />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <SelectItem key={page} value={page.toString()}>
+                    {page}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <span className="text-sm text-muted-foreground">
+              of {totalPages}
+            </span>
+          </div>
         </div>
       )}
 
