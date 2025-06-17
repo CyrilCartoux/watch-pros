@@ -797,11 +797,16 @@ export default function RegisterFormPage() {
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center pt-6">
-                    <p className="text-sm text-muted-foreground">* Required field</p>
-                    <Button type="submit" size="lg">
-                      Continue
-                    </Button>
+                  <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6">
+                    <p className="text-sm text-muted-foreground order-2 sm:order-1">* Required field</p>
+                    <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto order-1 sm:order-2">
+                      <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto">
+                        Back
+                      </Button>
+                      <Button type="submit" size="lg" className="w-full sm:w-auto">
+                        Continue
+                      </Button>
+                    </div>
                   </div>
                 </form>
               </CardContent>
@@ -950,13 +955,13 @@ export default function RegisterFormPage() {
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center pt-6">
-                    <p className="text-sm text-muted-foreground">* Required field</p>
-                    <div className="space-x-4">
-                      <Button type="button" variant="outline" size="lg" onClick={handleBack}>
+                  <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6">
+                    <p className="text-sm text-muted-foreground order-2 sm:order-1">* Required field</p>
+                    <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto order-1 sm:order-2">
+                      <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto">
                         Back
                       </Button>
-                      <Button type="submit" size="lg">
+                      <Button type="submit" size="lg" className="w-full sm:w-auto">
                         Continue
                       </Button>
                     </div>
@@ -1084,10 +1089,10 @@ export default function RegisterFormPage() {
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center pt-6">
-                    <p className="text-sm text-muted-foreground">* Required field</p>
-                    <div className="space-x-4">
-                      <Button type="button" variant="outline" size="lg" onClick={handleBack}>
+                  <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6">
+                    <p className="text-sm text-muted-foreground order-2 sm:order-1">* Required field</p>
+                    <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto order-1 sm:order-2">
+                      <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto">
                         Back
                       </Button>
                       <Button 
@@ -1214,10 +1219,10 @@ export default function RegisterFormPage() {
                       </Accordion>
                     </div>
 
-                    <div className="flex justify-between items-center pt-6">
-                      <p className="text-sm text-muted-foreground">* Required field</p>
-                      <div className="space-x-4">
-                        <Button type="button" variant="outline" size="lg" onClick={handleBack}>
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6">
+                      <p className="text-sm text-muted-foreground order-2 sm:order-1">* Required field</p>
+                      <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto order-1 sm:order-2">
+                        <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto">
                           Back
                         </Button>
                         <Button 

@@ -225,7 +225,7 @@ export default function MyListings() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-3 md:gap-4">
+            <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
               {listings.map((listing) => (
                 <Card key={listing.id} className="overflow-hidden">
                   <div className="relative aspect-[3/4]">
@@ -266,8 +266,8 @@ export default function MyListings() {
                     <div className="flex gap-1 pt-1">
                       {listing.status === "active" ? (
                         <>
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             className="flex-1 h-7 md:h-8 text-xs"
                             onClick={() => handlePause(listing.id)}
@@ -293,8 +293,8 @@ export default function MyListings() {
                         </>
                       ) : (
                         <>
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
                             className="flex-1 h-7 md:h-8 text-xs"
                             onClick={() => handlePause(listing.id)}
@@ -329,7 +329,7 @@ export default function MyListings() {
                         Declare Sale
                       </Button>
                     ) : listing.status === "sold" ? (
-                      <Button 
+                      <Button
                         className="w-full h-9 md:h-10 text-sm bg-green-600 mt-2"
                         disabled
                       >

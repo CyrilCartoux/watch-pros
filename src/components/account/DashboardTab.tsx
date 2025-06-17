@@ -143,9 +143,9 @@ export function DashboardTab() {
             <CardTitle className="text-sm font-medium">Active Listings</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.counts.active}</div>
+            <div className="text-2xl font-bold break-all">{data.counts.active.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
-              {data.counts.draft} in draft
+              {data.counts.draft.toLocaleString()} in draft
             </p>
           </CardContent>
         </Card>
@@ -154,7 +154,7 @@ export function DashboardTab() {
             <CardTitle className="text-sm font-medium">Sold Items</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{data.counts.sold}</div>
+            <div className="text-2xl font-bold break-all">{data.counts.sold.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">
               {Math.round((data.conversion?.conv_rate || 0) * 100)}% conversion rate
             </p>
@@ -165,9 +165,26 @@ export function DashboardTab() {
             <CardTitle className="text-sm font-medium">Average Sale Price</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">€{(data.conversion?.avg_sale_price || 0).toLocaleString()}</div>
+            <div className="text-2xl font-bold break-all">
+              {new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(data.conversion?.avg_sale_price || 0)}
+            </div>
             <p className="text-xs text-muted-foreground">
-              €{(data.conversion?.min_sale_price || 0).toLocaleString()} - €{(data.conversion?.max_sale_price || 0).toLocaleString()}
+              {new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(data.conversion?.min_sale_price || 0)} - {new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(data.conversion?.max_sale_price || 0)}
             </p>
           </CardContent>
         </Card>
@@ -176,7 +193,7 @@ export function DashboardTab() {
             <CardTitle className="text-sm font-medium">Average Sale Time</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{Math.round(data.avg_sale_days?.avg_days || 0)} days</div>
+            <div className="text-2xl font-bold break-all">{Math.round(data.avg_sale_days?.avg_days || 0)} days</div>
             <p className="text-xs text-muted-foreground">
               {Math.round(data.avg_sale_days?.min_days || 0)} - {Math.round(data.avg_sale_days?.max_days || 0)} days
             </p>
@@ -190,7 +207,14 @@ export function DashboardTab() {
             <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">€{data.sales_stats.total_sales.toLocaleString()}</div>
+            <div className="text-2xl font-bold break-all">
+              {new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(data.sales_stats.total_sales)}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -198,7 +222,14 @@ export function DashboardTab() {
             <CardTitle className="text-sm font-medium">This Week</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">€{data.sales_stats.this_week_sales.toLocaleString()}</div>
+            <div className="text-2xl font-bold break-all">
+              {new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(data.sales_stats.this_week_sales)}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -206,7 +237,14 @@ export function DashboardTab() {
             <CardTitle className="text-sm font-medium">This Month</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">€{data.sales_stats.this_month_sales.toLocaleString()}</div>
+            <div className="text-2xl font-bold break-all">
+              {new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(data.sales_stats.this_month_sales)}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -214,7 +252,14 @@ export function DashboardTab() {
             <CardTitle className="text-sm font-medium">This Year</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">€{data.sales_stats.this_year_sales.toLocaleString()}</div>
+            <div className="text-2xl font-bold break-all">
+              {new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(data.sales_stats.this_year_sales)}
+            </div>
           </CardContent>
         </Card>
       </div>

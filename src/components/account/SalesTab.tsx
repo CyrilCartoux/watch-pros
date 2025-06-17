@@ -149,7 +149,7 @@ export function SalesTab() {
             <CardDescription>Number of watches sold</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{stats.totalSales}</p>
+            <p className="text-3xl font-bold break-all">{stats.totalSales.toLocaleString()}</p>
           </CardContent>
         </Card>
         <Card>
@@ -158,7 +158,14 @@ export function SalesTab() {
             <CardDescription>Total sales amount</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold">{stats.totalAmount.toLocaleString()} €</p>
+            <p className="text-3xl font-bold break-all">
+              {new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(stats.totalAmount)}
+            </p>
           </CardContent>
         </Card>
       </div>
