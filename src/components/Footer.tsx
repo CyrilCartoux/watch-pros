@@ -16,9 +16,9 @@ const navigation = {
     { name: "FAQ & Contact", href: "/help" },
   ],
   legal: [
-    { name: "Privacy Policy", href: "/privacy" },
+    { name: "Privacy Policy", href: "/terms/privacy" },
     { name: "Terms of Service", href: "/terms" },
-    { name: "Cookie Policy", href: "/cookies" },
+    { name: "Sales Terms", href: "/terms/sales" },
   ],
   social: [
     { name: "Facebook", href: "https://facebook.com/WatchPros", icon: Facebook },

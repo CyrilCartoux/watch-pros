@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server'
 import { supabaseAdmin } from './lib/supabase/admin'
 
 // Routes publiques qui ne nécessitent pas d'authentification
-const PUBLIC_ROUTES = ['/auth', '/register', '/subscription', '/pricing']
+const PUBLIC_ROUTES = ['/auth', '/register', '/subscription', '/pricing' , '/terms']
 
 // Cache pour les routes publiques
 const publicRouteCache = new Set(PUBLIC_ROUTES)
