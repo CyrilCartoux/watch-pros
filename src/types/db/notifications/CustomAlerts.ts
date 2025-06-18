@@ -8,6 +8,7 @@
 //     brand_id uuid null,
 //     model_id uuid null,
 //     reference text null,
+//     dial_color text null,
 //     max_price numeric(10, 2) null,
 //     location text null,
 //     created_at timestamp with time zone not null default now(),
@@ -24,6 +25,7 @@
  * @property {string} brand_id - UUID of the brand to monitor (optional)
  * @property {string} model_id - UUID of the model to monitor (optional)
  * @property {string} reference - Specific reference to monitor (optional)
+ * @property {string} dial_color - Dial color to monitor (optional)
  * @property {number} max_price - Maximum price threshold (optional)
  * @property {string} location - Location to monitor (optional)
  * @property {string} created_at - ISO 8601 timestamp of when the alert was created
@@ -39,6 +41,8 @@ export type CustomAlert = {
     model_id: string | null
     /** Specific reference to monitor (optional) */
     reference: string | null
+    /** Dial color to monitor (optional) */
+    dial_color: string | null
     /** Maximum price threshold (optional) */
     max_price: number | null
     /** Location to monitor (optional) */
@@ -50,6 +54,8 @@ export type CustomAlert = {
 export type CustomAlertInsert = Omit<CustomAlert, 'id' | 'created_at'>
 
 export type CustomAlertUpdate = {
+    /** Dial color to monitor (optional) */
+    dial_color?: string | null
     /** Maximum price threshold (optional) */
     max_price?: number | null
     /** Location to monitor (optional) */

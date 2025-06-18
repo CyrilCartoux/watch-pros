@@ -139,7 +139,7 @@ export async function POST(request: Request) {
     // Build filter for custom alerts
     const { data: rawAlerts, error: alertError } = await supabaseAdmin
       .from('custom_alerts')
-      .select('id, user_id, brand_id, model_id, reference, max_price, location')
+      .select('id, user_id, brand_id, model_id, reference, max_price, location, dial_color')
       .or(`and(brand_id.eq.${listingDetails.brand_id},model_id.eq.${listingDetails.model_id}),and(brand_id.eq.${listingDetails.brand_id},model_id.is.null),and(brand_id.is.null,model_id.eq.${listingDetails.model_id})`)
 
     if (alertError) {
@@ -154,6 +154,10 @@ export async function POST(request: Request) {
       const matchingAlerts = rawAlerts.filter(alert => {
         // Check reference if specified
         if (alert.reference && alert.reference !== listingDetails.reference) {
+          return false
+        }
+        // Check dial_color if specified
+        if (alert.dial_color && alert.dial_color !== record.dial_color) {
           return false
         }
         // Check location if specified

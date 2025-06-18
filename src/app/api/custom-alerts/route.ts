@@ -9,6 +9,7 @@ const Schema = z.object({
   reference: z.string().optional().nullable(),
   max_price: z.number().min(0).optional().nullable(),
   location: z.string().optional().nullable(),
+  dial_color: z.string().optional().nullable(),
 })
 
 export async function GET() {
@@ -36,6 +37,7 @@ export async function GET() {
         reference,
         max_price,
         location,
+        dial_color,
         brand:brands (
           id,
           slug,
@@ -79,7 +81,7 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
-    const { brand_id, model_id, reference, max_price, location } = parse.data
+    const { brand_id, model_id, reference, max_price, location, dial_color } = parse.data
     
     const supabase = await createClient()
     
@@ -103,6 +105,7 @@ export async function POST(request: Request) {
         reference,
         max_price,
         location,
+        dial_color,
       })
 
     if (alertErr) {

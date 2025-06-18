@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
-import { Building2, MapPin, CreditCard, FileText, CheckCircle2, Upload, Check, Shield, Lock, Clock, ChevronDown, AlertCircle } from "lucide-react"
+import { Building2, MapPin, CreditCard, FileText, CheckCircle2, Upload, Check, Shield, Lock, Clock, ChevronDown, AlertCircle, Paperclip } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
@@ -20,6 +20,7 @@ import { loadStripe } from "@stripe/stripe-js"
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
+import { useAuthStatus } from '@/hooks/useAuthStatus'
 
 // Déclarer le type global pour window
 declare global {
@@ -187,9 +188,9 @@ const getActualPrefix = (value: string) => {
 };
 
 export default function RegisterFormPage() {
+  const { isAuthenticated, isSeller, isLoading } = useAuthStatus()
   const [paymentMethod, setPaymentMethod] = useState("card")
   const [currentTab, setCurrentTab] = useState("account")
-  const [isLoading, setIsLoading] = useState(false)
   const [isFormValid, setIsFormValid] = useState({
     account: false,
     address: false,
@@ -222,6 +223,19 @@ export default function RegisterFormPage() {
     resolver: zodResolver(documentsSchema),
     mode: "onSubmit",
   })
+
+  // Détermine si on doit désactiver les boutons
+  const disableContinue = isLoading || isSeller || !isAuthenticated
+
+  // Alert message
+  let alertMessage = null
+  if (!isLoading) {
+    if (!isAuthenticated) {
+      alertMessage = "You must create a user account before you can create a professional account."
+    } else if (isSeller) {
+      alertMessage = "You already have a seller account. You cannot create another professional account."
+    }
+  }
 
   // Function to check if a tab is accessible
   const isTabAccessible = (tab: string) => {
@@ -260,7 +274,6 @@ export default function RegisterFormPage() {
   // Handle seller registration (Step 3)
   const handleSellerRegistration = async () => {
     try {
-      setIsLoading(true)
       // Check that all forms are valid
       const isAccountValid = await accountForm.trigger()
       const isAddressValid = await addressForm.trigger()
@@ -314,16 +327,12 @@ export default function RegisterFormPage() {
         description: error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
       })
-    } finally {
-      setIsLoading(false)
     }
   }
 
   // Handle subscription payment (Step 4)
   const handleSubscriptionPayment = async () => {
     try {
-      setIsLoading(true)
-      
       if (!selectedPlan) {
         throw new Error("Please select a subscription plan")
       }
@@ -340,8 +349,6 @@ export default function RegisterFormPage() {
         description: error instanceof Error ? error.message : "An error occurred during payment",
         variant: "destructive",
       })
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -561,6 +568,13 @@ export default function RegisterFormPage() {
   return (
     <main className="container py-12">
       <div className="max-w-3xl mx-auto">
+        {/* Message d'alerte si besoin */}
+        {alertMessage && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+            <AlertCircle className="h-5 w-5" />
+            <span>{alertMessage}</span>
+          </div>
+        )}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold tracking-tight mb-4">
             Professional Registration
@@ -800,10 +814,10 @@ export default function RegisterFormPage() {
                   <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6">
                     <p className="text-sm text-muted-foreground order-2 sm:order-1">* Required field</p>
                     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto order-1 sm:order-2">
-                      <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto">
+                      <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto" disabled={disableContinue}>
                         Back
                       </Button>
-                      <Button type="submit" size="lg" className="w-full sm:w-auto">
+                      <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={disableContinue}>
                         Continue
                       </Button>
                     </div>
@@ -958,10 +972,10 @@ export default function RegisterFormPage() {
                   <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6">
                     <p className="text-sm text-muted-foreground order-2 sm:order-1">* Required field</p>
                     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto order-1 sm:order-2">
-                      <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto">
+                      <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto" disabled={disableContinue}>
                         Back
                       </Button>
-                      <Button type="submit" size="lg" className="w-full sm:w-auto">
+                      <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={disableContinue}>
                         Continue
                       </Button>
                     </div>
@@ -1021,6 +1035,12 @@ export default function RegisterFormPage() {
                             className="cursor-pointer"
                           />
                           <FormError error={documentsForm.formState.errors.idCardFront?.message as string} isSubmitted={isSubmitted.documents} />
+                          {documentsForm.watch('idCardFront') && (
+                            <div className="flex items-center gap-2 mt-2 bg-accent/30 rounded px-2 py-1 text-primary font-semibold">
+                              <Paperclip className="w-4 h-4" />
+                              <span className="truncate">{documentsForm.watch('idCardFront').name}</span>
+                            </div>
+                          )}
                           <p className="text-xs text-muted-foreground mt-1">
                             Accepted formats: JPG, PNG, PDF (max 5MB)
                           </p>
@@ -1047,6 +1067,12 @@ export default function RegisterFormPage() {
                             className="cursor-pointer"
                           />
                           <FormError error={documentsForm.formState.errors.idCardBack?.message as string} isSubmitted={isSubmitted.documents} />
+                          {documentsForm.watch('idCardBack') && (
+                            <div className="flex items-center gap-2 mt-2 bg-accent/30 rounded px-2 py-1 text-primary font-semibold">
+                              <Paperclip className="w-4 h-4" />
+                              <span className="truncate">{documentsForm.watch('idCardBack').name}</span>
+                            </div>
+                          )}
                           <p className="text-xs text-muted-foreground mt-1">
                             Accepted formats: JPG, PNG, PDF (max 5MB)
                           </p>
@@ -1082,6 +1108,12 @@ export default function RegisterFormPage() {
                           className="cursor-pointer"
                         />
                         <FormError error={documentsForm.formState.errors.proofOfAddress?.message as string} isSubmitted={isSubmitted.documents} />
+                        {documentsForm.watch('proofOfAddress') && (
+                          <div className="flex items-center gap-2 mt-2 bg-accent/30 rounded px-2 py-1 text-primary font-semibold">
+                            <Paperclip className="w-4 h-4" />
+                            <span className="truncate">{documentsForm.watch('proofOfAddress').name}</span>
+                          </div>
+                        )}
                         <p className="text-xs text-muted-foreground mt-1">
                           Accepted formats: JPG, PNG, PDF (max 5MB)
                         </p>
@@ -1092,16 +1124,16 @@ export default function RegisterFormPage() {
                   <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6">
                     <p className="text-sm text-muted-foreground order-2 sm:order-1">* Required field</p>
                     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto order-1 sm:order-2">
-                      <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto">
+                      <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto" disabled={disableContinue}>
                         Back
                       </Button>
                       <Button 
                         type="button" 
                         onClick={handleSellerRegistration}
                         size="lg"
-                        disabled={isLoading}
+                        disabled={disableContinue}
                       >
-                        {isLoading ? (
+                        {disableContinue ? (
                           <div className="flex items-center gap-2">
                             <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                             <span>Processing...</span>
@@ -1222,16 +1254,16 @@ export default function RegisterFormPage() {
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6">
                       <p className="text-sm text-muted-foreground order-2 sm:order-1">* Required field</p>
                       <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto order-1 sm:order-2">
-                        <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto">
+                        <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto" disabled={disableContinue}>
                           Back
                         </Button>
                         <Button 
                           type="button" 
                           onClick={handleSubscriptionPayment}
                           size="lg"
-                          disabled={!selectedPlan || ((selectedPlan as any) && isPaymentFormComplete === false) || isLoading}
+                          disabled={disableContinue}
                         >
-                          {isLoading ? (
+                          {disableContinue ? (
                             <div className="flex items-center gap-2">
                               <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                               <span>Processing...</span>

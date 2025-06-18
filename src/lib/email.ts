@@ -11,7 +11,7 @@ export type EmailTemplate = {
 export async function sendEmail({ to, subject, html }: EmailTemplate) {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Watch Pros <onboarding@resend.dev>',
+      from: 'Watch Pros <notifications@watch-pros.com>',
       to,
       subject,
       html,

@@ -22,12 +22,14 @@ import { useToast } from "@/components/ui/use-toast"
 import { useBrandsAndModels } from "@/hooks/useBrandsAndModels"
 import { countries } from "@/data/form-options"
 import { CustomAlertInsert } from "@/types/db/notifications/CustomAlerts"
+import { dialColors } from "@/data/watch-properties"
 
 const alertSchema = z
   .object({
     brand_id: z.string().min(1, "Brand is required"),
     model_id: z.string().min(1, "Model is required"),
     reference: z.string().nullable(),
+    dial_color: z.string().nullable(),
     max_price: z
       .number()
       .nullable()
@@ -62,6 +64,7 @@ export default function CustomAlertForm({ onSubmit, isSubmitting = false }: Prop
       brand_id: "",
       model_id: "",
       reference: "",
+      dial_color: null,
       max_price: null,
       location: null,
     },
@@ -261,6 +264,30 @@ export default function CustomAlertForm({ onSubmit, isSubmitting = false }: Prop
             <Label htmlFor="reference">Reference Number</Label>
             <Input id="reference" {...control.register("reference")} />
             <FormError message={errors.reference?.message} />
+          </div>
+
+          {/* Dial Color */}
+          <div>
+            <Label htmlFor="dial_color">Dial Color</Label>
+            <Controller
+              control={control}
+              name="dial_color"
+              render={({ field }) => (
+                <Select value={field.value || ""} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select dial color" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {dialColors.map((color) => (
+                      <SelectItem key={color} value={color}>
+                        {color}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            <FormError message={errors.dial_color?.message} />
           </div>
 
           {/* Max Price */}

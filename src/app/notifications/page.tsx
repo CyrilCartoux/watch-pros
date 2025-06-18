@@ -29,6 +29,8 @@ import {
 } from "@/components/ui/dialog";
 import { useSearchParams, useRouter } from "next/navigation";
 import { countries } from "@/data/form-options";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 type Notification = {
   id: string;
@@ -130,6 +132,7 @@ type CustomAlert = {
   reference: string | null;
   max_price: number | null;
   location: string | null;
+  dial_color: string | null;
   brand?: {
     id: string;
     slug: string;
@@ -279,6 +282,11 @@ export default function NotificationsPage() {
   } | null>(null);
   const [offerFilter, setOfferFilter] = useState<'all' | 'pending' | 'accepted' | 'declined'>('all');
   const [loadingOffers, setLoadingOffers] = useState<{ [key: string]: boolean }>({});
+  const [isContactDialogOpen, setIsContactDialogOpen] = useState(false);
+  const [contactSeller, setContactSeller] = useState<Offer | null>(null);
+  const [message, setMessage] = useState("");
+  const [isSubmittingMessage, setIsSubmittingMessage] = useState(false);
+  const [isMessageSuccess, setIsMessageSuccess] = useState(false);
 
   // Update URL when tab changes
   useEffect(() => {
@@ -506,6 +514,56 @@ export default function NotificationsPage() {
         return true;
     }
   });
+
+  // Handler pour ouvrir la modale de contact seller
+  const handleOpenContactDialog = (offer: Offer) => {
+    setContactSeller(offer);
+    setIsContactDialogOpen(true);
+    setMessage("");
+    setIsMessageSuccess(false);
+  };
+
+  // Handler pour fermer la modale
+  const handleCloseContactDialog = () => {
+    setIsContactDialogOpen(false);
+    setContactSeller(null);
+    setMessage("");
+    setIsMessageSuccess(false);
+  };
+
+  // Handler pour envoyer le message
+  const handleSubmitMessage = async () => {
+    if (!contactSeller || !message.trim()) return;
+    setIsSubmittingMessage(true);
+    try {
+      // Préfixe le message avec la référence de l'annonce
+      const listingTitle = contactSeller.listing.title;
+      const listingRef = (contactSeller.listing as any).reference || '';
+      const prefix = `Regarding listing: ${listingTitle}${listingRef ? ` (Ref: ${listingRef})` : ''}`;
+      const fullMessage = `${prefix}\n\n${message.trim()}`;
+      const response = await fetch("/api/conversations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          otherUserId: contactSeller.seller.id,
+          initialMessage: fullMessage,
+        }),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to send message");
+      }
+      setIsMessageSuccess(true);
+      setTimeout(() => {
+        handleCloseContactDialog();
+      }, 2000);
+    } catch (error) {
+      setIsMessageSuccess(false);
+      alert(error instanceof Error ? error.message : "Failed to send message");
+    } finally {
+      setIsSubmittingMessage(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -785,6 +843,14 @@ export default function NotificationsPage() {
                                     </>
                                   )}
                                 </Button>
+                                <Button
+                                  variant="outline"
+                                  className="w-full"
+                                  onClick={() => handleOpenContactDialog(offer)}
+                                >
+                                  <User className="h-4 w-4 mr-2" />
+                                  Contact Seller
+                                </Button>
                               </div>
                             )}
                           </div>
@@ -875,6 +941,16 @@ export default function NotificationsPage() {
                                     </span>
                                     <span className="font-medium">
                                       {countries.find(country => country.value === alert.location)?.label}
+                                    </span>
+                                  </div>
+                                )}
+                                {alert.dial_color && (
+                                  <div className="flex items-center gap-1 text-xs md:text-sm">
+                                    <span className="text-muted-foreground">
+                                      Dial color:
+                                    </span>
+                                    <span className="font-medium">
+                                      {alert.dial_color}
                                     </span>
                                   </div>
                                 )}
@@ -1108,6 +1184,99 @@ export default function NotificationsPage() {
             <Button variant="destructive" onClick={handleDeleteConfirm}>
               Delete
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Contact Seller Dialog */}
+      <Dialog open={isContactDialogOpen} onOpenChange={setIsContactDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reply to offer</DialogTitle>
+            <DialogDescription>
+              Send a message to the seller regarding this offer.
+            </DialogDescription>
+          </DialogHeader>
+          {/* Listing info */}
+          {contactSeller && (
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-20 h-20 rounded-md overflow-hidden border">
+                <img
+                  src={contactSeller.listing.listing_images[0]?.url || "/api/listings/" + contactSeller.listing.id + "/image"}
+                  alt={contactSeller.listing.title}
+                  className="object-cover w-full h-full"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <a
+                  href={`/listings/${contactSeller.listing.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium hover:underline block truncate"
+                >
+                  {contactSeller.listing.title}
+                </a>
+                <div className="text-sm text-muted-foreground">
+                  Asking price: <span className="font-semibold">{contactSeller.listing.price.toLocaleString()} {contactSeller.listing.currency}</span>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Offer: <span className="font-semibold">{contactSeller.offer.toLocaleString()} {contactSeller.currency}</span>
+                  {" "}(
+                  {((contactSeller.offer / contactSeller.listing.price) * 100).toFixed(0)}% of asking price)
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Offer date: {new Date(contactSeller.created_at).toLocaleString()}
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="space-y-4 py-4">
+            {isMessageSuccess ? (
+              <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                <CheckCircle2 className="w-16 h-16 text-primary animate-in zoom-in-50 duration-500" />
+                <p className="text-lg font-medium text-center">Your reply has been sent to the seller!</p>
+                <p className="text-sm text-muted-foreground text-center">
+                  The seller will respond as soon as possible.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="message">Your message</Label>
+                  <Textarea
+                    id="message"
+                    placeholder="Write your reply..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className="min-h-[150px]"
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    {message.length} / 1000 characters
+                  </p>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Seller: {contactSeller?.seller.company_name || contactSeller?.seller.watch_pros_name}
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            {!isMessageSuccess && (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={handleCloseContactDialog}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSubmitMessage}
+                  disabled={!message.trim() || isSubmittingMessage}
+                >
+                  {isSubmittingMessage ? "Sending..." : "Send reply"}
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>

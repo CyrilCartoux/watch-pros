@@ -252,8 +252,8 @@ export default function AccessoryForm({ onSubmit, isSubmitting = false, initialD
         alert(`File ${file.name} is too large. Maximum size: 5MB`)
         return false
       }
-      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
-        alert(`File ${file.name} is not an accepted image format. Accepted formats: JPG, PNG, WEBP`)
+      if (!["image/jpeg", "image/png", "image/webp", "image/heic"].includes(file.type)) {
+        alert(`File ${file.name} is not an accepted image format. Accepted formats: JPG, PNG, WEBP, HEIC`)
         return false
       }
       return true
