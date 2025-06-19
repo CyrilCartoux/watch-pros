@@ -19,7 +19,6 @@ export async function GET() {
         hasActiveSubscription: false
       })
     }
-    console.log('USER', user)
 
     // Get user's profile, seller status and subscription in a single query
     const { data: profile, error: profileError } = await supabase

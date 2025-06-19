@@ -114,11 +114,17 @@ export async function GET(
         )
       `)
       .eq('id', params.id)
-      .eq('status', 'active')
+      .in('status', ['active', 'hold'])
       .single()
 
     if (error) {
       console.error('Error fetching listing:', error)
+      if (error.code === 'PGRST116') {
+        return NextResponse.json(
+          { error: 'Listing does not exist or has been sold' },
+          { status: 404 }
+        )
+      }
       return NextResponse.json(
         { error: 'Error fetching listing' },
         { status: 500 }
@@ -138,6 +144,7 @@ export async function GET(
       id: listing.id,
       brand: listing.brands.slug,
       model: listing.models.slug,
+      status: listing.status,
       reference: listing.reference,
       title: listing.title,
       description: listing.description,

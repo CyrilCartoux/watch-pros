@@ -16,8 +16,42 @@ export const countries = [
   { value: "nz", label: "Nouvelle-Zélande", flag: "🇳🇿" },
   { value: "sg", label: "Singapour", flag: "🇸🇬" },
   { value: "hk", label: "Hong Kong", flag: "🇭🇰" },
-  { value: "jp", label: "Japon", flag: "🇯🇵" }
+  { value: "jp", label: "Japon", flag: "🇯🇵" },
+  // Autres pays de l'UE
+  { value: "se", label: "Suède", flag: "🇸🇪" },
+  { value: "fi", label: "Finlande", flag: "🇫🇮" },
+  { value: "dk", label: "Danemark", flag: "🇩🇰" },
+  { value: "ie", label: "Irlande", flag: "🇮🇪" },
+  { value: "pt", label: "Portugal", flag: "🇵🇹" },
+  { value: "gr", label: "Grèce", flag: "🇬🇷" },
+  { value: "pl", label: "Pologne", flag: "🇵🇱" },
+  { value: "cz", label: "Tchéquie", flag: "🇨🇿" },
+  { value: "hu", label: "Hongrie", flag: "🇭🇺" },
+  { value: "sk", label: "Slovaquie", flag: "🇸🇰" },
+  { value: "si", label: "Slovénie", flag: "🇸🇮" },
+  { value: "hr", label: "Croatie", flag: "🇭🇷" },
+  { value: "ro", label: "Roumanie", flag: "🇷🇴" },
+  { value: "bg", label: "Bulgarie", flag: "🇧🇬" },
+  { value: "lt", label: "Lituanie", flag: "🇱🇹" },
+  { value: "lv", label: "Lettonie", flag: "🇱🇻" },
+  { value: "ee", label: "Estonie", flag: "🇪🇪" },
+  { value: "cy", label: "Chypre", flag: "🇨🇾" },
+  { value: "mt", label: "Malte", flag: "🇲🇹" },
+  // Autres pays pertinents
+  { value: "cn", label: "Chine", flag: "🇨🇳" },
+  { value: "kr", label: "Corée du Sud", flag: "🇰🇷" },
+  { value: "ae", label: "Émirats arabes unis", flag: "🇦🇪" },
+  { value: "qa", label: "Qatar", flag: "🇶🇦" },
+  { value: "sa", label: "Arabie saoudite", flag: "🇸🇦" },
+  { value: "il", label: "Israël", flag: "🇮🇱" },
+  { value: "tr", label: "Turquie", flag: "🇹🇷" },
+  { value: "no", label: "Norvège", flag: "🇳🇴" },
+  { value: "is", label: "Islande", flag: "🇮🇸" },
+  { value: "mx", label: "Mexique", flag: "🇲🇽" },
+  { value: "br", label: "Brésil", flag: "🇧🇷" },
+  { value: "ot", label: "Other", flag: "🌍" },
 ] as const
+
 
 export const titles = [
   { value: "mr", label: "Mr." },

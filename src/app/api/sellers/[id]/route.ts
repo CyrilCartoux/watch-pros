@@ -1,3 +1,4 @@
+import { supabaseAdmin } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
@@ -251,7 +252,7 @@ export async function GET(
 
     // Récupérer les informations des reviewers
     const reviewerIds = reviews?.map(review => review.reviewer_id) || []
-    const { data: reviewerProfiles, error: reviewerError } = await supabase
+    const { data: reviewerProfiles, error: reviewerError } = await supabaseAdmin
       .from('profiles')
       .select(`
         id,
@@ -270,7 +271,7 @@ export async function GET(
         { status: 500 }
       )
     }
-
+    console.log('reviewerProfiles', reviewerProfiles)
     // Créer un map des reviewers pour un accès facile
     const reviewerMap = new Map(
       reviewerProfiles?.map(profile => [

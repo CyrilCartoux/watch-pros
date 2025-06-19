@@ -76,7 +76,7 @@ export function Navbar() {
 
         {/* Mobile Logo */}
         <div className="flex md:hidden">
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2 text-2xl sm:text-3xl font-extrabold">
             Watch Pros
           </Link>
         </div>

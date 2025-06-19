@@ -49,9 +49,22 @@ export async function POST(
       )
     }
 
-    // Toggle the status
-    const newStatus = listing.status === 'active' ? 'paused' : 'active'
-    
+    // Lire le body pour savoir si on veut hold/unhold
+    let holdAction = false
+    try {
+      const body = await request.json()
+      holdAction = !!body.hold
+    } catch (e) {
+      // Pas de body ou JSON invalide, on ignore
+    }
+
+    let newStatus = listing.status
+    if (holdAction) {
+      newStatus = listing.status === 'hold' ? 'active' : 'hold'
+    } else {
+      newStatus = listing.status === 'active' ? 'paused' : 'active'
+    }
+
     const { error: updateError } = await supabase
       .from('listings')
       .update({ status: newStatus })

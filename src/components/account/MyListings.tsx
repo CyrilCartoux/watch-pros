@@ -67,6 +67,15 @@ export default function MyListings() {
     setListings(listings => listings.map(l => l.id === id ? { ...l, status: l.status === "active" ? "paused" : "active" } : l))
   }
 
+  const handleHold = async (id: string) => {
+    await fetch(`/api/listings/${id}/toggle-status`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hold: true })
+    })
+    setListings(listings => listings.map(l => l.id === id ? { ...l, status: l.status === "hold" ? "active" : "hold" } : l))
+  }
+
   const openDeleteDialog = (id: string) => {
     setListingToDelete(id)
     setDeleteDialogOpen(true)
@@ -242,10 +251,10 @@ export default function MyListings() {
                       </div>
                     )}
                     <Badge 
-                      variant={listing.status === "active" ? "default" : "secondary"}
+                      variant={listing.status === "active" ? "default" : listing.status === "hold" ? "destructive" : "secondary"}
                       className="absolute top-2 right-2 text-[10px]"
                     >
-                      {listing.status}
+                      {listing.status === "hold" ? "On hold" : listing.status}
                     </Badge>
                   </div>
                   <CardContent className="p-2 md:p-3 space-y-1.5 md:space-y-2">
@@ -263,8 +272,8 @@ export default function MyListings() {
                         <Badge variant="outline" className="text-[10px] md:text-xs">{listing.model}</Badge>
                       )}
                     </div>
-                    <div className="flex gap-1 pt-1">
-                      {listing.status === "active" ? (
+                    <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2 sm:gap-1 pt-1">
+                      {listing.status === "active" && (
                         <>
                           <Button
                             variant="outline"
@@ -275,50 +284,43 @@ export default function MyListings() {
                             <Pause className="h-3 w-3 md:mr-1" />
                             <span className="hidden md:inline">Pause</span>
                           </Button>
-                          <Link href={`/sell/${listing.type}/${listing.id}/edit`} className="flex-1">
-                            <Button variant="outline" size="sm" className="w-full h-7 md:h-8 text-xs">
-                              <Edit className="h-3 w-3 md:mr-1" />
-                              <span className="hidden md:inline">Edit</span>
-                            </Button>
-                          </Link>
-                          <Button 
-                            variant="destructive" 
-                            size="sm"
-                            className="flex-1 h-7 md:h-8 text-xs"
-                            onClick={() => openDeleteDialog(listing.id)}
-                          >
-                            <Trash2 className="h-3 w-3 md:mr-1" />
-                            <span className="hidden md:inline">Delete</span>
-                          </Button>
-                        </>
-                      ) : (
-                        <>
                           <Button
                             variant="outline"
                             size="sm"
                             className="flex-1 h-7 md:h-8 text-xs"
-                            onClick={() => handlePause(listing.id)}
+                            onClick={() => handleHold(listing.id)}
                           >
-                            <Play className="h-3 w-3 md:mr-1" />
-                            <span className="hidden md:inline">Activate</span>
-                          </Button>
-                          <Link href={`/sell/${listing.type}/${listing.id}/edit`} className="flex-1">
-                            <Button variant="outline" size="sm" className="w-full h-7 md:h-8 text-xs">
-                              <Edit className="h-3 w-3 md:mr-1" />
-                              <span className="hidden md:inline">Edit</span>
-                            </Button>
-                          </Link>
-                          <Button 
-                            variant="destructive" 
-                            size="sm"
-                            className="flex-1 h-7 md:h-8 text-xs"
-                            onClick={() => openDeleteDialog(listing.id)}
-                          >
-                            <Trash2 className="h-3 w-3 md:mr-1" />
-                            <span className="hidden md:inline">Delete</span>
+                            <DollarSign className="h-3 w-3 md:mr-1" />
+                            <span className="hidden md:inline">Hold</span>
                           </Button>
                         </>
                       )}
+                      {listing.status === "hold" && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 h-7 md:h-8 text-xs"
+                          onClick={() => handleHold(listing.id)}
+                        >
+                          <Play className="h-3 w-3 md:mr-1" />
+                          <span className="hidden md:inline">Unhold</span>
+                        </Button>
+                      )}
+                      <Link href={`/sell/${listing.type}/${listing.id}/edit`} className="flex-1">
+                        <Button variant="outline" size="sm" className="w-full h-7 md:h-8 text-xs">
+                          <Edit className="h-3 w-3 md:mr-1" />
+                          <span className="hidden md:inline">Edit</span>
+                        </Button>
+                      </Link>
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        className="flex-1 h-7 md:h-8 text-xs"
+                        onClick={() => openDeleteDialog(listing.id)}
+                      >
+                        <Trash2 className="h-3 w-3 md:mr-1" />
+                        <span className="hidden md:inline">Delete</span>
+                      </Button>
                     </div>
                     {listing.status === "active" ? (
                       <Button 

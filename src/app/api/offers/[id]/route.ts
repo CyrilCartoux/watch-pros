@@ -99,19 +99,31 @@ export async function PATCH(
       )
     }
 
-    // If the offer is accepted, update the listing status to sold
-    if (action === 'accept') {    
+    // If the offer is accepted or declined, update the listing status to sold
+    if (action === 'accept' || action === 'decline') {
       // Send email to the buyer
       try {
-        await sendEmail({
-          to: offer.seller.email,
-          ...emailTemplates.offerAccepted(
-            offer.listing.title,
-            offer.offer,
-            offer.currency,
-            offer.listing.id
-          )
-        })
+        if (action === 'accept') {
+          await sendEmail({
+            to: offer.seller.email,
+            ...emailTemplates.offerAccepted(
+              offer.listing.title,
+              offer.offer,
+              offer.currency,
+              offer.listing.id
+            )
+          })
+        } else if (action === 'decline') {
+          await sendEmail({
+            to: offer.seller.email,
+            ...emailTemplates.offerDeclined(
+              offer.listing.title,
+              offer.offer,
+              offer.currency,
+              offer.listing.id
+            )
+          })
+        }
       } catch (emailError) {
         console.error('Error sending email:', emailError)
         // We don't want to fail the request if the email fails
@@ -119,18 +131,32 @@ export async function PATCH(
 
       // Create notification for the buyer
       try {
-        const { error: notificationError } = await supabaseAdmin
-          .from('notifications')
-          .insert({
-            user_id: offer.seller.user_id,
-            listing_id: offer.listing.id,
-            type: 'sold_listing',
-            title: 'Offer Accepted',
-            message: `Your offer of ${offer.offer.toLocaleString()} ${offer.currency} for ${offer.listing.title} has been accepted.`
-          })
-
-        if (notificationError) {
-          console.error('Error creating notification:', notificationError)
+        if (action === 'accept') {
+          const { error: notificationError } = await supabaseAdmin
+            .from('notifications')
+            .insert({
+              user_id: offer.seller.user_id,
+              listing_id: offer.listing.id,
+              type: 'sold_listing',
+              title: 'Offer Accepted',
+              message: `Your offer of ${offer.offer.toLocaleString()} ${offer.currency} for ${offer.listing.title} has been accepted.`
+            })
+          if (notificationError) {
+            console.error('Error creating notification:', notificationError)
+          }
+        } else if (action === 'decline') {
+          const { error: notificationError } = await supabaseAdmin
+            .from('notifications')
+            .insert({
+              user_id: offer.seller.user_id,
+              listing_id: offer.listing.id,
+              type: 'declined_offer',
+              title: 'Offer Declined',
+              message: `Your offer of ${offer.offer.toLocaleString()} ${offer.currency} for ${offer.listing.title} has been declined.`
+            })
+          if (notificationError) {
+            console.error('Error creating notification:', notificationError)
+          }
         }
       } catch (notificationError) {
         console.error('Error creating notification:', notificationError)

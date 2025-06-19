@@ -15,6 +15,7 @@ import { watchConditions } from "@/data/watch-conditions"
 import { dialColors } from "@/data/watch-properties"
 import { ListingType } from "@/types/enums/listings-enum"
 import { useBrandsAndModels } from "@/hooks/useBrandsAndModels"
+import { countries } from "@/data/form-options"
 
 interface Brand {
   id: string
@@ -45,6 +46,7 @@ interface Filters {
   maxPrice: string
   shippingDelay: string
   listingType: string
+  country: string
 }
 
 interface ModalFiltersProps {
@@ -296,6 +298,49 @@ export function ModalFilters({
             onChange={(e) => onFilterChange("reference", e.target.value)}
           />
         </div>
+
+        <div className="grid grid-cols-2 gap-4">
+
+        {/* Dial Color */}
+        <div className="space-y-2">
+            <Label>Dial Color</Label>
+            <Select
+              value={tempFilters.dialColor}
+              onValueChange={(value) => onFilterChange("dialColor", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select color" />
+              </SelectTrigger>
+              <SelectContent>
+                {dialColors.map((color) => (
+                  <SelectItem key={color} value={color}>
+                    {color}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Country */}
+          <div className="space-y-2">
+            <Label>Country</Label>
+            <Select
+              value={tempFilters.country || ""}
+              onValueChange={(value) => onFilterChange("country", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select country" />
+              </SelectTrigger>
+              <SelectContent>
+                {countries.map((country) => (
+                  <SelectItem key={country.value} value={country.value}>
+                    <span className="mr-2">{country.flag}</span>{country.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </FilterSection>
 
       {/* Quick Filters */}
@@ -317,25 +362,6 @@ export function ModalFilters({
                 {watchConditions.map((condition) => (
                   <SelectItem key={condition.slug} value={condition.slug}>
                     {condition.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Dial Color</Label>
-            <Select
-              value={tempFilters.dialColor}
-              onValueChange={(value) => onFilterChange("dialColor", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select color" />
-              </SelectTrigger>
-              <SelectContent>
-                {dialColors.map((color) => (
-                  <SelectItem key={color} value={color}>
-                    {color}
                   </SelectItem>
                 ))}
               </SelectContent>

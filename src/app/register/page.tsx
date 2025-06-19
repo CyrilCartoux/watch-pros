@@ -126,7 +126,7 @@ export default function RegisterPage() {
                 "You agree to our terms of service and subscription conditions"
               ].map((item, index) => (
                 <li key={index} className="flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-primary" />
+                  <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-primary" />
                   {item}
                 </li>
               ))}

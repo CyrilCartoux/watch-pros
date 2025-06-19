@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { sendEmail, emailTemplates } from '@/lib/email'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -150,6 +152,45 @@ export async function POST(
         { error: 'Failed to create review' },
         { status: 500 }
       )
+    }
+
+    // Envoi email et notification au vendeur
+    try {
+      // Récupérer l'email et user_id du vendeur
+      const { data: sellerInfo, error: sellerInfoError } = await supabase
+        .from('sellers')
+        .select('email, user_id, watch_pros_name')
+        .eq('id', params.id)
+        .single()
+        
+      const reviewerName = sellerInfo?.watch_pros_name || 'A user'
+      if (!sellerInfoError && sellerInfo?.email) {
+        await sendEmail({
+          to: sellerInfo.email,
+          ...emailTemplates.sellerReviewReceived(
+            reviewerName,
+            rating,
+            comment,
+            params.id
+          )
+        })
+      }
+      // Créer la notification
+      if (!sellerInfoError && sellerInfo?.user_id) {
+        const { error: notifError } = await supabaseAdmin
+          .from('notifications')
+          .insert({
+            user_id: sellerInfo.user_id,
+            type: 'new_review',
+            title: 'New Review Received',
+            message: `You have received a new review from ${reviewerName}.`
+          })
+        if (notifError) {
+          console.error('Error creating notification:', notifError)
+        }
+      }
+    } catch (err) {
+      console.error('Error sending review email/notification:', err)
     }
 
     return NextResponse.json(review)

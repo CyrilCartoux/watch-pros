@@ -20,6 +20,7 @@ import { countries } from '@/data/form-options'
 import { Badge } from "@/components/ui/badge"
 import { brandsList } from "@/data/brands-list"
 import { models } from "@/data/models"
+import { motion } from "framer-motion"
 
 interface ListingData {
   id: string
@@ -32,6 +33,7 @@ interface ListingData {
   gender: string
   condition: string
   serialNumber: string
+  status: 'active' | 'hold',
   dialColor: string | null
   diameter: {
     min: string
@@ -150,7 +152,14 @@ export default function ListingPage({ params }: Props) {
       try {
         const response = await fetch(`/api/listings/${params.id}`)
         if (!response.ok) {
-          throw new Error('Failed to fetch listing')
+          if (response.status === 404) {
+            const data = await response.json()
+            setError(data.error || 'This listing does not exist or has been sold.')
+            setListing(null)
+            return
+          } else {
+            throw new Error('Failed to fetch listing')
+          }
         }
         const data = await response.json()
         setListing(data)
@@ -475,23 +484,57 @@ export default function ListingPage({ params }: Props) {
 
   if (error || !listing) {
     return (
-      <div className="min-h-screen bg-background py-8">
-        <div className="container">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Error</h1>
-            <p className="text-muted-foreground">{error || 'Listing not found'}</p>
-            <Button className="mt-4" asChild>
-              <Link href="/listings">Back to listings</Link>
-            </Button>
-          </div>
+      <main className="container py-12 min-h-screen flex items-center justify-center">
+        <div className="max-w-2xl mx-auto w-full">
+          <Card>
+            <CardContent className="p-8">
+              <div className="text-center space-y-6">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                >
+                  <X className="w-20 h-20 text-destructive mx-auto" />
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="space-y-4"
+                >
+                  <h1 className="text-3xl font-bold tracking-tight">
+                    Oops! This listing does not exist or has been sold.
+                  </h1>
+                  <p className="text-muted-foreground text-lg">
+                    The listing you are looking for is no longer available. It may have been removed or already sold.
+                  </p>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="space-y-4"
+                >
+                  <Button asChild className="w-full sm:w-auto">
+                    <Link href="/listings">Back to listings</Link>
+                  </Button>
+                </motion.div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-      </div>
+      </main>
     )
   }
 
   return (
     <main className="min-h-screen bg-background">
       <div className="container py-8">
+        {listing.status === 'hold' && (
+          <div className="mb-6 p-4 rounded-lg bg-yellow-100 border border-yellow-300 text-yellow-900 text-center font-medium">
+            This watch is currently reserved (on hold). You cannot make an offer at this time.
+          </div>
+        )}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Column - Images */}
           <div className="space-y-4">
@@ -764,8 +807,9 @@ export default function ListingPage({ params }: Props) {
                 <Button 
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-lg py-6"
                   onClick={() => setIsOfferDialogOpen(true)}
+                  disabled={listing.status === 'hold'}
                 >
-                  Make an offer
+                  {listing.status === 'hold' ? 'Offer unavailable (on hold)' : 'Make an offer'}
                 </Button>
               )}
             </div>
@@ -899,8 +943,8 @@ export default function ListingPage({ params }: Props) {
               <p className="text-sm text-muted-foreground">
                 {listing.listing_type === "watch" ? (
                   <>
-                    {watchConditions.find(c => c.slug === listing.condition)?.label} | 
-                    Manufacturing year {listing.year} | 
+                    {watchConditions.find(c => c.slug === listing.condition)?.label}
+                    {listing.year ? ` | Manufacturing year ${listing.year} |` : ' | '}
                     {listing.included === "full-set" ? "With original box and papers" : 
                      listing.included === "box-only" ? "With original box" :
                      listing.included === "papers-only" ? "With original papers" :
@@ -908,8 +952,8 @@ export default function ListingPage({ params }: Props) {
                   </>
                 ) : (
                   <>
-                    {listing.condition === "new" ? "New - Never worn" : "Used"} | 
-                    {listing.year && `Manufacturing year ${listing.year} | `}
+                    {listing.condition === "new" ? "New - Never worn" : "Used"} |
+                    {listing.year ? ` Manufacturing year ${listing.year} |` : ''}
                     {listing.type}
                   </>
                 )}

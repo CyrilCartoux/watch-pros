@@ -200,6 +200,37 @@ export const emailTemplates = {
     `,
   }),
 
+  offerDeclined: (listingTitle: string, offerAmount: number, currency: string, listingId: string) => ({
+    subject: `Your Offer Has Been Declined: ${listingTitle}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #e74c3c; margin-bottom: 10px;">Offer Declined</h1>
+          <p style="color: #7f8c8d; font-size: 16px;">Unfortunately, your offer has been declined by the seller.</p>
+        </div>
+        
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 30px;">
+          <h2 style="color: #2c3e50; margin-top: 0;">${listingTitle}</h2>
+          <p style="font-size: 24px; color: #e74c3c; font-weight: bold; margin: 20px 0;">
+            ${offerAmount.toLocaleString()} ${currency}
+          </p>
+        </div>
+
+        <div style="text-align: center;">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/listings/${listingId}" 
+             style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">
+            View Listing
+          </a>
+        </div>
+
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
+          <p>This email was sent because your offer was declined on Watch Pros.</p>
+          <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
+        </div>
+      </div>
+    `,
+  }),
+
   newWatchMatch: (
     brandName: string,
     modelName: string,
@@ -322,6 +353,35 @@ export const emailTemplates = {
 
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
           <p>This email was sent regarding your Watch Pros seller account verification.</p>
+          <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
+        </div>
+      </div>
+    `,
+  }),
+
+  sellerReviewReceived: (reviewerName: string, rating: number, comment: string, sellerId: string) => ({
+    subject: `New Review Received`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #2c3e50; margin-bottom: 10px;">You received a new review!</h1>
+          <p style="color: #7f8c8d; font-size: 16px;">A new review has been posted on your seller profile.</p>
+        </div>
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 30px;">
+          <h2 style="color: #2c3e50; margin-top: 0;">From: ${reviewerName}</h2>
+          <p style="font-size: 18px; color: #34495e; margin: 10px 0;">Rating: <b>${rating} / 5</b></p>
+          <div style="background-color: white; padding: 15px; border-radius: 4px; margin: 20px 0; border: 1px solid #e0e0e0;">
+            <p style="color: #2c3e50; margin: 0; white-space: pre-wrap;">${comment}</p>
+          </div>
+        </div>
+        <div style="text-align: center;">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/sellers/${sellerId}" 
+             style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">
+            View your profile
+          </a>
+        </div>
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
+          <p>This email was sent because you received a new review on Watch Pros.</p>
           <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
         </div>
       </div>

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
+import { sendEmail, emailTemplates } from '@/lib/email'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 
 const CreateOfferSchema = z.object({
   listing_id: z.string().uuid(),
@@ -112,7 +114,7 @@ export async function POST(request: Request) {
     // Check if the listing exists and is active
     const { data: listing, error: listingError } = await supabase
       .from('listings')
-      .select('id, status, seller_id')
+      .select('id, status, seller_id, title')
       .eq('id', listing_id)
       .single()
 
@@ -157,6 +159,39 @@ export async function POST(request: Request) {
         { error: 'Failed to create offer' },
         { status: 500 }
       )
+    }
+
+    // Envoi email et notification au vendeur de l'annonce
+    try {
+      // Récupérer l'email du vendeur
+      const { data: receiverSeller, error: receiverError } = await supabase
+        .from('sellers')
+        .select('email, user_id')
+        .eq('id', listing.seller_id)
+        .single()
+      if (!receiverError && receiverSeller?.email) {
+        await sendEmail({
+          to: receiverSeller.email,
+          ...emailTemplates.offerReceived(listing.title, offer, currency)
+        })
+      }
+      // Créer la notification
+      if (!receiverError && receiverSeller?.user_id) {
+        const { error: notifError } = await supabaseAdmin
+          .from('notifications')
+          .insert({
+            user_id: receiverSeller.user_id,
+            listing_id: listing.id,
+            type: 'new_offer',
+            title: 'New Offer Received',
+            message: `You have received a new offer of ${offer.toLocaleString()} ${currency} for ${listing.title}.`
+          })
+        if (notifError) {
+          console.error('Error creating notification:', notifError)
+        }
+      }
+    } catch (err) {
+      console.error('Error sending offer email/notification:', err)
     }
 
     return NextResponse.json({ offer: newOffer })

@@ -69,6 +69,7 @@ export async function GET(request: Request) {
     const maxPrice = searchParams.get('maxPrice')
     const shippingDelay = searchParams.get('shippingDelay')
     const listingType = searchParams.get('listingType')
+    const country = searchParams.get('country')
 
     const supabase = await createClient()
 
@@ -91,7 +92,7 @@ export async function GET(request: Request) {
           company_logo_url
         )
       `, { count: 'exact' })
-      .eq('status', 'active')
+      .in('status', ['active', 'hold'])
 
     // Apply text search if search term exists
     if (search) {
@@ -128,6 +129,7 @@ export async function GET(request: Request) {
     if (included) query = query.eq('included', included)
     if (listingType) query = query.eq('listing_type', listingType)
     if (shippingDelay) query = query.eq('shipping_delay', shippingDelay)
+    if (country) query = query.eq('country', country)
 
     // Apply price range if provided
     if (minPrice) query = query.gte('price', parseInt(minPrice))
@@ -184,7 +186,7 @@ export async function POST(request: Request) {
     // Get the seller associated with the user
     const { data: seller, error: sellerError } = await supabase
       .from('sellers')
-      .select('id')
+      .select('id, country')
       .eq('user_id', user.id)
       .single()
 
@@ -218,7 +220,7 @@ export async function POST(request: Request) {
     const currency = formData.get('currency') as string || 'EUR'
     const shippingDelay = formData.get('shippingDelay') as string
     const listingType = formData.get('listing_type') as string
-    const country = formData.get('country') as string
+    const country = seller.country
 
     // Get brand and model IDs
     const { data: brandData, error: brandError } = await supabase

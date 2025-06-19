@@ -8,6 +8,8 @@ import { useAuth } from '@/contexts/AuthContext';
 export default function LogRocketProvider() {
   const { user } = useAuth();
 
+  console.log('user in LogRocketProvider', user)
+
   useEffect(() => {
     initLogRocket();
   }, []);

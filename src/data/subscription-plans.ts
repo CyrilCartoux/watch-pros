@@ -1,46 +1,46 @@
 export const plans = [
   {
-    name: 'Starter',
-    description: 'Perfect for small dealers',
+    name: 'Basic',
+    description: 'For new or occasional sellers',
     priceId: 'price_1RYCkORWMXxAzKAE0maYRNId',
     price: {
       early: 49,
       regular: 79
     },
     features: [
-      'Up to 25 active listings',
+      'Up to 10 active listings',
     ],
-    maxListings: 25
+    maxListings: 10
   },
   {
-    name: 'Professional',
-    description: 'Ideal for growing businesses',
+    name: 'Standard',
+    description: 'For regular sellers',
     priceId: 'price_1RYCl1RWMXxAzKAEyXgU2GKx',
     price: {
       early: 79,
       regular: 119
     },
     features: [
-      'Up to 50 active listings',
+      'Up to 20 active listings',
     ],
-    maxListings: 50
+    maxListings: 20
   },
   {
-    name: 'Business',
-    description: 'For established dealers',
+    name: 'Pro',
+    description: 'For growing businesses',
     priceId: 'price_1RYClORWMXxAzKAEK4tQb9GM',
     price: {
       early: 129,
       regular: 179
     },
     features: [
-      'Up to 100 active listings',
+      'Up to 40 active listings',
     ],
-    maxListings: 100
+    maxListings: 40
   },
   {
-    name: 'Pro+ Unlimited',
-    description: 'For serious dealers with large inventory',
+    name: 'Unlimited',
+    description: 'For high-volume or enterprise sellers',
     priceId: 'price_1RYCllRWMXxAzKAErTdo9lXT',
     price: {
       early: 199,

@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
 import { Building2, MapPin, CreditCard, FileText, CheckCircle2, Upload, Check, Shield, Lock, Clock, ChevronDown, AlertCircle, Paperclip } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -208,6 +208,10 @@ export default function RegisterFormPage() {
   const { toast } = useToast()
   const router = useRouter()
   const [isPaymentFormComplete, setIsPaymentFormComplete] = useState(false)
+  const idCardFrontInputRef = useRef<HTMLInputElement>(null)
+  const idCardBackInputRef = useRef<HTMLInputElement>(null)
+  const proofOfAddressInputRef = useRef<HTMLInputElement>(null)
+  const [loadingSellerRegistration, setLoadingSellerRegistration] = useState(false)
 
   const accountForm = useForm({
     resolver: zodResolver(accountSchema),
@@ -273,6 +277,7 @@ export default function RegisterFormPage() {
 
   // Handle seller registration (Step 3)
   const handleSellerRegistration = async () => {
+    setLoadingSellerRegistration(true)
     try {
       // Check that all forms are valid
       const isAccountValid = await accountForm.trigger()
@@ -281,6 +286,7 @@ export default function RegisterFormPage() {
 
       if (!isAccountValid || !isAddressValid || !isDocumentsValid) {
         console.error("Some forms are not valid")
+        setLoadingSellerRegistration(false)
         return
       }
 
@@ -319,7 +325,7 @@ export default function RegisterFormPage() {
       
       // If registration successful, move to subscription step
       handleNext()
-      
+      setLoadingSellerRegistration(false)
     } catch (error) {
       console.error("Error submitting form:", error)
       toast({
@@ -327,6 +333,7 @@ export default function RegisterFormPage() {
         description: error instanceof Error ? error.message : "An error occurred",
         variant: "destructive",
       })
+      setLoadingSellerRegistration(false)
     }
   }
 
@@ -1020,6 +1027,7 @@ export default function RegisterFormPage() {
                             id="idCardFront"
                             type="file"
                             accept=".jpg,.jpeg,.png,.pdf"
+                            ref={idCardFrontInputRef}
                             onChange={(e) => {
                               const file = e.target.files?.[0]
                               if (file) {
@@ -1039,6 +1047,17 @@ export default function RegisterFormPage() {
                             <div className="flex items-center gap-2 mt-2 bg-accent/30 rounded px-2 py-1 text-primary font-semibold">
                               <Paperclip className="w-4 h-4" />
                               <span className="truncate">{documentsForm.watch('idCardFront').name}</span>
+                              <button
+                                type="button"
+                                className="ml-1 text-destructive hover:text-red-600 text-lg font-bold px-1"
+                                onClick={() => {
+                                  documentsForm.setValue('idCardFront', undefined);
+                                  if (idCardFrontInputRef.current) idCardFrontInputRef.current.value = '';
+                                }}
+                                aria-label="Remove document"
+                              >
+                                ×
+                              </button>
                             </div>
                           )}
                           <p className="text-xs text-muted-foreground mt-1">
@@ -1052,6 +1071,7 @@ export default function RegisterFormPage() {
                             id="idCardBack"
                             type="file"
                             accept=".jpg,.jpeg,.png,.pdf"
+                            ref={idCardBackInputRef}
                             onChange={(e) => {
                               const file = e.target.files?.[0]
                               if (file) {
@@ -1071,6 +1091,17 @@ export default function RegisterFormPage() {
                             <div className="flex items-center gap-2 mt-2 bg-accent/30 rounded px-2 py-1 text-primary font-semibold">
                               <Paperclip className="w-4 h-4" />
                               <span className="truncate">{documentsForm.watch('idCardBack').name}</span>
+                              <button
+                                type="button"
+                                className="ml-1 text-destructive hover:text-red-600 text-lg font-bold px-1"
+                                onClick={() => {
+                                  documentsForm.setValue('idCardBack', undefined);
+                                  if (idCardBackInputRef.current) idCardBackInputRef.current.value = '';
+                                }}
+                                aria-label="Remove document"
+                              >
+                                ×
+                              </button>
                             </div>
                           )}
                           <p className="text-xs text-muted-foreground mt-1">
@@ -1093,6 +1124,7 @@ export default function RegisterFormPage() {
                           id="proofOfAddress"
                           type="file"
                           accept=".jpg,.jpeg,.png,.pdf"
+                          ref={proofOfAddressInputRef}
                           onChange={(e) => {
                             const file = e.target.files?.[0]
                             if (file) {
@@ -1112,6 +1144,17 @@ export default function RegisterFormPage() {
                           <div className="flex items-center gap-2 mt-2 bg-accent/30 rounded px-2 py-1 text-primary font-semibold">
                             <Paperclip className="w-4 h-4" />
                             <span className="truncate">{documentsForm.watch('proofOfAddress').name}</span>
+                            <button
+                              type="button"
+                              className="ml-1 text-destructive hover:text-red-600 text-lg font-bold px-1"
+                              onClick={() => {
+                                documentsForm.setValue('proofOfAddress', undefined);
+                                if (proofOfAddressInputRef.current) proofOfAddressInputRef.current.value = '';
+                              }}
+                              aria-label="Remove document"
+                            >
+                              ×
+                            </button>
                           </div>
                         )}
                         <p className="text-xs text-muted-foreground mt-1">
@@ -1131,9 +1174,9 @@ export default function RegisterFormPage() {
                         type="button" 
                         onClick={handleSellerRegistration}
                         size="lg"
-                        disabled={disableContinue}
+                        disabled={disableContinue || loadingSellerRegistration}
                       >
-                        {disableContinue ? (
+                        {loadingSellerRegistration ? (
                           <div className="flex items-center gap-2">
                             <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                             <span>Processing...</span>
@@ -1280,6 +1323,13 @@ export default function RegisterFormPage() {
             </Card>
           </TabsContent>
         </Tabs>
+        <div className="h-10">
+          <button onClick={() => console.log({
+            account: accountForm.getValues(),
+            documents: documentsForm.getValues(),
+            addressForm: addressForm.getValues()
+          })}>Debug Form</button>
+        </div>
       </div>
     </main>
   )

@@ -93,6 +93,7 @@ interface Filters {
   maxPrice: string;
   shippingDelay: string;
   listingType: string;
+  country: string;
 }
 
 export default function ListingsPage() {
@@ -117,6 +118,7 @@ export default function ListingsPage() {
       maxPrice: params.get("maxPrice") || "",
       shippingDelay: params.get("shippingDelay") || "",
       listingType: params.get("listingType") || "",
+      country: params.get("country") || "",
     }
   }, [searchParams])
 
@@ -184,6 +186,7 @@ export default function ListingsPage() {
       maxPrice: "",
       shippingDelay: "",
       listingType: "",
+      country: "",
     }
     setTempFilters(emptyFilters)
     setFilters(emptyFilters)
@@ -303,15 +306,14 @@ export default function ListingsPage() {
       {/* Search Bar Section */}
       <div className="mb-8">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-2xl font-bold text-center mb-2">Find Your Perfect Watch</h1>
-          <p className="text-muted-foreground text-center mb-4">Search by brand, model, or reference number to discover our curated selection of luxury timepieces</p>
+          <h1 className="text-2xl font-bold text-center mb-2">Professional Timepiece Collection</h1>
           <SearchBar className="w-full h-12 text-lg" />
         </div>
       </div>
 
       <div className="flex flex-col gap-4 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <h1 className="text-xl sm:text-2xl font-bold">
+          <h1 className="text-base sm:text-lg font-bold">
             {totalItems.toLocaleString()} listings
           </h1>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
