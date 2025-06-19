@@ -1,4 +1,6 @@
 import { MetadataRoute } from 'next'
+import { models } from '@/data/models'
+import { brands } from '@/data/brands'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Base URLs
@@ -22,35 +24,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: route === '' ? 1 : 0.8,
   }))
 
-  // Dynamic routes - Example for listings
-  // In a real application, you would fetch these from your database
-  const listings = [
-    { id: '1', lastModified: new Date() },
-    { id: '2', lastModified: new Date() },
-    // Add more listings as needed
-  ].map(listing => ({
-    url: `${baseUrl}/listings/${listing.id}`,
-    lastModified: listing.lastModified,
+  const brandsSitemap = brands.map(brand => ({
+    url: `${baseUrl}/brands/${brand.slug}`,
+    lastModified: new Date(),
     changeFrequency: 'daily' as const,
-    priority: 0.7,
+    priority: 0.8,
+    models: models[brand.slug].map(model => ({
+        url: `${baseUrl}/listings/${model.model_slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'daily' as const,
+        priority: 0.7,
+      }))
   }))
 
-  // Dynamic routes - Example for brands
-  const brands = [
-    { slug: 'rolex', lastModified: new Date() },
-    { slug: 'patek-philippe', lastModified: new Date() },
-    { slug: 'audemars-piguet', lastModified: new Date() },
-    // Add more brands as needed
-  ].map(brand => ({
-    url: `${baseUrl}/brands/${brand.slug}`,
-    lastModified: brand.lastModified,
-    changeFrequency: 'weekly' as const,
-    priority: 0.6,
-  }))
 
   return [
     ...staticRoutes,
-    ...listings,
-    ...brands,
+    ...brandsSitemap,
   ]
 } 

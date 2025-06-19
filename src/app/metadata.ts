@@ -3,11 +3,13 @@ import { Metadata } from 'next'
 export const defaultMetadata: Metadata = {
   metadataBase: new URL('https://watch-pros.com'),
   title: {
-    default: 'Watch Pros - Luxury Watch Marketplace',
-    template: '%s | Watch Pros'
+    default: 'Watch Pros - B2B Marketplace for Professional Watch Dealers',
+    template: '%s | Watch Pros B2B'
   },
-  description: 'Watch Pros is the leading marketplace for buying and selling luxury watches. Discover our selection of Rolex, Patek Philippe, Audemars Piguet watches and more.',
-  keywords: ['luxury watches', 'rolex', 'patek philippe', 'audemars piguet', 'omega', 'vintage watches', 'buy watches', 'sell watches', 'watch marketplace'],
+  description: 'Watch Pros is the leading B2B marketplace for professional watch dealers. Buy and sell luxury watches with trusted pros worldwide.',
+  keywords: [
+    'B2B', 'professional watch dealers', 'luxury watches', 'wholesale watches', 'rolex', 'patek philippe', 'audemars piguet', 'omega', 'vintage watches', 'buy watches', 'sell watches', 'watch marketplace', 'trade watches', 'dealer platform', 'watch pros only', 'business to business', 'pro sellers', 'watch trade', 'watch wholesale'
+  ],
   authors: [{ name: 'Watch Pros' }],
   creator: 'Watch Pros',
   publisher: 'Watch Pros',
@@ -21,21 +23,21 @@ export const defaultMetadata: Metadata = {
     locale: 'en_US',
     url: 'https://watch-pros.com',
     siteName: 'Watch Pros',
-    title: 'Watch Pros - Luxury Watch Marketplace',
-    description: 'Watch Pros is the leading marketplace for buying and selling luxury watches. Discover our selection of Rolex, Patek Philippe, Audemars Piguet watches and more.',
+    title: 'Watch Pros - B2B Marketplace for Professional Watch Dealers',
+    description: 'The leading B2B marketplace for professional watch dealers. Buy and sell luxury watches with trusted pros worldwide.',
     images: [
       {
         url: '/images/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Watch Pros - Luxury Watch Marketplace'
+        alt: 'Watch Pros - B2B Marketplace for Professional Watch Dealers'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Watch Pros - Luxury Watch Marketplace',
-    description: 'Watch Pros is the leading marketplace for buying and selling luxury watches.',
+    title: 'Watch Pros - B2B Marketplace for Professional Watch Dealers',
+    description: 'The leading B2B marketplace for professional watch dealers. Buy and sell luxury watches with trusted pros worldwide.',
     images: ['/images/twitter-image.jpg'],
     creator: '@watchpros',
     site: '@watchpros'

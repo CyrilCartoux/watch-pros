@@ -7,9 +7,6 @@ export default function Home() {
     <main>
       <Hero />
       <HowItWorks />
-      {/* <FeaturedListings /> */}
-      {/* <FeaturedModels /> */}
-      {/* <FeaturedBrands /> */}
       <SellCTA />
     </main>
   );

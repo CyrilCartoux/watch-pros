@@ -556,7 +556,7 @@ export default function ListingPage({ params }: Props) {
               <Button
                 variant="outline"
                 size="icon"
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-10 h-10"
+                className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-10 h-10"
                 onClick={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
@@ -568,7 +568,7 @@ export default function ListingPage({ params }: Props) {
               <Button
                 variant="outline"
                 size="icon"
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-10 h-10"
+                className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background/90 z-10 w-10 h-10"
                 onClick={(e) => {
                   e.preventDefault()
                   e.stopPropagation()

@@ -1190,75 +1190,77 @@ export default function NotificationsPage() {
 
       {/* Contact Seller Dialog */}
       <Dialog open={isContactDialogOpen} onOpenChange={setIsContactDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-[90vw] w-full sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Reply to offer</DialogTitle>
             <DialogDescription>
               Send a message to the seller regarding this offer.
             </DialogDescription>
           </DialogHeader>
-          {/* Listing info */}
-          {contactSeller && (
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-20 h-20 rounded-md overflow-hidden border">
-                <img
-                  src={contactSeller.listing.listing_images[0]?.url || "/api/listings/" + contactSeller.listing.id + "/image"}
-                  alt={contactSeller.listing.title}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <a
-                  href={`/listings/${contactSeller.listing.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium hover:underline block truncate"
-                >
-                  {contactSeller.listing.title}
-                </a>
-                <div className="text-sm text-muted-foreground">
-                  Asking price: <span className="font-semibold">{contactSeller.listing.price.toLocaleString()} {contactSeller.listing.currency}</span>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Offer: <span className="font-semibold">{contactSeller.offer.toLocaleString()} {contactSeller.currency}</span>
-                  {" "}(
-                  {((contactSeller.offer / contactSeller.listing.price) * 100).toFixed(0)}% of asking price)
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Offer date: {new Date(contactSeller.created_at).toLocaleString()}
-                </div>
-              </div>
-            </div>
-          )}
-          <div className="space-y-4 py-4">
-            {isMessageSuccess ? (
-              <div className="flex flex-col items-center justify-center py-8 space-y-4">
-                <CheckCircle2 className="w-16 h-16 text-primary animate-in zoom-in-50 duration-500" />
-                <p className="text-lg font-medium text-center">Your reply has been sent to the seller!</p>
-                <p className="text-sm text-muted-foreground text-center">
-                  The seller will respond as soon as possible.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="message">Your message</Label>
-                  <Textarea
-                    id="message"
-                    placeholder="Write your reply..."
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    className="min-h-[150px]"
+          <div className="max-h-[60vh] overflow-y-auto">
+            {/* Listing info */}
+            {contactSeller && (
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-20 h-20 rounded-md overflow-hidden border">
+                  <img
+                    src={contactSeller.listing.listing_images[0]?.url || "/api/listings/" + contactSeller.listing.id + "/image"}
+                    alt={contactSeller.listing.title}
+                    className="object-cover w-full h-full"
                   />
-                  <p className="text-sm text-muted-foreground">
-                    {message.length} / 1000 characters
-                  </p>
                 </div>
-                <div className="text-sm text-muted-foreground">
-                  Seller: {contactSeller?.seller.company_name || contactSeller?.seller.watch_pros_name}
+                <div className="flex-1 min-w-0">
+                  <a
+                    href={`/listings/${contactSeller.listing.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium hover:underline block truncate"
+                  >
+                    {contactSeller.listing.title}
+                  </a>
+                  <div className="text-sm text-muted-foreground">
+                    Asking price: <span className="font-semibold">{contactSeller.listing.price.toLocaleString()} {contactSeller.listing.currency}</span>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Offer: <span className="font-semibold">{contactSeller.offer.toLocaleString()} {contactSeller.currency}</span>
+                    {" "}(
+                    {((contactSeller.offer / contactSeller.listing.price) * 100).toFixed(0)}% of asking price)
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Offer date: {new Date(contactSeller.created_at).toLocaleString()}
+                  </div>
                 </div>
               </div>
             )}
+            <div className="space-y-4 py-4">
+              {isMessageSuccess ? (
+                <div className="flex flex-col items-center justify-center py-8 space-y-4">
+                  <CheckCircle2 className="w-16 h-16 text-primary animate-in zoom-in-50 duration-500" />
+                  <p className="text-lg font-medium text-center">Your reply has been sent to the seller!</p>
+                  <p className="text-sm text-muted-foreground text-center">
+                    The seller will respond as soon as possible.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="space-y-2 pl-2 pr-2">
+                    <Label htmlFor="message">Your message</Label>
+                    <Textarea
+                      id="message"
+                      placeholder="Write your reply..."
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      className="min-h-[150px]"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      {message.length} / 1000 characters
+                    </p>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Seller: {contactSeller?.seller.company_name || contactSeller?.seller.watch_pros_name}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           <DialogFooter>
             {!isMessageSuccess && (

@@ -1,0 +1,20 @@
+User-agent: *
+
+# Autoriser les pages publiques
+Allow: /listings
+Allow: /brands
+Allow: /sellers
+Allow: /about
+Allow: /help
+Allow: /
+
+# Bloquer les pages privées
+Disallow: /account
+Disallow: /register
+Disallow: /notifications
+Disallow: /admin
+Disallow: /subscription
+Disallow: /sell
+Disallow: /api
+
+Sitemap: https://watch-pros.com/sitemap.xml 
