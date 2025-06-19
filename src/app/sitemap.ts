@@ -1,6 +1,5 @@
 import { MetadataRoute } from 'next'
-import { models } from '@/data/models'
-import { brands } from '@/data/brands'
+// TODO: importer le client DB ou utiliser fetch pour récupérer les vraies données
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Base URLs
@@ -24,22 +23,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: route === '' ? 1 : 0.8,
   }))
 
-  const brandsSitemap = brands.map(brand => ({
-    url: `${baseUrl}/brands/${brand.slug}`,
-    lastModified: new Date(),
+  // TODO: Remplacer par un fetch/DB call
+  const listings = [
+    // Exemple : await fetch(`${baseUrl}/api/listings`).then(res => res.json())
+    { id: '1', lastModified: new Date() },
+    { id: '2', lastModified: new Date() },
+  ].map(listing => ({
+    url: `${baseUrl}/listings/${listing.id}`,
+    lastModified: listing.lastModified,
     changeFrequency: 'daily' as const,
-    priority: 0.8,
-    models: models[brand.slug].map(model => ({
-        url: `${baseUrl}/listings/${model.model_slug}`,
-        lastModified: new Date(),
-        changeFrequency: 'daily' as const,
-        priority: 0.7,
-      }))
+    priority: 0.7,
   }))
 
+  // TODO: Remplacer par un fetch/DB call
+  const brands = [
+    { slug: 'rolex', lastModified: new Date() },
+    { slug: 'patek-philippe', lastModified: new Date() },
+    { slug: 'audemars-piguet', lastModified: new Date() },
+  ].map(brand => ({
+    url: `${baseUrl}/brands/${brand.slug}`,
+    lastModified: brand.lastModified,
+    changeFrequency: 'weekly' as const,
+    priority: 0.6,
+  }))
+
+  // TODO: Ajouter les sellers dynamiquement
+  // const sellers = ...
 
   return [
     ...staticRoutes,
-    ...brandsSitemap,
+    ...listings,
+    ...brands,
+    // ...sellers
   ]
 } 

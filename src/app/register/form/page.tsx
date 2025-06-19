@@ -33,7 +33,7 @@ declare global {
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 // Constants for file validation
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 6 * 1024 * 1024; // 6MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
 
 // File validation function
@@ -45,7 +45,7 @@ const validateFile = (file: File) => {
   }
   
   if (file.size > MAX_FILE_SIZE) {
-    return "File is too large. Maximum size: 5MB";
+    return "File is too large. Maximum size: 6MB";
   }
   
   return null;
@@ -229,7 +229,8 @@ export default function RegisterFormPage() {
   })
 
   // Détermine si on doit désactiver les boutons
-  const disableContinue = isLoading || isSeller || !isAuthenticated
+  // TODO REMOVE FALSE
+  const disableContinue = false //isLoading || isSeller || !isAuthenticated
 
   // Alert message
   let alertMessage = null
@@ -829,6 +830,12 @@ export default function RegisterFormPage() {
                       </Button>
                     </div>
                   </div>
+                  {/* Message d'erreur si le formulaire est invalide après soumission */}
+                  {isSubmitted.account && !accountForm.formState.isValid && (
+                    <div className="mt-2 text-sm text-red-600 text-center">
+                      Some fields are incorrect or missing. Please check the form above.
+                    </div>
+                  )}
                 </form>
               </CardContent>
             </Card>
@@ -959,19 +966,6 @@ export default function RegisterFormPage() {
                             Enter the VAT number corresponding to your company's location: France
                           </p>
                         </div>
-
-                        <div className="flex items-center space-x-2">
-                          <input
-                            type="checkbox"
-                            id="oss"
-                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                            {...addressForm.register("oss")}
-                          />
-                          <Label htmlFor="oss" className="text-sm">
-                            I am registered with the One-Stop Shop (OSS)
-                          </Label>
-                        </div>
-                        <FormError error={addressForm.formState.errors.oss?.message as string} isSubmitted={isSubmitted.address} />
                       </div>
                     </div>
                   </div>
@@ -987,6 +981,12 @@ export default function RegisterFormPage() {
                       </Button>
                     </div>
                   </div>
+                  {/* Message d'erreur si le formulaire est invalide après soumission */}
+                  {isSubmitted.address && !addressForm.formState.isValid && (
+                    <div className="mt-2 text-sm text-red-600 text-center">
+                      Some fields are incorrect or missing. Please check the form above.
+                    </div>
+                  )}
                 </form>
 
                 <div className="mt-6 p-4 bg-muted/50 rounded-lg">
@@ -1187,6 +1187,12 @@ export default function RegisterFormPage() {
                       </Button>
                     </div>
                   </div>
+                  {/* Message d'erreur si le formulaire est invalide après soumission */}
+                  {isSubmitted.documents && !documentsForm.formState.isValid && (
+                    <div className="mt-2 text-sm text-red-600 text-center">
+                      Some fields are incorrect or missing. Please check the form above.
+                    </div>
+                  )}
                 </form>
 
                 <div className="mt-6 p-4 bg-muted/50 rounded-lg">
