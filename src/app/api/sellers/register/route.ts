@@ -1,3 +1,4 @@
+import { emailTemplates, sendEmail } from '@/lib/email'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
@@ -314,6 +315,13 @@ export async function POST(request: Request) {
     console.log('✅ Profile updated with seller_id')
 
     console.log('🎉 Seller registration completed successfully')
+
+    // Send email to admin
+    await sendEmail({
+      to: 'admin@watch-pros.com',
+      ...emailTemplates.sellerRegistrationAdmin(seller.company_name, seller.email, seller.country)
+    })
+
     return NextResponse.json({
       message: 'Seller registered successfully',
       seller: {

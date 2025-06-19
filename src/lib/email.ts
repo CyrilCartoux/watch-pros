@@ -387,5 +387,32 @@ export const emailTemplates = {
       </div>
     `,
   }),
+
+  sellerRegistrationAdmin: (companyName: string, email: string, country: string) => ({
+    subject: `New Seller Registration: ${companyName}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #2c3e50; margin-bottom: 10px;">New Seller Registration</h1>
+          <p style="color: #7f8c8d; font-size: 16px;">A new seller has just registered on Watch Pros.</p>
+        </div>
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 30px;">
+          <h2 style="color: #2c3e50; margin-top: 0;">${companyName}</h2>
+          <p style="font-size: 16px; color: #34495e; margin: 10px 0;">Email: <a href="mailto:${email}">${email}</a></p>
+          <p style="font-size: 16px; color: #34495e; margin: 10px 0;">Country: ${country}</p>
+        </div>
+        <div style="text-align: center;">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin" 
+             style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">
+            Review Seller Applications
+          </a>
+        </div>
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
+          <p>This email was sent to notify you of a new seller registration on Watch Pros.</p>
+          <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
+        </div>
+      </div>
+    `
+  }),
 } 
 

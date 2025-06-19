@@ -91,9 +91,42 @@ export const phonePrefixes = [
   { value: "+65", label: "Singapour (+65)" },
   { value: "+852", label: "Hong Kong (+852)" },
 ] as const
+export const currencies = [
+  { value: "EUR", label: "Euro", symbol: "€", flag: "🇪🇺" },
+  { value: "USD", label: "US Dollar", symbol: "$", flag: "🇺🇸" },
+  { value: "GBP", label: "British Pound", symbol: "£", flag: "🇬🇧" },
+  { value: "CHF", label: "Swiss Franc", symbol: "CHF", flag: "🇨🇭" },
+  { value: "CAD", label: "Canadian Dollar", symbol: "$", flag: "🇨🇦" },
+  { value: "AUD", label: "Australian Dollar", symbol: "$", flag: "🇦🇺" },
+  { value: "NZD", label: "New Zealand Dollar", symbol: "$", flag: "🇳🇿" },
+  { value: "JPY", label: "Japanese Yen", symbol: "¥", flag: "🇯🇵" },
+  { value: "HKD", label: "Hong Kong Dollar", symbol: "$", flag: "🇭🇰" },
+  { value: "SGD", label: "Singapore Dollar", symbol: "$", flag: "🇸🇬" },
+  { value: "CNY", label: "Chinese Yuan", symbol: "¥", flag: "🇨🇳" },
+  { value: "KRW", label: "South Korean Won", symbol: "₩", flag: "🇰🇷" },
+  { value: "AED", label: "UAE Dirham", symbol: "د.إ", flag: "🇦🇪" },
+  { value: "QAR", label: "Qatari Riyal", symbol: "﷼", flag: "🇶🇦" },
+  { value: "SAR", label: "Saudi Riyal", symbol: "﷼", flag: "🇸🇦" },
+  { value: "ILS", label: "Israeli Shekel", symbol: "₪", flag: "🇮🇱" },
+  { value: "TRY", label: "Turkish Lira", symbol: "₺", flag: "🇹🇷" },
+  { value: "NOK", label: "Norwegian Krone", symbol: "kr", flag: "🇳🇴" },
+  { value: "SEK", label: "Swedish Krona", symbol: "kr", flag: "🇸🇪" },
+  { value: "DKK", label: "Danish Krone", symbol: "kr", flag: "🇩🇰" },
+  { value: "PLN", label: "Polish Złoty", symbol: "zł", flag: "🇵🇱" },
+  { value: "CZK", label: "Czech Koruna", symbol: "Kč", flag: "🇨🇿" },
+  { value: "HUF", label: "Hungarian Forint", symbol: "Ft", flag: "🇭🇺" },
+  { value: "RON", label: "Romanian Leu", symbol: "lei", flag: "🇷🇴" },
+  { value: "BGN", label: "Bulgarian Lev", symbol: "лв", flag: "🇧🇬" },
+  { value: "HRK", label: "Croatian Kuna", symbol: "kn", flag: "🇭🇷" },
+  { value: "MXN", label: "Mexican Peso", symbol: "$", flag: "🇲🇽" },
+  { value: "BRL", label: "Brazilian Real", symbol: "R$", flag: "🇧🇷" },
+  { value: "ISK", label: "Icelandic Króna", symbol: "kr", flag: "🇮🇸" }
+] as const
+
 
 // Type definitions for the options
 export type Country = typeof countries[number]["value"]
 export type Title = typeof titles[number]["value"]
 export type Language = typeof languages[number]["value"]
 export type PhonePrefix = typeof phonePrefixes[number]["value"]
+export type Currency = typeof currencies[number]["value"]

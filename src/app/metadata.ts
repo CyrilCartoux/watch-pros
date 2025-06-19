@@ -6,7 +6,7 @@ export const defaultMetadata: Metadata = {
     default: 'Watch Pros - B2B Marketplace for Professional Watch Dealers',
     template: '%s | Watch Pros B2B'
   },
-  description: 'Watch Pros is the leading B2B marketplace for professional watch dealers. Buy and sell luxury watches with trusted pros worldwide.',
+  description: 'Watch Pros is the leading B2B marketplace for professional watch dealers. Discover, buy, and sell luxury watches with trusted professionals worldwide. Join our exclusive network to access wholesale prices, verified sellers, and a secure platform dedicated to watch industry experts.',
   keywords: [
     'B2B', 'professional watch dealers', 'luxury watches', 'wholesale watches', 'rolex', 'patek philippe', 'audemars piguet', 'omega', 'vintage watches', 'buy watches', 'sell watches', 'watch marketplace', 'trade watches', 'dealer platform', 'watch pros only', 'business to business', 'pro sellers', 'watch trade', 'watch wholesale'
   ],

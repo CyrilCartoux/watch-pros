@@ -13,7 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { dialColors, movements, cases, braceletMaterials, braceletColors, includedOptions } from '@/data/watch-properties'
 import { watchConditions } from '@/data/watch-conditions'
 import { useBrandsAndModels } from '@/hooks/useBrandsAndModels'
-import { countries } from '@/data/form-options'
+import { countries, currencies } from '@/data/form-options'
 import Image from 'next/image'
 
 // Add a component to display errors
@@ -786,19 +786,22 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                           type="number"
                           placeholder="0"
                           {...form.register("price", { valueAsNumber: true })}
+                          className="w-48"
                         />
                         <Controller
                           name="currency"
                           control={form.control}
                           render={({ field }) => (
                             <Select onValueChange={field.onChange} value={field.value || ""}>
-                              <SelectTrigger className="w-[100px]">
+                              <SelectTrigger className="w-48">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="EUR">EUR</SelectItem>
-                                <SelectItem value="USD">USD</SelectItem>
-                                <SelectItem value="GBP">GBP</SelectItem>
+                                {currencies.map(currency => (
+                                  <SelectItem key={currency.value} value={currency.value}>
+                                    {currency.flag} {currency.label} ({currency.symbol})
+                                  </SelectItem>
+                                ))}
                               </SelectContent>
                             </Select>
                           )}
