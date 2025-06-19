@@ -29,10 +29,6 @@ type Subscription = {
   status: string
   price_id: string
   current_period_end: string
-  stripe_subscription_id: string
-  stripe_customer_id: string
-  product_id: string | null
-  payment_method_id: string | null
   pm_type: string | null
   pm_last4: string | null
   pm_brand: string | null
@@ -48,6 +44,7 @@ type Subscription = {
 type SubscriptionResponse = {
   hasActiveSubscription: boolean
   subscription: Subscription | null
+  activeListingsCount: number
 }
 
 export default function SubscriptionPage() {
@@ -293,11 +290,12 @@ export default function SubscriptionPage() {
                   Payment by {getPaymentMethodInfo(subscriptionData.subscription)?.brand} ending in {getPaymentMethodInfo(subscriptionData.subscription)?.last4}
                 </div>
               )}
-              {subscriptionData.subscription.subscription_plans?.max_listings && (
-                <div className="text-sm text-gray-600">
-                  Limit of {subscriptionData.subscription.subscription_plans.max_listings} active listings
-                </div>
-              )}
+              <div className="text-sm text-gray-600">
+                You currently have <span className="font-semibold">{subscriptionData.activeListingsCount}</span> active listings
+                {subscriptionData.subscription.subscription_plans?.max_listings && (
+                  <span> out of {subscriptionData.subscription.subscription_plans.max_listings} allowed</span>
+                )}
+              </div>
             </div>
           ) : (
             <div className="space-y-4">
@@ -309,6 +307,11 @@ export default function SubscriptionPage() {
               <p className="text-gray-600">
                 Choose a plan below to start selling your watches on Watch Pros.
               </p>
+              {subscriptionData?.activeListingsCount > 0 && (
+                <div className="text-sm text-gray-600">
+                  You currently have <span className="font-semibold">{subscriptionData.activeListingsCount}</span> active listings
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -318,11 +321,16 @@ export default function SubscriptionPage() {
           {plans.map((plan) => {
             const isCurrentPlan = subscriptionData?.subscription?.price_id === plan.priceId
             const isHighlighted = plan.highlighted
+            const maxListings = plan.maxListings
+            const isDisabled = maxListings !== null && subscriptionData?.activeListingsCount > maxListings
+            const isDowngrade = subscriptionData?.hasActiveSubscription && 
+              subscriptionData.subscription?.subscription_plans?.max_listings && 
+              maxListings !== null && maxListings < subscriptionData.subscription.subscription_plans.max_listings
 
             return (
               <Card 
                 key={plan.name}
-                className={`relative ${isHighlighted ? 'border-blue-500' : ''} ${isCurrentPlan ? 'border-green-500' : ''}`}
+                className={`relative ${isHighlighted ? 'border-blue-500' : ''} ${isCurrentPlan ? 'border-green-500' : ''} ${isDisabled ? 'opacity-60' : ''}`}
               >
                 {isHighlighted && (
                   <Badge className="absolute -top-3 -right-3 bg-blue-500">
@@ -349,15 +357,25 @@ export default function SubscriptionPage() {
                       </li>
                     ))}
                   </ul>
+                  {isDisabled && (
+                    <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-sm text-red-700">
+                        You have {subscriptionData?.activeListingsCount} active listings, but this plan only allows {maxListings}.
+                        Please delete some listings before switching to this plan.
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
                 <CardFooter>
                   <Button
                     className="w-full"
                     variant={isCurrentPlan ? "outline" : "default"}
                     onClick={() => handlePlanSelect(plan)}
-                    disabled={isCurrentPlan}
+                    disabled={isCurrentPlan || isDisabled}
                   >
-                    {isCurrentPlan ? 'Current Plan' : subscriptionData?.hasActiveSubscription ? 'Change Plan' : 'Subscribe'}
+                    {isCurrentPlan ? 'Current Plan' : 
+                     isDisabled ? 'Plan Unavailable' :
+                     subscriptionData?.hasActiveSubscription ? 'Change Plan' : 'Subscribe'}
                   </Button>
                 </CardFooter>
               </Card>
@@ -376,7 +394,7 @@ export default function SubscriptionPage() {
               </div>
               <div>
                 <h3 className="font-semibold mb-2">What happens if I exceed my listing limit?</h3>
-                <p className="text-muted-foreground">You'll be notified when you're close to your limit. You can either upgrade your plan or archive some listings.</p>
+                <p className="text-muted-foreground">You'll be notified when you're close to your limit. You can either upgrade your plan or delete some listings.</p>
               </div>
             </div>
             <div className="space-y-4">
