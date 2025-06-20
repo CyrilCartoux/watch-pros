@@ -206,14 +206,20 @@ export function Navbar() {
               </div>
             )}
             <div className="flex flex-col gap-1">
-              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/listings" onClick={handleLinkClick}>Buy</Link>
+              <Button asChild className="w-full mb-2">
+                <Link href="/sell" onClick={handleLinkClick}>Sell a Watch</Link>
               </Button>
               <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/sell" onClick={handleLinkClick}>Sell</Link>
+                <Link href="/listings?listingType=watch" onClick={handleLinkClick}>Watches</Link>
               </Button>
               <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/sellers" onClick={handleLinkClick}>View Sellers</Link>
+                <Link href="/listings?listingType=accessory" onClick={handleLinkClick}>Accessories</Link>
+              </Button>
+              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
+                <Link href="/sellers" onClick={handleLinkClick}>Sellers</Link>
+              </Button>
+              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
+                <Link href="/brands" onClick={handleLinkClick}>Brands</Link>
               </Button>
             </div>
             {user ? (
