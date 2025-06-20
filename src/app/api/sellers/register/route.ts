@@ -319,7 +319,7 @@ export async function POST(request: Request) {
     // Send email to admin
     await sendEmail({
       to: 'admin@watch-pros.com',
-      ...emailTemplates.sellerRegistrationAdmin(seller.company_name, seller.email, seller.country)
+      ...emailTemplates.sellerRegistrationAdmin(account.companyName, account.email, account.country)
     })
 
     return NextResponse.json({

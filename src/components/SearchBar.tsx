@@ -26,15 +26,17 @@ interface SearchResult {
 
 interface SearchBarProps {
   className?: string
+  onSearch?: (query: string) => void
 }
 
-export function SearchBar({ className }: SearchBarProps) {
+export function SearchBar({ className, onSearch }: SearchBarProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [search, setSearch] = useState("")
   const [results, setResults] = useState<SearchResult[]>([])
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null)
 
   // Get unique brands from models data
   const uniqueBrands = Object.entries(models).map(([brandSlug, brandModels]) => {
@@ -108,17 +110,38 @@ export function SearchBar({ className }: SearchBarProps) {
     setResults(newResults)
   }, [search])
 
+  // Debounce onSearch when typing
+  useEffect(() => {
+    if (!onSearch) return
+    if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
+    if (!search) {
+      onSearch("")
+      return
+    }
+    debounceTimeout.current = setTimeout(() => {
+      onSearch(search)
+    }, 300)
+    return () => {
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
+    }
+  }, [search])
+
   const handleSearch = (query: string) => {
-    if (!query.trim()) return
-
-    const params = new URLSearchParams()
     const trimmed = query.trim()
+    if (!trimmed) return
 
-    // Utiliser uniquement le paramètre 'query' pour tout
-    params.set('query', trimmed)
-    
-    router.push(`/listings?${params.toString()}`)
+    setSearch(trimmed)
     setIsOpen(false)
+
+    if (onSearch) {
+      if (debounceTimeout.current) clearTimeout(debounceTimeout.current)
+      onSearch(trimmed)
+      return
+    }
+    
+    const params = new URLSearchParams()
+    params.set('query', trimmed)
+    router.push(`/listings?${params.toString()}`)
   }
 
   return (
@@ -157,7 +180,14 @@ export function SearchBar({ className }: SearchBarProps) {
           <Command>
             <CommandList>
               {results.length === 0 && search && (
-                <CommandEmpty>No results found.</CommandEmpty>
+                <div className="px-2 py-1.5">
+                  <button
+                    onClick={() => handleSearch(search)}
+                    className="flex w-full items-center gap-2 px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground cursor-pointer rounded"
+                  >
+                    <span>Rechercher « {search} »</span>
+                  </button>
+                </div>
               )}
 
               {results.length > 0 && (

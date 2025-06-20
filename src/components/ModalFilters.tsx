@@ -32,7 +32,7 @@ interface Model {
   popular: boolean
 }
 
-interface Filters {
+interface FullFilters {
   query: string
   brand: string
   model: string
@@ -48,10 +48,8 @@ interface Filters {
 }
 
 interface ModalFiltersProps {
-  tempFilters: Filters
-  onFilterChange: (key: keyof Filters, value: string) => void
   onClearFilters: () => void
-  onApplyFilters: () => void
+  onApplyFilters: (filters: Partial<FullFilters>) => void
 }
 
 const FilterSection = ({ title, children, isOpen, onToggle }: { 
@@ -82,11 +80,10 @@ const FilterSection = ({ title, children, isOpen, onToggle }: {
 )
 
 export function ModalFilters({
-  tempFilters,
-  onFilterChange,
   onClearFilters,
   onApplyFilters,
 }: ModalFiltersProps) {
+  const [localFilters, setLocalFilters] = useState<Partial<FullFilters>>({})
   const { brands, models, isLoading: isLoadingBrands, error: brandsError, fetchModels } = useBrandsAndModels()
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null)
   const [isLoadingModels, setIsLoadingModels] = useState(false)
@@ -97,24 +94,26 @@ export function ModalFilters({
     shipping: false
   })
 
-  // Synchroniser selectedBrandId avec tempFilters.brand
   useEffect(() => {
-    if (tempFilters.brand) {
-      const brand = brands.find(b => b.slug === tempFilters.brand)
-      if (brand) {
-        setSelectedBrandId(brand.id)
-        fetchModels(brand.id)
-      }
-    }
-  }, [tempFilters.brand, brands, fetchModels])
+    const brandSlug = localFilters.brand || ""
+    const modelSlug = localFilters.model || ""
+    const reference = localFilters.reference || ""
 
-  // Fonction pour construire la query à partir des sélections
-  const buildQueryFromSelections = (brand: string, model: string, reference: string) => {
-    const parts = []
-    if (brand) parts.push(brand)
-    if (model) parts.push(model)
-    if (reference) parts.push(reference)
-    return parts.join(' ')
+    const brandLabel = brands.find(b => b.slug === brandSlug)?.label || ""
+    
+    const modelLabel = selectedBrandId && models[selectedBrandId]
+      ? models[selectedBrandId].find(m => m.slug === modelSlug)?.label || ""
+      : ""
+
+    const queryParts = [brandLabel, modelLabel, reference].filter(Boolean)
+    const newQuery = queryParts.join(' ')
+
+    setLocalFilters(prev => ({...prev, query: newQuery}))
+
+  }, [localFilters.brand, localFilters.model, localFilters.reference, brands, models, selectedBrandId])
+
+  const handleFilterChange = (key: keyof FullFilters, value: any) => {
+    setLocalFilters(prev => ({ ...prev, [key]: value }))
   }
 
   const handleBrandChange = (value: string) => {
@@ -123,29 +122,15 @@ export function ModalFilters({
       setSelectedBrandId(brand.id)
       fetchModels(brand.id)
     }
-    onFilterChange("brand", value)
-    onFilterChange("model", "")
-    onFilterChange("reference", "")
-    
-    // Construire la query avec la nouvelle sélection
-    const newQuery = buildQueryFromSelections(value, "", "")
-    onFilterChange("query", newQuery)
+    setLocalFilters(prev => ({ ...prev, brand: value, model: "", reference: "" }))
   }
 
   const handleModelChange = (value: string) => {
-    onFilterChange("model", value)
-    
-    // Construire la query avec la nouvelle sélection
-    const newQuery = buildQueryFromSelections(tempFilters.brand, value, tempFilters.reference)
-    onFilterChange("query", newQuery)
+    setLocalFilters(prev => ({ ...prev, model: value }))
   }
 
-  const handleReferenceChange = (value: string) => {
-    onFilterChange("reference", value)
-    
-    // Construire la query avec la nouvelle sélection
-    const newQuery = buildQueryFromSelections(tempFilters.brand, tempFilters.model, value)
-    onFilterChange("query", newQuery)
+  const handleReferenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocalFilters(prev => ({ ...prev, reference: e.target.value }))
   }
 
   const toggleSection = (section: keyof typeof openSections) => {
@@ -155,27 +140,6 @@ export function ModalFilters({
     }))
   }
 
-  const getFilterLabel = (key: keyof Filters, value: string) => {
-    switch (key) {
-      case "brand":
-        return brands.find(b => b.slug === value)?.label || value
-      case "model":
-        const brand = brands.find(b => b.slug === tempFilters.brand)
-        return brand && models[brand.id]?.find(m => m.slug === value)?.label || value
-      case "condition":
-        return value === "new" ? "New" : "Pre-owned"
-      case "dialColor":
-        return value.charAt(0).toUpperCase() + value.slice(1)
-      case "included":
-        return value.charAt(0).toUpperCase() + value.slice(1)
-      case "shippingDelay":
-        return value === "1" ? "1 day" : `${value} days`
-      case "listingType":
-        return value === "buy" ? "Buy Now" : "Auction"
-      default:
-        return value
-    }
-  }
 
   return (
     <div className="space-y-6 h-[calc(100vh-12rem)] sm:h-[calc(100vh-8rem)] overflow-y-auto px-2 pb-24">
@@ -184,9 +148,9 @@ export function ModalFilters({
         <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
-            onClick={() => onFilterChange("listingType", ListingType.WATCH)}
+            onClick={() => handleFilterChange("listingType", ListingType.WATCH)}
             className={`flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-colors ${
-              tempFilters.listingType === ListingType.WATCH
+              localFilters.listingType === ListingType.WATCH
                 ? "border-primary bg-primary/5"
                 : "border-input hover:border-primary/50"
             }`}
@@ -196,9 +160,9 @@ export function ModalFilters({
           </button>
           <button
             type="button"
-            onClick={() => onFilterChange("listingType", ListingType.ACCESSORY)}
+            onClick={() => handleFilterChange("listingType", ListingType.ACCESSORY)}
             className={`flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-colors ${
-              tempFilters.listingType === ListingType.ACCESSORY
+              localFilters.listingType === ListingType.ACCESSORY
                 ? "border-primary bg-primary/5"
                 : "border-input hover:border-primary/50"
             }`}
@@ -225,7 +189,7 @@ export function ModalFilters({
                 type="button"
                 onClick={() => handleBrandChange(brand.slug)}
                 className={`relative aspect-square rounded-lg border-2 transition-colors ${
-                  tempFilters.brand === brand.slug
+                  localFilters.brand === brand.slug
                     ? "border-primary bg-primary/5"
                     : "border-input hover:border-primary/50"
                 }`}
@@ -246,7 +210,7 @@ export function ModalFilters({
         <div className="space-y-2">
           <Label>Brand</Label>
           <Select
-            value={tempFilters.brand}
+            value={localFilters.brand || ""}
             onValueChange={(value) => handleBrandChange(value)}
           >
             <SelectTrigger>
@@ -276,7 +240,7 @@ export function ModalFilters({
                       type="button"
                       onClick={() => handleModelChange(model.slug)}
                       className={`relative aspect-[4/1] rounded-lg border-2 transition-colors ${
-                        tempFilters.model === model.slug
+                        localFilters.model === model.slug
                           ? "border-primary bg-primary/5"
                           : "border-input hover:border-primary/50"
                       }`}
@@ -294,17 +258,16 @@ export function ModalFilters({
             <div className="space-y-2">
               <Label>Model</Label>
               <Select
-                value={tempFilters.model}
-                onValueChange={(value) => handleModelChange(value)}
+                value={localFilters.model || ""}
+                onValueChange={handleModelChange}
+                disabled={!selectedBrandId || isLoadingModels}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select model" />
                 </SelectTrigger>
                 <SelectContent>
-                  {models[selectedBrandId]?.map((model) => (
-                    <SelectItem key={model.id} value={model.slug}>
-                      {model.label}
-                    </SelectItem>
+                  {selectedBrandId && !isLoadingModels && models[selectedBrandId]?.map(model => (
+                    <SelectItem key={model.slug} value={model.slug}>{model.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -314,12 +277,13 @@ export function ModalFilters({
 
         {/* Reference Number */}
         <div className="space-y-2">
-          <Label>Reference Number</Label>
+          <Label>Reference</Label>
           <Input
             type="text"
-            placeholder="Enter reference number"
-            value={tempFilters.reference}
-            onChange={(e) => handleReferenceChange(e.target.value)}
+            name="reference"
+            placeholder="e.g. 116500LN"
+            value={localFilters.reference || ""}
+            onChange={handleReferenceChange}
           />
         </div>
 
@@ -329,8 +293,9 @@ export function ModalFilters({
         <div className="space-y-2">
             <Label>Dial Color</Label>
             <Select
-              value={tempFilters.dialColor}
-              onValueChange={(value) => onFilterChange("dialColor", value)}
+              name="dialColor"
+              value={localFilters.dialColor || ""}
+              onValueChange={value => handleFilterChange("dialColor", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select color" />
@@ -349,8 +314,9 @@ export function ModalFilters({
           <div className="space-y-2">
             <Label>Country</Label>
             <Select
-              value={tempFilters.country || ""}
-              onValueChange={(value) => onFilterChange("country", value)}
+              name="country"
+              value={localFilters.country || ""}
+              onValueChange={value => handleFilterChange("country", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select country" />
@@ -376,8 +342,9 @@ export function ModalFilters({
           <div className="space-y-2">
             <Label>Condition</Label>
             <Select
-              value={tempFilters.condition}
-              onValueChange={(value) => onFilterChange("condition", value)}
+              name="condition"
+              value={localFilters.condition || ""}
+              onValueChange={value => handleFilterChange("condition", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select condition" />
@@ -395,8 +362,9 @@ export function ModalFilters({
           <div className="space-y-2">
             <Label>Included</Label>
             <Select
-              value={tempFilters.included}
-              onValueChange={(value) => onFilterChange("included", value)}
+              name="included"
+              value={localFilters.included || ""}
+              onValueChange={value => handleFilterChange("included", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select option" />
@@ -419,18 +387,20 @@ export function ModalFilters({
               <Label>Min Price</Label>
               <Input
                 type="number"
-                placeholder="Min price"
-                value={tempFilters.minPrice}
-                onChange={(e) => onFilterChange("minPrice", e.target.value)}
+                name="minPrice"
+                placeholder="e.g. 5000"
+                value={localFilters.minPrice || ""}
+                onChange={e => handleFilterChange("minPrice", e.target.value)}
               />
             </div>
             <div className="space-y-2">
               <Label>Max Price</Label>
               <Input
                 type="number"
-                placeholder="Max price"
-                value={tempFilters.maxPrice}
-                onChange={(e) => onFilterChange("maxPrice", e.target.value)}
+                name="maxPrice"
+                placeholder="e.g. 20000"
+                value={localFilters.maxPrice || ""}
+                onChange={e => handleFilterChange("maxPrice", e.target.value)}
               />
             </div>
           </div>
@@ -438,10 +408,11 @@ export function ModalFilters({
 
         {/* Shipping */}
         <div className="space-y-2">
-          <Label>Shipping Delay</Label>
+          <Label>Max Shipping Delay (days)</Label>
           <Select
-            value={tempFilters.shippingDelay}
-            onValueChange={(value) => onFilterChange("shippingDelay", value)}
+            name="shippingDelay"
+            value={localFilters.shippingDelay || ""}
+            onValueChange={value => handleFilterChange("shippingDelay", value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select delay" />
@@ -458,20 +429,14 @@ export function ModalFilters({
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t flex gap-2 sm:gap-4 z-50">
-        <Button 
-          variant="outline" 
-          className="flex-1"
-          onClick={onClearFilters}
-        >
-          Clear filters
-        </Button>
-        <Button 
-          className="flex-1"
-          onClick={onApplyFilters}
-        >
-          Apply filters
-        </Button>
+      <div className="fixed bottom-0 left-0 right-0 bg-background p-4 border-t w-full">
+        <div className="flex justify-between items-center max-w-4xl mx-auto">
+          <Button variant="outline" onClick={() => {
+            setLocalFilters({})
+            onClearFilters()
+          }}>Clear Filters</Button>
+          <Button onClick={() => onApplyFilters(localFilters)}>Apply Filters</Button>
+        </div>
       </div>
     </div>
   )

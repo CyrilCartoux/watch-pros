@@ -73,7 +73,8 @@ interface Listing {
 
 interface ListingsResponse {
   listings: Listing[];
-  total: number;
+  total: number;      // total global (tous les listings)
+  fullCount: number; // total filtré (après recherche/filtres)
   page: number;
   limit: number;
   totalPages: number;
@@ -100,95 +101,86 @@ export default function ListingsPage() {
   // Initialize filters from URL params
   const initialFilters = useMemo(() => {
     const params = new URLSearchParams(searchParams.toString())
-    const query = params.get("query") || ""
-    
-    // Si on a brand/model/reference mais pas de query, construire la query
-    const finalQuery = query
-    
     return {
-      query: finalQuery,
-      condition: params.get("condition") || "",
-      dialColor: params.get("dialColor") || "",
-      included: params.get("included") || "",
-      minPrice: params.get("minPrice") || "",
-      maxPrice: params.get("maxPrice") || "",
-      shippingDelay: params.get("shippingDelay") || "",
-      listingType: params.get("listingType") || "",
-      country: params.get("country") || "",
+      query:        params.get("query")        || "",
+      condition:    params.get("condition")    || "",
+      dialColor:    params.get("dialColor")    || "",
+      included:     params.get("included")     || "",
+      minPrice:     params.get("minPrice")     || "",
+      maxPrice:     params.get("maxPrice")     || "",
+      shippingDelay:params.get("shippingDelay")|| "",
+      listingType:  params.get("listingType")  || "",
+      country:      params.get("country")      || "",
     }
   }, [searchParams])
 
   const [filters, setFilters] = useState<Filters>(initialFilters)
-  const [tempFilters, setTempFilters] = useState<Filters>(filters)
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
   const [listings, setListings] = useState<Listing[]>([])
-  const [totalItems, setTotalItems] = useState(0)
+  const [totalItems, setTotalItems] = useState(0) // total global
+  const [fullCount, setFullCount] = useState(0)   // total filtré
   const [totalPages, setTotalPages] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const itemsPerPage = 12
 
-  const handleFilterChange = useCallback((key: keyof Filters, value: string) => {
-    setTempFilters(prev => ({ ...prev, [key]: value }))
-  }, [])
-
   const updateURL = useCallback((f = filters, pg = currentPage) => {
     const params = new URLSearchParams()
-    
-    // Add non-empty filters to URL (including brand/model/reference for UX)
-    Object.entries(f).forEach(([key, value]) => {
-      if (value) {
-        params.set(key, value)
-      }
-    })
 
-    // Add pagination
-    if (pg > 1) params.set("page", pg.toString())
+    // 1) barre de recherche
+    if (f.query) params.set("query", f.query)
 
-    // Validate parameters before updating URL
-    const { validParams, errors } = validateURLParams(params)
+    // 2) les autres filtres
+    if (f.condition)     params.set("condition",     f.condition)
+    if (f.dialColor)     params.set("dialColor",     f.dialColor)
+    if (f.included)      params.set("included",      f.included)
+    if (f.minPrice)      params.set("minPrice",      f.minPrice)
+    if (f.maxPrice)      params.set("maxPrice",      f.maxPrice)
+    if (f.shippingDelay) params.set("shippingDelay", f.shippingDelay)
+    if (f.listingType)   params.set("listingType",   f.listingType)
+    if (f.country)       params.set("country",       f.country)
+
+    // pagination : on met toujours la page dans l'URL
+    if (pg > 0) params.set("page", pg.toString())
+
+    // validation puis push
+    const { errors } = validateURLParams(params)
     if (errors) {
       setError(errors.join(", "))
       return
     }
-
-    // Update URL without reloading the page
     router.push(`/listings?${params.toString()}`, { scroll: false })
   }, [filters, currentPage, router])
 
-  const handleApplyFilters = useCallback(() => {
-    setFilters(tempFilters)
+  const handleApplyFilters = useCallback((modalFilters: Partial<Filters>) => {
+    const newFilters = { ...filters, ...modalFilters }
+    setFilters(newFilters)
     setCurrentPage(1)
-    updateURL(tempFilters, 1)
+    updateURL(newFilters, 1)
     setIsFiltersOpen(false)
-  }, [tempFilters, updateURL])
+  }, [filters, updateURL])
 
   const handleClearFilters = useCallback(() => {
-    const emptyFilters = {
-      query: "",
-      brand: "",
-      model: "",
-      reference: "",
-      condition: "",
-      dialColor: "",
-      included: "",
-      minPrice: "",
-      maxPrice: "",
-      shippingDelay: "",
-      listingType: "",
-      country: "",
+    const empty: Filters = {
+      query:        "",
+      condition:    "",
+      dialColor:    "",
+      included:     "",
+      minPrice:     "",
+      maxPrice:     "",
+      shippingDelay:"",
+      listingType:  "",
+      country:      "",
     }
-    setTempFilters(emptyFilters)
-    setFilters(emptyFilters)
+    setFilters(empty)
     setCurrentPage(1)
-    updateURL(emptyFilters, 1)
+    updateURL(empty, 1)
     setIsFiltersOpen(false)
   }, [updateURL])
 
   const removeFilter = useCallback((key: keyof Filters) => {
     const newFilters = { ...filters, [key]: "" }
-    setTempFilters(newFilters)
     setFilters(newFilters)
     updateURL(newFilters)
   }, [filters, updateURL])
@@ -232,6 +224,7 @@ export default function ListingsPage() {
       const data: ListingsResponse = await response.json()
 
       setListings(data.listings || [])
+      setFullCount(data.fullCount || 0)
       setTotalItems(data.total || 0)
       setTotalPages(data.totalPages || 0)
     } catch (error: unknown) {
@@ -262,7 +255,6 @@ export default function ListingsPage() {
 
         // Update filters from URL
         setFilters(initialFilters)
-        setTempFilters(initialFilters)
         
         // Fetch listings with the new filters
         await fetchListings()
@@ -276,12 +268,24 @@ export default function ListingsPage() {
 
   // Update URL when page changes
   useEffect(() => {
+    const paramsPage = Number(searchParams.get("page")) || 1;
+    // Only trigger update if the state is out of sync with URL
+    if (currentPage !== paramsPage) {
+      updateURL();
+    }
+
+    // Scroll to top when navigating away from page 1
     if (currentPage > 1) {
-      updateURL()
-      // Scroll to top smoothly when page changes
       window.scrollTo({ top: 0, behavior: 'smooth' })
     }
-  }, [currentPage, updateURL])
+  }, [currentPage, searchParams, updateURL]);
+
+  const handleSearchBar = (query: string) => {
+    const newFilters = { ...filters, query }
+    setFilters(newFilters)
+    setCurrentPage(1)
+    updateURL(newFilters, 1)
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -296,14 +300,20 @@ export default function ListingsPage() {
       <div className="mb-8">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-2xl font-bold text-center mb-2">Professional Timepiece Collection</h1>
-          <SearchBar className="w-full h-12 text-lg" />
+          <p className="text-center text-muted-foreground mb-4">The #1 B2B Marketplace for Professional Watch Dealers</p>
+          <SearchBar className="w-full h-12 text-lg" onSearch={handleSearchBar} />
         </div>
       </div>
 
       <div className="flex flex-col gap-4 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h1 className="text-base sm:text-lg font-bold">
-            {totalItems.toLocaleString()} listings
+            {fullCount.toLocaleString()} listing{fullCount > 1 ? "s" : ""}
+            {typeof totalItems === "number" && totalItems > 0 && fullCount !== totalItems && (
+              <span className="text-xs text-muted-foreground ml-2">
+                (sur {totalItems.toLocaleString()} au total)
+              </span>
+            )}
           </h1>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
             <Button
@@ -319,16 +329,53 @@ export default function ListingsPage() {
 
         {/* Active Filters */}
         <div className="flex flex-wrap items-center gap-2">
-          {Object.entries(filters).map(([key, value]) => {
+          {(
+            Object.keys(filters) as (keyof Filters)[]
+          ).map((key) => {
+            const value = filters[key]
             if (!value) return null
+
+            // Définir le label pour chaque filtre
+            const getFilterLabel = (k: keyof Filters): string => {
+              switch (k) {
+                case "query": return "Search"
+                case "condition": return "Condition"
+                case "dialColor": return "Dial color"
+                case "included": return "Included"
+                case "minPrice": return "Min price"
+                case "maxPrice": return "Max price"
+                case "shippingDelay": return "Shipping delay"
+                case "listingType": return "Type"
+                case "country": return "Country"
+                default: return String(k).charAt(0).toUpperCase() + String(k).slice(1)
+              }
+            }
+
+            // Optionnel: formater la valeur pour certains filtres
+            const getFilterValue = (k: keyof Filters, v: string): string => {
+              if (k === "condition") {
+                return v === "new" ? "New" : v === "preowned" ? "Pre-owned" : v
+              }
+              if (k === "listingType") {
+                return v === "watch" ? "Watch" : v === "accessory" ? "Accessory" : v
+              }
+              if (k === "country") {
+                // Optionnel: afficher le label du pays si tu veux
+                // return countries.find(c => c.value === v)?.label || v
+                return v
+              }
+              return v
+            }
+
             return (
               <div
                 key={key}
                 className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-xs"
               >
-                <span>{value}</span>
+                <span className="font-semibold mr-1">{getFilterLabel(key)}:</span>
+                <span>{getFilterValue(key, value)}</span>
                 <button
-                  onClick={() => removeFilter(key as keyof Filters)}
+                  onClick={() => removeFilter(key)}
                   className="hover:bg-primary/20 rounded-full p-0.5"
                 >
                   <X className="h-3 w-3" />
@@ -336,6 +383,16 @@ export default function ListingsPage() {
               </div>
             )
           })}
+          {Object.values(filters).some(v => v !== "") && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClearFilters}
+              className="h-6 px-2 text-xs"
+            >
+              Clear all
+            </Button>
+          )}
         </div>
       </div>
 
@@ -373,11 +430,11 @@ export default function ListingsPage() {
               </div>
               <h3 className="text-lg font-semibold mb-2">No listings found</h3>
               <p className="text-muted-foreground max-w-sm">
-                {Object.values(tempFilters).some(Boolean) 
+                {Object.values(filters).some(Boolean) 
                   ? "Try adjusting your filters or search terms to find what you're looking for."
                   : "There are no listings available at the moment. Please check back later."}
               </p>
-              {Object.values(tempFilters).some(Boolean) && (
+              {Object.values(filters).some(Boolean) && (
                 <Button
                   variant="outline"
                   className="mt-4"
@@ -408,9 +465,9 @@ export default function ListingsPage() {
 
           {/* Pagination */}
           {!isLoading && listings.length > 0 && (
-            <div className="w-full overflow-x-auto">
-              <div className="flex flex-col items-center gap-4 mt-8 min-w-max">
-                <div className="flex items-center gap-2">
+            <div className="w-full">
+              <div className="flex flex-col items-center gap-4 mt-8">
+                <div className="flex items-center justify-center flex-wrap gap-2">
                   <Button
                     variant="outline"
                     onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -509,8 +566,6 @@ export default function ListingsPage() {
       <Dialog open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <ModalFilters
-            tempFilters={tempFilters}
-            onFilterChange={handleFilterChange}
             onClearFilters={handleClearFilters}
             onApplyFilters={handleApplyFilters}
           />

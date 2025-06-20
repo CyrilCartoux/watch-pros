@@ -846,7 +846,7 @@ export default function ListingPage({ params }: Props) {
                       </div>
 
                       {/* Discount suggestions */}
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         {[5, 10, 15].map((reduction) => (
                           <button
                             key={reduction}
@@ -862,6 +862,15 @@ export default function ListingPage({ params }: Props) {
                             </p>
                           </button>
                         ))}
+                         <button
+                          onClick={() => setOfferAmount(listing.price.toString())}
+                          className="p-3 border rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-colors text-center"
+                        >
+                          <p className="font-medium">Asking Price</p>
+                          <p className="text-sm text-muted-foreground">
+                            {listing.price.toLocaleString()} €
+                          </p>
+                        </button>
                       </div>
 
                       <div className="text-sm text-muted-foreground">

@@ -92,24 +92,20 @@ export async function GET(request: Request) {
 
     // Apply pagination manually since RPC doesn't support OFFSET
     const paginatedListings = listings ? listings.slice(offset, offset + limit) : []
-    
-    // Get total count for pagination
-    const { count, error: countError } = await supabase
-      .from('listings')
-      .select('*', { count: 'exact', head: true })
-      .in('status', ['active', 'hold'])
 
-    if (countError) {
-      console.error('Error counting listings:', countError)
-      return NextResponse.json({ error: 'Failed to count listings' }, { status: 500 })
-    }
+    // Récupère full_count (filtré) et total (global) depuis le résultat du RPC
+    const fullCount = paginatedListings.length > 0 ? Number(paginatedListings[0].full_count) : 0
+    const total = paginatedListings.length > 0 && paginatedListings[0].total !== undefined
+      ? Number(paginatedListings[0].total)
+      : 0
 
     return NextResponse.json({
       listings: paginatedListings,
-      total: count || 0,
+      total,      // total global (tous les listings)
+      fullCount,  // total filtré (après recherche/filtres)
       page,
       limit,
-      totalPages: Math.ceil((count || 0) / limit)
+      totalPages: Math.ceil(fullCount / limit)
     })
   } catch (error) {
     console.error('Error in listings API:', error)
