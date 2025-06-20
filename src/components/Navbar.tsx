@@ -7,6 +7,7 @@ import { useState, useRef, useEffect } from "react"
 import { Badge } from "./ui/badge"
 import { SearchBar } from "./SearchBar"
 import { useAuth } from "@/contexts/AuthContext"
+import { useNotifications } from "@/contexts/NotificationsContext"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,26 +27,9 @@ const navigation = [
 
 export function Navbar() {
   const { user, signOut } = useAuth()
+  const { unreadCount } = useNotifications()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-  const [unreadNotifications, setUnreadNotifications] = useState(0)
-
-  useEffect(() => {
-    const fetchUnreadCount = async () => {
-      try {
-        const response = await fetch('/api/notifications/count')
-        if (!response.ok) throw new Error('Failed to fetch unread count')
-        const data = await response.json()
-        setUnreadNotifications(data.count)
-      } catch (err) {
-        console.error('Error fetching unread notifications count:', err)
-      }
-    }
-
-    if (user) {
-      fetchUnreadCount()
-    }
-  }, [user])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -84,22 +68,6 @@ export function Navbar() {
         {/* Mobile Navigation */}
         <div className="flex flex-1 items-center justify-end md:hidden">
           <div className="flex items-center gap-2">
-            {user && (
-              <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
-                <Link href="/notifications" className="relative">
-                  <Bell className="h-4 w-4" />
-                  {unreadNotifications > 0 && (
-                    <Badge 
-                      variant="destructive" 
-                      className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
-                    >
-                      {unreadNotifications}
-                    </Badge>
-                  )}
-                  <span className="sr-only">Notifications</span>
-                </Link>
-              </Button>
-            )}
             <Button
               variant="ghost"
               size="icon"
@@ -134,12 +102,12 @@ export function Navbar() {
               <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
                 <Link href="/notifications" className="relative">
                   <Bell className="h-4 w-4" />
-                  {unreadNotifications > 0 && (
+                  {unreadCount > 0 && (
                     <Badge 
                       variant="destructive" 
                       className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
                     >
-                      {unreadNotifications}
+                      {unreadCount}
                     </Badge>
                   )}
                   <span className="sr-only">Notifications</span>

@@ -9362,7 +9362,6 @@ const generateRandomDiameter = () => {
 };
 
 const conditions = ['new', 'like-new', 'very-good', 'good', 'fair', 'needs-service', 'for-parts'];
-const genders = ['men', 'women', 'unisex'];
 const dialColors = ['black', 'white', 'blue', 'silver', 'gold', 'green', 'grey'];
 const caseMaterials = ['stainless-steel', 'gold', 'titanium', 'platinum', 'ceramic'];
 const braceletMaterials = ['stainless-steel', 'leather', 'gold', 'rubber', 'fabric'];
@@ -9409,7 +9408,6 @@ async function generateListings() {
         title: `${brand.label} ${model.label} ${year}`,
         description: faker.commerce.productDescription(),
         year,
-        gender: faker.helpers.arrayElement(genders),
         serial_number: faker.string.alphanumeric(8).toUpperCase(),
         dial_color: faker.helpers.arrayElement(dialColors),
         diameter_min: diameter,

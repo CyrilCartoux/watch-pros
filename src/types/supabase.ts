@@ -70,7 +70,6 @@ export interface Database {
           accessory_type: string
           description: string | null
           year: string | null
-          gender: string | null
           serial_number: string | null
           dial_color: string | null
           diameter_min: number | null
@@ -99,7 +98,6 @@ export interface Database {
           accessory_type: string
           description?: string | null
           year?: string | null
-          gender?: string | null
           serial_number?: string | null
           dial_color?: string | null
           diameter_min?: number | null
@@ -128,7 +126,6 @@ export interface Database {
           accessory_type?: string
           description?: string | null
           year?: string | null
-          gender?: string | null
           serial_number?: string | null
           dial_color?: string | null
           diameter_min?: number | null

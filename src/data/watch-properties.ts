@@ -120,6 +120,12 @@ export const includedOptions = [
     description: "The watch comes with its original box only",
   },
   {
+    id: "box-and-extract",
+    title: "Original box and extract from archives",
+    description:
+      "The watch comes with its original box and extract from archives",
+  },
+  {
     id: "papers-only",
     title: "Original papers", 
     description: "The watch comes with its original papers only",

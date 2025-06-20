@@ -149,18 +149,8 @@ export async function GET(
       title: listing.title,
       description: listing.description,
       year: listing.year,
-      gender: listing.gender,
       condition: listing.condition,
-      serialNumber: listing.serial_number,
       dialColor: listing.dial_color,
-      diameter: {
-        min: listing.diameter_min?.toString(),
-        max: listing.diameter_max?.toString()
-      },
-      movement: listing.movement,
-      case: listing.case_material,
-      braceletMaterial: listing.bracelet_material,
-      braceletColor: listing.bracelet_color,
       included: listing.included,
       country: listing.country,
       images: listing.listing_images
@@ -354,15 +344,7 @@ export async function PUT(
     const title = formData.get('title') as string
     const description = formData.get('description') as string
     const year = formData.get('year') as string
-    const gender = formData.get('gender') as string
-    const serialNumber = formData.get('serialNumber') as string
     const dialColor = formData.get('dialColor') as string
-    const diameterMin = formData.get('diameter.min') as string
-    const diameterMax = formData.get('diameter.max') as string
-    const movement = formData.get('movement') as string
-    const caseMaterial = formData.get('case') as string
-    const braceletMaterial = formData.get('braceletMaterial') as string
-    const braceletColor = formData.get('braceletColor') as string
     const included = formData.get('included') as string
     const condition = formData.get('condition') as string
     const price = parseFloat(formData.get('price') as string)
@@ -409,15 +391,7 @@ export async function PUT(
         title,
         description: description || null,
         year: year || null,
-        gender: gender || null,
-        serial_number: serialNumber || null,
         dial_color: dialColor || null,
-        diameter_min: diameterMin ? parseInt(diameterMin) : null,
-        diameter_max: diameterMax ? parseInt(diameterMax) : null,
-        movement: movement || null,
-        case_material: caseMaterial || null,
-        bracelet_material: braceletMaterial || null,
-        bracelet_color: braceletColor || null,
         included,
         condition,
         price,

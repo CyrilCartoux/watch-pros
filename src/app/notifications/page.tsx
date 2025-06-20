@@ -31,6 +31,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { countries } from "@/data/form-options";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useNotifications } from "@/contexts/NotificationsContext";
 
 type Notification = {
   id: string;
@@ -252,9 +253,9 @@ function OfferSkeleton() {
                   <Skeleton className="h-4 w-32" />
                 </div>
               </div>
-              <div className="flex flex-col gap-2">
-                <Skeleton className="h-9 w-full" />
-                <Skeleton className="h-9 w-full" />
+              <div className="flex flex-wrap gap-2 md:w-auto">
+                <Skeleton className="h-10 w-24" />
+                <Skeleton className="h-10 w-24" />
               </div>
             </div>
           </div>
@@ -287,18 +288,19 @@ export default function NotificationsPage() {
   const [message, setMessage] = useState("");
   const [isSubmittingMessage, setIsSubmittingMessage] = useState(false);
   const [isMessageSuccess, setIsMessageSuccess] = useState(false);
+  const { fetchUnreadCount } = useNotifications();
 
   // Update URL when tab changes
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("tab", activeTab);
-    router.push(`?${params.toString()}`);
+    router.push(`/notifications?${params.toString()}`, { scroll: false });
   }, [activeTab, router, searchParams]);
 
   // Update tab when URL changes
   useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab && ["offers", "active", "history"].includes(tab)) {
+    if (tab && tab !== activeTab) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -309,10 +311,9 @@ export default function NotificationsPage() {
       const response = await fetch("/api/notifications");
       if (!response.ok) throw new Error("Failed to fetch notifications");
       const data = await response.json();
-      setNotifications(data.notifications);
+      setNotifications(data.notifications || []);
     } catch (err) {
-      console.error("Error fetching notifications:", err);
-      setError("Failed to load notifications");
+      setError("Failed to fetch notifications");
     }
   };
 
@@ -320,13 +321,11 @@ export default function NotificationsPage() {
   const fetchListingSubscriptions = async () => {
     try {
       const response = await fetch("/api/subscribe-listing");
-      if (!response.ok)
-        throw new Error("Failed to fetch listing subscriptions");
+      if (!response.ok) throw new Error("Failed to fetch listing subscriptions");
       const data = await response.json();
-      setListingSubscriptions(data.subscriptions);
+      setListingSubscriptions(data.subscriptions || []);
     } catch (err) {
-      console.error("Error fetching listing subscriptions:", err);
-      setError("Failed to load listing subscriptions");
+      setError("Failed to fetch listing subscriptions");
     }
   };
 
@@ -334,12 +333,11 @@ export default function NotificationsPage() {
   const fetchModelSubscriptions = async () => {
     try {
       const response = await fetch("/api/custom-alerts");
-      if (!response.ok) throw new Error("Failed to fetch custom alerts");
+      if (!response.ok) throw new Error("Failed to fetch model subscriptions");
       const data = await response.json();
       setModelSubscriptions(data.alerts);
     } catch (err) {
-      console.error("Error fetching custom alerts:", err);
-      setError("Failed to load custom alerts");
+      setError("Failed to fetch model subscriptions");
     }
   };
 
@@ -349,10 +347,9 @@ export default function NotificationsPage() {
       const response = await fetch("/api/offers/me");
       if (!response.ok) throw new Error("Failed to fetch offers");
       const data = await response.json();
-      setOffers(data.offers);
+      setOffers(data.offers || []);
     } catch (err) {
-      console.error("Error fetching offers:", err);
-      setError("Failed to load offers");
+      setError("Failed to fetch offers");
     }
   };
 
@@ -360,6 +357,7 @@ export default function NotificationsPage() {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+      setError(null);
       await Promise.all([
         fetchNotifications(),
         fetchListingSubscriptions(),
@@ -368,6 +366,7 @@ export default function NotificationsPage() {
       ]);
       setLoading(false);
     };
+
     fetchData();
   }, []);
 
@@ -385,6 +384,7 @@ export default function NotificationsPage() {
             : notification
         )
       );
+      await fetchUnreadCount();
     } catch (err) {
       console.error("Error marking notification as read:", err);
       setError("Failed to mark notification as read");
@@ -410,6 +410,7 @@ export default function NotificationsPage() {
       setNotifications((prev) =>
         prev.map((notification) => ({ ...notification, is_read: true }))
       );
+      await fetchUnreadCount();
     } catch (err) {
       console.error("Error marking all notifications as read:", err);
       setError("Failed to mark all notifications as read");
@@ -418,7 +419,7 @@ export default function NotificationsPage() {
 
   const removeNotification = async (id: string) => {
     try {
-      const response = await fetch(`/api/notifications?id=${id}`, {
+      const response = await fetch(`/api/notifications/${id}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error("Failed to delete notification");
@@ -426,6 +427,7 @@ export default function NotificationsPage() {
       setNotifications((prev) =>
         prev.filter((notification) => notification.id !== id)
       );
+      await fetchUnreadCount();
     } catch (err) {
       console.error("Error deleting notification:", err);
       setError("Failed to delete notification");
@@ -478,42 +480,28 @@ export default function NotificationsPage() {
   };
 
   const handleOfferAction = async (offerId: string, action: 'accept' | 'decline') => {
+    setLoadingOffers(prev => ({ ...prev, [offerId]: true }));
     try {
-      setLoadingOffers(prev => ({ ...prev, [offerId]: true }));
-      const response = await fetch(`/api/offers/${offerId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action })
-      });
+        const response = await fetch(`/api/offers/${offerId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action })
+        });
 
-      if (!response.ok) throw new Error(`Failed to ${action} offer`);
+        if (!response.ok) throw new Error(`Failed to ${action} offer`);
 
-      // Update the offer in the local state instead of removing it
-      setOffers(prev => prev.map(offer => 
-        offer.id === offerId 
-          ? { ...offer, is_accepted: action === 'accept' }
-          : offer
-      ));
+        // Update the offer in the local state instead of removing it
+        setOffers(prev => prev.map(offer => 
+            offer.id === offerId 
+            ? { ...offer, is_accepted: action === 'accept' } 
+            : offer
+        ));
     } catch (err) {
-      console.error(`Error ${action}ing offer:`, err);
-      setError(`Failed to ${action} offer`);
+        setError(err instanceof Error ? err.message : `Failed to ${action} offer`);
     } finally {
-      setLoadingOffers(prev => ({ ...prev, [offerId]: false }));
+        setLoadingOffers(prev => ({ ...prev, [offerId]: false }));
     }
-  };
-
-  const filteredOffers = offers.filter(offer => {
-    switch (offerFilter) {
-      case 'pending':
-        return offer.is_accepted === null;
-      case 'accepted':
-        return offer.is_accepted === true;
-      case 'declined':
-        return offer.is_accepted === false;
-      default:
-        return true;
-    }
-  });
+};
 
   // Handler pour ouvrir la modale de contact seller
   const handleOpenContactDialog = (offer: Offer) => {
@@ -541,6 +529,7 @@ export default function NotificationsPage() {
       const listingRef = (contactSeller.listing as any).reference || '';
       const prefix = `Regarding listing: ${listingTitle}${listingRef ? ` (Ref: ${listingRef})` : ''}`;
       const fullMessage = `${prefix}\n\n${message.trim()}`;
+      
       const response = await fetch("/api/conversations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -549,8 +538,9 @@ export default function NotificationsPage() {
           initialMessage: fullMessage,
         }),
       });
+
+      const data = await response.json();
       if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.error || "Failed to send message");
       }
       setIsMessageSuccess(true);
@@ -564,6 +554,14 @@ export default function NotificationsPage() {
       setIsSubmittingMessage(false);
     }
   };
+
+  const filteredOffers = offers.filter(offer => {
+    if (offerFilter === 'all') return true;
+    if (offerFilter === 'pending') return offer.is_accepted === null;
+    if (offerFilter === 'accepted') return offer.is_accepted === true;
+    if (offerFilter === 'declined') return offer.is_accepted === false;
+    return true;
+});
 
   if (loading) {
     return (
@@ -601,7 +599,6 @@ export default function NotificationsPage() {
           </TabsContent>
 
           <TabsContent value="active" className="space-y-6 md:space-y-8">
-            {/* Listing Alerts */}
             <div>
               <Skeleton className="h-7 w-40 mb-4" />
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
@@ -611,7 +608,6 @@ export default function NotificationsPage() {
               </div>
             </div>
 
-            {/* Model Alerts */}
             <div>
               <Skeleton className="h-7 w-40 mb-4" />
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
@@ -777,7 +773,6 @@ export default function NotificationsPage() {
                               </div>
                               <div className="flex items-center gap-2">
                                 <div className="flex items-center gap-1">
-                                  <DollarSign className="h-4 w-4 text-primary" />
                                   <span className="text-2xl font-bold text-primary">
                                     {offer.offer.toLocaleString()}{" "}
                                     {offer.currency}
@@ -865,7 +860,6 @@ export default function NotificationsPage() {
         </TabsContent>
 
         <TabsContent value="active" className="space-y-6 md:space-y-8">
-          {/* All Alerts */}
           <div>
             <h2 className="text-xl md:text-2xl font-bold mb-4">
               Custom Alerts
@@ -980,12 +974,11 @@ export default function NotificationsPage() {
               </div>
             )}
           </div>
-          {/* Listing Alerts */}
           <div>
             <h2 className="text-xl md:text-2xl font-bold mb-4">
               Listings you follow
             </h2>
-            {listingSubscriptions.length === 0 ? (
+            {listingSubscriptions?.length === 0 ? (
               <div className="text-center py-8">
                 <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <h3 className="text-lg font-medium mb-2">No followed listings</h3>
@@ -1166,7 +1159,7 @@ export default function NotificationsPage() {
         </TabsContent>
       </Tabs>
 
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <Dialog open={deleteDialogOpen} onOpenChange={() => setDeleteDialogOpen(false)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Subscription</DialogTitle>
@@ -1188,7 +1181,6 @@ export default function NotificationsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Contact Seller Dialog */}
       <Dialog open={isContactDialogOpen} onOpenChange={setIsContactDialogOpen}>
         <DialogContent className="max-w-[90vw] w-full sm:max-w-lg">
           <DialogHeader>
@@ -1198,7 +1190,6 @@ export default function NotificationsPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-[60vh] overflow-y-auto">
-            {/* Listing info */}
             {contactSeller && (
               <div className="flex items-center gap-4 mb-4">
                 <div className="w-20 h-20 rounded-md overflow-hidden border">
@@ -1234,10 +1225,9 @@ export default function NotificationsPage() {
             <div className="space-y-4 py-4">
               {isMessageSuccess ? (
                 <div className="flex flex-col items-center justify-center py-8 space-y-4">
-                  <CheckCircle2 className="w-16 h-16 text-primary animate-in zoom-in-50 duration-500" />
-                  <p className="text-lg font-medium text-center">Your reply has been sent to the seller!</p>
-                  <p className="text-sm text-muted-foreground text-center">
-                    The seller will respond as soon as possible.
+                  <CheckCircle2 className="w-16 h-16 text-green-500 animate-in zoom-in-50 duration-500" />
+                  <p className="text-lg font-medium text-center text-green-500">
+                    Message sent successfully!
                   </p>
                 </div>
               ) : (
@@ -1263,22 +1253,18 @@ export default function NotificationsPage() {
             </div>
           </div>
           <DialogFooter>
-            {!isMessageSuccess && (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={handleCloseContactDialog}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleSubmitMessage}
-                  disabled={!message.trim() || isSubmittingMessage}
-                >
-                  {isSubmittingMessage ? "Sending..." : "Send reply"}
-                </Button>
-              </>
-            )}
+            <Button
+              variant="outline"
+              onClick={handleCloseContactDialog}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmitMessage}
+              disabled={!message.trim() || isSubmittingMessage}
+            >
+              {isSubmittingMessage ? "Sending..." : "Send reply"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

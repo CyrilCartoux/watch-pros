@@ -12,7 +12,6 @@
 //     title character varying(255) not null,
 //     description text null,
 //     year character varying(4) null,
-//     gender character varying(20) null,
 //     serial_number character varying(100) null,
 //     dial_color character varying(50) null,
 //     diameter_min integer null,
@@ -80,7 +79,6 @@
  * @property {string} title - Title of the listing
  * @property {string} description - Detailed description of the item
  * @property {string} year - Year of manufacture
- * @property {string} gender - Target gender (e.g., "Men", "Women", "Unisex")
  * @property {string} serial_number - Watch serial number
  * @property {string} dial_color - Color of the watch dial
  * @property {number} diameter_min - Minimum diameter of the watch case
@@ -121,8 +119,6 @@ export type Listing = {
     description: string | null
     /** Year of manufacture */
     year: string | null
-    /** Target gender (e.g., "Men", "Women", "Unisex") */
-    gender: string | null
     /** Watch serial number */
     serial_number: string | null
     /** Color of the watch dial */

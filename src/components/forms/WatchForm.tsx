@@ -1,26 +1,44 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Upload, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react'
-import { useForm, Controller } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { dialColors, movements, cases, braceletMaterials, braceletColors, includedOptions } from '@/data/watch-properties'
-import { watchConditions } from '@/data/watch-conditions'
-import { useBrandsAndModels } from '@/hooks/useBrandsAndModels'
-import { countries, currencies } from '@/data/form-options'
-import Image from 'next/image'
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Upload,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  ChevronDown,
+} from "lucide-react";
+import { useForm, Controller } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { dialColors, includedOptions } from "@/data/watch-properties";
+import { watchConditions } from "@/data/watch-conditions";
+import { useBrandsAndModels } from "@/hooks/useBrandsAndModels";
+import { countries, currencies } from "@/data/form-options";
+import Image from "next/image";
 
 // Add a component to display errors
-const FormError = ({ error, isSubmitted }: { error?: string, isSubmitted: boolean }) => {
-  if (!error || !isSubmitted) return null
-  return <p className="text-sm text-red-500 mt-1">{error}</p>
-}
+const FormError = ({
+  error,
+  isSubmitted,
+}: {
+  error?: string;
+  isSubmitted: boolean;
+}) => {
+  if (!error || !isSubmitted) return null;
+  return <p className="text-sm text-red-500 mt-1">{error}</p>;
+};
 
 // Validation schema for the watch form
 const watchSchema = z.object({
@@ -28,118 +46,119 @@ const watchSchema = z.object({
   brand: z.string().min(1, "Brand is required"),
   model: z.string().min(1, "Model is required"),
   reference: z.string().min(1, "Reference number is required"),
-  title: z.string().min(1, "Title is required").max(100, "Title must not exceed 100 characters"),
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(100, "Title must not exceed 100 characters"),
+  year: z.string().min(1, "Year is required"),
   description: z.string().nullable().optional(),
-  year: z.string().nullable().optional(),
-  gender: z.string().optional(),
-  serialNumber: z.string().nullable().optional(),
   dialColor: z.string().nullable().optional(),
-  country: z.string().nullable().optional(),
-  diameter: z.object({
-    min: z.string().optional(),
-    max: z.string().optional(),
-  }),
-  movement: z.string().nullable().optional(),
-  case: z.string().nullable().optional(),
-  braceletMaterial: z.string().nullable().optional(),
-  braceletColor: z.string().nullable().optional(),
   listing_type: z.string().default("watch"),
-  
+
   // Step 2: Delivery Contents
   included: z.string().min(1, "Please select delivery contents"),
   condition: z.string().min(1, "Please select watch condition"),
-  
+
   // Step 3: Photos
-  images: z.array(z.instanceof(File)).min(1, "At least one photo is required").max(10, "Maximum 10 photos"),
-  
+  images: z
+    .array(z.instanceof(File))
+    .min(1, "At least one photo is required")
+    .max(10, "Maximum 10 photos"),
+
   // Step 4: Price
   price: z.number().min(1, "Price is required"),
-  currency: z.string().default("EUR"),
+  currency: z.string().default("USD"),
   shippingDelay: z.string().min(1, "Shipping delay is required"),
 
   // Step 5: Documents
   documents: z.array(z.instanceof(File)).optional(),
-})
+});
 
-type FormData = z.infer<typeof watchSchema>
+type FormData = z.infer<typeof watchSchema>;
 
 const popularBrands = [
   {
     slug: "rolex",
     label: "Rolex",
-    image: "/images/brands/rolex.png"
+    image: "/images/brands/rolex.png",
   },
   {
     slug: "omega",
     label: "Omega",
-    image: "/images/brands/omega.png"
+    image: "/images/brands/omega.png",
   },
   {
     slug: "audemars-piguet",
     label: "Audemars Piguet",
-    image: "/images/brands/audemars-piguet.png"
+    image: "/images/brands/audemars-piguet.png",
   },
   {
     slug: "patek-philippe",
     label: "Patek Philippe",
-    image: "/images/brands/patek-philippe.png"
+    image: "/images/brands/patek-philippe.png",
   },
   {
     slug: "cartier",
     label: "Cartier",
-    image: "/images/brands/cartier.png"
-  }
-]
+    image: "/images/brands/cartier.png",
+  },
+];
 
 interface WatchFormProps {
-  onSubmit: (data: any) => void
-  isSubmitting?: boolean
-  initialData?: any
-  isEditing?: boolean
+  onSubmit: (data: any) => void;
+  isSubmitting?: boolean;
+  initialData?: any;
+  isEditing?: boolean;
 }
 
-export default function WatchForm({ onSubmit, isSubmitting = false, initialData, isEditing = false }: WatchFormProps) {
-  const [step, setStep] = useState(1)
-  const [selectedBrand, setSelectedBrand] = useState(initialData?.brand || "")
-  const [selectedModel, setSelectedModel] = useState(initialData?.model || "")
-  const [previewTitle, setPreviewTitle] = useState("")
-  const [selectedImages, setSelectedImages] = useState<File[]>([])
-  const [imagePreviews, setImagePreviews] = useState<string[]>([])
-  const [currentImage, setCurrentImage] = useState(0)
-  const [isStepSubmitted, setIsStepSubmitted] = useState(false)
-  const [showDetails, setShowDetails] = useState(false)
-  const { brands, models, isLoading, fetchModels } = useBrandsAndModels()
+export default function WatchForm({
+  onSubmit,
+  isSubmitting = false,
+  initialData,
+  isEditing = false,
+}: WatchFormProps) {
+  const [step, setStep] = useState(1);
+  const [selectedBrand, setSelectedBrand] = useState(initialData?.brand || "");
+  const [selectedModel, setSelectedModel] = useState(initialData?.model || "");
+  const [previewTitle, setPreviewTitle] = useState("");
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [currentImage, setCurrentImage] = useState(0);
+  const [isStepSubmitted, setIsStepSubmitted] = useState(false);
+  const { brands, models, isLoading, fetchModels } = useBrandsAndModels();
 
   // Handle existing images in edit mode
   useEffect(() => {
     if (isEditing && initialData?.images) {
-      setImagePreviews(initialData.images)
+      setImagePreviews(initialData.images);
       // Create a dummy File object for each existing image to satisfy the validation
       const dummyFiles = initialData.images.map((url: string) => {
-        return new File([], url, { type: 'image/jpeg' })
-      })
-      setSelectedImages(dummyFiles)
-      form.setValue('images', dummyFiles)
+        return new File([], url, { type: "image/jpeg" });
+      });
+      setSelectedImages(dummyFiles);
+      form.setValue("images", dummyFiles);
     }
-  }, [isEditing, initialData])
+  }, [isEditing, initialData]);
 
   // Initialize brand and model from slugs
   useEffect(() => {
     if (isEditing && initialData?.brand && initialData?.model) {
-      const brandData = brands.find(b => b.slug === initialData.brand)
+      const brandData = brands.find((b) => b.slug === initialData.brand);
       if (brandData) {
-        setSelectedBrand(brandData.id)
-        form.setValue('brand', brandData.id)
+        setSelectedBrand(brandData.id);
+        form.setValue("brand", brandData.id);
         fetchModels(brandData.id).then(() => {
-          const modelData = models[brandData.id]?.find(m => m.slug === initialData.model)
+          const modelData = models[brandData.id]?.find(
+            (m) => m.slug === initialData.model
+          );
           if (modelData) {
-            setSelectedModel(modelData.id)
-            form.setValue('model', modelData.id)
+            setSelectedModel(modelData.id);
+            form.setValue("model", modelData.id);
           }
-        })
+        });
       }
     }
-  }, [isEditing, initialData, brands, models])
+  }, [isEditing, initialData, brands, models]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(watchSchema),
@@ -150,168 +169,174 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
       title: "",
       description: "",
       year: "",
-      gender: "unisex",
-      serialNumber: "",
       dialColor: "",
-      country: "",
-      diameter: {
-        min: "",
-        max: "",
-      },
-      movement: "",
-      case: "",
-      braceletMaterial: "",
-      braceletColor: "",
       included: "",
       condition: "",
       images: [],
       price: 0,
-      currency: "EUR",
+      currency: "USD",
       shippingDelay: "",
       documents: [] as File[],
       listing_type: "watch",
       ...initialData,
     },
     mode: "onChange",
-  })
+  });
 
   // Transform null values to empty strings for form fields
   useEffect(() => {
     if (initialData) {
-      Object.keys(initialData).forEach(key => {
+      Object.keys(initialData).forEach((key) => {
         if (initialData[key] === null) {
-          form.setValue(key as keyof FormData, "")
+          form.setValue(key as keyof FormData, "");
         }
-      })
+      });
     }
-  }, [initialData, form])
+  }, [initialData, form]);
 
   // Update title preview when title changes
   useEffect(() => {
-    setPreviewTitle(form.watch("title"))
-  }, [form.watch("title")])
+    setPreviewTitle(form.watch("title"));
+  }, [form.watch("title")]);
 
   // Auto-complete title when brand, model or reference changes
   useEffect(() => {
-    const brand = brands.find(b => b.id === form.watch("brand"))?.label
-    const model = selectedBrand && models[selectedBrand]?.find(m => m.id === form.watch("model"))?.label
-    const reference = form.watch("reference")
+    const brand = brands.find((b) => b.id === form.watch("brand"))?.label;
+    const model =
+      selectedBrand &&
+      models[selectedBrand]?.find((m) => m.id === form.watch("model"))?.label;
+    const reference = form.watch("reference");
 
     if (brand && model && reference) {
-      const suggestedTitle = `${brand} - ${model} - ${reference}`
-      form.setValue("title", suggestedTitle)
+      const suggestedTitle = `${brand} - ${model} - ${reference}`;
+      form.setValue("title", suggestedTitle);
     }
-  }, [form.watch("brand"), form.watch("model"), form.watch("reference"), brands, models, selectedBrand])
+  }, [
+    form.watch("brand"),
+    form.watch("model"),
+    form.watch("reference"),
+    brands,
+    models,
+    selectedBrand,
+  ]);
 
   // Step validation
   const validateStep = async (stepNumber: number) => {
-    let fieldsToValidate: (keyof FormData)[] = []
+    let fieldsToValidate: (keyof FormData)[] = [];
 
     switch (stepNumber) {
       case 1:
-        fieldsToValidate = [
-          "brand",
-          "model",
-          "reference",
-          "title",
-        ]
-        break
+        fieldsToValidate = ["brand", "model", "reference", "title", "year"];
+        break;
       case 2:
-        fieldsToValidate = ["included", "condition"]
-        break
+        fieldsToValidate = ["included", "condition"];
+        break;
       case 3:
-        fieldsToValidate = ["price", "shippingDelay"]
-        break
+        fieldsToValidate = ["price", "shippingDelay"];
+        break;
       case 4:
-        fieldsToValidate = ["images", "documents"]
-        break
+        fieldsToValidate = ["images"];
+        break;
     }
 
-    const result = await form.trigger(fieldsToValidate)
-    setIsStepSubmitted(true)
-    return result
-  }
+    const result = await form.trigger(fieldsToValidate);
+    setIsStepSubmitted(true);
+    return result;
+  };
 
   const handleBrandChange = async (value: string) => {
-    setSelectedBrand(value)
-    setSelectedModel("")
-    form.setValue("brand", value)
-    form.setValue("model", "")
-    await fetchModels(value)
-  }
+    setSelectedBrand(value);
+    setSelectedModel("");
+    form.setValue("brand", value);
+    form.setValue("model", "");
+    await fetchModels(value);
+  };
 
   const handleModelChange = (value: string) => {
-    setSelectedModel(value)
-    form.setValue("model", value)
-  }
+    setSelectedModel(value);
+    form.setValue("model", value);
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || [])
-    
+    const files = Array.from(e.target.files || []);
+
     // File validation
-    const validFiles = files.filter(file => {
+    const validFiles = files.filter((file) => {
       if (file.size > 5 * 1024 * 1024) {
-        alert(`File ${file.name} is too large. Maximum size: 5MB`)
-        return false
+        alert(`File ${file.name} is too large. Maximum size: 5MB`);
+        return false;
       }
-      if (!["image/jpeg", "image/png", "image/webp", "image/heic"].includes(file.type)) {
-        alert(`File ${file.name} is not an accepted image format. Accepted formats: JPG, PNG, WEBP, HEIC`)
-        return false
+      if (
+        !["image/jpeg", "image/png", "image/webp", "image/heic"].includes(
+          file.type
+        )
+      ) {
+        alert(
+          `File ${file.name} is not an accepted image format. Accepted formats: JPG, PNG, WEBP, HEIC`
+        );
+        return false;
       }
-      return true
-    })
+      return true;
+    });
 
     if (validFiles.length + selectedImages.length > 10) {
-      alert("You cannot add more than 10 images")
-      return
+      alert("You cannot add more than 10 images");
+      return;
     }
 
-    setSelectedImages(prev => [...prev, ...validFiles])
-    form.setValue("images", [...selectedImages, ...validFiles] as never[])
+    setSelectedImages((prev) => [...prev, ...validFiles]);
+    form.setValue("images", [...selectedImages, ...validFiles] as never[]);
 
     // Create previews
-    validFiles.forEach(file => {
-      const reader = new FileReader()
+    validFiles.forEach((file) => {
+      const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreviews(prev => [...prev, reader.result as string])
-      }
-      reader.readAsDataURL(file)
-    })
-  }
+        setImagePreviews((prev) => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
 
   const removeImage = (index: number) => {
-    setSelectedImages(prev => prev.filter((_, i) => i !== index))
-    setImagePreviews(prev => prev.filter((_, i) => i !== index))
-    form.setValue("images", selectedImages.filter((_, i) => i !== index) as never[])
-  }
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+    form.setValue(
+      "images",
+      selectedImages.filter((_, i) => i !== index) as never[]
+    );
+  };
 
   const nextStep = async () => {
-    const isValid = await validateStep(step)
+    const isValid = await validateStep(step);
 
     if (isValid) {
-      setIsStepSubmitted(false)
-      setStep(prev => prev + 1)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      setIsStepSubmitted(false);
+      setStep((prev) => prev + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
-  }
+  };
 
   const prevStep = () => {
-    setIsStepSubmitted(false)
-    setStep(prev => prev - 1)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+    setIsStepSubmitted(false);
+    setStep((prev) => prev - 1);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const nextImage = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setCurrentImage((prev) => (prev === imagePreviews.length - 1 ? 0 : prev + 1))
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImage((prev) =>
+      prev === imagePreviews.length - 1 ? 0 : prev + 1
+    );
+  };
 
   const prevImage = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setCurrentImage((prev) => (prev === 0 ? imagePreviews.length - 1 : prev - 1))
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImage((prev) =>
+      prev === 0 ? imagePreviews.length - 1 : prev - 1
+    );
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -325,44 +350,51 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                   {/* Watch Selection */}
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold">Select your watch</h3>
-                    
+
                     {/* Popular Brands */}
                     <div className="space-y-2">
                       <Label>Popular Brands</Label>
                       <div className="grid grid-cols-5 sm:grid-cols-3 md:grid-cols-5 gap-1 sm:gap-2">
                         {popularBrands.map((brand) => {
-                          const brandData = brands.find(b => b.slug === brand.slug)
-                          return brandData && (
-                            <button
-                              key={brandData.id}
-                              type="button"
-                              onClick={() => handleBrandChange(brandData.id)}
-                              className={`relative aspect-square rounded-lg border-2 transition-colors ${
-                                form.watch("brand") === brandData.id
-                                  ? "border-primary bg-primary/5"
-                                  : "border-input hover:border-primary/50"
-                              }`}
-                            >
-                              <div className="absolute inset-0 flex items-center justify-center p-1 sm:p-2">
-                                <Image
-                                  src={brand.image}
-                                  alt={brandData.label}
-                                  fill
-                                  className="object-contain p-1 sm:p-2"
-                                />
-                              </div>
-                            </button>
-                          )
+                          const brandData = brands.find(
+                            (b) => b.slug === brand.slug
+                          );
+                          return (
+                            brandData && (
+                              <button
+                                key={brandData.id}
+                                type="button"
+                                onClick={() => handleBrandChange(brandData.id)}
+                                className={`relative aspect-square rounded-lg border-2 transition-colors ${
+                                  form.watch("brand") === brandData.id
+                                    ? "border-primary bg-primary/5"
+                                    : "border-input hover:border-primary/50"
+                                }`}
+                              >
+                                <div className="absolute inset-0 flex items-center justify-center p-1 sm:p-2">
+                                  <Image
+                                    src={brand.image}
+                                    alt={brandData.label}
+                                    fill
+                                    className="object-contain p-1 sm:p-2"
+                                  />
+                                </div>
+                              </button>
+                            )
+                          );
                         })}
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Controller
                         name="brand"
                         control={form.control}
                         render={({ field }) => (
-                          <Select onValueChange={handleBrandChange} value={field.value}>
+                          <Select
+                            onValueChange={handleBrandChange}
+                            value={field.value}
+                          >
                             <SelectTrigger>
                               <SelectValue placeholder="Select a brand" />
                             </SelectTrigger>
@@ -376,7 +408,10 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                           </Select>
                         )}
                       />
-                      <FormError error={form.formState.errors.brand?.message as string} isSubmitted={isStepSubmitted} />
+                      <FormError
+                        error={form.formState.errors.brand?.message as string}
+                        isSubmitted={isStepSubmitted}
+                      />
                     </div>
 
                     {/* Popular Models */}
@@ -385,7 +420,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                         <Label>Models *</Label>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2">
                           {models[selectedBrand]
-                            .filter(model => model.popular)
+                            .filter((model) => model.popular)
                             .slice(0, 4)
                             .map((model) => (
                               <button
@@ -414,8 +449,8 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                         name="model"
                         control={form.control}
                         render={({ field }) => (
-                          <Select 
-                            onValueChange={handleModelChange} 
+                          <Select
+                            onValueChange={handleModelChange}
                             value={field.value}
                             disabled={!selectedBrand}
                           >
@@ -423,274 +458,125 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                               <SelectValue placeholder="Select a model" />
                             </SelectTrigger>
                             <SelectContent>
-                              {selectedBrand && models[selectedBrand]?.map((model) => (
-                                <SelectItem key={model.id} value={model.id}>
-                                  {model.label}
-                                </SelectItem>
-                              ))}
+                              {selectedBrand &&
+                                models[selectedBrand]?.map((model) => (
+                                  <SelectItem key={model.id} value={model.id}>
+                                    {model.label}
+                                  </SelectItem>
+                                ))}
                             </SelectContent>
                           </Select>
                         )}
                       />
-                      <FormError error={form.formState.errors.model?.message as string} isSubmitted={isStepSubmitted} />
+                      <FormError
+                        error={form.formState.errors.model?.message as string}
+                        isSubmitted={isStepSubmitted}
+                      />
                     </div>
 
                     <div>
                       <Label htmlFor="reference">Reference Number *</Label>
-                      <Input 
-                        id="reference" 
-                        placeholder="e.g. 18038" 
-                        {...form.register("reference")} 
+                      <Input
+                        id="reference"
+                        placeholder="e.g. 18038"
+                        {...form.register("reference")}
                       />
-                      <FormError error={form.formState.errors.reference?.message as string} isSubmitted={isStepSubmitted} />
+                      <FormError
+                        error={
+                          form.formState.errors.reference?.message as string
+                        }
+                        isSubmitted={isStepSubmitted}
+                      />
                     </div>
                   </div>
 
                   {/* Listing Title */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Listing Title</h3>
                     <div>
                       <Label htmlFor="title">Title *</Label>
-                      <Input 
-                        id="title" 
-                        placeholder="Complete the listing title" 
+                      <Input
+                        id="title"
+                        placeholder="Complete the listing title"
                         maxLength={40}
                         {...form.register("title")}
                       />
                       <p className="text-sm text-muted-foreground mt-1">
                         {form.watch("title")?.length || 0} / 100
                       </p>
-                      <FormError error={form.formState.errors.title?.message as string} isSubmitted={isStepSubmitted} />
+                      <FormError
+                        error={form.formState.errors.title?.message as string}
+                        isSubmitted={isStepSubmitted}
+                      />
                     </div>
 
                     <div>
-                      <Label htmlFor="description">Description (optional)</Label>
-                      <Input 
-                        id="description" 
-                        placeholder="For example, complete set, special edition" 
-                        maxLength={40}
+                      <Label htmlFor="year">Manufacturing Year *</Label>
+                      <Input
+                        id="year"
+                        type="number"
+                        placeholder="e.g. 2013"
+                        {...form.register("year")}
+                      />
+                      <FormError
+                        error={form.formState.errors.year?.message as string}
+                        isSubmitted={isStepSubmitted}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="description">
+                        Description (optional)
+                      </Label>
+                      <Input
+                        id="description"
+                        placeholder="For example, limited edition, original bracelet, rare dial, etc."
+                        maxLength={100}
                         {...form.register("description")}
                       />
                       <p className="text-sm text-muted-foreground mt-1">
                         {form.watch("description")?.length || 0} / 100
                       </p>
-                      <FormError error={form.formState.errors.description?.message as string} isSubmitted={isStepSubmitted} />
+                      <FormError
+                        error={
+                          form.formState.errors.description?.message as string
+                        }
+                        isSubmitted={isStepSubmitted}
+                      />
                     </div>
-                  </div>
 
-                  {/* Watch Details - Toggle Section */}
-                  <div className="space-y-4">
-                    <button
-                      type="button"
-                      onClick={() => setShowDetails(!showDetails)}
-                      className="flex items-center justify-between w-full text-left"
-                    >
-                      <h3 className="text-lg font-semibold">Watch Details (optional)</h3>
-                      {showDetails ? (
-                        <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                      ) : (
-                        <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                      )}
-                    </button>
-
-                    {showDetails && (
-                      <div className="space-y-4 pt-4">
-                        <div>
-                          <Label htmlFor="year">Manufacturing Year (optional)</Label>
-                          <Input 
-                            id="year" 
-                            placeholder="e.g. 2013" 
-                            {...form.register("year")}
-                          />
-                          <FormError error={form.formState.errors.year?.message as string} isSubmitted={isStepSubmitted} />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="country">Country of origin (optional)</Label>
-                          <Controller
-                            name="country"
-                            control={form.control}
-                            render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value || ""}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select country" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {countries.map((country) => (
-                                    <SelectItem key={country.value} value={country.value}>
-                                      {country.flag} {country.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                          <FormError error={form.formState.errors.country?.message as string} isSubmitted={isStepSubmitted} />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="gender">Gender</Label>
-                          <Controller
-                            name="gender"
-                            control={form.control}
-                            render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="unisex">Men's Watch/Unisex</SelectItem>
-                                  <SelectItem value="men">Men's Watch</SelectItem>
-                                  <SelectItem value="women">Women's Watch</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                          <FormError error={form.formState.errors.gender?.message as string} isSubmitted={isStepSubmitted} />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="serialNumber">Serial Number (will not be published)</Label>
-                          <Input 
-                            id="serialNumber" 
-                            placeholder="Serial Number" 
-                            {...form.register("serialNumber")}
-                          />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="dialColor">Dial Color (optional)</Label>
-                          <Controller
-                            name="dialColor"
-                            control={form.control}
-                            render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value || ""}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {dialColors.map((color) => (
-                                    <SelectItem key={color} value={color}>
-                                      {color}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                          <FormError error={form.formState.errors.dialColor?.message as string} isSubmitted={isStepSubmitted} />
-                        </div>
-
-                        <div>
-                          <Label>Diameter (optional)</Label>
-                          <div className="flex items-center gap-2">
-                            <Input 
-                              placeholder="Min" 
-                              {...form.register("diameter.min")}
-                            />
-                            <span className="text-muted-foreground">x</span>
-                            <Input 
-                              placeholder="Max" 
-                              {...form.register("diameter.max")}
-                            />
-                            <span className="text-muted-foreground">mm</span>
-                          </div>
-                          <FormError error={form.formState.errors.diameter?.min?.message as string || form.formState.errors.diameter?.max?.message as string} isSubmitted={isStepSubmitted} />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="movement">Movement (optional)</Label>
-                          <Controller
-                            name="movement"
-                            control={form.control}
-                            render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value || ""}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {movements.map((movement) => (
-                                    <SelectItem key={movement} value={movement}>
-                                      {movement}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                          <FormError error={form.formState.errors.movement?.message as string} isSubmitted={isStepSubmitted} />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="case">Case (optional)</Label>
-                          <Controller
-                            name="case"
-                            control={form.control}
-                            render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value || ""}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {cases.map((case_) => (
-                                    <SelectItem key={case_} value={case_}>
-                                      {case_}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                          <FormError error={form.formState.errors.case?.message as string} isSubmitted={isStepSubmitted} />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="braceletMaterial">Bracelet Material (optional)</Label>
-                          <Controller
-                            name="braceletMaterial"
-                            control={form.control}
-                            render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value || ""}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {braceletMaterials.map((material) => (
-                                    <SelectItem key={material} value={material}>
-                                      {material}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                          <FormError error={form.formState.errors.braceletMaterial?.message as string} isSubmitted={isStepSubmitted} />
-                        </div>
-
-                        <div>
-                          <Label htmlFor="braceletColor">Bracelet Color (optional)</Label>
-                          <Controller
-                            name="braceletColor"
-                            control={form.control}
-                            render={({ field }) => (
-                              <Select onValueChange={field.onChange} value={field.value || ""}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {braceletColors.map((color) => (
-                                    <SelectItem key={color} value={color}>
-                                      {color}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                          <FormError error={form.formState.errors.braceletColor?.message as string} isSubmitted={isStepSubmitted} />
-                        </div>
+                    
+                    <div className="space-y-4 pt-4">
+                      <div>
+                        <Label htmlFor="dialColor">Dial Color (optional)</Label>
+                        <Controller
+                          name="dialColor"
+                          control={form.control}
+                          render={({ field }) => (
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value || ""}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {dialColors.map((color) => (
+                                  <SelectItem key={color} value={color}>
+                                    {color}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                        <FormError
+                          error={
+                            form.formState.errors.dialColor?.message as string
+                          }
+                          isSubmitted={isStepSubmitted}
+                        />
                       </div>
-                    )}
+                    </div>
                   </div>
                 </>
               )}
@@ -702,14 +588,19 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                     <p className="text-sm text-muted-foreground mb-4">
                       Select what will be included with the watch *
                     </p>
-                    <FormError error={form.formState.errors.included?.message as string} isSubmitted={isStepSubmitted} />
+                    <FormError
+                      error={form.formState.errors.included?.message as string}
+                      isSubmitted={isStepSubmitted}
+                    />
                     <div className="grid grid-cols-2 gap-2">
                       {includedOptions.map((option) => (
                         <button
                           key={option.id}
                           type="button"
                           onClick={() => {
-                            form.setValue("included", option.id, { shouldValidate: true })
+                            form.setValue("included", option.id, {
+                              shouldValidate: true,
+                            });
                           }}
                           className={`flex items-center gap-2 p-2 rounded-lg border-2 transition-colors ${
                             form.watch("included") === option.id
@@ -728,7 +619,9 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                               <div className="w-full h-full rounded-full bg-primary-foreground" />
                             )}
                           </div>
-                          <span className="text-sm font-medium">{option.title}</span>
+                          <span className="text-sm font-medium">
+                            {option.title}
+                          </span>
                         </button>
                       ))}
                     </div>
@@ -739,14 +632,19 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                     <p className="text-sm text-muted-foreground mb-4">
                       Select the condition of your watch *
                     </p>
-                    <FormError error={form.formState.errors.condition?.message as string} isSubmitted={isStepSubmitted} />
+                    <FormError
+                      error={form.formState.errors.condition?.message as string}
+                      isSubmitted={isStepSubmitted}
+                    />
                     <div className="grid grid-cols-2 gap-2">
                       {watchConditions.map((condition) => (
                         <button
                           key={condition.slug}
                           type="button"
                           onClick={() => {
-                            form.setValue("condition", condition.slug, { shouldValidate: true })
+                            form.setValue("condition", condition.slug, {
+                              shouldValidate: true,
+                            });
                           }}
                           className={`flex items-center gap-2 p-2 rounded-lg border-2 transition-colors ${
                             form.watch("condition") === condition.slug
@@ -765,7 +663,9 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                               <div className="w-full h-full rounded-full bg-primary-foreground" />
                             )}
                           </div>
-                          <span className="text-sm font-medium">{condition.label}</span>
+                          <span className="text-sm font-medium">
+                            {condition.label}
+                          </span>
                         </button>
                       ))}
                     </div>
@@ -776,7 +676,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
               {step === 3 && (
                 <div className="space-y-6">
                   <h3 className="text-lg font-semibold">Set Your Sale Price</h3>
-                  
+
                   <div className="space-y-4">
                     <div>
                       <Label htmlFor="price">Sale Price *</Label>
@@ -786,20 +686,27 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                           type="number"
                           placeholder="0"
                           {...form.register("price", { valueAsNumber: true })}
-                          className="w-48"
+                          className="flex-1"
                         />
                         <Controller
                           name="currency"
                           control={form.control}
                           render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value || ""}>
-                              <SelectTrigger className="w-48">
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value || ""}
+                            >
+                              <SelectTrigger className="flex-1">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                {currencies.map(currency => (
-                                  <SelectItem key={currency.value} value={currency.value}>
-                                    {currency.flag} {currency.label} ({currency.symbol})
+                                {currencies.map((currency) => (
+                                  <SelectItem
+                                    key={currency.value}
+                                    value={currency.value}
+                                  >
+                                    {currency.flag} {currency.label} (
+                                    {currency.symbol})
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -813,7 +720,9 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                       <Label htmlFor="shippingDelay">Shipping Time *</Label>
                       <Select
                         value={form.watch("shippingDelay")}
-                        onValueChange={(value) => form.setValue("shippingDelay", value)}
+                        onValueChange={(value) =>
+                          form.setValue("shippingDelay", value)
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select shipping time" />
@@ -823,40 +732,58 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                           <SelectItem value="2-3">2-3 business days</SelectItem>
                           <SelectItem value="3-5">3-5 business days</SelectItem>
                           <SelectItem value="5-7">5-7 business days</SelectItem>
-                          <SelectItem value="7-10">7-10 business days</SelectItem>
-                          <SelectItem value="10+">More than 10 business days</SelectItem>
+                          <SelectItem value="7-10">
+                            7-10 business days
+                          </SelectItem>
+                          <SelectItem value="10+">
+                            More than 10 business days
+                          </SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormError error={form.formState.errors.shippingDelay?.message as string} isSubmitted={isStepSubmitted} />
+                      <FormError
+                        error={
+                          form.formState.errors.shippingDelay?.message as string
+                        }
+                        isSubmitted={isStepSubmitted}
+                      />
                     </div>
 
                     <Card>
                       <CardContent className="p-4">
                         <div className="space-y-2">
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Sale price</span>
+                            <span className="text-muted-foreground">
+                              Sale price
+                            </span>
                             <span className="font-medium">
-                              {form.watch("price")?.toLocaleString()} {form.watch("currency")}
+                              {form.watch("price")?.toLocaleString()}{" "}
+                              {form.watch("currency")}
                             </span>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
-                    <FormError error={form.formState.errors.price?.message as string} isSubmitted={isStepSubmitted} />
+                    <FormError
+                      error={form.formState.errors.price?.message as string}
+                      isSubmitted={isStepSubmitted}
+                    />
                   </div>
                 </div>
               )}
 
               {step === 4 && (
-                
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Watch Photos</h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Add up to 10 photos of your watch. Accepted formats: JPG, PNG, WEBP. Maximum size: 5MB per photo.
+                    Add up to 10 photos of your watch. Accepted formats: JPG,
+                    PNG, WEBP. Maximum size: 5MB per photo.
                   </p>
 
-                  <FormError error={form.formState.errors.images?.message as string} isSubmitted={isStepSubmitted} />
-                  
+                  <FormError
+                    error={form.formState.errors.images?.message as string}
+                    isSubmitted={form.formState.isSubmitted || isStepSubmitted}
+                  />
+
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {imagePreviews.map((preview, index) => (
                       <div key={index} className="relative aspect-square">
@@ -874,7 +801,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                         </button>
                       </div>
                     ))}
-                    
+
                     {imagePreviews.length < 10 && (
                       <label className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
                         <Upload className="w-8 h-8 text-muted-foreground mb-2" />
@@ -888,9 +815,13 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                       </label>
                     )}
                   </div>
-                  <h3 className="text-lg font-semibold">Important Documents (optional)</h3>
+                  <h3 className="text-lg font-semibold">
+                    Important Documents (optional)
+                  </h3>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Add important documents such as invoices, certificates of authenticity, etc. These documents will only be visible to the final buyer after transaction validation.
+                    Add important documents such as invoices, certificates of
+                    authenticity, etc. These documents will only be visible to
+                    the final buyer after transaction validation.
                   </p>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -906,8 +837,11 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                           <button
                             type="button"
                             onClick={() => {
-                              const newDocs = form.watch("documents")?.filter((_, i) => i !== index) || []
-                              form.setValue("documents", newDocs)
+                              const newDocs =
+                                form
+                                  .watch("documents")
+                                  ?.filter((_, i) => i !== index) || [];
+                              form.setValue("documents", newDocs);
                             }}
                             className="absolute top-2 right-2 w-6 h-6 bg-background/80 rounded-full flex items-center justify-center hover:bg-background"
                           >
@@ -916,7 +850,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                         </div>
                       </div>
                     ))}
-                    
+
                     <label className="aspect-square border-2 border-dashed rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
                       <Upload className="w-8 h-8 text-muted-foreground mb-2" />
                       <input
@@ -924,19 +858,30 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                         accept=".pdf,.jpg,.jpeg,.png"
                         className="hidden"
                         onChange={(e) => {
-                          const files = Array.from(e.target.files || [])
-                          const validFiles = files.filter(file => {
+                          const files = Array.from(e.target.files || []);
+                          const validFiles = files.filter((file) => {
                             if (file.size > 5 * 1024 * 1024) {
-                              alert(`File ${file.name} is too large. Maximum size: 5MB`)
-                              return false
+                              alert(
+                                `File ${file.name} is too large. Maximum size: 5MB`
+                              );
+                              return false;
                             }
-                            if (![".pdf", ".jpg", ".jpeg", ".png"].some(ext => file.name.toLowerCase().endsWith(ext))) {
-                              alert(`File ${file.name} is not an accepted format. Accepted formats: PDF, JPG, PNG`)
-                              return false
+                            if (
+                              ![".pdf", ".jpg", ".jpeg", ".png"].some((ext) =>
+                                file.name.toLowerCase().endsWith(ext)
+                              )
+                            ) {
+                              alert(
+                                `File ${file.name} is not an accepted format. Accepted formats: PDF, JPG, PNG`
+                              );
+                              return false;
                             }
-                            return true
-                          })
-                          form.setValue("documents", [...(form.watch("documents") || []), ...validFiles])
+                            return true;
+                          });
+                          form.setValue("documents", [
+                            ...(form.watch("documents") || []),
+                            ...validFiles,
+                          ]);
                         }}
                         multiple
                       />
@@ -952,15 +897,15 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                   </Button>
                 )}
                 {step < 4 ? (
-                  <Button 
-                    type="button" 
+                  <Button
+                    type="button"
                     onClick={nextStep}
                     disabled={isSubmitting}
                   >
                     {isSubmitting ? "Validating..." : "Continue"}
                   </Button>
                 ) : (
-                  <Button 
+                  <Button
                     type="button"
                     onClick={form.handleSubmit(onSubmit)}
                     disabled={isSubmitting}
@@ -993,7 +938,7 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                       <p className="text-muted-foreground">Watch image</p>
                     </div>
                   )}
-                  
+
                   {imagePreviews.length > 1 && (
                     <>
                       <button
@@ -1017,7 +962,9 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                             key={index}
                             onClick={() => setCurrentImage(index)}
                             className={`w-2 h-2 rounded-full transition-colors ${
-                              currentImage === index ? "bg-white" : "bg-white/50"
+                              currentImage === index
+                                ? "bg-white"
+                                : "bg-white/50"
                             }`}
                             aria-label={`Go to image ${index + 1}`}
                           />
@@ -1028,10 +975,16 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                 </div>
               </div>
               <div className="space-y-2">
-                <h4 className="font-medium truncate" title={previewTitle || "Listing title"}>
-                  {previewTitle || "Listing title"}
+                <h4
+                  className="font-medium truncate"
+                  title={form.watch("title") || "Watch title..."}
+                >
+                  {form.watch("title") || "Watch title..."}
                 </h4>
-                <p className="text-sm text-muted-foreground line-clamp-2" title={form.watch("description") || "Watch description..."}>
+                <p
+                  className="text-sm text-muted-foreground line-clamp-2"
+                  title={form.watch("description") || "Watch description..."}
+                >
                   {form.watch("description") || "Watch description..."}
                 </p>
               </div>
@@ -1039,37 +992,52 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                 <div>
                   <p className="text-muted-foreground">Brand</p>
                   <p className="font-medium">
-                    {brands.find(b => b.id === form.watch("brand"))?.label || "-"}
+                    {brands.find((b) => b.id === form.watch("brand"))?.label ||
+                      "-"}
                   </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Model</p>
                   <p className="font-medium">
-                    {selectedBrand && models[selectedBrand]?.find((m: any) => m.id === form.watch("model"))?.label || "-"}
+                    {(selectedBrand &&
+                      models[selectedBrand]?.find(
+                        (m: any) => m.id === form.watch("model")
+                      )?.label) ||
+                      "-"}
                   </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Reference</p>
-                  <p className="font-medium truncate" title={form.watch("reference") || "-"}>
+                  <p
+                    className="font-medium truncate"
+                    title={form.watch("reference") || "-"}
+                  >
                     {form.watch("reference") || "-"}
                   </p>
                 </div>
                 <div>
                   <p className="text-muted-foreground">Year</p>
-                  <p className="font-medium truncate" title={form.watch("year") || "-"}>
+                  <p
+                    className="font-medium truncate"
+                    title={form.watch("year") || "-"}
+                  >
                     {form.watch("year") || "-"}
                   </p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-muted-foreground">Shipping time</p>
                   <p className="font-medium">
-                    {form.watch("shippingDelay") ? `${form.watch("shippingDelay")} business days` : "-"}
+                    {form.watch("shippingDelay")
+                      ? `${form.watch("shippingDelay")} business days`
+                      : "-"}
                   </p>
                 </div>
                 <div className="space-y-2">
                   <p className="text-muted-foreground">Condition</p>
                   <p className="font-medium">
-                    {watchConditions.find(c => c.slug === form.watch("condition"))?.label || "-"}
+                    {watchConditions.find(
+                      (c) => c.slug === form.watch("condition")
+                    )?.label || "-"}
                   </p>
                 </div>
               </div>
@@ -1077,7 +1045,9 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                 <div className="flex justify-between items-center">
                   <p className="text-muted-foreground">Price</p>
                   <p className="font-semibold text-lg">
-                    {form.watch("price") ? `${form.watch("price").toLocaleString()} ${form.watch("currency")}` : "-"}
+                    {form.watch("price")
+                      ? `${form.watch("price").toLocaleString()} ${form.watch("currency")}`
+                      : "-"}
                   </p>
                 </div>
               </div>
@@ -1085,8 +1055,8 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
           </CardContent>
         </Card>
       </div>
-       {/* Add debug button to see all errors */}
-       <div className="fixed bottom-4 right-4">
+      {/* Add debug button to see all errors */}
+      <div className="fixed bottom-4 right-4">
         <Button
           variant="outline"
           size="sm"
@@ -1098,12 +1068,12 @@ export default function WatchForm({ onSubmit, isSubmitting = false, initialData,
                 values: form.getValues(),
                 trigger: await form.trigger(),
               },
-            })
+            });
           }}
         >
           Debug Form
         </Button>
       </div>
     </div>
-  )
-} 
+  );
+}

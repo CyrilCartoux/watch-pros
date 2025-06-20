@@ -20,6 +20,7 @@ import { useFavorites } from "@/hooks/useFavorites"
 import { SearchBar } from "@/components/SearchBar"
 import { ModalFilters } from "@/components/ModalFilters"
 import { validateURLParams } from "@/lib/helpers/url-validation"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface ListingImage {
   id: string
@@ -37,7 +38,6 @@ interface Listing {
   title: string
   description: string | null
   year: string | null
-  gender: string | null
   serial_number: string | null
   dial_color: string | null
   diameter_min: number | null
@@ -124,6 +124,13 @@ export default function ListingsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const itemsPerPage = 12
+
+  const handleTypeChange = (type: string) => {
+    const newFilters = { ...filters, listingType: type }
+    setFilters(newFilters)
+    setCurrentPage(1)
+    updateURL(newFilters, 1)
+  }
 
   const updateURL = useCallback((f = filters, pg = currentPage) => {
     const params = new URLSearchParams()
@@ -305,6 +312,26 @@ export default function ListingsPage() {
         </div>
       </div>
 
+      {/* Listing Type Tabs */}
+      <div className="flex justify-center mb-8">
+        <Tabs value={filters.listingType || 'all'} onValueChange={handleTypeChange}>
+          <TabsList className="inline-flex h-auto rounded-full bg-muted p-1">
+            <TabsTrigger 
+              value="watch"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-full px-6 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+            >
+              Watches
+            </TabsTrigger>
+            <TabsTrigger 
+              value="accessory"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-full px-6 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+            >
+              Accessories
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
       <div className="flex flex-col gap-4 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h1 className="text-base sm:text-lg font-bold">
@@ -328,7 +355,7 @@ export default function ListingsPage() {
         </div>
 
         {/* Active Filters */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3">
           {(
             Object.keys(filters) as (keyof Filters)[]
           ).map((key) => {
@@ -370,25 +397,25 @@ export default function ListingsPage() {
             return (
               <div
                 key={key}
-                className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md text-xs"
+                className="inline-flex items-center gap-2 pl-3 pr-2 py-1 bg-secondary text-secondary-foreground rounded-full text-sm"
               >
-                <span className="font-semibold mr-1">{getFilterLabel(key)}:</span>
+                <span className="font-medium">{getFilterLabel(key)}:</span>
                 <span>{getFilterValue(key, value)}</span>
                 <button
                   onClick={() => removeFilter(key)}
-                  className="hover:bg-primary/20 rounded-full p-0.5"
+                  className="ml-1 hover:bg-muted-foreground/20 rounded-full"
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             )
           })}
           {Object.values(filters).some(v => v !== "") && (
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={handleClearFilters}
-              className="h-6 px-2 text-xs"
+              className="text-sm"
             >
               Clear all
             </Button>

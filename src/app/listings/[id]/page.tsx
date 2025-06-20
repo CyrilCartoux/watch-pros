@@ -30,9 +30,7 @@ interface ListingData {
   title: string
   description: string
   year: string
-  gender: string
   condition: string
-  serialNumber: string
   status: 'active' | 'hold',
   dialColor: string | null
   diameter: {
