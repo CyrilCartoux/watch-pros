@@ -109,55 +109,14 @@ export function SearchBar({ className }: SearchBarProps) {
   }, [search])
 
   const handleSearch = (query: string) => {
-    if (!query) return
+    if (!query.trim()) return
 
     const params = new URLSearchParams()
     const trimmed = query.trim()
 
-    // Find if the query matches a model result from suggestions
-    const modelResult = results.find(result => result.type === "model" && result.label === query)
+    // Utiliser uniquement le paramètre 'query' pour tout
+    params.set('query', trimmed)
     
-    if (modelResult) {
-      // If it's a model from suggestions, use brand and model parameters
-      params.set('brand', modelResult.brandSlug)
-      if (modelResult.modelSlug) {
-        params.set('model', modelResult.modelSlug)
-      }
-      // Update the search input with the selected value
-      setSearch(modelResult.label)
-    } else {
-      // Check if it's a brand from suggestions
-      const brandResult = results.find(result => result.type === "brand" && result.label === query)
-      
-      if (brandResult) {
-        params.set('brand', brandResult.brandSlug)
-        setSearch(brandResult.label)
-      } else {
-        // Check if it's a brand in uniqueBrands
-        const brand = uniqueBrands.find(b => 
-          b.label.toLowerCase() === trimmed.toLowerCase() || 
-          b.slug === trimmed.toLowerCase()
-        )
-
-        if (brand) {
-          params.set('brand', brand.slug)
-          setSearch(brand.label)
-        } else {
-          // Check if it looks like a reference number (alphanumeric with possible dots)
-          const isReference = /^[A-Za-z0-9.]+$/.test(trimmed)
-          
-          if (isReference) {
-            params.set('reference', trimmed)
-            setSearch(trimmed)
-          } else {
-            // If no brand/model/reference match found, use as free text search
-            params.set('query', trimmed)
-            setSearch(trimmed)
-          }
-        }
-      }
-    }
-
     router.push(`/listings?${params.toString()}`)
     setIsOpen(false)
   }

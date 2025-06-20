@@ -33,12 +33,10 @@ interface Model {
 }
 
 interface Filters {
-  search: string
+  query: string
   brand: string
   model: string
   reference: string
-  seller: string
-  year: string
   dialColor: string
   condition: string
   included: string
@@ -110,6 +108,15 @@ export function ModalFilters({
     }
   }, [tempFilters.brand, brands, fetchModels])
 
+  // Fonction pour construire la query à partir des sélections
+  const buildQueryFromSelections = (brand: string, model: string, reference: string) => {
+    const parts = []
+    if (brand) parts.push(brand)
+    if (model) parts.push(model)
+    if (reference) parts.push(reference)
+    return parts.join(' ')
+  }
+
   const handleBrandChange = (value: string) => {
     const brand = brands.find(b => b.slug === value)
     if (brand) {
@@ -118,10 +125,27 @@ export function ModalFilters({
     }
     onFilterChange("brand", value)
     onFilterChange("model", "")
+    onFilterChange("reference", "")
+    
+    // Construire la query avec la nouvelle sélection
+    const newQuery = buildQueryFromSelections(value, "", "")
+    onFilterChange("query", newQuery)
   }
 
   const handleModelChange = (value: string) => {
     onFilterChange("model", value)
+    
+    // Construire la query avec la nouvelle sélection
+    const newQuery = buildQueryFromSelections(tempFilters.brand, value, tempFilters.reference)
+    onFilterChange("query", newQuery)
+  }
+
+  const handleReferenceChange = (value: string) => {
+    onFilterChange("reference", value)
+    
+    // Construire la query avec la nouvelle sélection
+    const newQuery = buildQueryFromSelections(tempFilters.brand, tempFilters.model, value)
+    onFilterChange("query", newQuery)
   }
 
   const toggleSection = (section: keyof typeof openSections) => {
@@ -295,7 +319,7 @@ export function ModalFilters({
             type="text"
             placeholder="Enter reference number"
             value={tempFilters.reference}
-            onChange={(e) => onFilterChange("reference", e.target.value)}
+            onChange={(e) => handleReferenceChange(e.target.value)}
           />
         </div>
 
@@ -364,28 +388,6 @@ export function ModalFilters({
                     {condition.label}
                   </SelectItem>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Year</Label>
-            <Select
-              value={tempFilters.year}
-              onValueChange={(value) => onFilterChange("year", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select year" />
-              </SelectTrigger>
-              <SelectContent>
-                {Array.from({ length: 30 }, (_, i) => {
-                  const year = new Date().getFullYear() - i
-                  return (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
-                  )
-                })}
               </SelectContent>
             </Select>
           </div>

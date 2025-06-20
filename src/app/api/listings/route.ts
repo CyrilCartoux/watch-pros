@@ -51,112 +51,61 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '12')
-    const sort = searchParams.get('sort') || 'created_at'
-    const order = searchParams.get('order') || 'desc'
-    const search = searchParams.get('search') || ''
-    const after = searchParams.get('after') // Cursor for pagination
+    const query = searchParams.get('query') || ''
     
-    // Filter parameters
-    const brand = searchParams.get('brand') || searchParams.get('brand_id')
-    const model = searchParams.get('model') || searchParams.get('model_id')
-    const reference = searchParams.get('reference')
-    const seller = searchParams.get('seller')
-    const year = searchParams.get('year')
-    const dialColor = searchParams.get('dialColor')
+    // Filter parameters (only the ones that are still used)
     const condition = searchParams.get('condition')
+    const dialColor = searchParams.get('dialColor')
+    const country = searchParams.get('country')
     const included = searchParams.get('included')
     const minPrice = searchParams.get('minPrice')
     const maxPrice = searchParams.get('maxPrice')
     const shippingDelay = searchParams.get('shippingDelay')
-    const listingType = searchParams.get('listingType')
-    const country = searchParams.get('country')
 
     const supabase = await createClient()
 
-    // Start building the query
-    let query = supabase
-      .from('listings')
-      .select(`
-        *,
-        listing_images (
-          id,
-          url,
-          order_index
-        ),
-        seller:sellers (
-          id,
-          company_name,
-          watch_pros_name,
-          country,
-          crypto_friendly,
-          company_logo_url
-        )
-      `, { count: 'exact' })
-      .in('status', ['active', 'hold'])
-
-    // Apply text search if search term exists
-    if (search) {
-      query = query.textSearch('title', search, {
-        type: 'websearch',
-        config: 'english'
-      })
-    }
-
-    // Apply filters
-    if (brand) {
-      // Check if brand is a UUID (brand_id) or a string (brand_slug)
-      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(brand)
-      if (isUUID) {
-        query = query.eq('brand_id', brand)
-      } else {
-        query = query.eq('brand_slug', brand)
-      }
-    }
-    if (model) {
-      // Check if model is a UUID (model_id) or a string (model_slug)
-      const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(model)
-      if (isUUID) {
-        query = query.eq('model_id', model)
-      } else {
-        query = query.eq('model_slug', model)
-      }
-    }
-    if (reference) query = query.ilike('reference', `${reference}%`)
-    if (seller) query = query.eq('seller_id', seller)
-    if (year) query = query.eq('year', year)
-    if (dialColor) query = query.eq('dial_color', dialColor)
-    if (condition) query = query.eq('condition', condition)
-    if (included) query = query.eq('included', included)
-    if (listingType) query = query.eq('listing_type', listingType)
-    if (shippingDelay) query = query.eq('shipping_delay', shippingDelay)
-    if (country) query = query.eq('country', country)
-
-    // Apply price range if provided
-    if (minPrice) query = query.gte('price', parseInt(minPrice))
-    if (maxPrice) query = query.lte('price', parseInt(maxPrice))
-
-    // Apply cursor-based pagination if after is provided
-    if (after) {
-      query = query.lt('created_at', after)
-    }
-
-    // Apply sorting
-    query = query.order(sort, { ascending: order === 'asc' })
-
-    // Apply pagination (offset/limit)
+    // Calculate offset for pagination
     const offset = (page - 1) * limit
-    query = query.range(offset, offset + limit - 1)
 
-    const { data: listings, error, count } = await query
+    // Call the RPC function with simplified parameters
+    const { data: listings, error } = await supabase
+      .rpc('rpc_search_listings', {
+        _search: query || null,
+        _brand_slug: null,  // No longer used
+        _model_slug: null,  // No longer used
+        _ref: null,         // No longer used
+        _cond: condition || null,
+        _dial_color: dialColor || null,
+        _country: country || null,
+        _year: null,        // No longer used
+        _included: included || null,
+        _min_price: minPrice ? parseFloat(minPrice) : null,
+        _max_price: maxPrice ? parseFloat(maxPrice) : null,
+        _shipping: shippingDelay || null,
+        _limit: limit + offset // Get more results to handle pagination
+      })
 
     if (error) {
       console.error('Error fetching listings:', error)
       return NextResponse.json({ error: 'Failed to fetch listings' }, { status: 500 })
     }
 
+    // Apply pagination manually since RPC doesn't support OFFSET
+    const paginatedListings = listings ? listings.slice(offset, offset + limit) : []
+    
+    // Get total count for pagination
+    const { count, error: countError } = await supabase
+      .from('listings')
+      .select('*', { count: 'exact', head: true })
+      .in('status', ['active', 'hold'])
+
+    if (countError) {
+      console.error('Error counting listings:', countError)
+      return NextResponse.json({ error: 'Failed to count listings' }, { status: 500 })
+    }
+
     return NextResponse.json({
-      listings,
-      nextCursor: listings?.[listings.length - 1]?.created_at || null,
+      listings: paginatedListings,
       total: count || 0,
       page,
       limit,

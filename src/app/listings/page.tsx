@@ -80,14 +80,9 @@ interface ListingsResponse {
 }
 
 interface Filters {
-  search: string;
-  brand: string;
-  model: string;
-  reference: string;
-  seller: string;
-  year: string;
-  dialColor: string;
+  query: string;
   condition: string;
+  dialColor: string;
   included: string;
   minPrice: string;
   maxPrice: string;
@@ -101,18 +96,19 @@ export default function ListingsPage() {
   const searchParams = useSearchParams()
   const { favorites, addFavorite, removeFavorite, isFavorite } = useFavorites()
   
+  
   // Initialize filters from URL params
   const initialFilters = useMemo(() => {
     const params = new URLSearchParams(searchParams.toString())
+    const query = params.get("query") || ""
+    
+    // Si on a brand/model/reference mais pas de query, construire la query
+    const finalQuery = query
+    
     return {
-      search: params.get("search") || "",
-      brand: params.get("brand") || "",
-      model: params.get("model") || "",
-      reference: params.get("reference") || "",
-      seller: params.get("seller") || "",
-      year: params.get("year") || "",
-      dialColor: params.get("dialColor") || "",
+      query: finalQuery,
       condition: params.get("condition") || "",
+      dialColor: params.get("dialColor") || "",
       included: params.get("included") || "",
       minPrice: params.get("minPrice") || "",
       maxPrice: params.get("maxPrice") || "",
@@ -126,7 +122,6 @@ export default function ListingsPage() {
   const [tempFilters, setTempFilters] = useState<Filters>(filters)
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1)
-  const [sortBy, setSortBy] = useState(searchParams.get("sort") || "")
   const [listings, setListings] = useState<Listing[]>([])
   const [totalItems, setTotalItems] = useState(0)
   const [totalPages, setTotalPages] = useState(0)
@@ -134,24 +129,22 @@ export default function ListingsPage() {
   const [error, setError] = useState<string | null>(null)
   const itemsPerPage = 12
 
-
   const handleFilterChange = useCallback((key: keyof Filters, value: string) => {
     setTempFilters(prev => ({ ...prev, [key]: value }))
   }, [])
 
-  const updateURL = useCallback((f = filters, pg = currentPage, sort = sortBy) => {
+  const updateURL = useCallback((f = filters, pg = currentPage) => {
     const params = new URLSearchParams()
     
-    // Add non-empty filters to URL
+    // Add non-empty filters to URL (including brand/model/reference for UX)
     Object.entries(f).forEach(([key, value]) => {
       if (value) {
         params.set(key, value)
       }
     })
 
-    // Add pagination and sorting
+    // Add pagination
     if (pg > 1) params.set("page", pg.toString())
-    if (sort !== "relevance") params.set("sort", sort)
 
     // Validate parameters before updating URL
     const { validParams, errors } = validateURLParams(params)
@@ -162,7 +155,7 @@ export default function ListingsPage() {
 
     // Update URL without reloading the page
     router.push(`/listings?${params.toString()}`, { scroll: false })
-  }, [filters, currentPage, sortBy, router])
+  }, [filters, currentPage, router])
 
   const handleApplyFilters = useCallback(() => {
     setFilters(tempFilters)
@@ -173,14 +166,12 @@ export default function ListingsPage() {
 
   const handleClearFilters = useCallback(() => {
     const emptyFilters = {
-      search: "",
+      query: "",
       brand: "",
       model: "",
       reference: "",
-      seller: "",
-      year: "",
-      dialColor: "",
       condition: "",
+      dialColor: "",
       included: "",
       minPrice: "",
       maxPrice: "",
@@ -194,7 +185,6 @@ export default function ListingsPage() {
     updateURL(emptyFilters, 1)
     setIsFiltersOpen(false)
   }, [updateURL])
-
 
   const removeFilter = useCallback((key: keyof Filters) => {
     const newFilters = { ...filters, [key]: "" }
@@ -211,14 +201,22 @@ export default function ListingsPage() {
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: itemsPerPage.toString(),
-        sort: sortBy === "relevance" ? "created_at" : 
-              sortBy === "price-asc" ? "price" :
-              sortBy === "price-desc" ? "price" : "created_at",
-        order: sortBy === "price-asc" ? "asc" : "desc"
       })
 
-      // Add all filters to params
-      Object.entries(filters).forEach(([key, value]) => {
+      // Add filters to params, but only send query to API (not brand/model/reference)
+      const apiFilters = {
+        query: filters.query,
+        condition: filters.condition,
+        dialColor: filters.dialColor,
+        included: filters.included,
+        minPrice: filters.minPrice,
+        maxPrice: filters.maxPrice,
+        shippingDelay: filters.shippingDelay,
+        listingType: filters.listingType,
+        country: filters.country,
+      }
+
+      Object.entries(apiFilters).forEach(([key, value]) => {
         if (value) {
           params.append(key, value)
         }
@@ -285,15 +283,6 @@ export default function ListingsPage() {
     }
   }, [currentPage, updateURL])
 
-  // Update URL when sort changes
-  useEffect(() => {
-    if (sortBy !== "relevance") {
-      updateURL()
-      // Scroll to top smoothly when sort changes
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    }
-  }, [sortBy, updateURL])
-
   return (
     <div className="container mx-auto px-4 py-8">
       {error && (
@@ -325,18 +314,6 @@ export default function ListingsPage() {
               <SlidersHorizontal className="h-6 w-6" />
               Filters
             </Button>
-            <Select
-              value={sortBy} 
-              onValueChange={setSortBy}
-            >
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Filter by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="price-asc">Price ascending</SelectItem>
-                <SelectItem value="price-desc">Price descending</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </div>
 
