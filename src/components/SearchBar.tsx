@@ -38,6 +38,15 @@ export function SearchBar({ className, onSearch }: SearchBarProps) {
   const menuRef = useRef<HTMLDivElement>(null)
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null)
 
+  useEffect(() => {
+    if (onSearch) {
+      const urlQuery = new URLSearchParams(window.location.search).get("query")
+      if (urlQuery) {
+        setSearch(urlQuery)
+      }
+    }
+  }, [])
+
   // Get unique brands from models data
   const uniqueBrands = Object.entries(models).map(([brandSlug, brandModels]) => {
     const firstModel = brandModels[0]

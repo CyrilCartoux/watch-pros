@@ -260,8 +260,19 @@ export default function ListingsPage() {
           return
         }
 
-        // Update filters from URL
-        setFilters(initialFilters)
+        // Update filters state from the memoized initialFilters
+        const newFilters = {
+          query:        params.get("query")        || "",
+          condition:    params.get("condition")    || "",
+          dialColor:    params.get("dialColor")    || "",
+          included:     params.get("included")     || "",
+          minPrice:     params.get("minPrice")     || "",
+          maxPrice:     params.get("maxPrice")     || "",
+          shippingDelay:params.get("shippingDelay")|| "",
+          listingType:  params.get("listingType")  || "",
+          country:      params.get("country")      || "",
+        }
+        setFilters(newFilters)
         
         // Fetch listings with the new filters
         await fetchListings()
