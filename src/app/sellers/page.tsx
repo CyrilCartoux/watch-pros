@@ -179,8 +179,6 @@ export default function SellersListPage() {
       if (filters.minRating > 0) params.append("minRating", filters.minRating.toString())
       if (filters.search) params.append("search", filters.search)
         
-      console.log('FETCH');
-
       const response = await fetch(`/api/sellers?${params}`)
       if (!response.ok) {
         throw new Error('Failed to fetch sellers')

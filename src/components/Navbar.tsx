@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button"
 import { Menu, User, Bell, LogOut, Heart, MessageSquare, LayoutDashboard, MoreHorizontal, Tag } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { Badge } from "./ui/badge"
-import { SearchBar } from "./SearchBar"
 import { useAuth } from "@/contexts/AuthContext"
 import { useNotifications } from "@/contexts/NotificationsContext"
 import {
@@ -51,11 +50,37 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
-        {/* Logo */}
-        <div className="mr-4 hidden md:flex">
-          <Link href="/" className="text-xl sm:text-2xl font-bold">
+        {/* Left side: Logo + Nav Links */}
+        <div className="mr-4 hidden items-center md:flex">
+          <Link href="/" className="mr-6 text-xl font-bold">
             Watch Pros
           </Link>
+          <nav className="flex items-center space-x-6 text-sm font-medium">
+            <Link
+              href="/listings?listingType=watch"
+              className="transition-colors hover:text-foreground/80 text-foreground/60"
+            >
+              Watches
+            </Link>
+            <Link
+              href="/listings?listingType=accessory"
+              className="transition-colors hover:text-foreground/80 text-foreground/60"
+            >
+              Accessories
+            </Link>
+            <Link
+              href="/sellers"
+              className="transition-colors hover:text-foreground/80 text-foreground/60"
+            >
+              Sellers
+            </Link>
+            <Link
+              href="/brands"
+              className="transition-colors hover:text-foreground/80 text-foreground/60"
+            >
+              Brands
+            </Link>
+          </nav>
         </div>
 
         {/* Mobile Logo */}
@@ -65,39 +90,13 @@ export function Navbar() {
           </Link>
         </div>
 
-        {/* Mobile Navigation */}
-        <div className="flex flex-1 items-center justify-end md:hidden">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              <Menu className="h-4 w-4" />
-              <span className="sr-only">Toggle menu</span>
-            </Button>
-          </div>
-        </div>
+        <div className="flex flex-1 items-center justify-end gap-4">
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex md:flex-1 md:items-center md:justify-between">
-          {/* Main Navigation */}
-          <div className="flex items-center gap-4 lg:gap-6">
-            <Button variant="ghost" size="sm" className="h-9 px-3" asChild>
-              <Link href="/listings?listingType=watch">Buy</Link>
+          {/* Right side for desktop */}
+          <div className="hidden items-center space-x-2 md:flex">
+            <Button asChild>
+              <Link href="/sell">Sell a Watch</Link>
             </Button>
-            <Button variant="ghost" size="sm" className="h-9 px-3" asChild>
-              <Link href="/sell">Sell</Link>
-            </Button>
-            <Button variant="ghost" size="sm" className="h-9 px-3" asChild>
-              <Link href="/sellers">Sellers</Link>
-            </Button>
-            <SearchBar className="w-64 lg:w-96" />
-          </div>
-
-          {/* Account */}
-          <div className="flex items-center gap-2 lg:gap-4">
             {user && (
               <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
                 <Link href="/notifications" className="relative">
@@ -181,6 +180,19 @@ export function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+
+          {/* Mobile Navigation Toggle */}
+          <div className="flex items-center gap-2 md:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <Menu className="h-4 w-4" />
+              <span className="sr-only">Toggle menu</span>
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -188,7 +200,6 @@ export function Navbar() {
       {isMenuOpen && (
         <div className="md:hidden shadow-lg" ref={menuRef}>
           <div className="container space-y-3 py-3 bg-background">
-            <SearchBar />
             {user && (
               <div className="px-2 py-1.5 text-sm text-muted-foreground truncate">
                 {user.email}

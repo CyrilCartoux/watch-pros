@@ -4,15 +4,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import Image from "next/image"
 import Link from "next/link"
 import brandsData from "@/data/brands.json"
-import { useState, TouchEvent } from "react"
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { ListingCard } from "@/components/ListingCard"
+import { useFavorites } from "@/hooks/useFavorites"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface BrandData {
   name: string
@@ -41,38 +37,90 @@ interface BrandData {
   }
 }
 
+// Copied from listings/page.tsx for consistency
+interface ListingImage {
+  id: string
+  url: string
+  order_index: number
+}
+
+interface Listing {
+  id: string
+  reference_id: string
+  seller_id: string
+  brand_id: string
+  model_id: string
+  reference: string
+  title: string
+  description: string | null
+  year: string | null
+  serial_number: string | null
+  dial_color: string | null
+  diameter_min: number | null
+  diameter_max: number | null
+  movement: string | null
+  case_material: string | null
+  bracelet_material: string | null
+  bracelet_color: string | null
+  included: string | null
+  condition: string
+  price: number
+  currency: string
+  shipping_delay: string
+  status: string
+  created_at: string
+  updated_at: string
+  listing_type: string
+  brands: any | null
+  models: {
+    slug: string
+    label: string
+    popular: boolean
+  } | null
+  listing_images: ListingImage[]
+  seller: {
+    id: string
+    company_name: string
+    watch_pros_name: string
+    company_logo_url: string | null
+    crypto_friendly: boolean
+  } | null
+}
+
 export default function BrandPage({ params }: { params: { brand: string } }) {
   const brandInfo = brandsData[params.brand as keyof typeof brandsData] as BrandData
-  const [currentModel, setCurrentModel] = useState(0)
-  const [touchStart, setTouchStart] = useState<number | null>(null)
-  const [touchEnd, setTouchEnd] = useState<number | null>(null)
+  
+  const [listings, setListings] = useState<Listing[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const { isFavorite, addFavorite, removeFavorite } = useFavorites()
 
-  // Minimum swipe distance (in px)
-  const minSwipeDistance = 50
-
-  const onTouchStart = (e: TouchEvent) => {
-    setTouchEnd(null)
-    setTouchStart(e.targetTouches[0].clientX)
-  }
-
-  const onTouchMove = (e: TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX)
-  }
-
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return
-
-    const distance = touchStart - touchEnd
-    const isLeftSwipe = distance > minSwipeDistance
-    const isRightSwipe = distance < -minSwipeDistance
-
-    if (isLeftSwipe) {
-      setCurrentModel((prev) => (prev === brandInfo.featuredModels.length - 1 ? 0 : prev + 1))
+  useEffect(() => {
+    if (!brandInfo) {
+      setIsLoading(false)
+      return
     }
-    if (isRightSwipe) {
-      setCurrentModel((prev) => (prev === 0 ? brandInfo.featuredModels.length - 1 : prev - 1))
+
+    const fetchListings = async () => {
+      setIsLoading(true)
+      setError(null)
+      try {
+        // Use the brand name from the static data to query the listings API
+        const response = await fetch(`/api/listings?query=${encodeURIComponent(brandInfo.name)}&listingType=watch`)
+        if (!response.ok) {
+          throw new Error(`Failed to fetch listings for ${brandInfo.name}`)
+        }
+        const data = await response.json()
+        setListings(data.listings || [])
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setIsLoading(false)
+      }
     }
-  }
+
+    fetchListings()
+  }, [params.brand, brandInfo])
 
   if (!brandInfo) {
     return <div>Brand not found</div>
@@ -107,98 +155,66 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
       <section className="py-6 md:py-16">
         <div className="container">
           <div className="space-y-8 md:space-y-12">
-            {/* Featured Models */}
+            {/* Available Listings */}
             <div>
-              <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6">Featured Models</h2>
-              {/* Mobile Version - Carousel */}
-              <div className="md:hidden relative">
-                <div 
-                  className="relative"
-                  onTouchStart={onTouchStart}
-                  onTouchMove={onTouchMove}
-                  onTouchEnd={onTouchEnd}
-                >
-                  <Carousel
-                    className="w-full"
-                  >
-                    <CarouselContent className="-ml-4">
-                      {brandInfo.featuredModels.map((model, index) => (
-                        <CarouselItem key={index} className="pl-4 basis-4/5">
-                          <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                            <div className="relative aspect-square">
-                              <Image
-                                src={model.image}
-                                alt={model.name}
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                            <CardContent className="p-4">
-                              <h3 className="text-lg font-semibold mb-2 text-foreground">
-                                {model.name}
-                              </h3>
-                              <p className="text-sm text-muted-foreground mb-4">
-                                {model.description}
-                              </p>
-                              <p className="font-medium text-primary">
-                                {model.price}
-                              </p>
-                            </CardContent>
-                          </Card>
-                        </CarouselItem>
-                      ))}
-                    </CarouselContent>
-                    <CarouselPrevious className="absolute -left-4 top-1/2 -translate-y-1/2 z-10" />
-                    <CarouselNext className="absolute -right-4 top-1/2 -translate-y-1/2 z-10" />
-                  </Carousel>
+              <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6">Available Listings for {brandInfo.name}</h2>
+              {isLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="animate-pulse">
+                      <Skeleton className="bg-muted h-64 rounded-lg mb-4" />
+                      <div className="space-y-3">
+                        <Skeleton className="h-4 bg-muted rounded w-3/4" />
+                        <Skeleton className="h-4 bg-muted rounded w-1/2" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-
-              {/* Desktop Version - Grid */}
-              <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                {brandInfo.featuredModels.map((model, index) => (
-                  <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
-                    <div className="relative aspect-square">
-                      <Image
-                        src={model.image}
-                        alt={model.name}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <CardContent className="p-4 md:p-6">
-                      <h3 className="text-lg md:text-xl font-semibold mb-2 text-foreground">
-                        {model.name}
-                      </h3>
-                      <p className="text-sm md:text-base text-muted-foreground mb-4">
-                        {model.description}
-                      </p>
-                      <p className="font-medium text-primary">
-                        {model.price}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-
-            {/* Listings */}
-            <div>
-              <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6">Available Listings</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                {/* Placeholder for listings */}
-                <Card className="bg-card">
-                  <CardContent className="p-4 md:p-6">
-                    <div className="flex flex-col items-center">
-                      <Button asChild size="lg">
-                        <Link href={`/listings?brand=${params.brand}`}>
-                          Voir les listings
-                        </Link>
-                      </Button>
-                    </div>
+              ) : error ? (
+                <Card className="bg-destructive/10">
+                  <CardContent className="p-6 text-center text-destructive">
+                    <p className="font-medium">Error loading listings</p>
+                    <p className="text-sm">{error}</p>
                   </CardContent>
                 </Card>
-              </div>
+              ) : listings.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+                    {listings.map((listing) => (
+                      <ListingCard
+                        key={listing.id}
+                        listing={listing}
+                        isFavorite={isFavorite(listing.id)}
+                        onFavoriteClick={() => {
+                          if (isFavorite(listing.id)) {
+                            removeFavorite(listing.id)
+                          } else {
+                            addFavorite(listing.id)
+                          }
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <div className="mt-8 text-center">
+                    <Button asChild size="lg">
+                      <Link href={`/listings?query=${encodeURIComponent(brandInfo.name)}&listingType=watch`}>
+                        See all listings
+                      </Link>
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <Card className="bg-card">
+                  <CardContent className="p-6 text-center">
+                    <p className="text-muted-foreground">No active listings for {brandInfo.name} at the moment.</p>
+                    <Button asChild size="lg" className="mt-4">
+                        <Link href={`/listings`}>
+                          Browse all listings
+                        </Link>
+                      </Button>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </div>

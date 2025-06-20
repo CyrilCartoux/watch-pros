@@ -6,14 +6,6 @@ import Link from "next/link"
 import { useState, useEffect } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
-import { Bell, Loader2 } from "lucide-react"
-import { useToast } from "@/components/ui/use-toast"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
 import { useRouter, useSearchParams } from "next/navigation"
 
 interface Brand {

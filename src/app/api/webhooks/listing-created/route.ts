@@ -30,6 +30,7 @@ type ListingDetails = {
   brand_id: string
   model_id: string
   seller_id: string
+  listing_type: string
   brands: {
     label: string
   }
@@ -89,6 +90,7 @@ export async function POST(request: Request) {
         condition,
         included,
         brand_id,
+        listing_type,
         model_id,
         seller_id,
         brands:brand_id (
@@ -152,6 +154,9 @@ export async function POST(request: Request) {
     } else {
       // Filter alerts by additional criteria
       const matchingAlerts = rawAlerts.filter(alert => {
+        if (listingDetails.listing_type !== 'watch') {
+          return false
+        }
         // Check reference if specified
         if (alert.reference && alert.reference !== listingDetails.reference) {
           return false
