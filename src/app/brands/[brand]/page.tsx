@@ -99,7 +99,7 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
     if (!brandInfo) {
       setIsLoading(false)
       return
-    }
+  }
 
     const fetchListings = async () => {
       setIsLoading(true)
@@ -167,7 +167,7 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
                         <Skeleton className="h-4 bg-muted rounded w-3/4" />
                         <Skeleton className="h-4 bg-muted rounded w-1/2" />
                       </div>
-                    </div>
+                            </div>
                   ))}
                 </div>
               ) : error ? (
@@ -193,15 +193,15 @@ export default function BrandPage({ params }: { params: { brand: string } }) {
                           }
                         }}
                       />
-                    ))}
-                  </div>
+                ))}
+              </div>
                   <div className="mt-8 text-center">
                     <Button asChild size="lg">
                       <Link href={`/listings?query=${encodeURIComponent(brandInfo.name)}&listingType=watch`}>
                         See all listings
                       </Link>
                     </Button>
-                  </div>
+            </div>
                 </>
               ) : (
                 <Card className="bg-card">

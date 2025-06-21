@@ -119,12 +119,12 @@ export const emailTemplates = {
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 30px;">
           <h2 style="color: #2c3e50; margin-top: 0;">From: ${sellerName}</h2>
           <div style="background-color: white; padding: 15px; border-radius: 4px; margin: 20px 0; border: 1px solid #e0e0e0;">
-            <p style="color: #2c3e50; margin: 0; white-space: pre-wrap;">${message}</p>
+            <p style="color: #2c3e50; margin: 0; white-space: pre-wrap; line-height: 1.5;">${message}</p>
           </div>
         </div>
 
         <div style="text-align: center;">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/messages" 
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/account?tab=messages" 
              style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">
             View Message
           </a>

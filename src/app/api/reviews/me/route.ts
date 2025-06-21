@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 
 export async function GET() {
   try {
@@ -42,7 +43,7 @@ export async function GET() {
 
     // Get reviewer information
     const reviewerIds = reviews?.map(review => review.reviewer_id) || []
-    const { data: reviewerProfiles, error: reviewerError } = await supabase
+    const { data: reviewerProfiles, error: reviewerError } = await supabaseAdmin
       .from('profiles')
       .select(`
         id,

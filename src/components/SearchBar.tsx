@@ -147,7 +147,7 @@ export function SearchBar({ className, onSearch }: SearchBarProps) {
       onSearch(trimmed)
       return
     }
-    
+
     const params = new URLSearchParams()
     params.set('query', trimmed)
     router.push(`/listings?${params.toString()}`)

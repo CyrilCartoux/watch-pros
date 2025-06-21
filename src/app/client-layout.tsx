@@ -18,12 +18,12 @@ export default function ClientLayout({
       <NotificationsProvider>
         <BrandsAndModelsProvider>
           <div className="flex flex-col min-h-screen">
-            <Navbar />
+      <Navbar />
             <main className="flex-grow pb-16 md:pb-0">{children}</main>
-            <Footer />
+      <Footer />
           </div>
           <MobileBottomNav />
-          <Toaster />
+      <Toaster />
         </BrandsAndModelsProvider>
       </NotificationsProvider>
     </AuthProvider>

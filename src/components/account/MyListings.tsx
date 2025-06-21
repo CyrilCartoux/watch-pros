@@ -40,7 +40,7 @@ export default function MyListings() {
   const { toast } = useToast()
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [status, setStatus] = useState<'active' | 'sold' | 'paused'>('active')
+  const [status, setStatus] = useState<'active' | 'sold' | 'paused' | 'hold'>('active')
   const itemsPerPage = 12
 
   useEffect(() => {
@@ -201,11 +201,12 @@ export default function MyListings() {
         <h2 className="text-2xl font-bold">My Listings</h2>
         
         {/* Status Filter Tabs */}
-        <Tabs defaultValue="active" value={status} onValueChange={(value) => setStatus(value as 'active' | 'sold' | 'paused')}>
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs defaultValue="active" value={status} onValueChange={(value) => setStatus(value as 'active' | 'sold' | 'paused' | 'hold')}>
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="active">Active</TabsTrigger>
             <TabsTrigger value="sold">Sold</TabsTrigger>
             <TabsTrigger value="paused">Inactive</TabsTrigger>
+            <TabsTrigger value="hold">On Hold</TabsTrigger>
           </TabsList>
         </Tabs>
 

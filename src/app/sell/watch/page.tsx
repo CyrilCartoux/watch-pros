@@ -11,16 +11,19 @@ const steps = [
     id: 1,
     name: "Watch Details",
     description: "Basic information about your watch",
+    shortName: "Details",
   },
   {
     id: 2,
     name: "Condition & Price",
     description: "Specify condition and set your price",
+    shortName: "Price",
   },
   {
     id: 3,
     name: "Photos & Documents",
     description: "Add photos and supporting documents",
+    shortName: "Photos",
   },
 ];
 
@@ -111,13 +114,47 @@ export default function SellWatchPage() {
             </p>
           </div>
 
-          {/* Stepper */}
-          <div className="mb-8">
+          {/* Stepper - Mobile Optimized */}
+          <div className="mb-6 sm:mb-8">
             <nav aria-label="Progress">
-              <ol role="list" className="space-y-4 md:flex md:space-x-8 md:space-y-0">
+              {/* Mobile: Compact horizontal layout */}
+              <div className="md:hidden">
+                <div className="flex items-center justify-between">
+                  {steps.map((step, index) => (
+                    <div key={step.id} className="flex flex-col items-center flex-1">
+                      <div className="flex items-center w-full">
+                        {/* Line before step (except first) */}
+                        {index > 0 && (
+                          <div className="flex-1 h-0.5 bg-muted-foreground/30 mx-2" />
+                        )}
+                        
+                        {/* Step circle */}
+                        <div className="relative">
+                          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-medium">
+                            {step.id}
+                          </div>
+                        </div>
+                        
+                        {/* Line after step (except last) */}
+                        {index < steps.length - 1 && (
+                          <div className="flex-1 h-0.5 bg-muted-foreground/30 mx-2" />
+                        )}
+                      </div>
+                      
+                      {/* Step label */}
+                      <span className="text-xs font-medium text-primary mt-2 text-center px-1">
+                        {step.shortName}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Desktop: Original layout */}
+              <ol role="list" className="hidden md:flex md:space-x-8">
                 {steps.map((step, index) => (
-                  <li key={step.id} className="md:flex-1">
-                    <div className="group flex flex-col border-l-4 border-primary py-2 pl-4 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
+                  <li key={step.id} className="flex-1">
+                    <div className="group flex flex-col border-t-4 border-primary pt-4">
                       <span className="text-sm font-medium text-primary">{step.name}</span>
                       <span className="text-sm text-muted-foreground">{step.description}</span>
                     </div>

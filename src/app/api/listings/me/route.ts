@@ -67,7 +67,7 @@ export async function GET(request: Request) {
     const offset = (page - 1) * limit
 
     // Validate status
-    if (!['active', 'sold', 'paused'].includes(status)) {
+    if (!['active', 'sold', 'paused', 'hold'].includes(status)) {
       return NextResponse.json(
         { error: 'Invalid status' },
         { status: 400 }

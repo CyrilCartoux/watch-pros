@@ -134,7 +134,7 @@ export default function ListingsPage() {
 
   const updateURL = useCallback((f = filters, pg = currentPage) => {
     const params = new URLSearchParams()
-
+    
     // 1) barre de recherche
     if (f.query) params.set("query", f.query)
 
