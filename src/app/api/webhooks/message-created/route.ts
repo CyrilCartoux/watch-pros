@@ -171,19 +171,19 @@ export async function POST(request: Request) {
     }
 
     // Create in-app notification
-    try {
-      await supabaseAdmin.from('notifications').insert({
-        user_id: recipientId,
-        type: 'new_message',
-        title: `New message from ${senderName}`,
-        message: messageContent.length > 100 
-          ? messageContent.substring(0, 100) + '...' 
-          : messageContent,
-      })
-      console.log('✅ In-app notification created')
-    } catch (notificationError) {
-      console.error('❌ Failed to create in-app notification:', notificationError)
-    }
+    // try {
+    //   await supabaseAdmin.from('notifications').insert({
+    //     user_id: recipientId,
+    //     type: 'new_message',
+    //     title: `New message from ${senderName}`,
+    //     message: messageContent.length > 100 
+    //       ? messageContent.substring(0, 100) + '...' 
+    //       : messageContent,
+    //   })
+    //   console.log('✅ In-app notification created')
+    // } catch (notificationError) {
+    //   console.error('❌ Failed to create in-app notification:', notificationError)
+    // }
 
     const stats = {
       emailsSent: emailSent ? 1 : 0,

@@ -27,6 +27,7 @@ interface Conversation {
   participant2_id: string
   created_at: string
   last_message?: Message
+  unread_count?: number
   other_user?: {
     id: string
     name: string
@@ -73,8 +74,17 @@ export function MessagesTab() {
   const [loadingMore, setLoadingMore] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [offset, setOffset] = useState(0)
+  const [filter, setFilter] = useState<'all' | 'unread'>('all')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const supabase = useMemo(() => createClient(), [])
+
+  // Filter conversations based on current filter
+  const filteredConversations = useMemo(() => {
+    if (filter === 'all') {
+      return conversations
+    }
+    return conversations.filter(conv => (conv.unread_count || 0) > 0)
+  }, [conversations, filter])
   const unreadMessageIds = useRef<string[]>([])
   const debouncedMarkAsRead = useMemo(
     () => debounce(async () => {
@@ -84,24 +94,40 @@ export function MessagesTab() {
       unreadMessageIds.current = []
 
       try {
-        const { error } = await supabase
-          .from('messages')
-          .update({ read: true })
-          .in('id', idsToMark)
+        // Use API route instead of direct Supabase client
+        const response = await fetch('/api/messages/mark-read', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ messageIds: idsToMark }),
+        })
 
-        if (error) {
-          console.error('Failed to mark messages as read:', error)
+        if (!response.ok) {
+          const errorData = await response.json()
+          console.error('Failed to mark messages as read:', errorData)
           // Retry after delay
           setTimeout(() => {
             unreadMessageIds.current = [...idsToMark, ...unreadMessageIds.current]
             debouncedMarkAsRead()
           }, 2000)
+        } else {
+          // Update conversation unread count
+          if (selectedConversation) {
+            setConversations(prev => 
+              prev.map(conv => 
+                conv.id === selectedConversation.id
+                  ? { ...conv, unread_count: Math.max(0, (conv.unread_count || 0) - idsToMark.length) }
+                  : conv
+              )
+            )
+          }
         }
       } catch (err) {
         console.error('Error marking messages as read:', err)
       }
     }, 1000),
-    [supabase]
+    [selectedConversation]
   )
   const [pendingMessages, setPendingMessages] = useState<Set<string>>(new Set())
   const isMounted = useRef(true)
@@ -167,17 +193,25 @@ export function MessagesTab() {
 
       if (error) throw error
 
-      const formattedConversations = data.map((conv: any) => ({
-        ...conv,
-        last_message: conv.messages?.[0],
-        other_user: conv.participant1_id === user?.id ? {
-          ...conv.participant2,
-          avatar_url: conv.participant2.seller?.company_logo_url
-        } : {
-          ...conv.participant1,
-          avatar_url: conv.participant1.seller?.company_logo_url
+      const formattedConversations = data.map((conv: any) => {
+        // Calculate unread count for messages from other user
+        const unreadCount = conv.messages?.filter((msg: Message) => 
+          !msg.read && msg.sender_id !== user?.id
+        ).length || 0
+
+        return {
+          ...conv,
+          last_message: conv.messages?.[0],
+          unread_count: unreadCount,
+          other_user: conv.participant1_id === user?.id ? {
+            ...conv.participant2,
+            avatar_url: conv.participant2.seller?.company_logo_url
+          } : {
+            ...conv.participant1,
+            avatar_url: conv.participant1.seller?.company_logo_url
+          }
         }
-      }))
+      })
 
       setConversations(prev => reset ? formattedConversations : [...prev, ...formattedConversations])
       setHasMore(data.length === 20)
@@ -224,16 +258,24 @@ export function MessagesTab() {
           return newMessages
         })
         
-        // Update last conversation
+        // Update last conversation and unread count
         setConversations(prev => 
-          prev.map(conv => 
-            conv.id === selectedConversation.id
-              ? { ...conv, last_message: newMessage }
-              : conv
-          )
+          prev.map(conv => {
+            if (conv.id === selectedConversation.id) {
+              const isFromOtherUser = newMessage.sender_id !== user.id
+              const newUnreadCount = isFromOtherUser ? (conv.unread_count || 0) + 1 : conv.unread_count || 0
+              
+              return { 
+                ...conv, 
+                last_message: newMessage,
+                unread_count: newUnreadCount
+              }
+            }
+            return conv
+          })
         )
 
-        // Mark message as read if sent by other user
+        // Mark message as read if sent by other user and conversation is active
         if (newMessage.sender_id !== user.id) {
           unreadMessageIds.current.push(newMessage.id)
           debouncedMarkAsRead()
@@ -276,6 +318,15 @@ export function MessagesTab() {
       if (unreadMessages.length > 0) {
         unreadMessageIds.current = unreadMessages.map(msg => msg.id)
         debouncedMarkAsRead()
+        
+        // Update conversation unread count immediately
+        setConversations(prev => 
+          prev.map(conv => 
+            conv.id === conversationId
+              ? { ...conv, unread_count: 0 }
+              : conv
+          )
+        )
       }
     } catch (err) {
       console.error('Error loading messages:', err)
@@ -425,69 +476,119 @@ export function MessagesTab() {
         {/* Filters */}
         <div className="p-4 border-b">
           <div className="flex gap-2">
-            <button className="px-3 py-1.5 text-sm font-medium rounded-md bg-primary text-primary-foreground">
+            <button 
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                filter === 'all' 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+              onClick={() => setFilter('all')}
+            >
               All
+            </button>
+            <button 
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                filter === 'unread' 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+              onClick={() => setFilter('unread')}
+            >
+              Unread
+              {conversations.some(conv => (conv.unread_count || 0) > 0) && (
+                <span className="ml-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5">
+                  {conversations.reduce((total, conv) => total + (conv.unread_count || 0), 0)}
+                </span>
+              )}
             </button>
           </div>
         </div>
 
         {/* List */}
         <div className="flex-1 overflow-y-auto">
-          <div className="divide-y">
-            {conversations.map((conversation) => (
-              <button 
-                key={conversation.id}
-                className={`w-full p-4 hover:bg-muted/50 transition-colors text-left ${selectedConversation?.id === conversation.id ? 'bg-muted/50' : ''}`}
-                onClick={() => handleSelectConversation(conversation)}
-              >
-                <div className="flex items-start gap-3">
-                  <Avatar>
-                    <AvatarImage src={conversation.other_user?.avatar_url || undefined} />
-                    <AvatarFallback>
-                      {conversation.other_user?.name?.charAt(0) || '?'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="font-medium truncate">
-                        {conversation.other_user?.seller?.watch_pros_name}
-                      </p>
-                      {conversation.last_message && (
-                        <span className="text-sm text-muted-foreground">
-                          {new Date(conversation.last_message.created_at).toLocaleTimeString()}
-                        </span>
-                      )}
-                    </div>
-                    {conversation.last_message && (
-                      <p className="text-sm text-muted-foreground truncate">
-                        {conversation.last_message.content}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </button>
-            ))}
-          </div>
-          
-          {/* Load more button */}
-          {hasMore && (
-            <div className="p-4 text-center">
-              <Button
-                variant="outline"
-                onClick={handleLoadMore}
-                disabled={loadingMore}
-                className="w-full"
-              >
-                {loadingMore ? (
+          {filteredConversations.length === 0 ? (
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+              <div className="text-center">
+                {filter === 'unread' ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
-                    Loading...
+                    <p className="text-sm">No unread messages</p>
+                    <p className="text-xs mt-1">All caught up!</p>
                   </>
                 ) : (
-                  'Load more'
+                  <>
+                    <p className="text-sm">No conversations yet</p>
+                    <p className="text-xs mt-1">Start a conversation with a seller</p>
+                  </>
                 )}
-              </Button>
+              </div>
             </div>
+          ) : (
+            <>
+              <div className="divide-y">
+                {filteredConversations.map((conversation) => (
+                  <button 
+                    key={conversation.id}
+                    className={`w-full p-4 hover:bg-muted/50 transition-colors text-left ${selectedConversation?.id === conversation.id ? 'bg-muted/50' : ''}`}
+                    onClick={() => handleSelectConversation(conversation)}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="relative">
+                        <Avatar>
+                          <AvatarImage src={conversation.other_user?.avatar_url || undefined} />
+                          <AvatarFallback>
+                            {conversation.other_user?.name?.charAt(0) || '?'}
+                          </AvatarFallback>
+                        </Avatar>
+                        {/* Unread message indicator */}
+                        {(conversation.unread_count || 0) > 0 && (
+                          <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
+                            {conversation.unread_count! > 99 ? '99+' : conversation.unread_count}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className={`font-medium truncate ${(conversation.unread_count || 0) > 0 ? 'font-semibold' : ''}`}>
+                            {conversation.other_user?.seller?.watch_pros_name}
+                          </p>
+                          {conversation.last_message && (
+                            <span className="text-sm text-muted-foreground">
+                              {new Date(conversation.last_message.created_at).toLocaleTimeString()}
+                            </span>
+                          )}
+                        </div>
+                        {conversation.last_message && (
+                          <p className={`text-sm truncate ${(conversation.unread_count || 0) > 0 ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+                            {conversation.last_message.content}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              
+              {/* Load more button */}
+              {hasMore && filteredConversations.length > 0 && (
+                <div className="p-4 text-center">
+                  <Button
+                    variant="outline"
+                    onClick={handleLoadMore}
+                    disabled={loadingMore}
+                    className="w-full"
+                  >
+                    {loadingMore ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
+                        Loading...
+                      </>
+                    ) : (
+                      'Load more'
+                    )}
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -550,7 +651,7 @@ export function MessagesTab() {
                           message.sender_id === user?.id 
                             ? "bg-primary text-primary-foreground" 
                             : "bg-muted"
-                        } ${message.pending ? "opacity-50" : ""}`}>
+                        } ${message.pending ? "opacity-50" : ""} ${!message.read && message.sender_id !== user?.id ? "border-l-4 " : ""}`}>
                           <p>{message.content}</p>
                           {message.pending && (
                             <div className="mt-1 flex justify-end">
@@ -558,11 +659,18 @@ export function MessagesTab() {
                             </div>
                           )}
                         </div>
-                        <span className={`text-xs text-muted-foreground mt-1 block ${
-                          message.sender_id === user?.id ? "text-right" : ""
+                        <div className={`flex items-center gap-2 mt-1 ${
+                          message.sender_id === user?.id ? "justify-end" : ""
                         }`}>
-                          {new Date(message.created_at).toLocaleTimeString()}
-                        </span>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(message.created_at).toLocaleTimeString()}
+                          </span>
+                          {message.sender_id === user?.id && (
+                            <span className="text-xs text-muted-foreground">
+                              {message.read ? "✓✓" : "✓"}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}

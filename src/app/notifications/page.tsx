@@ -419,7 +419,7 @@ export default function NotificationsPage() {
 
   const removeNotification = async (id: string) => {
     try {
-      const response = await fetch(`/api/notifications/${id}`, {
+      const response = await fetch(`/api/notifications?id=${id}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error("Failed to delete notification");
