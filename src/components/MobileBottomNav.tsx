@@ -1,12 +1,14 @@
 "use client"
 
-import { Home, MessageCircle, Bell, User, Plus } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
+import { Home, Search, Heart, User, MessageSquare, Bell, Plus } from "lucide-react"
 import { useAuth } from "@/contexts/AuthContext"
 import { useNotifications } from "@/contexts/NotificationsContext"
-import { Badge } from "./ui/badge"
-import { Button } from "./ui/button"
+import { useMessages } from "@/contexts/MessagesContext"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Popover,
   PopoverContent,
@@ -16,7 +18,7 @@ import { useState } from "react"
 
 const navItems = [
   { href: "/listings", icon: Home, label: "Listings" },
-  { href: "/account?tab=messages", icon: MessageCircle, label: "Messages" },
+  { href: "/account?tab=messages", icon: MessageSquare, label: "Messages" },
   { href: "/notifications", icon: Bell, label: "Notifications" },
   { href: "/account", icon: User, label: "Account" },
 ]
@@ -25,7 +27,9 @@ export function MobileBottomNav() {
   const pathname = usePathname()
   const { user } = useAuth()
   const { unreadCount } = useNotifications()
+  const { unreadCount: unreadMessagesCount } = useMessages()
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
+
 
   if (!user) {
     return null
@@ -56,12 +60,12 @@ export function MobileBottomNav() {
           >
             <div className="relative">
               <item.icon className="h-5 w-5" />
-              {item.label === "Messages" && unreadCount > 0 && (
+              {item.label === "Messages" && unreadMessagesCount > 0 && (
                 <Badge 
                   variant="destructive" 
                   className="absolute -top-1 -right-1 h-3 w-3 flex items-center justify-center p-0 text-[8px]"
                 >
-                  {unreadCount}
+                  {unreadMessagesCount}
                 </Badge>
               )}
             </div>

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react"
 import { ArrowLeft, Send } from "lucide-react"
 import Link from "next/link"
 import { useAuth } from "@/contexts/AuthContext"
+import { useMessages } from "@/contexts/MessagesContext"
 import { createClient } from "@/lib/supabase/client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -26,6 +27,7 @@ interface Conversation {
   participant1_id: string
   participant2_id: string
   created_at: string
+  updated_at?: string
   last_message?: Message
   unread_count?: number
   other_user?: {
@@ -64,6 +66,7 @@ function useChatScroll() {
 export function MessagesTab() {
   const { user } = useAuth()
   const { toast } = useToast()
+  const { fetchUnreadCount } = useMessages()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -122,12 +125,14 @@ export function MessagesTab() {
               )
             )
           }
+          // Update global unread count
+          fetchUnreadCount()
         }
       } catch (err) {
         console.error('Error marking messages as read:', err)
       }
     }, 1000),
-    [selectedConversation]
+    [selectedConversation, fetchUnreadCount]
   )
   const [pendingMessages, setPendingMessages] = useState<Set<string>>(new Set())
   const isMounted = useRef(true)
@@ -258,27 +263,42 @@ export function MessagesTab() {
           return newMessages
         })
         
-        // Update last conversation and unread count
-        setConversations(prev => 
-          prev.map(conv => {
-            if (conv.id === selectedConversation.id) {
+        // Update conversations list with new message
+        setConversations(prev => {
+          const updatedConversations = prev.map(conv => {
+            if (conv.id === newMessage.conversation_id) {
               const isFromOtherUser = newMessage.sender_id !== user.id
               const newUnreadCount = isFromOtherUser ? (conv.unread_count || 0) + 1 : conv.unread_count || 0
               
               return { 
                 ...conv, 
                 last_message: newMessage,
-                unread_count: newUnreadCount
+                unread_count: newUnreadCount,
+                updated_at: new Date().toISOString() // Force reordering
               }
             }
             return conv
           })
-        )
+          
+          // Sort conversations: unread first, then by updated_at
+          return updatedConversations.sort((a, b) => {
+            const aUnread = a.unread_count || 0
+            const bUnread = b.unread_count || 0
+            
+            if (aUnread > 0 && bUnread === 0) return -1
+            if (aUnread === 0 && bUnread > 0) return 1
+            
+            return new Date(b.updated_at || b.created_at).getTime() - 
+                   new Date(a.updated_at || a.created_at).getTime()
+          })
+        })
 
         // Mark message as read if sent by other user and conversation is active
         if (newMessage.sender_id !== user.id) {
           unreadMessageIds.current.push(newMessage.id)
           debouncedMarkAsRead()
+          // Update global unread count
+          fetchUnreadCount()
         }
       })
       .subscribe((status) => {
@@ -294,7 +314,87 @@ export function MessagesTab() {
       console.log('Cleaning up channel subscription')
       supabase.removeChannel(newChannel)
     }
-  }, [user, selectedConversation, supabase])
+  }, [user, selectedConversation, supabase, debouncedMarkAsRead, fetchUnreadCount])
+
+  // Global subscription for new messages (even when no conversation is selected)
+  useEffect(() => {
+    if (!user) return
+
+    const globalChannel = supabase.channel('global-messages')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+        filter: `sender_id=neq.${user.id}`
+      }, (payload) => {
+        const newMessage = payload.new as Message
+        console.log('Global: New message received:', newMessage)
+        
+        // Update conversations list with new message
+        setConversations(prev => {
+          const updatedConversations = prev.map(conv => {
+            if (conv.id === newMessage.conversation_id) {
+              const isFromOtherUser = newMessage.sender_id !== user.id
+              const newUnreadCount = isFromOtherUser ? (conv.unread_count || 0) + 1 : conv.unread_count || 0
+              
+              return { 
+                ...conv, 
+                last_message: newMessage,
+                unread_count: newUnreadCount,
+                updated_at: new Date().toISOString() // Force reordering
+              }
+            }
+            return conv
+          })
+          
+          // Sort conversations: unread first, then by updated_at
+          return updatedConversations.sort((a, b) => {
+            const aUnread = a.unread_count || 0
+            const bUnread = b.unread_count || 0
+            
+            if (aUnread > 0 && bUnread === 0) return -1
+            if (aUnread === 0 && bUnread > 0) return 1
+            
+            return new Date(b.updated_at || b.created_at).getTime() - 
+                   new Date(a.updated_at || a.created_at).getTime()
+          })
+        })
+      })
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'messages',
+        filter: `sender_id=neq.${user.id}`
+      }, (payload) => {
+        const updatedMessage = payload.new as Message
+        console.log('Global: Message updated:', updatedMessage)
+        
+        // If message was marked as read, update conversation unread count
+        if (updatedMessage.read) {
+          setConversations(prev => 
+            prev.map(conv => {
+              if (conv.id === updatedMessage.conversation_id) {
+                // Recalculate unread count for this conversation
+                const unreadCount = conv.messages?.filter((msg: Message) => 
+                  !msg.read && msg.sender_id !== user.id
+                ).length || 0
+                
+                return { 
+                  ...conv, 
+                  unread_count: unreadCount
+                }
+              }
+              return conv
+            })
+          )
+        }
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(globalChannel)
+    }
+  }, [user, supabase])
 
   // Load messages for a conversation
   const loadMessages = async (conversationId: string) => {
@@ -327,6 +427,8 @@ export function MessagesTab() {
               : conv
           )
         )
+        // Update global unread count
+        fetchUnreadCount()
       }
     } catch (err) {
       console.error('Error loading messages:', err)
