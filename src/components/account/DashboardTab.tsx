@@ -317,7 +317,8 @@ export function DashboardTab() {
         <CardContent>
           <div className="space-y-4">
             {(data.by_model || []).map((model) => (
-              <div key={model.label} className="flex items-center justify-between">
+              model.avg_sale_price > 0 ? (
+                <div key={model.label} className="flex items-center justify-between">
                 <span className="text-sm font-medium">{model.label}</span>
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-muted-foreground">
@@ -328,6 +329,7 @@ export function DashboardTab() {
                   </span>
               </div>
               </div>
+              ) : null
             ))}
           </div>
         </CardContent>
@@ -371,14 +373,23 @@ export function DashboardTab() {
                 {data.quota.used} of {data.quota.max || '∞'}
               </span>
             </div>
-            <div className="h-2 bg-secondary rounded-full">
+            <div className="h-2 bg-secondary rounded-full overflow-hidden">
               <div
-                className="h-full bg-primary rounded-full"
+                className={`h-full rounded-full transition-all duration-300 ${
+                  data.quota.max && data.quota.used > data.quota.max 
+                    ? 'bg-destructive' 
+                    : 'bg-primary'
+                }`}
                 style={{
-                  width: `${data.quota.max ? (data.quota.used / data.quota.max) * 100 : 0}%`,
+                  width: `${data.quota.max ? Math.min((data.quota.used / data.quota.max) * 100, 100) : 0}%`,
                 }}
               />
             </div>
+            {data.quota.max && data.quota.used > data.quota.max && (
+              <p className="text-xs text-destructive font-medium">
+                Quota exceeded by {data.quota.used - data.quota.max} listings
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>

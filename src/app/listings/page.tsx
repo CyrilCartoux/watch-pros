@@ -92,6 +92,121 @@ interface Filters {
   country: string;
 }
 
+const quickFilterCategories = {
+  condition: [
+    { label: "New", value: "new" },
+    { label: "Very Good", value: "very-good" },
+    { label: "Fair Condition", value: "fair" }
+  ],
+  included: [ 
+    {
+    label: "Full Set",
+    value:'full-set'
+  },
+  {
+    label: "Original papers", 
+    value: 'papers-only'
+  }],
+  brands: [
+    { label: "Rolex", value: "Rolex" },
+    { label: "Audemars Piguet", value: "Audemars Piguet" },
+    { label: "Patek Philippe", value: "Patek Philippe" },
+    { label: "Omega", value: "Omega" },
+    { label: "Cartier", value: "Cartier"}
+  ],
+  shippingDelay: [
+    {
+      label: '1-2 days',
+      value: '1-2'
+    },
+    {
+      label: '2-3 days',
+      value: '2-3'
+    },
+    {
+      label: '3-5 days',
+      value: '3-5'
+    },
+  ]
+}
+
+function QuickFilters({
+  filters,
+  onFilterChange,
+}: {
+  filters: Filters
+  onFilterChange: (newFilters: Filters) => void
+}) {
+  const handleFilterClick = (
+    type: "condition" | "included" | "brands" | "shippingDelay",
+    value: string
+  ) => {
+    const newFilters = { ...filters }
+
+    if (type === "brands") {
+      newFilters.query = filters.query === value ? "" : value
+    } else if (type === "condition") {
+      newFilters.condition = filters.condition === value ? "" : value
+    } else if (type === "included") {
+      newFilters.included = filters.included === value ? "" : value
+    } else if (type === "shippingDelay") {
+      newFilters.shippingDelay = filters.shippingDelay === value ? "" : value
+    }
+    onFilterChange(newFilters)
+  }
+
+  return (
+    <div className="overflow-x-auto pb-2">
+      <div className="flex items-center gap-2 whitespace-nowrap">
+        {quickFilterCategories.condition.map((item) => (
+          <Button
+            key={item.value}
+            variant={filters.condition === item.value ? "default" : "outline"}
+            size="sm"
+            onClick={() => handleFilterClick("condition", item.value)}
+          >
+            {item.label}
+          </Button>
+        ))}
+        <div className="border-l h-5 mx-2"></div>
+        {quickFilterCategories.included.map((item) => (
+          <Button
+            key={item.value}
+            variant={filters.included === item.value ? "default" : "outline"}
+            size="sm"
+            onClick={() => handleFilterClick("included", item.value)}
+          >
+            {item.label}
+          </Button>
+        ))}
+        <div className="border-l h-5 mx-2"></div>
+        {quickFilterCategories.brands.map((item) => (
+          <Button
+            key={item.value}
+            variant={filters.query === item.value ? "default" : "outline"}
+            size="sm"
+            onClick={() => handleFilterClick("brands", item.value)}
+          >
+            {item.label}
+          </Button>
+        ))}
+        <div className="border-l h-5 mx-2"></div>
+        {quickFilterCategories.shippingDelay.map((item) => (
+          <Button
+            key={item.value}
+            variant={filters.shippingDelay === item.value ? "default" : "outline"}
+            size="sm"
+            onClick={() => handleFilterClick("shippingDelay", item.value)}
+          >
+            {item.label}
+          </Button>
+        ))}
+      </div>
+
+    </div>
+  )
+}
+
 export default function ListingsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -124,13 +239,6 @@ export default function ListingsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const itemsPerPage = 12
-
-  const handleTypeChange = (type: string) => {
-    const newFilters = { ...filters, listingType: type }
-    setFilters(newFilters)
-    setCurrentPage(1)
-    updateURL(newFilters, 1)
-  }
 
   const updateURL = useCallback((f = filters, pg = currentPage) => {
     const params = new URLSearchParams()
@@ -177,14 +285,14 @@ export default function ListingsPage() {
       minPrice:     "",
       maxPrice:     "",
       shippingDelay:"",
-      listingType:  "",
       country:      "",
+      listingType: filters.listingType,
     }
     setFilters(empty)
     setCurrentPage(1)
     updateURL(empty, 1)
     setIsFiltersOpen(false)
-  }, [updateURL])
+  }, [updateURL, filters.listingType])
 
   const removeFilter = useCallback((key: keyof Filters) => {
     const newFilters = { ...filters, [key]: "" }
@@ -192,27 +300,26 @@ export default function ListingsPage() {
     updateURL(newFilters)
   }, [filters, updateURL])
 
-  const fetchListings = async () => {
-    const controller = new AbortController()
+  const fetchListings = async (currentFilters: Filters, page: number, signal: AbortSignal) => {
     setIsLoading(true)
     setError(null)
     try {
       const params = new URLSearchParams({
-        page: currentPage.toString(),
+        page: page.toString(),
         limit: itemsPerPage.toString(),
       })
 
-      // Add filters to params, but only send query to API (not brand/model/reference)
+      // Add filters to params
       const apiFilters = {
-        query: filters.query,
-        condition: filters.condition,
-        dialColor: filters.dialColor,
-        included: filters.included,
-        minPrice: filters.minPrice,
-        maxPrice: filters.maxPrice,
-        shippingDelay: filters.shippingDelay,
-        listingType: filters.listingType,
-        country: filters.country,
+        query: currentFilters.query,
+        condition: currentFilters.condition,
+        dialColor: currentFilters.dialColor,
+        included: currentFilters.included,
+        minPrice: currentFilters.minPrice,
+        maxPrice: currentFilters.maxPrice,
+        shippingDelay: currentFilters.shippingDelay,
+        listingType: currentFilters.listingType,
+        country: currentFilters.country,
       }
 
       Object.entries(apiFilters).forEach(([key, value]) => {
@@ -222,7 +329,7 @@ export default function ListingsPage() {
       })
 
       const response = await fetch(`/api/listings?${params}`, {
-        signal: controller.signal
+        signal: signal
       })
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}))
@@ -244,11 +351,11 @@ export default function ListingsPage() {
     } finally {
       setIsLoading(false)
     }
-    return () => controller.abort()
   }
 
   // Initialize filters from URL on mount and when URL changes
   useEffect(() => {
+    const controller = new AbortController()
     const initializeFromURL = async () => {
       try {
         setError(null)
@@ -259,6 +366,9 @@ export default function ListingsPage() {
           setError(errors.join(", "))
           return
         }
+
+        const page = Number(params.get("page")) || 1
+        setCurrentPage(page)
 
         // Update filters state from the memoized initialFilters
         const newFilters = {
@@ -275,28 +385,16 @@ export default function ListingsPage() {
         setFilters(newFilters)
         
         // Fetch listings with the new filters
-        await fetchListings()
+        await fetchListings(newFilters, page, controller.signal)
       } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return
         setError(err instanceof Error ? err.message : "Failed to initialize filters")
       }
     }
 
     initializeFromURL()
+    return () => controller.abort()
   }, [searchParams]) // Only depend on searchParams
-
-  // Update URL when page changes
-  useEffect(() => {
-    const paramsPage = Number(searchParams.get("page")) || 1;
-    // Only trigger update if the state is out of sync with URL
-    if (currentPage !== paramsPage) {
-      updateURL();
-    }
-
-    // Scroll to top when navigating away from page 1
-    if (currentPage > 1) {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    }
-  }, [currentPage, searchParams, updateURL]);
 
   const handleSearchBar = (query: string) => {
     const newFilters = { ...filters, query }
@@ -323,26 +421,6 @@ export default function ListingsPage() {
         </div>
       </div>
 
-      {/* Listing Type Tabs */}
-      <div className="flex justify-center mb-8">
-        <Tabs value={filters.listingType || 'all'} onValueChange={handleTypeChange}>
-          <TabsList className="inline-flex h-auto rounded-full bg-muted p-1">
-            <TabsTrigger 
-              value="watch"
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-full px-6 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-            >
-              Watches
-            </TabsTrigger>
-            <TabsTrigger 
-              value="accessory"
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-full px-6 py-2 text-base font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-            >
-              Accessories
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-
       <div className="flex flex-col gap-4 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h1 className="text-base sm:text-lg font-bold">
@@ -353,15 +431,27 @@ export default function ListingsPage() {
               </span>
             )}
           </h1>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
-            <Button
-              size="lg"
-              className="flex items-center justify-center gap-2 font-medium text-base px-6 h-12 bg-primary hover:bg-primary/90 w-full sm:w-auto"
-              onClick={() => setIsFiltersOpen(true)}
-            >
-              <SlidersHorizontal className="h-6 w-6" />
-              Filters
-            </Button>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-2 flex-shrink-0"
+            onClick={() => setIsFiltersOpen(true)}
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            <span className="hidden sm:inline">Filters</span>
+          </Button>
+          <div className="flex-1 min-w-0">
+            <QuickFilters
+              filters={filters}
+              onFilterChange={(newFilters) => {
+                setFilters(newFilters)
+                setCurrentPage(1)
+                updateURL(newFilters, 1)
+              }}
+            />
           </div>
         </div>
 

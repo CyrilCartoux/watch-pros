@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { watchConditions } from "@/data/watch-conditions"
-import { dialColors } from "@/data/watch-properties"
+import { dialColors, includedOptions } from "@/data/watch-properties"
 import { ListingType } from "@/types/enums/listings-enum"
 import { useBrandsAndModels } from "@/hooks/useBrandsAndModels"
 import { countries } from "@/data/form-options"
@@ -143,36 +143,6 @@ export function ModalFilters({
 
   return (
     <div className="space-y-6 h-[calc(100vh-12rem)] sm:h-[calc(100vh-8rem)] overflow-y-auto px-2 pb-24">
-      {/* Type Selection */}
-      <div className="space-y-2">
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={() => handleFilterChange("listingType", ListingType.WATCH)}
-            className={`flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-colors ${
-              localFilters.listingType === ListingType.WATCH
-                ? "border-primary bg-primary/5"
-                : "border-input hover:border-primary/50"
-            }`}
-          >
-            <Watch className="w-6 h-6 md:w-8 md:h-8 text-primary mb-1" />
-            <span className="font-medium text-sm">Watch</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => handleFilterChange("listingType", ListingType.ACCESSORY)}
-            className={`flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-colors ${
-              localFilters.listingType === ListingType.ACCESSORY
-                ? "border-primary bg-primary/5"
-                : "border-input hover:border-primary/50"
-            }`}
-          >
-            <Gift className="w-6 h-6 md:w-8 md:h-8 text-primary mb-1" />
-            <span className="font-medium text-sm">Accessory</span>
-          </button>
-        </div>
-      </div>
-
       {/* Watch Selection */}
       <FilterSection 
         title="Watch Selection" 
@@ -370,10 +340,11 @@ export function ModalFilters({
                 <SelectValue placeholder="Select option" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="full-set">Full set (Box & Papers)</SelectItem>
-                <SelectItem value="box-only">Box only</SelectItem>
-                <SelectItem value="papers-only">Papers only</SelectItem>
-                <SelectItem value="watch-only">Watch only</SelectItem>
+                {includedOptions.map((option) => (
+                  <SelectItem key={option.id} value={option.id}>
+                    {option.title}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

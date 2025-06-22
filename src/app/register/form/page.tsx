@@ -228,9 +228,11 @@ export default function RegisterFormPage() {
     mode: "onSubmit",
   })
 
+  const { watch: documentsWatch } = documentsForm
+  const isDocumentsIncomplete = !documentsWatch("idCardFront") || !documentsWatch("idCardBack") || !documentsWatch("proofOfAddress")
+
   // Détermine si on doit désactiver les boutons
-  // TODO REMOVE FALSE
-  const disableContinue = false //isLoading || isSeller || !isAuthenticated
+  const disableContinue = isLoading || isSeller || !isAuthenticated
 
   // Alert message
   let alertMessage = null
@@ -279,6 +281,7 @@ export default function RegisterFormPage() {
   // Handle seller registration (Step 3)
   const handleSellerRegistration = async () => {
     setLoadingSellerRegistration(true)
+    setIsSubmitted(prev => ({ ...prev, documents: true }))
     try {
       // Check that all forms are valid
       const isAccountValid = await accountForm.trigger()
@@ -1174,7 +1177,7 @@ export default function RegisterFormPage() {
                         type="button" 
                         onClick={handleSellerRegistration}
                         size="lg"
-                        disabled={disableContinue || loadingSellerRegistration}
+                        disabled={disableContinue || loadingSellerRegistration || isDocumentsIncomplete}
                       >
                         {loadingSellerRegistration ? (
                           <div className="flex items-center gap-2">

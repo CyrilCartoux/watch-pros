@@ -96,6 +96,11 @@ export function MessagesTab() {
       const idsToMark = [...unreadMessageIds.current]
       unreadMessageIds.current = []
 
+      // Filter out temporary message IDs (they start with 'temp-')
+      const validMessageIds = idsToMark.filter(id => !id.startsWith('temp-'))
+
+      if (validMessageIds.length === 0) return
+
       try {
         // Use API route instead of direct Supabase client
         const response = await fetch('/api/messages/mark-read', {
@@ -103,7 +108,7 @@ export function MessagesTab() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ messageIds: idsToMark }),
+          body: JSON.stringify({ messageIds: validMessageIds }),
         })
 
         if (!response.ok) {
@@ -111,7 +116,7 @@ export function MessagesTab() {
           console.error('Failed to mark messages as read:', errorData)
           // Retry after delay
           setTimeout(() => {
-            unreadMessageIds.current = [...idsToMark, ...unreadMessageIds.current]
+            unreadMessageIds.current = [...validMessageIds, ...unreadMessageIds.current]
             debouncedMarkAsRead()
           }, 2000)
         } else {
@@ -120,7 +125,7 @@ export function MessagesTab() {
             setConversations(prev => 
               prev.map(conv => 
                 conv.id === selectedConversation.id
-                  ? { ...conv, unread_count: Math.max(0, (conv.unread_count || 0) - idsToMark.length) }
+                  ? { ...conv, unread_count: Math.max(0, (conv.unread_count || 0) - validMessageIds.length) }
                   : conv
               )
             )
@@ -204,21 +209,34 @@ export function MessagesTab() {
           !msg.read && msg.sender_id !== user?.id
         ).length || 0
 
+        // Sort messages by created_at (most recent first) and get the last message
+        const sortedMessages = conv.messages?.sort((a: Message, b: Message) => 
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        ) || []
+        const lastMessage = sortedMessages[0]
+
         return {
           ...conv,
-          last_message: conv.messages?.[0],
+          last_message: lastMessage,
           unread_count: unreadCount,
           other_user: conv.participant1_id === user?.id ? {
             ...conv.participant2,
-            avatar_url: conv.participant2.seller?.company_logo_url
+            avatar_url: conv.participant2?.seller?.company_logo_url || null
           } : {
             ...conv.participant1,
-            avatar_url: conv.participant1.seller?.company_logo_url
+            avatar_url: conv.participant1?.seller?.company_logo_url || null
           }
         }
       })
 
-      setConversations(prev => reset ? formattedConversations : [...prev, ...formattedConversations])
+      // Sort conversations by last message date (most recent first)
+      const sortedConversations = formattedConversations.sort((a, b) => {
+        const aDate = a.last_message?.created_at || a.created_at
+        const bDate = b.last_message?.created_at || b.created_at
+        return new Date(bDate).getTime() - new Date(aDate).getTime()
+      })
+
+      setConversations(prev => reset ? sortedConversations : [...prev, ...sortedConversations])
       setHasMore(data.length === 20)
       setOffset(prev => prev + 20)
     } catch (err) {
@@ -280,7 +298,7 @@ export function MessagesTab() {
             return conv
           })
           
-          // Sort conversations: unread first, then by updated_at
+          // Sort conversations: unread first, then by last message date
           return updatedConversations.sort((a, b) => {
             const aUnread = a.unread_count || 0
             const bUnread = b.unread_count || 0
@@ -288,13 +306,16 @@ export function MessagesTab() {
             if (aUnread > 0 && bUnread === 0) return -1
             if (aUnread === 0 && bUnread > 0) return 1
             
-            return new Date(b.updated_at || b.created_at).getTime() - 
-                   new Date(a.updated_at || a.created_at).getTime()
+            // Sort by last message date (most recent first)
+            const aDate = a.last_message?.created_at || a.created_at
+            const bDate = b.last_message?.created_at || b.created_at
+            
+            return new Date(bDate).getTime() - new Date(aDate).getTime()
           })
         })
 
         // Mark message as read if sent by other user and conversation is active
-        if (newMessage.sender_id !== user.id) {
+        if (newMessage.sender_id !== user.id && !newMessage.id.startsWith('temp-')) {
           unreadMessageIds.current.push(newMessage.id)
           debouncedMarkAsRead()
           // Update global unread count
@@ -347,7 +368,7 @@ export function MessagesTab() {
             return conv
           })
           
-          // Sort conversations: unread first, then by updated_at
+          // Sort conversations: unread first, then by last message date
           return updatedConversations.sort((a, b) => {
             const aUnread = a.unread_count || 0
             const bUnread = b.unread_count || 0
@@ -355,8 +376,11 @@ export function MessagesTab() {
             if (aUnread > 0 && bUnread === 0) return -1
             if (aUnread === 0 && bUnread > 0) return 1
             
-            return new Date(b.updated_at || b.created_at).getTime() - 
-                   new Date(a.updated_at || a.created_at).getTime()
+            // Sort by last message date (most recent first)
+            const aDate = a.last_message?.created_at || a.created_at
+            const bDate = b.last_message?.created_at || b.created_at
+            
+            return new Date(bDate).getTime() - new Date(aDate).getTime()
           })
         })
       })
@@ -412,7 +436,7 @@ export function MessagesTab() {
       
       // Mark messages as read
       const unreadMessages = data.filter(
-        (msg: Message) => !msg.read && msg.sender_id !== user?.id
+        (msg: Message) => !msg.read && msg.sender_id !== user?.id && !msg.id.startsWith('temp-')
       )
       
       if (unreadMessages.length > 0) {

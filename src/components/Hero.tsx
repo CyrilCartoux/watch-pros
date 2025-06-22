@@ -38,10 +38,10 @@ export function Hero() {
           <Button
             size="lg"
             className="h-12 px-8 text-base md:text-lg font-semibold shadow-md"
-            title="Connect to the platform"
-            aria-label="Connect to the platform"
+            title={isAuthenticated ? "Register as a seller" : "Connect to the platform"}
+            aria-label={isAuthenticated ? "Register as a seller" : "Connect to the platform"}
           >
-            Connect to the platform
+            {isAuthenticated ? "Register as a seller" : "Connect to the platform"}
             <ArrowRight className="w-4 h-4 ml-2" aria-hidden="true" />
           </Button>
         </Link>
