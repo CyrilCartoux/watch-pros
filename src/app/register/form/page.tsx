@@ -21,6 +21,7 @@ import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js"
 import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
 import { useAuthStatus } from '@/hooks/useAuthStatus'
+import { supabaseBrowser } from '@/lib/supabase/client'
 
 // Déclarer le type global pour window
 declare global {
@@ -185,6 +186,20 @@ const getActualPrefix = (value: string) => {
   return value.split('-')[0];
 };
 
+// Helper to upload a file to Supabase Storage and return its public URL
+async function uploadToStorage(file: File, userId: string, type: string) {
+  const ext = file.type === 'application/pdf' ? 'pdf' : 'jpg'
+  const fileName = `${userId}/${type}-${Date.now()}.${ext}`
+  const { error } = await supabaseBrowser
+    .storage.from('sellerdocuments')
+    .upload(fileName, file, { cacheControl: '3600', upsert: false })
+  if (error) throw error
+  const { data } = supabaseBrowser
+    .storage.from('sellerdocuments')
+    .getPublicUrl(fileName)
+  return { url: data.publicUrl, path: fileName }
+}
+
 export default function RegisterFormPage() {
   const { isAuthenticated, isSeller, isLoading } = useAuthStatus()
   const [paymentMethod, setPaymentMethod] = useState("card")
@@ -282,11 +297,7 @@ export default function RegisterFormPage() {
       const isAccountValid = await accountForm.trigger()
       const isAddressValid = await addressForm.trigger()
       const isDocumentsValid = await documentsForm.trigger()
-      console.log('[LOG] handleSellerRegistration - isAccountValid:', isAccountValid)
-      console.log('[LOG] handleSellerRegistration - isAddressValid:', isAddressValid)
-      console.log('[LOG] handleSellerRegistration - isDocumentsValid:', isDocumentsValid)
       if (!isAccountValid || !isAddressValid || !isDocumentsValid) {
-        console.error("Some forms are not valid")
         setLoadingSellerRegistration(false)
         return
       }
@@ -301,45 +312,75 @@ export default function RegisterFormPage() {
         },
         documents: documentsForm.getValues()
       }
-      console.log('[LOG] handleSellerRegistration - formData:', formData)
 
-      // Create FormData for file upload
-      const submitData = new FormData()
-      submitData.append('account', JSON.stringify(formData.account))
-      submitData.append('address', JSON.stringify(formData.address))
-      submitData.append('companyLogo', formData.account.companyLogo)
-      submitData.append('idCardFront', formData.documents.idCardFront)
-      submitData.append('idCardBack', formData.documents.idCardBack)
-      submitData.append('proofOfAddress', formData.documents.proofOfAddress)
-
-      // Log FormData keys and types
-      for (let [key, value] of submitData.entries()) {
-        console.log(`[LOG] FormData entry - ${key}:`, value, typeof value, value instanceof File ? { name: value.name, type: value.type, size: value.size } : null)
+      // Get userId (from useAuthStatus or supabaseBrowser.auth.getUser())
+      let userId = null
+      if (typeof window !== 'undefined' && supabaseBrowser.auth) {
+        const { data } = await supabaseBrowser.auth.getUser()
+        userId = data?.user?.id
+      }
+      if (!userId) {
+        throw new Error('User not authenticated')
       }
 
-      // Send data to API
-      const response = await fetch('/api/sellers/register', {
-        method: 'POST',
-        body: submitData
-      })
-      console.log('[LOG] handleSellerRegistration - response:', response)
-      if (!response.ok) {
-        const error = await response.json()
-        console.error('[LOG] handleSellerRegistration - error response:', error)
-        throw new Error(error.message || 'Error registering seller')
-      }
+      // 1) upload files
+      const uploaded = []
+      try {
+        const logoRes = await uploadToStorage(formData.account.companyLogo, userId, 'companyLogo')
+        uploaded.push(logoRes)
+        const idFrontRes = await uploadToStorage(formData.documents.idCardFront, userId, 'idCardFront')
+        uploaded.push(idFrontRes)
+        const idBackRes = await uploadToStorage(formData.documents.idCardBack, userId, 'idCardBack')
+        uploaded.push(idBackRes)
+        const addressProofRes = await uploadToStorage(formData.documents.proofOfAddress, userId, 'proofOfAddress')
+        uploaded.push(addressProofRes)
 
-      await response.json()
-      
-      // If registration successful, move to subscription step
-      handleNext()
-      setLoadingSellerRegistration(false)
+        // 2) préparez le payload JSON
+        const { companyLogo, ...accountWithoutLogo } = formData.account
+        const payload = {
+          account: {
+            ...accountWithoutLogo,
+            companyLogoUrl: logoRes.url,
+          },
+          address: formData.address,
+          documents: {
+            idCardFrontUrl: idFrontRes.url,
+            idCardBackUrl: idBackRes.url,
+            proofOfAddressUrl: addressProofRes.url
+          }
+        }
+
+        // 3) appelez votre API en JSON léger
+        const response = await fetch('/api/sellers/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.error || 'Error registering seller')
+        }
+        await response.json()
+        handleNext()
+        setLoadingSellerRegistration(false)
+      } catch (error) {
+        // Rollback: remove uploaded files if API call fails
+        await Promise.all(
+          uploaded.map(async (file) => {
+            try {
+              await supabaseBrowser.storage.from('sellerdocuments').remove([file.path])
+            } catch (e) {
+              // Ignore cleanup errors
+            }
+          })
+        )
+        throw error
+      }
     } catch (error) {
-      console.error("Error submitting form:", error)
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'An error occurred',
+        variant: 'destructive',
       })
       setLoadingSellerRegistration(false)
     }

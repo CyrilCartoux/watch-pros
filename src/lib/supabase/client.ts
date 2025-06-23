@@ -13,4 +13,6 @@ export function createClient() {
     supabaseUrl,
     supabaseAnonKey
   )
-} 
+}
+
+export const supabaseBrowser = createClient() 

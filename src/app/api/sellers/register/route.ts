@@ -114,15 +114,12 @@ export async function POST(request: Request) {
     }
     console.log('✅ User authenticated:', { userId: user.id })
 
-    const formData = await request.formData()
-
-    // Parse JSON data from form fields
-    const account = JSON.parse(formData.get('account') as string)
-    const address = JSON.parse(formData.get('address') as string)
-
-    console.log('📝 Parsed form data:', {
+    // Parse JSON data from request
+    const { account, address, documents } = await request.json()
+    console.log('📝 Parsed JSON data:', {
       account: { ...account, password: '[REDACTED]' },
       address,
+      documents,
     })
 
     // Add user_id to account object as UUID
@@ -161,31 +158,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // Get and validate files
-    const idCardFront = formData.get('idCardFront') as File
-    const idCardBack = formData.get('idCardBack') as File
-    const proofOfAddress = formData.get('proofOfAddress') as File
-    const companyLogo = formData.get('companyLogo') as File
-
-    console.log('📁 Files received:', {
-      idCardFront: { name: idCardFront.name, size: idCardFront.size, type: idCardFront.type },
-      idCardBack: { name: idCardBack.name, size: idCardBack.size, type: idCardBack.type },
-      proofOfAddress: { name: proofOfAddress.name, size: proofOfAddress.size, type: proofOfAddress.type },
-      companyLogo: { name: companyLogo.name, size: companyLogo.size, type: companyLogo.type }
-    })
-
-    // Validate files
-    try {
-      validateFile(idCardFront)
-      validateFile(idCardBack)
-      validateFile(proofOfAddress)
-      validateFile(companyLogo)
-      console.log('✅ All files validated successfully')
-    } catch (error) {
-      console.error('❌ File validation error:', error)
-      throw error
-    }
-
     // Insert seller and related data in a single transaction
     console.log('🔄 Starting seller registration transaction...')
     const { data: seller, error: registerError } = await supabase.rpc('register_seller', {
@@ -201,95 +173,15 @@ export async function POST(request: Request) {
     console.log('✅ Seller registered successfully:', { sellerId: seller.id })
     console.log('seller after register_seller', seller)
 
-    // Upload documents to storage and get their URLs
-    const documents = [
-      {
-        file: idCardFront,
-        type: 'idCardFront',
-        user_id: user.id
-      },
-      {
-        file: idCardBack,
-        type: 'idCardBack',
-        user_id: user.id
-      },
-      {
-        file: proofOfAddress,
-        type: 'proofOfAddress',
-        user_id: user.id
-      },
-      {
-        file: companyLogo,
-        type: 'companyLogo',
-        user_id: user.id
-      }
-    ]
-
-    const documentUrls: Record<string, string> = {}
-    console.log('📤 Starting document uploads...')
-
-    for (const doc of documents) {
-      try {
-        console.log(`🔄 Processing ${doc.type}...`)
-        
-        // Process file (optimize if image, keep as is if PDF)
-        const { buffer, contentType } = await processFile(doc.file)
-        console.log(`✅ ${doc.type} processed:`, { contentType, size: buffer.length })
-
-        // Create a unique file name with extension
-        const fileExtension = doc.file.type === 'application/pdf' ? 'pdf' : 'jpg'
-        const fileName = `${doc.user_id}/${doc.type}-${Date.now()}.${fileExtension}`
-        console.log(`📝 Generated filename for ${doc.type}:`, fileName)
-
-        // Upload file to storage
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('sellerdocuments')
-          .upload(fileName, buffer, {
-            contentType,
-            upsert: false,
-            cacheControl: '3600'
-          })
-
-        if (uploadError) {
-          console.error(`❌ Error uploading ${doc.type}:`, uploadError)
-          throw new Error(`Failed to upload ${doc.type}: ${uploadError.message}`)
-        }
-        console.log(`✅ ${doc.type} uploaded successfully`)
-
-        // Get the public URL
-        const { data: { publicUrl } } = supabase.storage
-          .from('sellerdocuments')
-          .getPublicUrl(fileName)
-
-        // Store the URL in our object
-        documentUrls[doc.type] = publicUrl
-        console.log(`🔗 ${doc.type} URL generated:`, publicUrl)
-
-      } catch (error) {
-        console.error(`❌ Error processing document ${doc.type}:`, error)
-        // If there's an error, try to clean up any uploaded files
-        try {
-          const fileExtension = doc.file.type === 'application/pdf' ? 'pdf' : 'jpg'
-          await supabase.storage
-            .from('sellerdocuments')
-            .remove([`${doc.user_id}/${doc.type}-${Date.now()}.${fileExtension}`])
-          console.log(`🧹 Cleaned up ${doc.type} after error`)
-        } catch (cleanupError) {
-          console.error('❌ Error cleaning up files:', cleanupError)
-        }
-        throw error
-      }
-    }
-
-    console.log('📝 Updating seller with document URLs...')
     // Update seller with document URLs
+    console.log('📝 Updating seller with document URLs...')
     const { error: updateError } = await supabase
       .from('sellers')
       .update({
-        id_card_front_url: documentUrls.idCardFront,
-        id_card_back_url: documentUrls.idCardBack,
-        proof_of_address_url: documentUrls.proofOfAddress,
-        company_logo_url: documentUrls.companyLogo
+        id_card_front_url: documents.idCardFrontUrl,
+        id_card_back_url: documents.idCardBackUrl,
+        proof_of_address_url: documents.proofOfAddressUrl,
+        company_logo_url: account.companyLogoUrl
       })
       .eq('id', seller.id)
 
@@ -299,8 +191,8 @@ export async function POST(request: Request) {
     }
     console.log('✅ Seller updated with document URLs')
 
-    console.log('📝 Updating profile with seller_id...')
     // Update profile with seller_id
+    console.log('📝 Updating profile with seller_id...')
     const { error: profileUpdateError } = await supabaseAdmin
       .from('profiles')
       .update({
