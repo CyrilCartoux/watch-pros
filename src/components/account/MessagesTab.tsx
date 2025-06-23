@@ -469,6 +469,26 @@ export function MessagesTab() {
 
       if (error) throw error
       setMessages(data || [])
+      // Mark messages as read
+      const unreadMessages = data.filter(
+        (msg: Message) => !msg.read && msg.sender_id !== user?.id && !msg.id.startsWith('temp-')
+      )
+      
+      if (unreadMessages.length > 0) {
+        unreadMessageIds.current = unreadMessages.map(msg => msg.id)
+        debouncedMarkAsRead()
+        
+        // Update conversation unread count immediately
+        setConversations(prev => 
+          prev.map(conv => 
+            conv.id === conversationId
+              ? { ...conv, unread_count: 0 }
+              : conv
+          )
+        )
+        // Update global unread count
+        fetchUnreadCount()
+      }
     } catch (err) {
       console.error('Error loading messages:', err)
       toast({
@@ -839,9 +859,9 @@ export function MessagesTab() {
                               })}
                             </span>
                             {message.sender_id === user?.id && (
-                              <span>
-                                {message.pending ? "Sending..." : "Sent"}
-                              </span>
+                              <span className="text-xs text-muted-foreground">
+                              {message.read ? "✓✓" : "✓"}
+                            </span>
                             )}
                           </div>
                         </div>
