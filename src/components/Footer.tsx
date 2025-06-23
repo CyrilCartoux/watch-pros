@@ -79,7 +79,7 @@ export function Footer() {
                 Watch Pros
               </Link>
               <p className="text-muted-foreground max-w-md">
-                The premier B2B marketplace for luxury watches. Connect with trusted dealers and collectors worldwide.
+                The B2B marketplace for luxury watches. Connect with trusted dealers and collectors worldwide.
               </p>
               <nav aria-label="Follow us">
                 <div className="flex space-x-4 mt-4">

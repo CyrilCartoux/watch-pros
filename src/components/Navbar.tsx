@@ -52,7 +52,7 @@ export function Navbar() {
       <div className="container flex h-14 items-center">
         {/* Left side: Logo + Nav Links */}
         <div className="mr-4 hidden items-center md:flex">
-          <Link href="/" className="mr-6 text-xl font-bold">
+          <Link href="/listings?listingType=watch" className="mr-6 text-xl font-bold">
             Watch Pros
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">

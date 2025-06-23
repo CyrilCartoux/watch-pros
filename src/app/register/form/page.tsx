@@ -12,7 +12,6 @@ import { useForm, Controller } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { countries, phonePrefixes } from "@/data/form-options"
-import { SubscriptionStep } from '@/components/SubscriptionStep'
 import { plans } from "@/data/subscription-plans"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Elements } from "@stripe/react-stripe-js"
@@ -22,6 +21,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { useRouter } from "next/navigation"
 import { useAuthStatus } from '@/hooks/useAuthStatus'
 import { supabaseBrowser } from '@/lib/supabase/client'
+import { normalizeAndCompress } from '@/lib/image-utils'
 
 // Déclarer le type global pour window
 declare global {
@@ -505,24 +505,42 @@ export default function RegisterFormPage() {
     }
   }, [paymentMethod])
 
-  const handleCompanyLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCompanyLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    console.log('[LOG] handleCompanyLogoChange - file:', file)
     if (file) {
       const error = validateFile(file)
-      console.log('[LOG] handleCompanyLogoChange - validation error:', error)
       if (error) {
         accountForm.setError("companyLogo", { message: error })
       } else {
-        accountForm.setValue("companyLogo", file)
-        accountForm.clearErrors("companyLogo")
-        
-        // Create preview
-        const reader = new FileReader()
-        reader.onloadend = () => {
-          setCompanyLogoPreview(reader.result as string)
+        try {
+          // Optimize image before setting in form
+          const optimized = await normalizeAndCompress(file, {
+            maxSizeMB: 0.8,           // on vise < 800 Ko
+            maxWidthOrHeight: 1000,   // 1000 px max
+            initialQuality: 0.75,     // qualité visuelle correcte
+          })
+          
+          accountForm.setValue("companyLogo", optimized)
+          accountForm.clearErrors("companyLogo")
+          
+          // Create preview
+          const reader = new FileReader()
+          reader.onloadend = () => {
+            setCompanyLogoPreview(reader.result as string)
+          }
+          reader.readAsDataURL(optimized)
+        } catch (error) {
+          console.error('Error optimizing company logo:', error)
+          // Fallback to original file if optimization fails
+          accountForm.setValue("companyLogo", file)
+          accountForm.clearErrors("companyLogo")
+          
+          const reader = new FileReader()
+          reader.onloadend = () => {
+            setCompanyLogoPreview(reader.result as string)
+          }
+          reader.readAsDataURL(file)
         }
-        reader.readAsDataURL(file)
       }
     }
   }
@@ -1076,17 +1094,33 @@ export default function RegisterFormPage() {
                             type="file"
                             accept="image/*,application/pdf"
                             ref={idCardFrontInputRef}
-                            onChange={(e) => {
+                            onChange={async (e) => {
                               const file = e.target.files?.[0]
-                              console.log('[LOG] idCardFront - file:', file)
                               if (file) {
                                 const error = validateFile(file)
-                                console.log('[LOG] idCardFront - validation error:', error)
                                 if (error) {
                                   documentsForm.setError("idCardFront", { message: error })
                                 } else {
-                                  documentsForm.setValue("idCardFront", file)
-                                  documentsForm.clearErrors("idCardFront")
+                                  try {
+                                    // Only optimize images, not PDFs
+                                    if (file.type.startsWith('image/')) {
+                                      const optimized = await normalizeAndCompress(file, {
+                                        maxSizeMB: 0.8,
+                                        maxWidthOrHeight: 1000,
+                                        initialQuality: 0.75,
+                                      })
+                                      documentsForm.setValue("idCardFront", optimized)
+                                    } else {
+                                      // For PDFs, use the original file
+                                      documentsForm.setValue("idCardFront", file)
+                                    }
+                                    documentsForm.clearErrors("idCardFront")
+                                  } catch (error) {
+                                    console.error('Error optimizing idCardFront:', error)
+                                    // Fallback to original file if optimization fails
+                                    documentsForm.setValue("idCardFront", file)
+                                    documentsForm.clearErrors("idCardFront")
+                                  }
                                 }
                               }
                             }}
@@ -1122,17 +1156,33 @@ export default function RegisterFormPage() {
                             type="file"
                             accept="image/*,application/pdf"
                             ref={idCardBackInputRef}
-                            onChange={(e) => {
+                            onChange={async (e) => {
                               const file = e.target.files?.[0]
-                              console.log('[LOG] idCardBack - file:', file)
                               if (file) {
                                 const error = validateFile(file)
-                                console.log('[LOG] idCardBack - validation error:', error)
                                 if (error) {
                                   documentsForm.setError("idCardBack", { message: error })
                                 } else {
-                                  documentsForm.setValue("idCardBack", file)
-                                  documentsForm.clearErrors("idCardBack")
+                                  try {
+                                    // Only optimize images, not PDFs
+                                    if (file.type.startsWith('image/')) {
+                                      const optimized = await normalizeAndCompress(file, {
+                                        maxSizeMB: 0.8,
+                                        maxWidthOrHeight: 1000,
+                                        initialQuality: 0.75,
+                                      })
+                                      documentsForm.setValue("idCardBack", optimized)
+                                    } else {
+                                      // For PDFs, use the original file
+                                      documentsForm.setValue("idCardBack", file)
+                                    }
+                                    documentsForm.clearErrors("idCardBack")
+                                  } catch (error) {
+                                    console.error('Error optimizing idCardBack:', error)
+                                    // Fallback to original file if optimization fails
+                                    documentsForm.setValue("idCardBack", file)
+                                    documentsForm.clearErrors("idCardBack")
+                                  }
                                 }
                               }
                             }}
@@ -1177,17 +1227,33 @@ export default function RegisterFormPage() {
                           type="file"
                           accept="image/*,application/pdf"
                           ref={proofOfAddressInputRef}
-                          onChange={(e) => {
+                          onChange={async (e) => {
                             const file = e.target.files?.[0]
-                            console.log('[LOG] proofOfAddress - file:', file)
                             if (file) {
                               const error = validateFile(file)
-                              console.log('[LOG] proofOfAddress - validation error:', error)
                               if (error) {
                                 documentsForm.setError("proofOfAddress", { message: error })
                               } else {
-                                documentsForm.setValue("proofOfAddress", file)
-                                documentsForm.clearErrors("proofOfAddress")
+                                try {
+                                  // Only optimize images, not PDFs
+                                  if (file.type.startsWith('image/')) {
+                                    const optimized = await normalizeAndCompress(file, {
+                                      maxSizeMB: 0.8,
+                                      maxWidthOrHeight: 1000,
+                                      initialQuality: 0.75,
+                                    })
+                                    documentsForm.setValue("proofOfAddress", optimized)
+                                  } else {
+                                    // For PDFs, use the original file
+                                    documentsForm.setValue("proofOfAddress", file)
+                                  }
+                                  documentsForm.clearErrors("proofOfAddress")
+                                } catch (error) {
+                                  console.error('Error optimizing proofOfAddress:', error)
+                                  // Fallback to original file if optimization fails
+                                  documentsForm.setValue("proofOfAddress", file)
+                                  documentsForm.clearErrors("proofOfAddress")
+                                }
                               }
                             }
                           }}

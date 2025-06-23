@@ -403,6 +403,11 @@ export default function ListingsPage() {
     updateURL(newFilters, 1)
   }
 
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage)
+    updateURL(filters, newPage)
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       {error && (
@@ -598,7 +603,7 @@ export default function ListingsPage() {
                 <div className="flex items-center justify-center flex-wrap gap-2">
                   <Button
                     variant="outline"
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
                     disabled={currentPage === 1}
                   >
                     Previous
@@ -609,7 +614,7 @@ export default function ListingsPage() {
                     <>
                       <Button
                         variant="outline"
-                        onClick={() => setCurrentPage(1)}
+                        onClick={() => handlePageChange(1)}
                       >
                         1
                       </Button>
@@ -633,7 +638,7 @@ export default function ListingsPage() {
                       <Button
                         key={pageNum}
                         variant={currentPage === pageNum ? "default" : "outline"}
-                        onClick={() => setCurrentPage(pageNum)}
+                        onClick={() => handlePageChange(pageNum)}
                       >
                         {pageNum}
                       </Button>
@@ -646,7 +651,7 @@ export default function ListingsPage() {
                       {currentPage < totalPages - 3 && <span className="px-2">...</span>}
                       <Button
                         variant="outline"
-                        onClick={() => setCurrentPage(totalPages)}
+                        onClick={() => handlePageChange(totalPages)}
                       >
                         {totalPages}
                       </Button>
@@ -655,7 +660,7 @@ export default function ListingsPage() {
 
                   <Button
                     variant="outline"
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
                     disabled={currentPage === totalPages}
                   >
                     Next
@@ -667,7 +672,7 @@ export default function ListingsPage() {
                   <span className="text-sm text-muted-foreground">Go to page:</span>
                   <Select
                     value={currentPage.toString()}
-                    onValueChange={(value) => setCurrentPage(Number(value))}
+                    onValueChange={(value) => handlePageChange(Number(value))}
                   >
                     <SelectTrigger className="w-[100px]">
                       <SelectValue placeholder="Page" />
