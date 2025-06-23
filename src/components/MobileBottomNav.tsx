@@ -17,7 +17,7 @@ import {
 import { useState } from "react"
 
 const navItems = [
-  { href: "/listings", icon: Home, label: "Listings" },
+  { href: "/listings?listingType=watch", icon: Home, label: "Listings" },
   { href: "/account?tab=messages", icon: MessageSquare, label: "Messages" },
   { href: "/notifications", icon: Bell, label: "Notifications" },
   { href: "/account", icon: User, label: "Account" },
