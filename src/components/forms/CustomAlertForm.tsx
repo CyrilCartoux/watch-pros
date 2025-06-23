@@ -23,13 +23,16 @@ import { useBrandsAndModels } from "@/hooks/useBrandsAndModels"
 import { countries } from "@/data/form-options"
 import { CustomAlertInsert } from "@/types/db/notifications/CustomAlerts"
 import { dialColors } from "@/data/watch-properties"
+import { accessoryTypes } from "@/data/accessory-properties"
 
 const alertSchema = z
   .object({
+    alert_type: z.enum(["watch", "accessory"]),
     brand_id: z.string().min(1, "Brand is required"),
     model_id: z.string().min(1, "Model is required"),
     reference: z.string().nullable(),
     dial_color: z.string().nullable(),
+    accessory_type: z.string().nullable(),
     max_price: z
       .number()
       .nullable()
@@ -61,20 +64,23 @@ export default function CustomAlertForm({ onSubmit, isSubmitting = false }: Prop
   } = useForm<FormData>({
     resolver: zodResolver(alertSchema),
     defaultValues: {
+      alert_type: "watch",
       brand_id: "",
       model_id: "",
       reference: "",
       dial_color: null,
+      accessory_type: null,
       max_price: null,
       location: null,
     },
   })
 
   // Memoize watched values to avoid extra renders
+  const alertType = watch("alert_type")
   const brandId = watch("brand_id")
   const modelId = watch("model_id")
 
-  // Popular brands filtered against fetched ‘brands’
+  // Popular brands filtered against fetched 'brands'
   const popularBrandsData = useMemo(
     () =>
       [
@@ -89,6 +95,16 @@ export default function CustomAlertForm({ onSubmit, isSubmitting = false }: Prop
         return acc
       }, []),
     [brands]
+  )
+
+  // Change alert type → clear specific fields
+  const onAlertTypeChange = useCallback(
+    (newAlertType: "watch" | "accessory") => {
+      setValue("alert_type", newAlertType)
+      setValue("dial_color", null)
+      setValue("accessory_type", null)
+    },
+    [setValue]
   )
 
   // Change brand → clear model, fetch new ones
@@ -122,10 +138,22 @@ export default function CustomAlertForm({ onSubmit, isSubmitting = false }: Prop
   const submitHandler = useCallback(
     async (data: FormData) => {
       try {
-        await onSubmit(data)
+        // Map alert_type to type and ensure all required fields are present
+        const alertData = {
+          type: data.alert_type,
+          brand_id: data.brand_id,
+          model_id: data.model_id,
+          reference: data.reference,
+          dial_color: data.dial_color,
+          accessory_type: data.accessory_type,
+          max_price: data.max_price,
+          location: data.location,
+        }
+        
+        await onSubmit(alertData)
         toast({
           title: "Alert created",
-          description: "You will be notified when a matching watch is listed.",
+          description: `You will be notified when a matching ${data.alert_type} is listed.`,
         })
       } catch {
         toast({
@@ -156,8 +184,86 @@ export default function CustomAlertForm({ onSubmit, isSubmitting = false }: Prop
         <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
           <h3 className="text-lg font-semibold">Create a Custom Alert</h3>
           <p className="text-sm text-muted-foreground">
-            Be notified when a watch matching your criteria is listed.
+            Be notified when a {alertType} matching your criteria is listed.
           </p>
+
+          {/* Alert Type Selection */}
+          <div className="space-y-2">
+            <Label>Alert Type *</Label>
+            <div className="grid grid-cols-2 gap-4">
+              <Card
+                className={`cursor-pointer transition-colors ${
+                  alertType === "watch"
+                    ? "border-primary bg-primary/5"
+                    : "hover:border-primary/50"
+                }`}
+                onClick={() => onAlertTypeChange("watch")}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                      <span className="text-primary text-lg">⌚</span>
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Watch</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Get notified for watch listings
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card
+                className={`cursor-pointer transition-colors ${
+                  alertType === "accessory"
+                    ? "border-primary bg-primary/5"
+                    : "hover:border-primary/50"
+                }`}
+                onClick={() => onAlertTypeChange("accessory")}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                      <span className="text-primary text-lg">🔧</span>
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Accessory</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Get notified for accessory listings
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Accessory Type - only for accessory alerts */}
+          {alertType === "accessory" && (
+            <div>
+              <Label htmlFor="accessory_type">Accessory Type</Label>
+              <Controller
+                control={control}
+                name="accessory_type"
+                render={({ field }) => (
+                  <Select value={field.value || ""} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select accessory type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {accessoryTypes.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              <FormError message={errors.accessory_type?.message} />
+            </div>
+          )}
 
           {/* Brand */}
           <div className="space-y-2">
@@ -266,29 +372,31 @@ export default function CustomAlertForm({ onSubmit, isSubmitting = false }: Prop
             <FormError message={errors.reference?.message} />
           </div>
 
-          {/* Dial Color */}
-          <div>
-            <Label htmlFor="dial_color">Dial Color</Label>
-            <Controller
-              control={control}
-              name="dial_color"
-              render={({ field }) => (
-                <Select value={field.value || ""} onValueChange={field.onChange}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select dial color" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {dialColors.map((color) => (
-                      <SelectItem key={color} value={color}>
-                        {color}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            <FormError message={errors.dial_color?.message} />
-          </div>
+          {/* Dial Color - only for watch alerts */}
+          {alertType === "watch" && (
+            <div>
+              <Label htmlFor="dial_color">Dial Color</Label>
+              <Controller
+                control={control}
+                name="dial_color"
+                render={({ field }) => (
+                  <Select value={field.value || ""} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select dial color" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {dialColors.map((color) => (
+                        <SelectItem key={color} value={color}>
+                          {color}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              <FormError message={errors.dial_color?.message} />
+            </div>
+          )}
 
           {/* Max Price */}
           <div>

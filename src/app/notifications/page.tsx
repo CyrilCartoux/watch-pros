@@ -128,12 +128,14 @@ type Offer = {
 type CustomAlert = {
   id: string;
   created_at: string;
+  type: string;
   brand_id: string | null;
   model_id: string | null;
   reference: string | null;
   max_price: number | null;
   location: string | null;
   dial_color: string | null;
+  accessory_type: string | null;
   brand?: {
     id: string;
     slug: string;
@@ -901,26 +903,31 @@ export default function NotificationsPage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between">
                             <div>
-                                <h3 className="font-medium text-sm md:text-base">
+                              <div className="flex items-center gap-2 mb-2">
+                                <h3 className="font-medium text-sm md:text-base flex-1 min-w-0">
                                   {alert.model?.label}
                                 </h3>
-                              <p className="text-xs md:text-sm text-muted-foreground mt-1">
+                                <Badge variant="outline" className="text-xs flex-shrink-0">
+                                  {alert.type === "watch" ? "⌚ Watch" : "🔧 Accessory"}
+                                </Badge>
+                              </div>
+                              <p className="text-xs md:text-sm text-muted-foreground mb-2">
                                 {alert.brand?.label}
                               </p>
-                              <div className="mt-2 space-y-1">
+                              <div className="space-y-1.5">
                                 {alert.reference && (
-                                  <div className="flex items-center gap-1 text-xs md:text-sm">
-                                    <span className="text-muted-foreground">
+                                  <div className="flex items-center gap-2 text-xs md:text-sm">
+                                    <span className="text-muted-foreground min-w-0 flex-shrink-0">
                                       Reference:
                                     </span>
-                                    <span className="font-medium">
+                                    <span className="font-medium truncate">
                                       {alert.reference}
                                     </span>
                                   </div>
                                 )}
                                 {alert.max_price && (
-                                  <div className="flex items-center gap-1 text-xs md:text-sm">
-                                    <span className="text-muted-foreground">
+                                  <div className="flex items-center gap-2 text-xs md:text-sm">
+                                    <span className="text-muted-foreground min-w-0 flex-shrink-0">
                                       Max price:
                                     </span>
                                     <span className="font-medium">
@@ -929,8 +936,8 @@ export default function NotificationsPage() {
                                   </div>
                                 )}
                                 {alert.location && (
-                                  <div className="flex items-center gap-1 text-xs md:text-sm">
-                                    <span className="text-muted-foreground">
+                                  <div className="flex items-center gap-2 text-xs md:text-sm">
+                                    <span className="text-muted-foreground min-w-0 flex-shrink-0">
                                       Location:
                                     </span>
                                     <span className="font-medium">
@@ -938,13 +945,23 @@ export default function NotificationsPage() {
                                     </span>
                                   </div>
                                 )}
-                                {alert.dial_color && (
-                                  <div className="flex items-center gap-1 text-xs md:text-sm">
-                                    <span className="text-muted-foreground">
+                                {alert.type === "watch" && alert.dial_color && (
+                                  <div className="flex items-center gap-2 text-xs md:text-sm">
+                                    <span className="text-muted-foreground min-w-0 flex-shrink-0">
                                       Dial color:
                                     </span>
                                     <span className="font-medium">
                                       {alert.dial_color}
+                                    </span>
+                                  </div>
+                                )}
+                                {alert.type === "accessory" && alert.accessory_type && (
+                                  <div className="flex items-center gap-2 text-xs md:text-sm">
+                                    <span className="text-muted-foreground min-w-0 flex-shrink-0">
+                                      Accessory type:
+                                    </span>
+                                    <span className="font-medium">
+                                      {alert.accessory_type}
                                     </span>
                                   </div>
                                 )}

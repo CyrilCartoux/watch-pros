@@ -62,6 +62,7 @@ export async function GET(request: Request) {
     const maxPrice = searchParams.get('maxPrice')
     const shippingDelay = searchParams.get('shippingDelay')
     const listingType = searchParams.get('listingType')
+    const accessoryType = searchParams.get('accessoryType')
 
     const supabase = await createClient()
 
@@ -84,6 +85,7 @@ export async function GET(request: Request) {
         _max_price: maxPrice ? parseFloat(maxPrice) : null,
         _shipping: shippingDelay || null,
         _listing_type: listingType || null,
+        _accessory_type: accessoryType || null,
         _limit: limit + offset // Get more results to handle pagination
       })
 

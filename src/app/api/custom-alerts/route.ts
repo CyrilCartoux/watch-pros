@@ -4,12 +4,14 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 
 const Schema = z.object({
+  type: z.enum(['watch', 'accessory']),
   brand_id: z.string().uuid('Invalid brand ID').optional().nullable(),
   model_id: z.string().uuid('Invalid model ID').optional().nullable(),
   reference: z.string().optional().nullable(),
   max_price: z.number().min(0).optional().nullable(),
   location: z.string().optional().nullable(),
   dial_color: z.string().optional().nullable(),
+  accessory_type: z.string().optional().nullable(),
 })
 
 export async function GET() {
@@ -32,12 +34,14 @@ export async function GET() {
       .select(`
         id,
         created_at,
+        type,
         brand_id,
         model_id,
         reference,
         max_price,
         location,
         dial_color,
+        accessory_type,
         brand:brands (
           id,
           slug,
@@ -81,7 +85,7 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
-    const { brand_id, model_id, reference, max_price, location, dial_color } = parse.data
+    const { type, brand_id, model_id, reference, max_price, location, dial_color, accessory_type } = parse.data
     
     const supabase = await createClient()
     
@@ -100,12 +104,14 @@ export async function POST(request: Request) {
       .from('custom_alerts')
       .upsert({
         user_id: user.id,
+        type,
         brand_id,
         model_id,
         reference,
         max_price,
         location,
         dial_color,
+        accessory_type,
       })
 
     if (alertErr) {

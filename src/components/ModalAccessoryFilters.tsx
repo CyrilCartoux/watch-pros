@@ -11,11 +11,10 @@ import {
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { watchConditions } from "@/data/watch-conditions"
-import { dialColors, includedOptions } from "@/data/watch-properties"
-import { ListingType } from "@/types/enums/listings-enum"
 import { useBrandsAndModels } from "@/hooks/useBrandsAndModels"
 import { countries } from "@/data/form-options"
+import { accessoryTypes } from "@/data/accessory-properties"
+import { accessoryConditions } from "@/data/accessory-properties"
 
 interface Brand {
   id: string
@@ -37,13 +36,11 @@ interface FullFilters {
   brand: string
   model: string
   reference: string
-  dialColor: string
+  accessoryType: string
   condition: string
-  included: string
   minPrice: string
   maxPrice: string
   shippingDelay: string
-  listingType: string
   country: string
 }
 
@@ -79,7 +76,7 @@ const FilterSection = ({ title, children, isOpen, onToggle }: {
   </div>
 )
 
-export function ModalFilters({
+export function ModalAccessoryFilters({
   onClearFilters,
   onApplyFilters,
 }: ModalFiltersProps) {
@@ -88,7 +85,7 @@ export function ModalFilters({
   const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null)
   const [isLoadingModels, setIsLoadingModels] = useState(false)
   const [openSections, setOpenSections] = useState({
-    watch: true,
+    accessory: true,
     condition: false,
     price: false,
     shipping: false
@@ -143,12 +140,32 @@ export function ModalFilters({
 
   return (
     <div className="space-y-6 h-[calc(100vh-12rem)] sm:h-[calc(100vh-8rem)] overflow-y-auto px-2 pb-24">
-      {/* Watch Selection */}
+      {/* Accessory Selection */}
       <FilterSection 
-        title="Watch Selection" 
-        isOpen={openSections.watch}
-        onToggle={() => toggleSection("watch")}
+        title="Accessory Selection" 
+        isOpen={openSections.accessory}
+        onToggle={() => toggleSection("accessory")}
       >
+         {/* Accessory Type */}
+         <div className="space-y-2">
+            <Label>Accessory Type</Label>
+            <Select
+              name="accessoryType"
+              value={localFilters.accessoryType || ""}
+              onValueChange={value => handleFilterChange("accessoryType", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Accessory Type" />
+              </SelectTrigger>
+              <SelectContent>
+                {accessoryTypes.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         {/* Popular Brands */}
         <div className="space-y-2">
           <Label>Popular Brands</Label>
@@ -258,28 +275,6 @@ export function ModalFilters({
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-
-        {/* Dial Color */}
-        <div className="space-y-2">
-            <Label>Dial Color</Label>
-            <Select
-              name="dialColor"
-              value={localFilters.dialColor || ""}
-              onValueChange={value => handleFilterChange("dialColor", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select color" />
-              </SelectTrigger>
-              <SelectContent>
-                {dialColors.map((color) => (
-                  <SelectItem key={color} value={color}>
-                    {color}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Country */}
           <div className="space-y-2">
             <Label>Country</Label>
@@ -320,29 +315,9 @@ export function ModalFilters({
                 <SelectValue placeholder="Select condition" />
               </SelectTrigger>
               <SelectContent>
-                {watchConditions.map((condition) => (
-                  <SelectItem key={condition.slug} value={condition.slug}>
-                    {condition.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Included</Label>
-            <Select
-              name="included"
-              value={localFilters.included || ""}
-              onValueChange={value => handleFilterChange("included", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select option" />
-              </SelectTrigger>
-              <SelectContent>
-                {includedOptions.map((option) => (
-                  <SelectItem key={option.id} value={option.id}>
-                    {option.title}
+                {accessoryConditions.map((condition) => (
+                  <SelectItem key={condition} value={condition.toLowerCase()}>
+                    {condition}
                   </SelectItem>
                 ))}
               </SelectContent>

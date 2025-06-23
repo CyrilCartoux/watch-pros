@@ -24,7 +24,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Checkbox } from "@/components/ui/checkbox";
 import { dialColors } from "@/data/watch-properties";
-import { accessoryTypes } from "@/data/accessory-properties";
+import { accessoryTypes, accessoryConditions } from "@/data/accessory-properties";
 import Image from "next/image";
 import { useBrandsAndModels } from "@/hooks/useBrandsAndModels";
 import { currencies } from "@/data/form-options";
@@ -547,77 +547,47 @@ export default function AccessoryForm({
                     isSubmitted={isStepSubmitted}
                   />
                   <div className="grid gap-4">
-                    <Card
-                      className={`cursor-pointer transition-colors ${
-                        form.watch("condition") === "new"
-                          ? "border-primary"
-                          : "hover:border-primary/50"
-                      }`}
-                      onClick={() => {
-                        form.setValue("condition", "new", {
-                          shouldValidate: true,
-                        });
-                      }}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-4">
-                          <div
-                            className={`w-5 h-5 p-0.5 rounded-full border-2 flex items-center justify-center ${
-                              form.watch("condition") === "new"
-                                ? "border-primary bg-primary"
-                                : "border-input"
-                            }`}
-                          >
-                            {form.watch("condition") === "new" && (
-                              <div className="w-full h-full rounded-full bg-primary-foreground" />
-                            )}
+                    {accessoryConditions.map((condition) => (
+                      <Card
+                        key={condition}
+                        className={`cursor-pointer transition-colors ${
+                          form.watch("condition") === condition.toLowerCase()
+                            ? "border-primary"
+                            : "hover:border-primary/50"
+                        }`}
+                        onClick={() => {
+                          form.setValue("condition", condition.toLowerCase(), {
+                            shouldValidate: true,
+                          });
+                        }}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-4">
+                            <div
+                              className={`w-5 h-5 p-0.5 rounded-full border-2 flex items-center justify-center ${
+                                form.watch("condition") === condition.toLowerCase()
+                                  ? "border-primary bg-primary"
+                                  : "border-input"
+                              }`}
+                            >
+                              {form.watch("condition") === condition.toLowerCase() && (
+                                <div className="w-full h-full rounded-full bg-primary-foreground" />
+                              )}
+                            </div>
+                            <div>
+                              <h4 className="font-medium">{condition}</h4>
+                              <p className="text-sm text-muted-foreground">
+                                {condition === "New" && "The accessory is in its original condition, never used"}
+                                {condition === "Used" && "The accessory has been used but is in good condition"}
+                                {condition === "Refurbished" && "The accessory has been professionally restored to like-new condition"}
+                                {condition === "Restored" && "The accessory has been carefully restored to improve its appearance"}
+                                {condition === "For parts or not working" && "The accessory is sold for parts or requires repair"}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <h4 className="font-medium">New - Never worn</h4>
-                            <p className="text-sm text-muted-foreground">
-                              The accessory is in its original condition, never
-                              used
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card
-                      className={`cursor-pointer transition-colors ${
-                        form.watch("condition") === "used"
-                          ? "border-primary"
-                          : "hover:border-primary/50"
-                      }`}
-                      onClick={() => {
-                        form.setValue("condition", "used", {
-                          shouldValidate: true,
-                        });
-                      }}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-4">
-                          <div
-                            className={`w-5 h-5 p-0.5 rounded-full border-2 flex items-center justify-center ${
-                              form.watch("condition") === "used"
-                                ? "border-primary bg-primary"
-                                : "border-input"
-                            }`}
-                          >
-                            {form.watch("condition") === "used" && (
-                              <div className="w-full h-full rounded-full bg-primary-foreground" />
-                            )}
-                          </div>
-                          <div>
-                            <h4 className="font-medium">Used</h4>
-                            <p className="text-sm text-muted-foreground">
-                              The accessory has been used but is in good
-                              condition
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 </div>
               )}
@@ -971,11 +941,9 @@ export default function AccessoryForm({
                 <div>
                   <p className="text-muted-foreground">Condition</p>
                   <p className="font-medium">
-                    {form.watch("condition") === "new"
-                      ? "New"
-                      : form.watch("condition") === "used"
-                        ? "Used"
-                        : "-"}
+                    {form.watch("condition") 
+                      ? accessoryConditions.find(c => c.toLowerCase() === form.watch("condition")) || form.watch("condition")
+                      : "-"}
                   </p>
                 </div>
                 <div>

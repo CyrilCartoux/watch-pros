@@ -18,7 +18,8 @@ import {
 import { useRouter, useSearchParams } from "next/navigation"
 import { useFavorites } from "@/hooks/useFavorites"
 import { SearchBar } from "@/components/SearchBar"
-import { ModalFilters } from "@/components/ModalFilters"
+import { ModalWatchFilters } from "@/components/ModalWatchFilters"
+import { ModalAccessoryFilters } from "@/components/ModalAccessoryFilters"
 import { validateURLParams } from "@/lib/helpers/url-validation"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -90,6 +91,7 @@ interface Filters {
   shippingDelay: string;
   listingType: string;
   country: string;
+  accessoryType: string;
 }
 
 const quickFilterCategories = {
@@ -97,6 +99,11 @@ const quickFilterCategories = {
     { label: "New", value: "new" },
     { label: "Very Good", value: "very-good" },
     { label: "Fair Condition", value: "fair" }
+  ],
+  accessoryCondition: [
+    { label: "New", value: "new" },
+    { label: "Used", value: "used" },
+    { label: "Refurbished", value: "refurbished" }
   ],
   included: [ 
     {
@@ -107,6 +114,14 @@ const quickFilterCategories = {
     label: "Original papers", 
     value: 'papers-only'
   }],
+  accessoryTypes: [
+    { label: "Hands", value: "Hands" },
+    { label: "Box", value: "Box" },
+    { label: "Bracelet", value: "Bracelet" },
+    { label: "Dial", value: "Dial" },
+    { label: "Bezel", value: "Bezel" },
+    { label: "Link", value: "Link" }
+  ],
   brands: [
     { label: "Rolex", value: "Rolex" },
     { label: "Audemars Piguet", value: "Audemars Piguet" },
@@ -138,7 +153,7 @@ function QuickFilters({
   onFilterChange: (newFilters: Filters) => void
 }) {
   const handleFilterClick = (
-    type: "condition" | "included" | "brands" | "shippingDelay",
+    type: "condition" | "accessoryType" | "included" | "brands" | "shippingDelay",
     value: string
   ) => {
     const newFilters = { ...filters }
@@ -147,6 +162,8 @@ function QuickFilters({
       newFilters.query = filters.query === value ? "" : value
     } else if (type === "condition") {
       newFilters.condition = filters.condition === value ? "" : value
+    } else if (type === "accessoryType") {
+      newFilters.accessoryType = filters.accessoryType === value ? "" : value
     } else if (type === "included") {
       newFilters.included = filters.included === value ? "" : value
     } else if (type === "shippingDelay") {
@@ -155,10 +172,13 @@ function QuickFilters({
     onFilterChange(newFilters)
   }
 
+  const isAccessory = filters.listingType === "accessory"
+  const conditionFilters = isAccessory ? quickFilterCategories.accessoryCondition : quickFilterCategories.condition
+
   return (
     <div className="overflow-x-auto pb-2">
       <div className="flex items-center gap-2 whitespace-nowrap">
-        {quickFilterCategories.condition.map((item) => (
+        {conditionFilters.map((item) => (
           <Button
             key={item.value}
             variant={filters.condition === item.value ? "default" : "outline"}
@@ -169,16 +189,31 @@ function QuickFilters({
           </Button>
         ))}
         <div className="border-l h-5 mx-2"></div>
-        {quickFilterCategories.included.map((item) => (
-          <Button
-            key={item.value}
-            variant={filters.included === item.value ? "default" : "outline"}
-            size="sm"
-            onClick={() => handleFilterClick("included", item.value)}
-          >
-            {item.label}
-          </Button>
-        ))}
+        {isAccessory ? (
+          // Accessory type filters for accessories
+          quickFilterCategories.accessoryTypes.map((item) => (
+            <Button
+              key={item.value}
+              variant={filters.accessoryType === item.value ? "default" : "outline"}
+              size="sm"
+              onClick={() => handleFilterClick("accessoryType", item.value)}
+            >
+              {item.label}
+            </Button>
+          ))
+        ) : (
+          // Included filters for watches
+          quickFilterCategories.included.map((item) => (
+            <Button
+              key={item.value}
+              variant={filters.included === item.value ? "default" : "outline"}
+              size="sm"
+              onClick={() => handleFilterClick("included", item.value)}
+            >
+              {item.label}
+            </Button>
+          ))
+        )}
         <div className="border-l h-5 mx-2"></div>
         {quickFilterCategories.brands.map((item) => (
           <Button
@@ -226,6 +261,7 @@ export default function ListingsPage() {
       shippingDelay:params.get("shippingDelay")|| "",
       listingType:  params.get("listingType")  || "",
       country:      params.get("country")      || "",
+      accessoryType: params.get("accessoryType") || "",
     }
   }, [searchParams])
 
@@ -255,6 +291,7 @@ export default function ListingsPage() {
     if (f.shippingDelay) params.set("shippingDelay", f.shippingDelay)
     if (f.listingType)   params.set("listingType",   f.listingType)
     if (f.country)       params.set("country",       f.country)
+    if (f.accessoryType) params.set("accessoryType", f.accessoryType)
 
     // pagination : on met toujours la page dans l'URL
     if (pg > 0) params.set("page", pg.toString())
@@ -287,12 +324,13 @@ export default function ListingsPage() {
       shippingDelay:"",
       country:      "",
       listingType: filters.listingType,
+      accessoryType: filters.accessoryType,
     }
     setFilters(empty)
     setCurrentPage(1)
     updateURL(empty, 1)
     setIsFiltersOpen(false)
-  }, [updateURL, filters.listingType])
+  }, [updateURL, filters.listingType, filters.accessoryType])
 
   const removeFilter = useCallback((key: keyof Filters) => {
     const newFilters = { ...filters, [key]: "" }
@@ -320,6 +358,7 @@ export default function ListingsPage() {
         shippingDelay: currentFilters.shippingDelay,
         listingType: currentFilters.listingType,
         country: currentFilters.country,
+        accessoryType: currentFilters.accessoryType,
       }
 
       Object.entries(apiFilters).forEach(([key, value]) => {
@@ -381,6 +420,7 @@ export default function ListingsPage() {
           shippingDelay:params.get("shippingDelay")|| "",
           listingType:  params.get("listingType")  || "",
           country:      params.get("country")      || "",
+          accessoryType: params.get("accessoryType") || "",
         }
         setFilters(newFilters)
         
@@ -480,6 +520,7 @@ export default function ListingsPage() {
                 case "shippingDelay": return "Shipping delay"
                 case "listingType": return "Type"
                 case "country": return "Country"
+                case "accessoryType": return "Accessory Type"
                 default: return String(k).charAt(0).toUpperCase() + String(k).slice(1)
               }
             }
@@ -487,10 +528,17 @@ export default function ListingsPage() {
             // Optionnel: formater la valeur pour certains filtres
             const getFilterValue = (k: keyof Filters, v: string): string => {
               if (k === "condition") {
-                return v === "new" ? "New" : v === "preowned" ? "Pre-owned" : v
+                if (filters.listingType === "accessory") {
+                  return v === "new" ? "New" : v === "used" ? "Used" : v === "refurbished" ? "Refurbished" : v
+                } else {
+                  return v === "new" ? "New" : v === "preowned" ? "Pre-owned" : v
+                }
               }
               if (k === "listingType") {
                 return v === "watch" ? "Watch" : v === "accessory" ? "Accessory" : v
+              }
+              if (k === "accessoryType") {
+                return v // L'accessoryType est déjà le bon label
               }
               if (k === "country") {
                 // Optionnel: afficher le label du pays si tu veux
@@ -698,10 +746,17 @@ export default function ListingsPage() {
       {/* Filters Modal */}
       <Dialog open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <ModalFilters
-            onClearFilters={handleClearFilters}
-            onApplyFilters={handleApplyFilters}
-          />
+          {filters.listingType === "accessory" ? (
+            <ModalAccessoryFilters
+              onClearFilters={handleClearFilters}
+              onApplyFilters={handleApplyFilters}
+            />
+          ) : (
+            <ModalWatchFilters
+              onClearFilters={handleClearFilters}
+              onApplyFilters={handleApplyFilters}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>

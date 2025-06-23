@@ -18,6 +18,14 @@ export const accessoryTypes = [
   "Glass",
 ];
 
+export const accessoryConditions = [
+  "New",
+  "Used",
+  "Refurbished",
+  "Restored",
+  "For parts or not working",
+];
+
 export const braceletColors = [
   "Silver",
   "Silver (solid)",

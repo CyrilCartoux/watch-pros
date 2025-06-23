@@ -10,7 +10,7 @@ import { useToast } from "./ui/use-toast"
 const navigation = {
   main: [
     { name: "About", href: "/about" },
-    { name: "Listings", href: "/listings" },
+    { name: "Listings", href: "/listings?listingType=watch" },
     { name: "Sellers", href: "/sellers" },
     { name: "FAQ & Contact", href: "/help" },
   ],
