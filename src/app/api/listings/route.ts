@@ -29,7 +29,7 @@ interface Model {
 const MAX_WIDTH = 1200
 const MAX_HEIGHT = 1200
 const QUALITY = 80
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'image/heic', 'image/heif']
 
 async function optimizeImage(file: File): Promise<Buffer> {
   // Convert File to ArrayBuffer
