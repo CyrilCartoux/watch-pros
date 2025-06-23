@@ -11,28 +11,28 @@ import { Label } from '@/components/ui/label'
 
 function AuthForm() {
   const searchParams = useSearchParams()
-  const [isLogin, setIsLogin] = useState(true)
+  const mode = searchParams.get('mode')
+  const [isLogin, setIsLogin] = useState(mode === 'register' ? false : true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [registrationSuccess, setRegistrationSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [validationErrors, setValidationErrors] = useState({
-    firstName: '',
-    lastName: '',
     email: '',
     password: '',
     confirmPassword: ''
   })
 
+  // Update isLogin when mode changes
+  useEffect(() => {
+    setIsLogin(mode === 'register' ? false : true)
+  }, [mode])
+
   const validateInputs = () => {
     const errors = {
-      firstName: '',
-      lastName: '',
       email: '',
       password: '',
       confirmPassword: ''
@@ -50,14 +50,6 @@ function AuthForm() {
     }
 
     if (!isLogin) {
-      // Name validations
-      if (firstName.length < 2) {
-        errors.firstName = 'First name must be at least 2 characters'
-      }
-      if (lastName.length < 2) {
-        errors.lastName = 'Last name must be at least 2 characters'
-      }
-
       // Confirm password validation
       if (password !== confirmPassword) {
         errors.confirmPassword = 'Passwords do not match'
@@ -89,7 +81,6 @@ function AuthForm() {
         body: JSON.stringify({
           email,
           password,
-          ...(isLogin ? {} : { firstName, lastName }),
         }),
       })
 
@@ -227,41 +218,6 @@ function AuthForm() {
       </div>
 
       <form className="space-y-6" onSubmit={handleSubmit}>
-        {!isLogin && (
-          <>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
-                <Input
-                  id="firstName"
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  required
-                  className={validationErrors.firstName ? 'border-red-500' : ''}
-                />
-                {validationErrors.firstName && (
-                  <p className="text-red-500 text-sm mt-1">{validationErrors.firstName}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input
-                  id="lastName"
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  required
-                  className={validationErrors.lastName ? 'border-red-500' : ''}
-                />
-                {validationErrors.lastName && (
-                  <p className="text-red-500 text-sm mt-1">{validationErrors.lastName}</p>
-                )}
-              </div>
-            </div>
-          </>
-        )}
-
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input

@@ -34,14 +34,14 @@ export function Hero() {
         transition={{ delay: 0.2 }}
         className="w-full flex justify-center"
       >
-        <Link href="/auth" passHref>
+        <Link href={isAuthenticated ? "/seller/register" : "/auth?mode=register"} passHref>
           <Button
             size="lg"
             className="h-12 px-8 text-base md:text-lg font-semibold shadow-md"
-            title={isAuthenticated ? "Register as a seller" : "Connect to the platform"}
-            aria-label={isAuthenticated ? "Register as a seller" : "Connect to the platform"}
+            title={isAuthenticated ? "Register as a seller" : "Create your account"}
+            aria-label={isAuthenticated ? "Register as a seller" : "Create your account"}
           >
-            {isAuthenticated ? "Register as a seller" : "Connect to the platform"}
+            {isAuthenticated ? "Register as a seller" : "Create your account"}
             <ArrowRight className="w-4 h-4 ml-2" aria-hidden="true" />
           </Button>
         </Link>
@@ -65,8 +65,8 @@ export function Hero() {
             </div>
             <span className="font-semibold mb-1">Connect to the platform</span>
             {!isAuthenticated && (
-              <Link href="/auth" passHref>
-                <Button variant="link" className="p-0 h-auto text-primary font-medium">Sign in / Sign up</Button>
+              <Link href="/auth?mode=register" passHref>
+                <Button variant="link" className="p-0 h-auto text-primary font-medium">Create your account</Button>
               </Link>
             )}
           </motion.li>

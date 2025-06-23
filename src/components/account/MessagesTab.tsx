@@ -216,14 +216,14 @@ export function MessagesTab() {
         const lastMessage = sortedMessages[0]
 
         return {
-          ...conv,
+        ...conv,
           last_message: lastMessage,
           unread_count: unreadCount,
-          other_user: conv.participant1_id === user?.id ? {
-            ...conv.participant2,
+        other_user: conv.participant1_id === user?.id ? {
+          ...conv.participant2,
             avatar_url: conv.participant2?.seller?.company_logo_url || null
-          } : {
-            ...conv.participant1,
+        } : {
+          ...conv.participant1,
             avatar_url: conv.participant1?.seller?.company_logo_url || null
           }
         }
@@ -650,21 +650,21 @@ export function MessagesTab() {
             </div>
           ) : (
             <>
-              <div className="divide-y">
+          <div className="divide-y">
                 {filteredConversations.map((conversation) => (
-                  <button 
-                    key={conversation.id}
-                    className={`w-full p-4 hover:bg-muted/50 transition-colors text-left ${selectedConversation?.id === conversation.id ? 'bg-muted/50' : ''}`}
-                    onClick={() => handleSelectConversation(conversation)}
-                  >
-                    <div className="flex items-start gap-3">
+              <button 
+                key={conversation.id}
+                className={`w-full p-4 hover:bg-muted/50 transition-colors text-left ${selectedConversation?.id === conversation.id ? 'bg-muted/50' : ''}`}
+                onClick={() => handleSelectConversation(conversation)}
+              >
+                <div className="flex items-start gap-3">
                       <div className="relative">
-                        <Avatar>
-                          <AvatarImage src={conversation.other_user?.avatar_url || undefined} />
-                          <AvatarFallback>
-                            {conversation.other_user?.name?.charAt(0) || '?'}
-                          </AvatarFallback>
-                        </Avatar>
+                  <Avatar>
+                    <AvatarImage src={conversation.other_user?.avatar_url || undefined} />
+                    <AvatarFallback>
+                      {conversation.other_user?.name?.charAt(0) || '?'}
+                    </AvatarFallback>
+                  </Avatar>
                         {/* Unread message indicator */}
                         {(conversation.unread_count || 0) > 0 && (
                           <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium">
@@ -672,47 +672,47 @@ export function MessagesTab() {
                           </div>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
                           <p className={`font-medium truncate ${(conversation.unread_count || 0) > 0 ? 'font-semibold' : ''}`}>
-                            {conversation.other_user?.seller?.watch_pros_name}
-                          </p>
-                          {conversation.last_message && (
-                            <span className="text-sm text-muted-foreground">
-                              {new Date(conversation.last_message.created_at).toLocaleTimeString()}
-                            </span>
-                          )}
-                        </div>
-                        {conversation.last_message && (
-                          <p className={`text-sm truncate ${(conversation.unread_count || 0) > 0 ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
-                            {conversation.last_message.content}
-                          </p>
-                        )}
-                      </div>
+                        {conversation.other_user?.seller?.watch_pros_name}
+                      </p>
+                      {conversation.last_message && (
+                        <span className="text-sm text-muted-foreground">
+                          {new Date(conversation.last_message.created_at).toLocaleTimeString()}
+                        </span>
+                      )}
                     </div>
-                  </button>
-                ))}
-              </div>
-              
-              {/* Load more button */}
-              {hasMore && filteredConversations.length > 0 && (
-                <div className="p-4 text-center">
-                  <Button
-                    variant="outline"
-                    onClick={handleLoadMore}
-                    disabled={loadingMore}
-                    className="w-full"
-                  >
-                    {loadingMore ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
-                        Loading...
-                      </>
-                    ) : (
-                      'Load more'
+                    {conversation.last_message && (
+                          <p className={`text-sm truncate ${(conversation.unread_count || 0) > 0 ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+                        {conversation.last_message.content}
+                      </p>
                     )}
-                  </Button>
+                  </div>
                 </div>
+              </button>
+            ))}
+          </div>
+          
+          {/* Load more button */}
+              {hasMore && filteredConversations.length > 0 && (
+            <div className="p-4 text-center">
+              <Button
+                variant="outline"
+                onClick={handleLoadMore}
+                disabled={loadingMore}
+                className="w-full"
+              >
+                {loadingMore ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
+                    Loading...
+                  </>
+                ) : (
+                  'Load more'
+                )}
+              </Button>
+            </div>
               )}
             </>
           )}
@@ -789,8 +789,8 @@ export function MessagesTab() {
                           message.sender_id === user?.id ? "justify-end" : ""
                         }`}>
                           <span className="text-xs text-muted-foreground">
-                            {new Date(message.created_at).toLocaleTimeString()}
-                          </span>
+                          {new Date(message.created_at).toLocaleTimeString()}
+                        </span>
                           {message.sender_id === user?.id && (
                             <span className="text-xs text-muted-foreground">
                               {message.read ? "✓✓" : "✓"}

@@ -318,7 +318,7 @@ export function DashboardTab() {
           <div className="space-y-4">
             {(data.by_model || []).map((model) => (
               model.avg_sale_price > 0 ? (
-                <div key={model.label} className="flex items-center justify-between">
+              <div key={model.label} className="flex items-center justify-between">
                 <span className="text-sm font-medium">{model.label}</span>
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-muted-foreground">

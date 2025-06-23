@@ -309,7 +309,7 @@ export const emailTemplates = {
         <div style="text-align: center;">
           <a href="${process.env.NEXT_PUBLIC_APP_URL}/" 
              style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">
-            Go to Dashboard
+            Visit website
           </a>
         </div>
 
@@ -345,9 +345,9 @@ export const emailTemplates = {
         </div>
 
         <div style="text-align: center;">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/dashboard" 
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/register" 
              style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">
-            Go to Dashboard
+            Register again
           </a>
         </div>
 

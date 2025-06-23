@@ -43,7 +43,7 @@ interface RegisterSellerRequest {
 
 // File validation constants
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'application/pdf'];
+const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'application/pdf', ];
 
 // Image optimization constants
 const MAX_WIDTH = 1200

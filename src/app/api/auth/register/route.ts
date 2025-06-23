@@ -16,7 +16,7 @@ export async function POST(request: Request) {
           first_name: firstName,
           last_name: lastName,
         },
-      },
+      }
     })
 
     if (error) {

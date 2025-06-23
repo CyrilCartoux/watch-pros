@@ -8,6 +8,7 @@ import { Navbar } from "@/components/Navbar"
 import { Footer } from "@/components/Footer"
 import { Toaster } from "@/components/ui/toaster"
 import { MobileBottomNav } from "@/components/MobileBottomNav"
+import LogRocketProvider from "@/components/LogRocketProvider"
 
 export default function ClientLayout({
   children,
@@ -16,6 +17,7 @@ export default function ClientLayout({
 }) {
   return (
     <AuthProvider>
+      <LogRocketProvider />
       <NotificationsProvider>
         <MessagesProvider>
           <BrandsAndModelsProvider>

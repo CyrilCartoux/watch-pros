@@ -63,7 +63,7 @@ const accountSchema = z.object({
   phonePrefix: z.string().min(1, "Phone prefix is required"),
   phone: z.string()
     .min(1, "Phone number is required")
-    .regex(/^\d+$/, "Phone number must contain only digits")
+    .regex(/^\d+$/, { message: "Phone number must contain only digits (no spaces, dashes, or symbols)" })
     .min(9, "Phone number must contain at least 9 digits")
     .max(15, "Phone number must not exceed 15 digits"),
   cryptoFriendly: z.boolean().default(false),
@@ -80,8 +80,6 @@ const addressSchema = z.object({
   postalCode: z.string().min(1, "Postal code is required"),
   city: z.string().min(1, "City is required"),
   country: z.string().min(1, "Country is required"),
-  mobilePrefix: z.string().min(1, "Mobile prefix is required"),
-  mobile: z.string().min(1, "Mobile number is required"),
   website: z.string().url("Invalid URL").optional().or(z.literal("")),
   siren: z.string().min(1, "SIREN/SIRET number is required"),
   taxId: z.string().min(1, "Tax ID number is required"),
@@ -232,7 +230,7 @@ export default function RegisterFormPage() {
   const isDocumentsIncomplete = !documentsWatch("idCardFront") || !documentsWatch("idCardBack") || !documentsWatch("proofOfAddress")
 
   // Détermine si on doit désactiver les boutons
-  const disableContinue = isLoading || isSeller || !isAuthenticated
+  const disableContinue = isLoading
 
   // Alert message
   let alertMessage = null
@@ -246,19 +244,16 @@ export default function RegisterFormPage() {
 
   // Function to check if a tab is accessible
   const isTabAccessible = (tab: string) => {
-    return true;
-    // switch (tab) {
-    //   case "account":
-    //     return true
-    //   case "address":
-    //     return isFormValid.account
-    //   case "documents":
-    //     return isFormValid.account && isFormValid.address
-    //   case "summary":
-    //     return isFormValid.account && isFormValid.address
-    //   default:
-    //     return false
-    // }
+    switch (tab) {
+      case "account":
+        return true
+      case "address":
+        return isFormValid.account
+      case "documents":
+        return isFormValid.account && isFormValid.address
+      default:
+        return false
+    }
   }
 
   // Update form validation
@@ -581,9 +576,23 @@ export default function RegisterFormPage() {
       <div className="max-w-3xl mx-auto">
         {/* Message d'alerte si besoin */}
         {alertMessage && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
-            <AlertCircle className="h-5 w-5" />
-            <span>{alertMessage}</span>
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center gap-2 text-red-700 mb-3">
+              <AlertCircle className="h-5 w-5" />
+              <span>{alertMessage}</span>
+            </div>
+            {!isAuthenticated && (
+              <div className="flex justify-center">
+                <Button 
+                  onClick={() => router.push('/auth?mode=register')}
+                  variant="outline"
+                  size="sm"
+                  className="border-red-200 text-red-700 hover:bg-red-100"
+                >
+                  Go to Login
+                </Button>
+              </div>
+            )}
           </div>
         )}
         <div className="text-center mb-12">
@@ -907,33 +916,6 @@ export default function RegisterFormPage() {
                         )}
                       />
                       <FormError error={addressForm.formState.errors.country?.message as string} isSubmitted={isSubmitted.address} />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="mobile">Mobile *</Label>
-                      <div className="flex gap-2">
-                        <Controller
-                          name="mobilePrefix"
-                          control={addressForm.control}
-                          defaultValue=""
-                          render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger className="w-[180px]">
-                                <SelectValue placeholder="Indicatif" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {phonePrefixes.map((prefix) => (
-                                  <SelectItem key={prefix.value} value={prefix.value}>
-                                    {prefix.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
-                        <Input id="mobile" placeholder="Numéro de mobile" className="flex-1" {...addressForm.register("mobile")} />
-                      </div>
-                      <FormError error={addressForm.formState.errors.mobile?.message as string} isSubmitted={isSubmitted.address} />
                     </div>
 
                     <div>
