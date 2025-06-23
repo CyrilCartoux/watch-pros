@@ -34,7 +34,7 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 
 // Constants for file validation
 const MAX_FILE_SIZE = 6 * 1024 * 1024; // 6MB
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "application/pdf"];
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "application/pdf", "image/webp", "image/heic", "image/heif"];
 
 // File validation function
 const validateFile = (file: File) => {
