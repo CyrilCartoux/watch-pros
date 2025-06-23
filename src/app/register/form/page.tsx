@@ -282,7 +282,9 @@ export default function RegisterFormPage() {
       const isAccountValid = await accountForm.trigger()
       const isAddressValid = await addressForm.trigger()
       const isDocumentsValid = await documentsForm.trigger()
-
+      console.log('[LOG] handleSellerRegistration - isAccountValid:', isAccountValid)
+      console.log('[LOG] handleSellerRegistration - isAddressValid:', isAddressValid)
+      console.log('[LOG] handleSellerRegistration - isDocumentsValid:', isDocumentsValid)
       if (!isAccountValid || !isAddressValid || !isDocumentsValid) {
         console.error("Some forms are not valid")
         setLoadingSellerRegistration(false)
@@ -299,6 +301,7 @@ export default function RegisterFormPage() {
         },
         documents: documentsForm.getValues()
       }
+      console.log('[LOG] handleSellerRegistration - formData:', formData)
 
       // Create FormData for file upload
       const submitData = new FormData()
@@ -309,14 +312,20 @@ export default function RegisterFormPage() {
       submitData.append('idCardBack', formData.documents.idCardBack)
       submitData.append('proofOfAddress', formData.documents.proofOfAddress)
 
+      // Log FormData keys and types
+      for (let [key, value] of submitData.entries()) {
+        console.log(`[LOG] FormData entry - ${key}:`, value, typeof value, value instanceof File ? { name: value.name, type: value.type, size: value.size } : null)
+      }
+
       // Send data to API
       const response = await fetch('/api/sellers/register', {
         method: 'POST',
         body: submitData
       })
-
+      console.log('[LOG] handleSellerRegistration - response:', response)
       if (!response.ok) {
         const error = await response.json()
+        console.error('[LOG] handleSellerRegistration - error response:', error)
         throw new Error(error.message || 'Error registering seller')
       }
 
@@ -345,6 +354,7 @@ export default function RegisterFormPage() {
 
       // @ts-ignore - we know this exists from the useEffect in PaymentFormWrapper
       const paymentSuccessful = await window.handleStripePayment()
+      console.log('[LOG] handleSubscriptionPayment - paymentSuccessful:', paymentSuccessful)
       if (!paymentSuccessful) {
         throw new Error("Payment failed")
       }
@@ -360,11 +370,13 @@ export default function RegisterFormPage() {
 
   const handleNext = async () => {
     let isValid = false
-
+    console.log('[LOG] handleNext - currentTab:', currentTab)
     switch (currentTab) {
       case "account":
         setIsSubmitted(prev => ({ ...prev, account: true }))
         isValid = await accountForm.trigger()
+        console.log('[LOG] handleNext - accountForm.isValid:', isValid)
+        console.log('[LOG] handleNext - accountForm.errors:', accountForm.formState.errors)
         if (!isValid) {
           console.log("Account form errors:", accountForm.formState.errors)
         }
@@ -377,6 +389,8 @@ export default function RegisterFormPage() {
       case "address":
         setIsSubmitted(prev => ({ ...prev, address: true }))
         isValid = await addressForm.trigger()
+        console.log('[LOG] handleNext - addressForm.isValid:', isValid)
+        console.log('[LOG] handleNext - addressForm.errors:', addressForm.formState.errors)
         if (!isValid) {
           console.log("Address form errors:", addressForm.formState.errors)
         }
@@ -389,6 +403,8 @@ export default function RegisterFormPage() {
       case "documents":
         setIsSubmitted(prev => ({ ...prev, documents: true }))
         isValid = await documentsForm.trigger()
+        console.log('[LOG] handleNext - documentsForm.isValid:', isValid)
+        console.log('[LOG] handleNext - documentsForm.errors:', documentsForm.formState.errors)
         if (!isValid) {
           console.log("Documents form errors:", documentsForm.formState.errors)
         }
@@ -401,6 +417,7 @@ export default function RegisterFormPage() {
       case "subscription":
         if (!selectedPlan) {
           // Show error message
+          console.log('[LOG] handleNext - no selectedPlan')
           return
         }
         // The subscription form handles its own submission
@@ -449,8 +466,10 @@ export default function RegisterFormPage() {
 
   const handleCompanyLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
+    console.log('[LOG] handleCompanyLogoChange - file:', file)
     if (file) {
       const error = validateFile(file)
+      console.log('[LOG] handleCompanyLogoChange - validation error:', error)
       if (error) {
         accountForm.setError("companyLogo", { message: error })
       } else {
@@ -660,6 +679,7 @@ export default function RegisterFormPage() {
 
                 <form onSubmit={(e) => {
                   e.preventDefault()
+                  console.log('[LOG] Account form submit - values:', accountForm.getValues())
                   handleNext()
                 }} className="space-y-6">
                   <div className="space-y-4">
@@ -697,7 +717,7 @@ export default function RegisterFormPage() {
                             <span className="text-sm text-muted-foreground">Upload logo</span>
                             <input
                               type="file"
-                              accept="image/jpeg,image/png,image/webp"
+                              accept="image/*,application/pdf"
                               className="hidden"
                               onChange={handleCompanyLogoChange}
                             />
@@ -865,6 +885,7 @@ export default function RegisterFormPage() {
 
                 <form onSubmit={(e) => {
                   e.preventDefault()
+                  console.log('[LOG] Address form submit - values:', addressForm.getValues())
                   handleNext()
                 }} className="space-y-6">
                   <div className="space-y-4">
@@ -995,6 +1016,7 @@ export default function RegisterFormPage() {
 
                 <form onSubmit={(e) => {
                   e.preventDefault()
+                  console.log('[LOG] Documents form submit - values:', documentsForm.getValues())
                   handleNext()
                 }} className="space-y-6">
                   <div className="space-y-6">
@@ -1011,12 +1033,14 @@ export default function RegisterFormPage() {
                           <Input
                             id="idCardFront"
                             type="file"
-                            accept=".jpg,.jpeg,.png,.pdf"
+                            accept="image/*,application/pdf"
                             ref={idCardFrontInputRef}
                             onChange={(e) => {
                               const file = e.target.files?.[0]
+                              console.log('[LOG] idCardFront - file:', file)
                               if (file) {
                                 const error = validateFile(file)
+                                console.log('[LOG] idCardFront - validation error:', error)
                                 if (error) {
                                   documentsForm.setError("idCardFront", { message: error })
                                 } else {
@@ -1055,12 +1079,14 @@ export default function RegisterFormPage() {
                           <Input
                             id="idCardBack"
                             type="file"
-                            accept=".jpg,.jpeg,.png,.pdf"
+                            accept="image/*,application/pdf"
                             ref={idCardBackInputRef}
                             onChange={(e) => {
                               const file = e.target.files?.[0]
+                              console.log('[LOG] idCardBack - file:', file)
                               if (file) {
                                 const error = validateFile(file)
+                                console.log('[LOG] idCardBack - validation error:', error)
                                 if (error) {
                                   documentsForm.setError("idCardBack", { message: error })
                                 } else {
@@ -1108,12 +1134,14 @@ export default function RegisterFormPage() {
                         <Input
                           id="proofOfAddress"
                           type="file"
-                          accept=".jpg,.jpeg,.png,.pdf"
+                          accept="image/*,application/pdf"
                           ref={proofOfAddressInputRef}
                           onChange={(e) => {
                             const file = e.target.files?.[0]
+                            console.log('[LOG] proofOfAddress - file:', file)
                             if (file) {
                               const error = validateFile(file)
+                              console.log('[LOG] proofOfAddress - validation error:', error)
                               if (error) {
                                 documentsForm.setError("proofOfAddress", { message: error })
                               } else {
@@ -1315,11 +1343,11 @@ export default function RegisterFormPage() {
           </TabsContent>
         </Tabs>
         <div className="h-10">
-          <button onClick={() => console.log({
-            account: accountForm.getValues(),
-            documents: documentsForm.getValues(),
-            addressForm: addressForm.getValues()
-          })}>Debug Form</button>
+          <Button onClick={() => {
+            console.log('[LOG] Debug Form - account:', accountForm.getValues())
+            console.log('[LOG] Debug Form - address:', addressForm.getValues())
+            console.log('[LOG] Debug Form - documents:', documentsForm.getValues())
+          }}>Debug Form</Button>
         </div>
       </div>
     </main>

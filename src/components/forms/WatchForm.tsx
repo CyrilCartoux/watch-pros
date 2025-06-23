@@ -262,17 +262,17 @@ export default function WatchForm({
 
     // File validation
     const validFiles = files.filter((file) => {
-      if (file.size > 5 * 1024 * 1024) {
-        alert(`File ${file.name} is too large. Maximum size: 5MB`);
+      if (file.size > 10 * 1024 * 1024) {
+        alert(`File ${file.name} is too large. Maximum size: 10MB`);
         return false;
       }
       if (
-        !["image/jpeg", "image/png", "image/webp", "image/heic"].includes(
+        !["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"].includes(
           file.type
         )
       ) {
         alert(
-          `File ${file.name} is not an accepted image format. Accepted formats: JPG, PNG, WEBP, HEIC`
+          `File ${file.name} is not an accepted image format. Accepted formats: JPG, PNG, WEBP, HEIC, HEIF`
         );
         return false;
       }
@@ -807,7 +807,7 @@ export default function WatchForm({
                         <Upload className="w-8 h-8 text-muted-foreground mb-2" />
                         <input
                           type="file"
-                          accept="image/jpeg,image/png,image/webp"
+                          accept="image/*"
                           className="hidden"
                           onChange={handleImageChange}
                           multiple
@@ -855,24 +855,24 @@ export default function WatchForm({
                       <Upload className="w-8 h-8 text-muted-foreground mb-2" />
                       <input
                         type="file"
-                        accept=".pdf,.jpg,.jpeg,.png"
+                        accept="image/*,application/pdf"
                         className="hidden"
                         onChange={(e) => {
                           const files = Array.from(e.target.files || []);
                           const validFiles = files.filter((file) => {
-                            if (file.size > 5 * 1024 * 1024) {
+                            if (file.size > 10 * 1024 * 1024) {
                               alert(
-                                `File ${file.name} is too large. Maximum size: 5MB`
+                                `File ${file.name} is too large. Maximum size: 10MB`
                               );
                               return false;
                             }
                             if (
-                              ![".pdf", ".jpg", ".jpeg", ".png"].some((ext) =>
+                              ![".pdf", ".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"].some((ext) =>
                                 file.name.toLowerCase().endsWith(ext)
                               )
                             ) {
                               alert(
-                                `File ${file.name} is not an accepted format. Accepted formats: PDF, JPG, PNG`
+                                `File ${file.name} is not an accepted format. Accepted formats: PDF, JPG, PNG, WEBP, HEIC, HEIF`
                               );
                               return false;
                             }
