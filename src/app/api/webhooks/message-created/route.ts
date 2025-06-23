@@ -24,6 +24,7 @@ type Message = {
   sender_id: string
   content: string
   created_at: string
+  listing_id?: string | null
 }
 
 // Type for sellers query
@@ -31,6 +32,25 @@ type Seller = {
   id: string
   watch_pros_name: string
   company_name: string | null
+}
+
+// Type for listings query
+type Listing = {
+  id: string
+  title: string
+  price: number
+  currency: string
+  listing_images: {
+    url: string
+    order_index: number
+  }[]
+  brand: {
+    slug: string
+    label: string
+  }
+  model: {
+    label: string
+  }
 }
 
 export async function POST(request: Request) {
@@ -55,12 +75,14 @@ export async function POST(request: Request) {
     const conversationId = record.conversation_id
     const senderId = record.sender_id
     const messageContent = record.content
+    const listingId = record.listing_id
 
     console.log('📝 Processing message:', {
       messageId,
       conversationId,
       senderId,
-      contentLength: messageContent?.length
+      contentLength: messageContent?.length,
+      listingId
     })
 
     // Fetch conversation details
@@ -153,12 +175,46 @@ export async function POST(request: Request) {
       messagePreview: messageContent.substring(0, 50) + '...'
     })
 
+    // Fetch listing details if message is linked to a listing
+    let listingDetails: Listing | null = null
+    if (listingId) {
+      const { data: listing, error: listingError } = await supabaseAdmin
+        .from('listings')
+        .select(`
+          id,
+          title,
+          price,
+          currency,
+          listing_images(
+            url,
+            order_index
+          ),
+          brand:brands(
+            slug,
+            label
+          ),
+          model:models(
+            label
+          )
+        `)
+        .eq('id', listingId)
+        .single()
+
+      if (listingError) {
+        console.error('❌ Error fetching listing:', listingError)
+        // Continue without listing details
+      } else {
+        listingDetails = listing as unknown as Listing
+        console.log('📎 Message linked to listing:', listing.title)
+      }
+    }
+
     // Send email notification
     let emailSent = false
     let emailFailed = false
 
     try {
-      const emailContent = emailTemplates.newMessage(senderName, messageContent)
+      const emailContent = emailTemplates.newMessage(senderName, messageContent, listingDetails)
       await sendEmail({
         to: recipientProfile.email,
         ...emailContent

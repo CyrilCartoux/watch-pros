@@ -34,8 +34,8 @@ export async function POST(request: Request) {
     }
     console.log('✅ User profile found:', profile.id)
 
-    const { otherUserId, initialMessage } = await request.json()
-    console.log('📝 Request data:', { otherUserId, initialMessageLength: initialMessage?.length })
+    const { otherUserId, initialMessage, listingId } = await request.json()
+    console.log('📝 Request data:', { otherUserId, initialMessageLength: initialMessage?.length, listingId })
 
     if (!otherUserId || !initialMessage) {
       console.log('❌ Missing required fields:', { otherUserId: !!otherUserId, initialMessage: !!initialMessage })
@@ -117,15 +117,22 @@ export async function POST(request: Request) {
       console.log('✅ New conversation created:', conversationId)
     }
 
-    // Insérer le message initial
+    // Insérer le message initial avec listing_id optionnel
     console.log('💬 Inserting initial message...')
+    const messageData: any = {
+      conversation_id: conversationId,
+      sender_id: profile.id,
+      content: initialMessage
+    }
+    
+    if (listingId) {
+      messageData.listing_id = listingId
+      console.log('📎 Linking message to listing:', listingId)
+    }
+
     const { data: message, error: messageError } = await supabase
       .from('messages')
-      .insert({
-        conversation_id: conversationId,
-        sender_id: profile.id,
-        content: initialMessage
-      })
+      .insert(messageData)
       .select()
       .single()
 

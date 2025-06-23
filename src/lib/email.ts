@@ -107,14 +107,32 @@ export const emailTemplates = {
     `,
   }),
 
-  newMessage: (sellerName: string, message: string) => ({
-    subject: `New Message from ${sellerName}`,
+  newMessage: (sellerName: string, message: string, listingDetails?: any) => ({
+    subject: `New Message from ${sellerName}${listingDetails ? ` - ${listingDetails.title}` : ''}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
         <div style="text-align: center; margin-bottom: 30px;">
           <h1 style="color: #2c3e50; margin-bottom: 10px;">New Message</h1>
           <p style="color: #7f8c8d; font-size: 16px;">You have received a new message from a seller</p>
         </div>
+        
+        ${listingDetails ? `
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 20px;">
+            <h3 style="color: #2c3e50; margin-top: 0; margin-bottom: 15px;">About this listing:</h3>
+            <div style="display: flex; gap: 15px; align-items: center;">
+              <div style="width: 80px; height: 80px; background-color: #e0e0e0; border-radius: 6px; overflow: hidden;">
+                <img src="${listingDetails.listing_images?.[0]?.url || `${process.env.NEXT_PUBLIC_APP_URL}/api/listings/${listingDetails.id}/image`}" 
+                     alt="${listingDetails.title}" 
+                     style="width: 100%; height: 100%; object-fit: cover;" />
+              </div>
+              <div style="flex: 1;">
+                <h4 style="color: #2c3e50; margin: 0 0 5px 0; font-size: 16px;">${listingDetails.title}</h4>
+                <p style="color: #7f8c8d; margin: 0 0 5px 0; font-size: 14px;">${listingDetails.brand?.label} • ${listingDetails.model?.label}</p>
+                <p style="color: #27ae60; font-weight: bold; margin: 0; font-size: 18px;">${listingDetails.price.toLocaleString()} ${listingDetails.currency}</p>
+              </div>
+            </div>
+          </div>
+        ` : ''}
         
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 30px;">
           <h2 style="color: #2c3e50; margin-top: 0;">From: ${sellerName}</h2>
@@ -128,6 +146,12 @@ export const emailTemplates = {
              style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">
             View Message
           </a>
+          ${listingDetails ? `
+            <a href="${process.env.NEXT_PUBLIC_APP_URL}/listings/${listingDetails.id}" 
+               style="background-color: #27ae60; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold; margin-left: 10px;">
+              View Listing
+            </a>
+          ` : ''}
         </div>
 
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">

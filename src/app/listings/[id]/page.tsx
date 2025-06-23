@@ -294,6 +294,7 @@ export default function ListingPage({ params }: Props) {
         body: JSON.stringify({
           otherUserId: listing!.seller?.id,
           initialMessage: message,
+          listingId: listing!.id,
         }),
       })
 

@@ -20,6 +20,24 @@ interface Message {
   created_at: string
   read: boolean
   pending?: boolean
+  listing_id?: string | null
+  listing?: {
+    id: string
+    title: string
+    price: number
+    currency: string
+    listing_images: {
+      url: string
+      order_index: number
+    }[]
+    brand: {
+      slug: string
+      label: string
+    }
+    model: {
+      label: string
+    }
+  }
 }
 
 interface Conversation {
@@ -426,34 +444,31 @@ export function MessagesTab() {
     try {
       const { data, error } = await supabase
         .from('messages')
-        .select('*')
+        .select(`
+          *,
+          listing:listings(
+            id,
+            title,
+            price,
+            currency,
+            listing_images(
+              url,
+              order_index
+            ),
+            brand:brands(
+              slug,
+              label
+            ),
+            model:models(
+              label
+            )
+          )
+        `)
         .eq('conversation_id', conversationId)
         .order('created_at', { ascending: true })
 
       if (error) throw error
-
-      setMessages(data)
-      
-      // Mark messages as read
-      const unreadMessages = data.filter(
-        (msg: Message) => !msg.read && msg.sender_id !== user?.id && !msg.id.startsWith('temp-')
-      )
-      
-      if (unreadMessages.length > 0) {
-        unreadMessageIds.current = unreadMessages.map(msg => msg.id)
-        debouncedMarkAsRead()
-        
-        // Update conversation unread count immediately
-        setConversations(prev => 
-          prev.map(conv => 
-            conv.id === conversationId
-              ? { ...conv, unread_count: 0 }
-              : conv
-          )
-        )
-        // Update global unread count
-        fetchUnreadCount()
-      }
+      setMessages(data || [])
     } catch (err) {
       console.error('Error loading messages:', err)
       toast({
@@ -772,32 +787,73 @@ export function MessagesTab() {
                           </AvatarFallback>
                         </Avatar>
                       )}
-                      <div className={`flex-1 ${message.sender_id === user?.id ? "max-w-[80%]" : ""}`}>
-                        <div className={`rounded-lg p-3 ${
+                      <div className={`max-w-[70%] ${message.sender_id === user?.id ? "order-first" : ""}`}>
+                        {/* Listing preview if message is linked to a listing */}
+                        {message.listing && (
+                          <div className="mb-2 p-3 bg-muted/50 rounded-lg border">
+                            <div className="flex gap-3">
+                              <div className="relative w-16 h-16 rounded-md overflow-hidden bg-background">
+                                <img
+                                  src={message.listing.listing_images?.[0]?.url || `/api/listings/${message.listing.id}/image`}
+                                  alt={message.listing.title}
+                                  className="object-cover w-full h-full"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <Link
+                                  href={`/listings/${message.listing.id}`}
+                                  className="block hover:underline"
+                                >
+                                  <h4 className="font-medium text-sm truncate">
+                                    {message.listing.title}
+                                  </h4>
+                                </Link>
+                                <p className="text-xs text-muted-foreground">
+                                  {message.listing.brand?.label} • {message.listing.model?.label}
+                                </p>
+                                <p className="text-sm font-semibold">
+                                  {message.listing.price.toLocaleString()} {message.listing.currency}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className={`p-3 rounded-lg ${
                           message.sender_id === user?.id 
                             ? "bg-primary text-primary-foreground" 
                             : "bg-muted"
-                        } ${message.pending ? "opacity-50" : ""} ${!message.read && message.sender_id !== user?.id ? "border-l-4 " : ""}`}>
-                          <p>{message.content}</p>
-                          {message.pending && (
-                            <div className="mt-1 flex justify-end">
-                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
-                            </div>
-                          )}
-                        </div>
-                        <div className={`flex items-center gap-2 mt-1 ${
-                          message.sender_id === user?.id ? "justify-end" : ""
                         }`}>
-                          <span className="text-xs text-muted-foreground">
-                          {new Date(message.created_at).toLocaleTimeString()}
-                        </span>
-                          {message.sender_id === user?.id && (
-                            <span className="text-xs text-muted-foreground">
-                              {message.read ? "✓✓" : "✓"}
+                          <p className="text-sm whitespace-pre-wrap break-words">
+                            {message.content}
+                          </p>
+                          <div className={`flex items-center justify-between mt-2 text-xs ${
+                            message.sender_id === user?.id 
+                              ? "text-primary-foreground/70" 
+                              : "text-muted-foreground"
+                          }`}>
+                            <span>
+                              {new Date(message.created_at).toLocaleTimeString([], {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
                             </span>
-                          )}
+                            {message.sender_id === user?.id && (
+                              <span>
+                                {message.pending ? "Sending..." : "Sent"}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
+                      {message.sender_id === user?.id && (
+                        <Avatar className="w-8 h-8">
+                          <AvatarImage src={user?.user_metadata?.avatar_url} />
+                          <AvatarFallback>
+                            {user?.user_metadata?.full_name?.charAt(0) || user?.email?.charAt(0) || '?'}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
                     </div>
                   ))}
                   <div ref={messagesEndRef} />
