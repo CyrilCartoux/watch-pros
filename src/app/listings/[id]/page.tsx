@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge"
 import { brandsList } from "@/data/brands-list"
 import { models } from "@/data/models"
 import { motion } from "framer-motion"
+import { FaWhatsapp } from "react-icons/fa"
 
 interface ListingData {
   id: string
@@ -704,11 +705,16 @@ export default function ListingPage({ params }: Props) {
                   </DialogContent>
                 </Dialog>
                 <Button
-                  variant="outline" 
+                  variant="outline"
                   size="icon"
-                  onClick={() => setIsContactDialogOpen(true)}
+                  onClick={() => {
+                    const shareText = `Hot B2B Deal on WatchPros! Limited availability!\n\n${listing.title}\n${brandsList.find(b => b.slug === listing.brand)?.label} ${models[listing.brand].find(m => m.model_slug === listing.model)?.model_label}\nRef: ${listing.reference}\nYear: ${listing.year}\nCondition: ${watchConditions.find(w => w.slug === listing.condition)?.label}\n\n💰 Trade Price: ${listing.price.toLocaleString()} ${listing.currency}\n⚡ Shipping: ${listing.shippingDelay}days\n\nExclusive offer for watch industry professionals.\nSecure this piece now: ${window.location.href}`
+                    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`
+                    window.open(whatsappUrl, '_blank')
+                  }}
+                  aria-label="Share on WhatsApp"
                 >
-                  <MessageSquare className="h-5 w-5" />
+                  <FaWhatsapp className="h-5 w-5 text-green-500" />
                 </Button>
               </div>
             </div>
@@ -803,13 +809,22 @@ export default function ListingPage({ params }: Props) {
                   Declare Sale
                 </Button>
               ) : (
-                <Button 
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-lg py-6"
-                  onClick={() => setIsOfferDialogOpen(true)}
-                  disabled={listing.status === 'hold'}
-                >
-                  {listing.status === 'hold' ? 'Offer unavailable (on hold)' : 'Make an offer'}
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-2 w-full">
+                  <Button 
+                    className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3 text-base sm:py-6 sm:text-lg"
+                    onClick={() => setIsOfferDialogOpen(true)}
+                    disabled={listing.status === 'hold'}
+                  >
+                    {listing.status === 'hold' ? 'Offer unavailable (on hold)' : 'Make an offer'}
+                  </Button>
+                  <Button
+                    className="flex-1 font-semibold py-3 text-base sm:py-6 sm:text-lg"
+                    variant="outline"
+                    onClick={() => setIsContactDialogOpen(true)}
+                  >
+                    Contact seller
+                  </Button>
+                </div>
               )}
             </div>
 

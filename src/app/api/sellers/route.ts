@@ -42,13 +42,16 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '10')
+    const limit = parseInt(searchParams.get('limit') || '12')
     const offset = (page - 1) * limit
     const order = searchParams.get('order') || 'desc'
     const country = searchParams.get('country')
     const cryptoFriendly = searchParams.get('cryptoFriendly')
     const minRating = searchParams.get('minRating')
     const search = searchParams.get('search')
+    const top = searchParams.get('top')
+
+    console.log('[API/sellers] Params:', { page, limit, offset, order, country, cryptoFriendly, minRating, search, top })
 
     const supabase = await createClient()
 
@@ -117,7 +120,7 @@ export async function GET(request: Request) {
     console.log('sellersError', sellersError)
 
     if (sellersError) {
-      console.error('Error fetching sellers:', sellersError)
+      console.error('[API/sellers] Error fetching sellers:', sellersError)
       return NextResponse.json(
         { error: 'Failed to fetch sellers' },
         { status: 500 }
@@ -158,6 +161,21 @@ export async function GET(request: Request) {
 
     const totalPages = count ? Math.ceil(count / limit) : 0
 
+    // Si top est demandé, retourne les 3 meilleurs vendeurs
+    if (top) {
+      console.log('[API/sellers] Fetching top sellers...')
+      const { data: topSellers, error: topError } = await supabase.rpc('get_top_sellers', { limit_count: Number(top) })
+      if (topError) {
+        console.error('[API/sellers] Error fetching top sellers:', topError)
+        return NextResponse.json(
+          { error: 'Failed to fetch top sellers' },
+          { status: 500 }
+        )
+      }
+      console.log('[API/sellers] topSellers:', topSellers)
+      return NextResponse.json({ sellers: topSellers })
+    }
+
     return NextResponse.json({
       sellers: transformedSellers,
       pagination: {
@@ -168,9 +186,9 @@ export async function GET(request: Request) {
       }
     })
   } catch (error) {
-    console.error('Unexpected error:', error)
+    console.error('[API/sellers] Unexpected error:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Internal server error', details: String(error) },
       { status: 500 }
     )
   }

@@ -155,9 +155,6 @@ export function Footer() {
                   {isLoading ? "Sending..." : "Subscribe"}
                 </Button>
               </form>
-              <p className="italic text-sm text-muted-foreground mt-4">
-                Already over <strong>500</strong> pros subscribed.
-              </p>
             </div>
           </div>
 

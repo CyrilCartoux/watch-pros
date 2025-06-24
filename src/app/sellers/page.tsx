@@ -71,6 +71,24 @@ interface Filters {
   search: string
 }
 
+interface TopSellerRpc {
+  id: string
+  company_name: string
+  company_logo_url: string | null
+  watch_pros_name: string
+  company_status: string
+  first_name: string
+  last_name: string
+  email: string
+  country: string
+  phone_prefix: string
+  phone: string
+  crypto_friendly: boolean
+  identity_verified: boolean
+  average_rating: number
+  total_reviews: number
+}
+
 function getCountryFlag(countryCode: string): string {
   const codePoints = countryCode
     .toUpperCase()
@@ -103,8 +121,9 @@ export default function SellersListPage() {
     currentPage: 1,
     totalPages: 1,
     totalItems: 0,
-    itemsPerPage: 10
+    itemsPerPage: 12
   })
+  const [topSellers, setTopSellers] = useState<TopSellerRpc[]>([])
 
 
   const handleFilterChange = useCallback((key: keyof Filters, value: any) => {
@@ -169,7 +188,7 @@ export default function SellersListPage() {
       setLoading(true)
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: "10",
+        limit: "12",
         order: "desc"
       })
 
@@ -196,6 +215,21 @@ export default function SellersListPage() {
   useEffect(() => {
     fetchSellers(currentPage)
   }, [currentPage, filters.country, filters.cryptoFriendly, filters.minRating, filters.search])
+
+  // Fetch top sellers au chargement
+  useEffect(() => {
+    const fetchTopSellers = async () => {
+      try {
+        const response = await fetch('/api/sellers?top=3')
+        if (!response.ok) throw new Error('Failed to fetch top sellers')
+        const data = await response.json()
+        setTopSellers(data.sellers)
+      } catch (err) {
+        // Optionally handle error
+      }
+    }
+    fetchTopSellers()
+  }, [])
 
   const renderFilters = () => (
     <div className="space-y-8">
@@ -317,6 +351,76 @@ export default function SellersListPage() {
             Browse our verified sellers and find the perfect watch for you.
           </p>
         </div>
+
+        {/* Top Sellers Section */}
+        {topSellers.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-4">Top sellers</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {topSellers.map((seller) => (
+                <Link
+                  key={seller.watch_pros_name}
+                  href={`/sellers/${seller.watch_pros_name}`}
+                  className="block group"
+                >
+                  <div className="relative rounded-xl border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 via-white to-yellow-100 shadow-lg hover:shadow-2xl transition-shadow duration-300 p-1">
+                    {/* Super Seller Badge */}
+                    <div className="absolute top-3 right-3 z-10">
+                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 text-white font-bold text-xs shadow-md border border-yellow-500 animate-pulse">
+                        <Award className="h-4 w-4 text-white drop-shadow" />
+                        Super Seller
+                      </span>
+                    </div>
+                    <Card className="bg-transparent border-none shadow-none">
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-yellow-300 flex items-center justify-center bg-background flex-shrink-0 shadow-md">
+                            {seller.company_logo_url ? (
+                              <Image
+                                src={seller.company_logo_url}
+                                alt={`${seller.company_name} logo`}
+                                width={64}
+                                height={64}
+                                className="w-full h-full object-contain"
+                              />
+                            ) : (
+                              <div className="text-2xl font-bold text-yellow-700">
+                                {seller.company_name.charAt(0)}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-semibold text-lg truncate group-hover:text-yellow-700 transition-colors">{seller.watch_pros_name}</h3>
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <p className="text-sm text-muted-foreground mb-2">{seller.company_status}</p>
+                              {seller.crypto_friendly && (
+                                <Badge variant="outline" className="text-xs border-amber-500 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20">
+                                  <Coins className="h-3 w-3 mr-1" />
+                                  Crypto
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-4 text-sm">
+                              <div className="flex items-center gap-1">
+                                <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />
+                                <span className="font-medium">{seller.average_rating?.toFixed ? seller.average_rating.toFixed(1) : seller.average_rating}</span>
+                                <span className="text-muted-foreground">({seller.total_reviews})</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                                <span className="text-muted-foreground">{getCountryFlag(seller.country)} {countries.find(c => c.value === seller.country)?.label}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Search and Filters */}
         <div className="flex flex-col sm:flex-row gap-4">
