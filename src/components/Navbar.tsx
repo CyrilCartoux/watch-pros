@@ -68,6 +68,14 @@ export function Navbar() {
             >
               Accessories
             </Link>
+            
+            <Link
+              href="/searches"
+              className="transition-colors hover:text-foreground/80 text-foreground/60"
+            >
+              Searches
+            </Link>
+
             <Link
               href="/sellers"
               className="transition-colors hover:text-foreground/80 text-foreground/60"
@@ -214,6 +222,9 @@ export function Navbar() {
               </Button>
               <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
                 <Link href="/listings?listingType=accessory" onClick={handleLinkClick}>Accessories</Link>
+              </Button>
+              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
+                <Link href="/searches" onClick={handleLinkClick}>Searches</Link>
               </Button>
               <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
                 <Link href="/sellers" onClick={handleLinkClick}>Sellers</Link>
