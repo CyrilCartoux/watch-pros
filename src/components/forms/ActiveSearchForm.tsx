@@ -25,7 +25,7 @@ import { useBrandsAndModels } from "@/hooks/useBrandsAndModels"
 
 const activeSearchSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters").max(255, "Title too long"),
-  description: z.string().min(10, "Description must be at least 10 characters").max(1000, "Description too long"),
+  description: z.string().max(1000, "Description too long"),
   type: z.enum(["watch", "accessory"]),
   brand_id: z.string().optional(),
   model_id: z.string().optional(),

@@ -50,6 +50,7 @@ import { ActiveSearchInsert } from "@/types/db/ActiveSearches"
 import ActiveSearchForm from "@/components/forms/ActiveSearchForm"
 import { useBrandsAndModels } from "@/hooks/useBrandsAndModels"
 import { Textarea } from "@/components/ui/textarea"
+import Link from "next/link"
 
 interface ActiveSearch {
   id: string
@@ -519,11 +520,11 @@ export default function ActiveSearchesPage() {
       )}
 
       {/* Searches Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-stretch">
         {loading ? (
           // Loading skeletons
           Array.from({ length: 8 }).map((_, i) => (
-            <Card key={i} className="hover:shadow-md transition-shadow">
+            <Card key={i} className="hover:shadow-md transition-shadow flex flex-col h-full">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -536,7 +537,7 @@ export default function ActiveSearchesPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="pt-0 space-y-3">
+              <CardContent className="pt-0 space-y-3 flex-1 flex flex-col">
                 <div className="flex flex-wrap gap-1">
                   <Skeleton className="h-5 w-16" />
                   <Skeleton className="h-5 w-20" />
@@ -553,7 +554,7 @@ export default function ActiveSearchesPage() {
                     </div>
                   </div>
                 </div>
-                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full mt-auto" />
               </CardContent>
             </Card>
           ))
@@ -580,14 +581,14 @@ export default function ActiveSearchesPage() {
           </div>
         ) : (
           searches.map((search) => (
-            <Card key={search.id} className="hover:shadow-md transition-shadow cursor-pointer">
+            <Card key={search.id} className="hover:shadow-md transition-shadow cursor-pointer flex flex-col h-full">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <CardTitle className="text-lg font-semibold line-clamp-2 mb-1">
                       {search.title}
                     </CardTitle>
-                    <p className="text-sm text-muted-foreground line-clamp-2">
+                    <p className="text-sm text-muted-foreground line-clamp-4 mb-2">
                       {search.description}
                     </p>
                   </div>
@@ -602,7 +603,7 @@ export default function ActiveSearchesPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="pt-0 space-y-3">
+              <CardContent className="pt-0 space-y-3 flex-1 flex flex-col">
                 {/* Badges */}
                 <div className="flex flex-wrap gap-1">
                   {search.brands?.label && <Badge variant="secondary" className="text-xs">{search.brands.label}</Badge>}
@@ -610,7 +611,7 @@ export default function ActiveSearchesPage() {
                   {search.reference && <Badge variant="secondary" className="text-xs">Ref: {search.reference}</Badge>}
                   {search.dial_color && <Badge variant="secondary" className="text-xs">Dial: {search.dial_color}</Badge>}
                   {search.accessory_type && <Badge variant="secondary" className="text-xs">{search.accessory_type}</Badge>}
-                  {search.max_price && <Badge variant="secondary" className="text-xs"><Euro className="h-3 w-3 mr-1" />Max {search.max_price.toLocaleString()}€</Badge>}
+                  {search.max_price && <Badge variant="secondary" className="text-xs"><Euro className="h-3 w-3 mr-1" />Max {Number(search.max_price).toLocaleString()}€</Badge>}
                   {search.location && <Badge variant="secondary" className="text-xs"><MapPin className="h-3 w-3 mr-1" />{getCountryFlag(search.location)} {countries.find(c => c.value === search.location)?.label}</Badge>}
                 </div>
 
@@ -619,7 +620,9 @@ export default function ActiveSearchesPage() {
                   <div className="pt-2 border-t space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium">{search.seller.company_name}</span>
+                        <Link href={`/sellers/${search.seller.watch_pros_name}`} className="text-xs font-medium text-primary hover:underline">
+                          {search.seller.watch_pros_name}
+                        </Link>
                         {search.seller.identity_verified && (
                           <CheckCircle2 className="h-3 w-3 text-green-600" />
                         )}
@@ -632,13 +635,7 @@ export default function ActiveSearchesPage() {
                     </div>
                     
                     {/* Additional Seller Details */}
-                    <div className="space-y-1">
-                      {/* Contact Person */}
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <User className="h-3 w-3" />
-                        <span>{search.seller.first_name} {search.seller.last_name}</span>
-                      </div>
-                      
+                    <div className="space-y-1">                      
                       {/* Country */}
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <MapPin className="h-3 w-3" />
@@ -648,10 +645,10 @@ export default function ActiveSearchesPage() {
                       {/* Crypto Friendly Badge */}
                       {search.seller.crypto_friendly && (
                         <div className="flex items-center gap-1">
-                          <Badge variant="secondary" className="text-xs">
-                            <Coins className="h-3 w-3 mr-1" />
-                            Crypto-friendly
-                          </Badge>
+                          <Badge variant="outline" className="text-xs border-amber-500 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20">
+                              <Coins className="h-3 w-3 mr-1" />
+                              Crypto
+                            </Badge>
                         </div>
                       )}
                       
@@ -680,14 +677,17 @@ export default function ActiveSearchesPage() {
                   </div>
                 )}
 
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="w-full"
-                  onClick={() => handleOpenContactDialog(search)}
-                >
-                  Contact
-                </Button>
+                {/* Contact Button always at the bottom */}
+                <div className="mt-auto">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="w-full"
+                    onClick={() => handleOpenContactDialog(search)}
+                  >
+                    Contact
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ))
@@ -971,8 +971,10 @@ export default function ActiveSearchesPage() {
                     )}
                     {selectedSearch.seller?.crypto_friendly && (
                       <div className="flex items-center gap-2">
-                        <Coins className="h-4 w-4 text-yellow-500" />
-                        <span>Crypto-friendly</span>
+                        <Badge variant="outline" className="text-xs border-amber-500 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20">
+                              <Coins className="h-3 w-3 mr-1" />
+                              Crypto
+                            </Badge>
                       </div>
                     )}
                   </div>
