@@ -2,22 +2,43 @@
 
 import Head from "next/head"                         // For SEO metadata
 import Link from "next/link"
-import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react"
+import { Facebook, Instagram, Linkedin, Twitter, Mail, Phone, MapPin, Clock, Shield, Truck, CreditCard, Users, Search, Plus, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { useToast } from "./ui/use-toast"
 
 const navigation = {
-  main: [
-    { name: "About", href: "/about" },
-    { name: "Listings", href: "/listings?listingType=watch" },
-    { name: "Sellers", href: "/sellers" },
-    { name: "FAQ & Contact", href: "/help" },
+  marketplace: [
+    { name: "Browse Watches", href: "/listings?listingType=watch", icon: Search },
+    { name: "Browse Accessories", href: "/listings?listingType=accessory", icon: Search },
+    { name: "Active Searches", href: "/searches", icon: Eye },
+    { name: "Sellers Directory", href: "/sellers", icon: Users },
+    { name: "Brands", href: "/brands", icon: Search },
+    { name: "Models", href: "/models", icon: Search },
+  ],
+  sell: [
+    { name: "Sell a Watch", href: "/sell/watch", icon: Plus },
+    { name: "Sell an Accessory", href: "/sell/accessory", icon: Plus },
+    { name: "Create Active Search", href: "/searches", icon: Eye },
+    { name: "Become a Seller", href: "/sellers/register", icon: Users },
+  ],
+  support: [
+    { name: "Help Center", href: "/help", icon: Mail },
+    { name: "Contact Us", href: "/help", icon: Phone },
+    { name: "About Us", href: "/about", icon: Users },
+    { name: "FAQ", href: "/help", icon: Mail },
   ],
   legal: [
-    { name: "Privacy Policy", href: "/terms/privacy" },
-    { name: "Terms of Service", href: "/terms" },
-    { name: "Sales Terms", href: "/terms/sales" },
+    { name: "Privacy Policy", href: "/terms/privacy", icon: Shield },
+    { name: "Terms of Service", href: "/terms", icon: Shield },
+    { name: "Sales Terms", href: "/terms/sales", icon: Shield },
+    { name: "Cookie Policy", href: "/terms/privacy", icon: Shield },
+  ],
+  features: [
+    { name: "Secure Transactions", icon: Shield },
+    { name: "Worldwide Shipping", icon: Truck },
+    { name: "Multiple Payment Methods", icon: CreditCard },
+    { name: "Verified Sellers", icon: Users },
   ],
   social: [
     { name: "Facebook", href: "https://facebook.com/WatchPros", icon: Facebook },
@@ -69,99 +90,175 @@ export function Footer() {
 
   return (
     <>
-      <footer role="contentinfo" className="bg-muted/50">
-        <div className="container py-12 md:py-16">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <footer role="contentinfo" className="bg-muted/50 border-t">
+        <div className="container py-16">
+          {/* Main Footer Content */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
             
-            {/* Branding & Social */}
-            <div className="md:col-span-2 space-y-4">
-              <Link href="/" className="text-2xl font-bold">
-                Watch Pros
+            {/* Branding & Description */}
+            <div className="lg:col-span-1 space-y-6">
+              <Link href="/" className="inline-block">
+                <h2 className="text-2xl font-bold">Watch Pros</h2>
               </Link>
-              <p className="text-muted-foreground max-w-md">
-                The B2B marketplace for luxury watches. Connect with trusted dealers and collectors worldwide.
+              <p className="text-muted-foreground leading-relaxed">
+                The premier B2B marketplace for luxury watches. Connect with trusted dealers and collectors worldwide for secure, professional transactions.
               </p>
-              <nav aria-label="Follow us">
-                <div className="flex space-x-4 mt-4">
+              
+              {/* Features */}
+              <div className="space-y-3">
+                {navigation.features.map((feature) => (
+                  <div key={feature.name} className="flex items-center gap-3 text-sm">
+                    <feature.icon className="h-4 w-4 text-primary flex-shrink-0" />
+                    <span className="text-muted-foreground">{feature.name}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Social Links */}
+              <div className="pt-4">
+                <h4 className="text-sm font-semibold mb-3">Follow Us</h4>
+                <div className="flex space-x-3">
                   {navigation.social.map((item) => (
                     <a
                       key={item.name}
                       href={item.href}
-                      className="hover:text-foreground"
+                      className="h-10 w-10 rounded-lg bg-background border flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
                       rel="noopener noreferrer"
                       target="_blank"
                       aria-label={item.name}
                     >
-                      <item.icon className="h-5 w-5 text-muted-foreground" />
+                      <item.icon className="h-5 w-5" />
                     </a>
                   ))}
                 </div>
+              </div>
+            </div>
+
+            {/* Marketplace */}
+            <nav aria-label="Marketplace navigation">
+              <h3 className="text-sm font-semibold mb-4">Marketplace</h3>
+              <ul className="space-y-3">
+                {navigation.marketplace.map((item) => (
+                  <li key={item.name}>
+                    <Link 
+                      href={item.href} 
+                      className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {item.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            {/* Sell & Support */}
+            <div className="space-y-8">
+              <nav aria-label="Sell navigation">
+                <h3 className="text-sm font-semibold mb-4">Sell</h3>
+                <ul className="space-y-3">
+                  {navigation.sell.map((item) => (
+                    <li key={item.name}>
+                      <Link 
+                        href={item.href} 
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <item.icon className="h-4 w-4" />
+                        {item.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+
+              <nav aria-label="Support navigation">
+                <h3 className="text-sm font-semibold mb-4">Support</h3>
+                <ul className="space-y-3">
+                  {navigation.support.map((item) => (
+                    <li key={item.name}>
+                      <Link 
+                        href={item.href} 
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <item.icon className="h-4 w-4" />
+                        {item.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               </nav>
             </div>
 
-            {/* Main Navigation */}
-            <nav aria-label="Main navigation">
-              <h3 className="text-sm font-semibold mb-4">Navigation</h3>
-              <ul className="space-y-3">
-                {navigation.main.map((item) => (
-                  <li key={item.name}>
-                    <Link href={item.href} className="hover:text-foreground text-muted-foreground">
-                      {item.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+            {/* Newsletter & Legal */}
+            <div className="space-y-8">
+              {/* Newsletter */}
+              <div>
+                <h3 className="text-sm font-semibold mb-4">Stay Updated</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Get exclusive market insights, new listings, and special offers delivered to your inbox.
+                </p>
+                <form onSubmit={handleNewsletterSubmit} className="space-y-3">
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <input
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      className="w-full pl-10 pr-4 py-2 text-sm rounded-lg border bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                      disabled={isLoading}
+                    />
+                  </div>
+                  <Button
+                    type="submit"
+                    size="sm"
+                    className="w-full"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Subscribing..." : "Subscribe"}
+                  </Button>
+                </form>
+              </div>
 
-            {/* Legal Links */}
-            <nav aria-label="Legal links">
-              <h3 className="text-sm font-semibold mb-4">Legal</h3>
-              <ul className="space-y-3">
-                {navigation.legal.map((item) => (
-                  <li key={item.name}>
-                    <Link href={item.href} className="hover:text-foreground text-muted-foreground">
-                      {item.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-
-            {/* Newsletter & Social Proof */}
-            <div>
-              <h3 className="text-sm font-semibold mb-4">Newsletter</h3>
-              <p className="text-sm text-muted-foreground mb-3">
-                Receive our exclusive offers and market insights.
-              </p>
-              <form onSubmit={handleNewsletterSubmit} className="flex gap-2">
-                <label htmlFor="footer-email" className="sr-only">Your email address</label>
-                <input
-                  id="footer-email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="email@example.com"
-                  className="flex-1 rounded border px-3 py-2 text-sm"
-                  disabled={isLoading}
-                />
-                <Button
-                  type="submit"
-                  size="sm"
-                  disabled={isLoading}
-                  title="Subscribe to Watch Pros newsletter"
-                  aria-label="Subscribe to Watch Pros newsletter"
-                >
-                  {isLoading ? "Sending..." : "Subscribe"}
-                </Button>
-              </form>
+              {/* Legal Links */}
+              <nav aria-label="Legal links">
+                <h3 className="text-sm font-semibold mb-4">Legal</h3>
+                <ul className="space-y-3">
+                  {navigation.legal.map((item) => (
+                    <li key={item.name}>
+                      <Link 
+                        href={item.href} 
+                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <item.icon className="h-4 w-4" />
+                        {item.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
             </div>
           </div>
 
-          <div className="mt-12 pt-8 border-t">
-            <p className="text-center text-muted-foreground">
-              © {new Date().getFullYear()} Watch Pros. All rights reserved.
-            </p>
+          {/* Bottom Section */}
+          <div className="pt-8 border-t border-border/50">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-sm text-muted-foreground text-center md:text-left">
+                © {new Date().getFullYear()} Watch Pros. All rights reserved.
+              </p>
+              
+              <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4" />
+                  <span>SSL Secured</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  <span>24/7 Support</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
