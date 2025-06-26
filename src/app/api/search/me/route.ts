@@ -38,6 +38,7 @@ interface DatabaseActiveSearch {
   updated_at: string
   brands: Brand | null
   models: Model | null
+  currency: string | null
 }
 
 export async function GET() {
@@ -98,6 +99,7 @@ export async function GET() {
         max_price: search.max_price,
         location: search.location,
         accessory_type: search.accessory_type,
+        currency: search.currency,
         is_public: search.is_public,
         is_active: search.is_active,
         contact_preferences: search.contact_preferences,

@@ -23,6 +23,8 @@ export type ActiveSearch = {
     location: string | null
     /** Type of accessory to search for (optional) */
     accessory_type: string | null
+    /** Currency code (optional) */
+    currency: string | null
     /** Whether the search is publicly visible */
     is_public: boolean
     /** Whether the search is still active */

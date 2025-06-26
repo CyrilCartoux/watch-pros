@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS active_searches (
     accessory_type VARCHAR(100),
     is_public BOOLEAN DEFAULT true,
     is_active BOOLEAN DEFAULT true,
+    currency VARCHAR(10),
     contact_preferences JSONB DEFAULT '{"email": true, "phone": false, "whatsapp": false}',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

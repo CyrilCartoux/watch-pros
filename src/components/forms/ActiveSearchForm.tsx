@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Eye, EyeOff, Mail, Phone, MessageSquare } from "lucide-react"
+import { FaWhatsapp } from "react-icons/fa"
 import {
   Select,
   SelectContent,
@@ -19,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { countries } from "@/data/form-options"
+import { countries, currencies } from "@/data/form-options"
 import { ActiveSearchInsert } from "@/types/db/ActiveSearches"
 import { useBrandsAndModels } from "@/hooks/useBrandsAndModels"
 
@@ -34,11 +35,12 @@ const activeSearchSchema = z.object({
   max_price: z.string().optional(),
   location: z.string().optional(),
   accessory_type: z.string().optional(),
+  currency: z.string().min(1, "Currency is required"),
   is_public: z.boolean().default(true),
   contact_preferences: z.object({
     email: z.boolean().default(true),
     phone: z.boolean().default(false),
-    whatsapp: z.boolean().default(false)
+    whatsapp: z.boolean().default(true)
   }).refine(data => data.email || data.phone || data.whatsapp, {
     message: "At least one contact method must be selected"
   })
@@ -62,7 +64,7 @@ export default function ActiveSearchForm({ onSubmit, isSubmitting = false, initi
   const [contactPrefs, setContactPrefs] = useState({
     email: initialData?.contact_preferences?.email ?? true,
     phone: initialData?.contact_preferences?.phone ?? false,
-    whatsapp: initialData?.contact_preferences?.whatsapp ?? false
+    whatsapp: initialData?.contact_preferences?.whatsapp ?? true
   })
 
   const {
@@ -89,7 +91,7 @@ export default function ActiveSearchForm({ onSubmit, isSubmitting = false, initi
       contact_preferences: {
         email: initialData?.contact_preferences?.email ?? true,
         phone: initialData?.contact_preferences?.phone ?? false,
-        whatsapp: initialData?.contact_preferences?.whatsapp ?? false
+        whatsapp: initialData?.contact_preferences?.whatsapp ?? true
       }
     }
   })
@@ -135,13 +137,14 @@ export default function ActiveSearchForm({ onSubmit, isSubmitting = false, initi
         max_price: data.max_price && data.max_price !== "" ? parseFloat(data.max_price) : null,
         location: data.location || null,
         accessory_type: data.accessory_type || null,
+        currency: data.currency,
         is_public: isPublic,
         contact_preferences: contactPrefs
       })
       reset()
       setSelectedBrand("")
       setIsPublic(true)
-      setContactPrefs({ email: true, phone: false, whatsapp: false })
+      setContactPrefs({ email: true, phone: false, whatsapp: true })
     } catch (error) {
       console.error("Error submitting form:", error)
     }
@@ -274,10 +277,10 @@ export default function ActiveSearchForm({ onSubmit, isSubmitting = false, initi
             )}
           </div>
 
-          {/* Price and Location */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Price, Currency and Location */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="max_price">Maximum Price (€)</Label>
+              <Label htmlFor="max_price">Maximum Price</Label>
               <Input
                 id="max_price"
                 type="number"
@@ -285,7 +288,21 @@ export default function ActiveSearchForm({ onSubmit, isSubmitting = false, initi
                 {...register("max_price")}
               />
             </div>
-
+            <div>
+              <Label htmlFor="currency">Currency</Label>
+              <Select onValueChange={value => setValue("currency", value)} required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select currency" />
+                </SelectTrigger>
+                <SelectContent>
+                  {currencies.map(currency => (
+                    <SelectItem key={currency.value} value={currency.value}>
+                      {currency.flag} {currency.label} ({currency.symbol})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div>
               <Label htmlFor="location">Preferred Location</Label>
               <Select onValueChange={(value) => setValue("location", value)}>
@@ -343,8 +360,8 @@ export default function ActiveSearchForm({ onSubmit, isSubmitting = false, initi
 
               <div className="flex items-center justify-between p-3 border rounded-lg">
                 <div className="flex items-center gap-3">
-                  <MessageSquare className="h-5 w-5 text-green-500" />
-                  <div>
+                <FaWhatsapp className="h-5 w-5 text-green-500" />
+                <div>
                     <Label htmlFor="whatsapp-contact" className="font-medium">WhatsApp</Label>
                     <p className="text-sm text-muted-foreground">Receive WhatsApp messages</p>
                   </div>

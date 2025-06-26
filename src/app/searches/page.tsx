@@ -51,6 +51,7 @@ import ActiveSearchForm from "@/components/forms/ActiveSearchForm"
 import { useBrandsAndModels } from "@/hooks/useBrandsAndModels"
 import { Textarea } from "@/components/ui/textarea"
 import Link from "next/link"
+import { FaWhatsapp } from "react-icons/fa"
 
 interface ActiveSearch {
   id: string
@@ -62,6 +63,7 @@ interface ActiveSearch {
   reference: string | null
   dial_color: string | null
   max_price: number | string | null
+  currency: string | null
   location: string | null
   accessory_type: string | null
   is_public: boolean
@@ -487,7 +489,7 @@ export default function ActiveSearchesPage() {
           {filters.maxPrice && (
             <Badge variant="secondary" className="flex items-center gap-1">
               <Euro className="h-3 w-3" />
-              Max {filters.maxPrice}€
+              Max {filters.maxPrice}
               <button
                 onClick={() => removeFilter("maxPrice")}
                 className="ml-1 hover:text-destructive"
@@ -611,7 +613,7 @@ export default function ActiveSearchesPage() {
                   {search.reference && <Badge variant="secondary" className="text-xs">Ref: {search.reference}</Badge>}
                   {search.dial_color && <Badge variant="secondary" className="text-xs">Dial: {search.dial_color}</Badge>}
                   {search.accessory_type && <Badge variant="secondary" className="text-xs">{search.accessory_type}</Badge>}
-                  {search.max_price && <Badge variant="secondary" className="text-xs"><Euro className="h-3 w-3 mr-1" />Max {Number(search.max_price).toLocaleString()}€</Badge>}
+                  {search.max_price && <Badge variant="secondary" className="text-xs">Max {Number(search.max_price).toLocaleString()}{search.currency} </Badge>}
                   {search.location && <Badge variant="secondary" className="text-xs"><MapPin className="h-3 w-3 mr-1" />{getCountryFlag(search.location)} {countries.find(c => c.value === search.location)?.label}</Badge>}
                 </div>
 
@@ -630,7 +632,7 @@ export default function ActiveSearchesPage() {
                       <div className="flex items-center gap-1">
                         {search.contact_preferences.email && <Mail className="h-3 w-3 text-blue-600" />}
                         {search.contact_preferences.phone && <Phone className="h-3 w-3 text-green-600" />}
-                        {search.contact_preferences.whatsapp && <MessageSquare className="h-3 w-3 text-green-500" />}
+                        {search.contact_preferences.whatsapp && <FaWhatsapp className="h-3 w-3 text-green-500" />}
                       </div>
                     </div>
                     
@@ -668,8 +670,8 @@ export default function ActiveSearchesPage() {
                         )}
                         {search.contact_preferences.whatsapp && (
                           <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <MessageSquare className="h-3 w-3" />
-                            <span>WhatsApp: {search.seller.phone_prefix} {search.seller.phone}</span>
+                <FaWhatsapp className="h-3 w-3 text-green-500" />
+                <span>WhatsApp: {search.seller.phone_prefix} {search.seller.phone}</span>
                           </div>
                         )}
                       </div>
@@ -874,7 +876,7 @@ export default function ActiveSearchesPage() {
             </div>
             {/* Max Price filter */}
             <div className="space-y-2">
-              <Label>Maximum Price (€)</Label>
+              <Label>Maximum Price</Label>
               <Input
                 type="number"
                 placeholder="e.g., 10000"

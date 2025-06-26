@@ -242,8 +242,6 @@ export async function GET(request: Request) {
       // Récupère full_count depuis le résultat du RPC
       const fullCount = cleanedSearches && cleanedSearches.length > 0 ? Number(cleanedSearches[0].full_count) : 0
       const totalPages = Math.ceil(fullCount / limit)
-
-      logApiSuccess({ searches: cleanedSearches, pagination: { page, limit, totalPages, count: fullCount } }, 'searches-get-rpc')
       
       return NextResponse.json({
         searches: cleanedSearches,

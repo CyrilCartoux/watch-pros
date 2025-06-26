@@ -43,6 +43,7 @@ interface ActiveSearch {
   }
   created_at: string
   updated_at: string
+  currency?: string
 }
 
 export function ActiveSearchesTab() {
@@ -268,7 +269,7 @@ export function ActiveSearchesTab() {
                   {search.max_price && (
                     <div className="flex items-center gap-2 text-sm">
                       <Euro className="h-3 w-3" />
-                      <span>Max: €{search.max_price.toLocaleString()}</span>
+                      <span>Max: {search.max_price.toLocaleString()} {search.currency || '€'}</span>
                     </div>
                   )}
 
