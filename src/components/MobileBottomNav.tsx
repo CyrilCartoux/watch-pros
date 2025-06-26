@@ -104,6 +104,15 @@ export function MobileBottomNav() {
                     Accessory
                   </Button>
                 </Link>
+                <Link href="/searches" onClick={handleOptionClick}>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start h-10"
+                  >
+                    <span className="mr-2">🔍</span>
+                    Search
+                  </Button>
+                </Link>
               </div>
             </PopoverContent>
           </Popover>

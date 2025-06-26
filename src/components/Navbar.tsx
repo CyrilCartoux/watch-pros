@@ -105,6 +105,9 @@ export function Navbar() {
             <Button asChild>
               <Link href="/sell">Sell a Watch</Link>
             </Button>
+            <Button asChild>
+              <Link href="/searches">Search for a Watch</Link>
+            </Button>
             {user && (
               <Button variant="ghost" size="icon" className="h-9 w-9" asChild>
                 <Link href="/notifications" className="relative">
@@ -216,6 +219,9 @@ export function Navbar() {
             <div className="flex flex-col gap-1">
               <Button asChild className="w-full mb-2">
                 <Link href="/sell" onClick={handleLinkClick}>Sell a Watch</Link>
+              </Button>
+              <Button asChild className="w-full mb-2">
+                <Link href="/searches" onClick={handleLinkClick}>Search for a Watch</Link>
               </Button>
               <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
                 <Link href="/listings?listingType=watch" onClick={handleLinkClick}>Watches</Link>
