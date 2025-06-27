@@ -53,6 +53,31 @@ const validateFile = (file: File) => {
   return null;
 };
 
+// Helper function to validate and normalize URLs
+const validateAndNormalizeUrl = (url: string): string | null => {
+  if (!url || url.trim() === '') return null
+  
+  let normalizedUrl = url.trim()
+  
+  // Remove www. if present
+  if (normalizedUrl.startsWith('www.')) {
+    normalizedUrl = normalizedUrl.substring(4)
+  }
+  
+  // Add https:// if no protocol is present
+  if (!normalizedUrl.match(/^https?:\/\//)) {
+    normalizedUrl = `https://${normalizedUrl}`
+  }
+  
+  // Basic URL validation
+  try {
+    new URL(normalizedUrl)
+    return normalizedUrl
+  } catch {
+    return null
+  }
+}
+
 // Validation schema for professional account
 const accountSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
@@ -82,7 +107,17 @@ const addressSchema = z.object({
   postalCode: z.string().min(1, "Postal code is required"),
   city: z.string().min(1, "City is required"),
   country: z.string().min(1, "Country is required"),
-  website: z.string().url("Invalid URL").optional().or(z.literal("")),
+  website: z.string()
+    .optional()
+    .or(z.literal(""))
+    .transform((val) => {
+      if (!val || val.trim() === '') return ''
+      const normalized = validateAndNormalizeUrl(val)
+      if (!normalized) {
+        throw new Error("Please enter a valid website URL (e.g., mywebsite.com)")
+      }
+      return normalized
+    }),
   siren: z.string().min(1, "SIREN/SIRET number is required"),
   taxId: z.string().min(1, "Tax ID number is required"),
   vatNumber: z.string().min(1, "VAT number is required"),
@@ -255,7 +290,6 @@ export default function RegisterFormPage() {
 
   // Function to check if a tab is accessible
   const isTabAccessible = (tab: string) => {
-    return true;
     switch (tab) {
       case "account":
         return true
@@ -997,7 +1031,7 @@ export default function RegisterFormPage() {
 
                     <div>
                       <Label htmlFor="website">Website</Label>
-                      <Input id="website" type="url" placeholder="https://www.your-website.com" {...addressForm.register("website")} />
+                      <Input id="website" type="url" placeholder="mywebsite.com or www.mywebsite.com" {...addressForm.register("website")} />
                       <FormError error={addressForm.formState.errors.website?.message as string} isSubmitted={isSubmitted.address} />
                     </div>
 

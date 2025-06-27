@@ -311,6 +311,8 @@ export default function ListingsPage() {
     setCurrentPage(1)
     updateURL(newFilters, 1)
     setIsFiltersOpen(false)
+    // Scroll to top when filters are applied
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [filters, updateURL])
 
   const handleClearFilters = useCallback(() => {
@@ -441,11 +443,15 @@ export default function ListingsPage() {
     setFilters(newFilters)
     setCurrentPage(1)
     updateURL(newFilters, 1)
+    // Scroll to top when search is performed
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage)
     updateURL(filters, newPage)
+    // Scroll to top when page changes
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
