@@ -41,7 +41,7 @@ export default function TermsPage() {
                 <p>Consequently:</p>
                 <ul className="list-disc pl-6 space-y-2">
                   <li>Some features may be incomplete or subject to future modifications.</li>
-                  <li>Users access the Platform as part of a <span className="font-medium text-foreground">limited access Early Birds program</span>.</li>
+                  <li>Users access the Platform as part of a <span className="font-medium text-foreground">limited access Pioneer program</span>.</li>
                   <li>Participation in the early access program implies acceptance of these terms.</li>
                 </ul>
               </div>

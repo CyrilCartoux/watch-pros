@@ -363,18 +363,18 @@ export default function SellersListPage() {
                   href={`/sellers/${seller.watch_pros_name}`}
                   className="block group"
                 >
-                  <div className="relative rounded-xl border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 via-white to-yellow-100 shadow-lg hover:shadow-2xl transition-shadow duration-300 p-1">
+                  <div className="relative rounded-xl border border-amber-200 bg-amber-50/30 shadow-md hover:shadow-lg transition-all duration-300 p-1">
                     {/* Super Seller Badge */}
-                    <div className="absolute top-3 right-3 z-10">
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 text-white font-bold text-xs shadow-md border border-yellow-500 animate-pulse">
-                        <Award className="h-4 w-4 text-white drop-shadow" />
-                        Super Seller
+                    <div className="absolute top-2 right-2 z-10">
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-100 text-amber-700 font-medium text-xs border border-amber-200">
+                        <Award className="h-3 w-3" />
+                        Top Seller
                       </span>
                     </div>
                     <Card className="bg-transparent border-none shadow-none">
-                      <CardContent className="p-4">
+                      <CardContent className="p-4 pt-8 sm:pt-4">
                         <div className="flex items-start gap-3">
-                          <div className="w-16 h-16 rounded-lg overflow-hidden border-2 border-yellow-300 flex items-center justify-center bg-background flex-shrink-0 shadow-md">
+                          <div className="w-16 h-16 rounded-lg overflow-hidden border border-amber-200 flex items-center justify-center bg-background flex-shrink-0 shadow-sm">
                             {seller.company_logo_url ? (
                               <Image
                                 src={seller.company_logo_url}
@@ -384,17 +384,17 @@ export default function SellersListPage() {
                                 className="w-full h-full object-contain"
                               />
                             ) : (
-                              <div className="text-2xl font-bold text-yellow-700">
+                              <div className="text-2xl font-bold text-amber-600">
                                 {seller.company_name.charAt(0)}
                               </div>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-lg truncate group-hover:text-yellow-700 transition-colors">{seller.watch_pros_name}</h3>
+                            <h3 className="font-semibold text-lg truncate group-hover:text-amber-700 transition-colors">{seller.watch_pros_name}</h3>
                             <div className="flex items-center justify-between gap-2 mb-1">
                               <p className="text-sm text-muted-foreground mb-2">{seller.company_status}</p>
                               {seller.crypto_friendly && (
-                                <Badge variant="outline" className="text-xs border-amber-500 text-amber-500 bg-amber-500/10 hover:bg-amber-500/20">
+                                <Badge variant="outline" className="text-xs border-amber-500 text-amber-600 bg-amber-50">
                                   <Coins className="h-3 w-3 mr-1" />
                                   Crypto
                                 </Badge>
@@ -402,7 +402,7 @@ export default function SellersListPage() {
                             </div>
                             <div className="flex items-center gap-4 text-sm">
                               <div className="flex items-center gap-1">
-                                <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />
+                                <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
                                 <span className="font-medium">{seller.average_rating?.toFixed ? seller.average_rating.toFixed(1) : seller.average_rating}</span>
                                 <span className="text-muted-foreground">({seller.total_reviews})</span>
                               </div>

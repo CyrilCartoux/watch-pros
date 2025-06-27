@@ -21,18 +21,17 @@ import {
   BarChart3,
   PlusCircle,
   User,
-  Briefcase
+  Briefcase,
+  Clock,
+  Target,
+  Award,
+  Heart
 } from "lucide-react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { useAuthStatus } from "@/hooks/useAuthStatus"
+import { PlacesLeft } from "@/components/PlacesLeft"
 
-const stats = [
-  { number: "500+", label: "Verified Dealers", icon: Users },
-  { number: "10,000+", label: "Listings", icon: Tag },
-  { number: "50+", label: "Countries", icon: Globe },
-  { number: "99.9%", label: "Uptime", icon: Zap }
-]
 
 const painPoints = [
   {
@@ -70,12 +69,12 @@ const solutions = [
   },
   {
     icon: BarChart3,
-    title: "Complete B2B Dashboard",
+    title: "B2B Dashboard",
     description: "Track views, contacts, conversions, and performance"
   },
   {
     icon: DollarSign,
-    title: "Zero Commission Model",
+    title: "Zero Commission",
     description: "Monthly subscription only, keep 100% of your sales"
   }
 ]
@@ -196,20 +195,10 @@ export default function Home() {
                   <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <Link href="/listings" passHref className="w-full sm:w-auto">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full sm:w-auto h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg font-semibold border-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
-                >
-                  Browse Listings
-                </Button>
-              </Link>
             </motion.div>
 
             {/* Trust Indicators */}
             <motion.div
-              initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
               className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-muted-foreground px-4"
@@ -229,12 +218,21 @@ export default function Home() {
                 <span className="text-sm">24/7 Support</span>
               </div>
             </motion.div>
+
+            {/* Pioneer Badge for Subscribers */}
+            <motion.div
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1.0 }}
+              className="flex justify-center mt-8"
+            >
+              <PlacesLeft />
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* Problem vs Solution Section */}
-      <section className="py-12 sm:py-20 md:py-32 bg-gradient-to-b from-background to-muted/30">
+      <section className="py-4 sm:py-8 md:py-12 bg-gradient-to-b from-background to-muted/30">
         <div className="container max-w-7xl mx-auto px-4">
           
           {/* Header */}
@@ -301,29 +299,97 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Stats Section */}
+          {/* Pricing Section */}
           <div className="mb-16 sm:mb-20">
             <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-8 sm:mb-12 px-2">
-              Platform Statistics
+              Simple, Transparent Pricing
             </h3>
-            <div className="grid grid-cols-2 gap-4 sm:gap-8">
-              {stats.map((stat, i) => (
-                <Card key={i} className="text-center group hover:shadow-lg transition-all duration-300 border-0 bg-background/50 backdrop-blur-sm">
-                  <CardContent className="p-4 sm:p-6">
-                    <div className="flex items-center justify-center mb-3 sm:mb-4">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <stat.icon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                      </div>
+            <p className="text-lg sm:text-xl text-muted-foreground text-center mb-8 sm:mb-12 max-w-2xl mx-auto px-4">
+              Choose the plan that fits your business needs. No hidden fees, no surprises.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
+              {/* Monthly Plan */}
+              <Card className="border-2 border-border hover:border-primary/40 transition-all duration-300 group h-full flex flex-col">
+                <CardContent className="p-6 sm:p-8 text-center flex flex-col h-full">
+                  <div className="mb-6">
+                    <h4 className="text-xl sm:text-2xl font-bold mb-2">Monthly Plan</h4>
+                    <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">€59</div>
+                    <div className="text-muted-foreground">per month</div>
+                  </div>
+                  
+                  <div className="space-y-3 mb-6 flex-1">
+                    <div className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                      <span>No commitment</span>
                     </div>
-                    <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-1 sm:mb-2">
-                      {stat.number}
+                    <div className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                      <span>Unlimited listings</span>
                     </div>
-                    <div className="text-xs sm:text-sm text-muted-foreground font-medium">
-                      {stat.label}
+                    <div className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                      <span>Cancel anytime</span>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                  </div>
+
+                  <Link href="/subscription" passHref className="w-full mt-auto">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold border-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                    >
+                      Start Monthly Plan
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              {/* Annual Plan */}
+              <Card className="border-2 border-primary/20 bg-primary/5 hover:border-primary/40 transition-all duration-300 group relative h-full flex flex-col">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <Badge className="bg-primary text-primary-foreground px-3 py-1 text-sm font-semibold">
+                    BEST VALUE
+                  </Badge>
+                </div>
+                <CardContent className="p-6 sm:p-8 text-center flex flex-col h-full">
+                  <div className="mb-6">
+                    <h4 className="text-xl sm:text-2xl font-bold mb-2">Annual Plan</h4>
+                    <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">€599</div>
+                    <div className="text-muted-foreground mb-2">per year</div>
+                    <div className="text-sm text-green-600 font-semibold">
+                      Save €109 (2 months free)
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Only €49.9/month
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3 mb-6 flex-1">
+                    <div className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                      <span>2 months free</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                      <span>Unlimited listings</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                      <span>Priority support</span>
+                    </div>
+                  </div>
+
+                  <Link href="/subscription" passHref className="w-full mt-auto">
+                    <Button
+                      size="lg"
+                      className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      Start Annual Plan
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
             </div>
           </div>
 
@@ -447,7 +513,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <Link href={isAuthenticated ? "/seller/register" : "/auth?mode=register"} passHref className="block">
+                  <Link href={isAuthenticated ? "/seller/register" : "/auth?mode=register"} passHref className="w-full sm:w-auto">
                     <Button
                       size="lg"
                       className="w-full h-11 sm:h-12 text-sm sm:text-base font-semibold group-hover:shadow-lg transition-all duration-300"
@@ -489,7 +555,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  <Link href="/sell" passHref className="block">
+                  <Link href="/sell/watch" passHref className="w-full sm:w-auto">
                     <Button
                       variant="outline"
                       size="lg"
@@ -503,6 +569,8 @@ export default function Home() {
               </Card>
             </div>
           </div>
+
+          
 
           {/* Final CTA Section */}
           <div className="text-center">

@@ -65,7 +65,7 @@ export async function middleware(request: NextRequest) {
 
     // Rediriger vers /listings si l'utilisateur est connecté et accède à la racine
     if (path === '/') {
-      return NextResponse.redirect(new URL('/listings', request.url))
+      // return NextResponse.redirect(new URL('/listings', request.url))
     }
 
     // Vérifier le cache pour le profil utilisateur

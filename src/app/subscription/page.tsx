@@ -15,11 +15,13 @@ import {
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Check } from 'lucide-react'
+import { Check, Clock, Crown, Sparkles } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Elements } from "@stripe/react-stripe-js"
 import { loadStripe } from "@stripe/stripe-js"
 import { PaymentFormWrapper } from '@/components/PaymentFormWrapper'
+import { useAuthStatus } from "@/hooks/useAuthStatus"
+import { PlacesLeft } from "@/components/PlacesLeft"
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -263,12 +265,27 @@ export default function SubscriptionPage() {
           </p>
         </div>
 
-        {/* Early Bird Banner */}
-        <div className="bg-primary/10 rounded-lg p-6 text-center mb-12">
-          <h2 className="text-2xl font-semibold mb-2">Early Bird Special</h2>
-          <p className="text-muted-foreground">
-            Join now and lock in our early-bird pricing forever. Limited spots available for founding members.
-          </p>
+        {/* FOMO Section - Places Left */}
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl p-6 mb-12">
+          <div className="text-center space-y-4">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Clock className="w-6 h-6 text-amber-600" />
+              <h3 className="text-xl font-bold text-amber-800">Limited Time Offer</h3>
+            </div>
+            
+            <div className="flex justify-center">
+              <PlacesLeft />
+            </div>
+            
+            <div className="bg-white/80 rounded-lg p-4 max-w-md mx-auto">
+              <p className="text-sm text-amber-700 font-medium">
+                ⚡ <strong>Early Bird Pricing</strong> - Lock in these rates forever!
+              </p>
+              <p className="text-xs text-amber-600 mt-1">
+                Once all spots are filled, pricing will increase to regular rates
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Current Subscription Status */}
@@ -317,70 +334,125 @@ export default function SubscriptionPage() {
         </div>
 
         {/* Pricing Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          {plans.map((plan) => {
-            const isCurrentPlan = subscriptionData?.subscription?.price_id === plan.priceId
-            const isHighlighted = plan.highlighted
-            const maxListings = plan.maxListings
-            const isDisabled = maxListings !== null && subscriptionData?.activeListingsCount > maxListings
-            const isDowngrade = subscriptionData?.hasActiveSubscription && 
-              subscriptionData.subscription?.subscription_plans?.max_listings && 
-              maxListings !== null && maxListings < subscriptionData.subscription.subscription_plans.max_listings
-
-            return (
-              <Card 
-                key={plan.name}
-                className={`relative ${isHighlighted ? 'border-blue-500' : ''} ${isCurrentPlan ? 'border-green-500' : ''} ${isDisabled ? 'opacity-60' : ''}`}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto">
+          {/* Monthly Plan */}
+          <Card className="border-2 border-border hover:border-primary/40 transition-all duration-300 group h-full flex flex-col">
+            <CardHeader>
+              <CardTitle>Pioneer Program - Unlimited</CardTitle>
+              <CardDescription>Limited time early bird pricing</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col h-full">
+              <div className="mb-6">
+                <span className="text-3xl font-bold">€59</span>
+                <span className="text-gray-500">/month</span>
+              </div>
+              <ul className="space-y-2 flex-1">
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-green-500 mr-2" />
+                  <span>No commitment</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-green-500 mr-2" />
+                  <span>Unlimited listings</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-green-500 mr-2" />
+                  <span>Cancel anytime</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-green-500 mr-2" />
+                  <span>Professional dashboard</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-green-500 mr-2" />
+                  <span>Zero commission</span>
+                </li>
+              </ul>
+            </CardContent>
+            <CardFooter>
+              <Button
+                className="w-full"
+                variant={subscriptionData?.subscription?.price_id === 'price_1ReeZ8RWMXxAzKAEUqSNvFBS' ? "outline" : "default"}
+                onClick={() => handlePlanSelect({ 
+                  name: 'Pioneer Program - Unlimited', 
+                  priceId: 'price_1ReeZ8RWMXxAzKAEUqSNvFBS', 
+                  price: { early: 59, regular: 59 },
+                  description: 'Limited time early bird pricing',
+                  features: ['No commitment', 'Unlimited listings', 'Cancel anytime', 'Professional dashboard', 'Zero commission'],
+                  maxListings: null
+                })}
+                disabled={subscriptionData?.subscription?.price_id === 'price_1ReeZ8RWMXxAzKAEUqSNvFBS'}
               >
-                {isHighlighted && (
-                  <Badge className="absolute -top-3 -right-3 bg-blue-500">
-                    Popular
-                  </Badge>
-                )}
-                <CardHeader>
-                  <CardTitle>{plan.name}</CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="mb-4">
-                    <span className="text-3xl font-bold">{plan.price.early}€</span>
-                    <span className="text-gray-500">/month</span>
-                    <div className="text-sm text-gray-500">
-                      Regular price: {plan.price.regular}€/month
-                    </div>
-                  </div>
-                  <ul className="space-y-2">
-                    {plan.features.map((feature, index) => (
-                      <li key={index} className="flex items-center">
-                        <Check className="h-4 w-4 text-green-500 mr-2" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  {isDisabled && (
-                    <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <p className="text-sm text-red-700">
-                        You have {subscriptionData?.activeListingsCount} active listings, but this plan only allows {maxListings}.
-                        Please delete some listings before switching to this plan.
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    className="w-full"
-                    variant={isCurrentPlan ? "outline" : "default"}
-                    onClick={() => handlePlanSelect(plan)}
-                    disabled={isCurrentPlan || isDisabled}
-                  >
-                    {isCurrentPlan ? 'Current Plan' : 
-                     isDisabled ? 'Plan Unavailable' :
-                     subscriptionData?.hasActiveSubscription ? 'Change Plan' : 'Subscribe'}
-                  </Button>
-                </CardFooter>
-              </Card>
-            )
-          })}
+                {subscriptionData?.subscription?.price_id === 'price_1ReeZ8RWMXxAzKAEUqSNvFBS' ? 'Current Plan' : 
+                 subscriptionData?.hasActiveSubscription ? 'Change Plan' : 'Subscribe'}
+              </Button>
+            </CardFooter>
+          </Card>
+
+          {/* Annual Plan */}
+          <Card className="border-2 border-primary/20 bg-primary/5 hover:border-primary/40 transition-all duration-300 group relative h-full flex flex-col">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <Badge className="bg-primary text-primary-foreground px-3 py-1 text-sm font-semibold">
+                BEST VALUE
+              </Badge>
+            </div>
+            <CardHeader>
+              <CardTitle>Pioneer Program - Unlimited (1 year)</CardTitle>
+              <CardDescription>Limited time early bird pricing</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col h-full">
+              <div className="mb-6">
+                <span className="text-3xl font-bold">€599</span>
+                <span className="text-gray-500">/year</span>
+                <div className="text-sm text-green-600 font-semibold mt-1">
+                  Save €109 (2 months free)
+                </div>
+                <div className="text-xs text-gray-500">
+                  Only €49.9/month
+                </div>
+              </div>
+              <ul className="space-y-2 flex-1">
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-green-500 mr-2" />
+                  <span>2 months free</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-green-500 mr-2" />
+                  <span>Unlimited listings</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-green-500 mr-2" />
+                  <span>Priority support</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-green-500 mr-2" />
+                  <span>Professional dashboard</span>
+                </li>
+                <li className="flex items-center">
+                  <Check className="h-4 w-4 text-green-500 mr-2" />
+                  <span>Zero commission</span>
+                </li>
+              </ul>
+            </CardContent>
+            <CardFooter>
+              <Button
+                className="w-full"
+                variant={subscriptionData?.subscription?.price_id === 'price_1ReeeLRWMXxAzKAERWs4Bgrd' ? "outline" : "default"}
+                onClick={() => handlePlanSelect({ 
+                  name: 'Pioneer Program - Unlimited (1 year)', 
+                  priceId: 'price_1ReeeLRWMXxAzKAERWs4Bgrd', 
+                  price: { early: 599, regular: 708 },
+                  description: 'Lock in early-bird pricing and save €109 per year',
+                  features: ['2 months free', 'Unlimited listings', 'Priority support', 'Professional dashboard', 'Zero commission'],
+                  maxListings: null
+                })}
+                disabled={subscriptionData?.subscription?.price_id === 'price_1ReeeLRWMXxAzKAERWs4Bgrd'}
+              >
+                {subscriptionData?.subscription?.price_id === 'price_1ReeeLRWMXxAzKAERWs4Bgrd' ? 'Current Plan' : 
+                 subscriptionData?.hasActiveSubscription ? 'Change Plan' : 'Subscribe'}
+              </Button>
+            </CardFooter>
+          </Card>
         </div>
 
         {/* FAQ Section */}

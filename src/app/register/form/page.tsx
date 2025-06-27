@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation"
 import { useAuthStatus } from '@/hooks/useAuthStatus'
 import { supabaseBrowser } from '@/lib/supabase/client'
 import { normalizeAndCompress } from '@/lib/image-utils'
+import { PlacesLeft } from "@/components/PlacesLeft"
 
 // Déclarer le type global pour window
 declare global {
@@ -180,11 +181,6 @@ function PaymentFormWrapper({
   )
 }
 
-// Add this function near the top of the file, after the imports
-const getActualPrefix = (value: string) => {
-  // Extract the actual prefix from values like "+1-us" or "+1-ca"
-  return value.split('-')[0];
-};
 
 // Helper to upload a file to Supabase Storage and return its public URL
 async function uploadToStorage(file: File, userId: string, type: string) {
@@ -259,6 +255,7 @@ export default function RegisterFormPage() {
 
   // Function to check if a tab is accessible
   const isTabAccessible = (tab: string) => {
+    return true;
     switch (tab) {
       case "account":
         return true
@@ -1348,39 +1345,70 @@ export default function RegisterFormPage() {
                       </div>
                     </div>
 
-                    <h3 className="text-lg font-medium">Choose Your Plan</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {plans.map((plan) => (
-                        <Card
-                          key={plan.priceId}
-                          className={`cursor-pointer transition-all ${
-                            selectedPlan === plan.priceId
-                              ? "border-primary ring-2 ring-primary"
-                              : "hover:border-primary/50"
-                          }`}
-                          onClick={() => setSelectedPlan(plan.priceId)}
-                        >
-                          <CardContent className="p-6">
-                            <div className="space-y-4">
-                              <div>
-                                <h4 className="font-semibold text-lg">{plan.name}</h4>
-                                <p className="text-2xl font-bold mt-2">
-                                  €{plan.price.early}<span className="text-sm font-normal text-muted-foreground">/month</span>
-                                </p>
-                                <p className="text-sm text-muted-foreground line-through">€{plan.price.regular}/month</p>
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="text-lg font-semibold">Choose Your Plan</h3>
+                        <p className="text-muted-foreground">
+                          Select the plan that best fits your business needs
+                        </p>
+                      </div>
+
+                      {/* FOMO Section - Places Left */}
+                      <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl p-4 mb-6">
+                        <div className="text-center space-y-3">
+                          <div className="flex items-center justify-center gap-2">
+                            <Clock className="w-5 h-5 text-amber-600" />
+                            <h4 className="text-lg font-bold text-amber-800">Limited Time Offer</h4>
+                          </div>
+                          
+                          <div className="flex justify-center">
+                            <PlacesLeft />
+                          </div>
+                          
+                          <div className="bg-white/80 rounded-lg p-3 max-w-sm mx-auto">
+                            <p className="text-sm text-amber-700 font-medium">
+                              ⚡ <strong>Early Bird Pricing</strong> - Lock in these rates forever!
+                            </p>
+                            <p className="text-xs text-amber-600 mt-1">
+                              Once all spots are filled, pricing will increase to regular rates
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {plans.map((plan) => (
+                          <Card
+                            key={plan.priceId}
+                            className={`cursor-pointer transition-all ${
+                              selectedPlan === plan.priceId
+                                ? "border-primary ring-2 ring-primary"
+                                : "hover:border-primary/50"
+                            }`}
+                            onClick={() => setSelectedPlan(plan.priceId)}
+                          >
+                            <CardContent className="p-6">
+                              <div className="space-y-4">
+                                <div>
+                                  <h4 className="font-semibold text-lg">{plan.name}</h4>
+                                  <p className="text-2xl font-bold mt-2">
+                                    €{plan.price.early}<span className="text-sm font-normal text-muted-foreground">/month</span>
+                                  </p>
+                                  <p className="text-sm text-muted-foreground line-through">€{plan.price.regular}/month</p>
+                                </div>
+                                <ul className="space-y-2">
+                                  {plan.features.map((feature, index) => (
+                                    <li key={index} className="flex items-center gap-2 text-sm">
+                                      <CheckCircle2 className="w-4 h-4 text-primary" />
+                                      {feature}
+                                    </li>
+                                  ))}
+                                </ul>
                               </div>
-                              <ul className="space-y-2">
-                                {plan.features.map((feature, index) => (
-                                  <li key={index} className="flex items-center gap-2 text-sm">
-                                    <CheckCircle2 className="w-4 h-4 text-primary" />
-                                    {feature}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
                     </div>
 
                     {selectedPlan && (
