@@ -25,6 +25,7 @@ export async function GET() {
       .from('profiles')
       .select(`
         seller_id,
+        role,
         sellers (
           identity_verified,
           identity_rejected
@@ -56,6 +57,7 @@ export async function GET() {
     return NextResponse.json({
       isAuthenticated: true,
       isSeller: !!profile?.seller_id,
+      isAdmin: profile?.role === 'admin',
       isVerified: (profile?.sellers as any)?.identity_verified || false,
       isRejected: (profile?.sellers as any)?.identity_rejected || false,
       hasActiveSubscription

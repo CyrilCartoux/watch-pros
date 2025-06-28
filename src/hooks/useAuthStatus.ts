@@ -10,6 +10,7 @@ interface AuthStatus {
   isVerified: boolean
   isRejected: boolean
   hasActiveSubscription: boolean
+  isAdmin: boolean
   isLoading: boolean
 }
 
@@ -21,6 +22,7 @@ export function useAuthStatus() {
     isVerified: false,
     isRejected: false,
     hasActiveSubscription: false,
+    isAdmin: false,
     isLoading: true
   })
   const router = useRouter()
@@ -36,6 +38,7 @@ export function useAuthStatus() {
           isVerified: false,
           isRejected: false,
           hasActiveSubscription: false,
+          isAdmin: false,
           isLoading: false
         })
         return
@@ -55,6 +58,7 @@ export function useAuthStatus() {
           isVerified: data.isVerified,
           isRejected: data.isRejected,
           hasActiveSubscription: data.hasActiveSubscription,
+          isAdmin: data.isAdmin,
           isLoading: false
         })
       } catch (error) {
@@ -65,6 +69,7 @@ export function useAuthStatus() {
           isVerified: false,
           isRejected: false,
           hasActiveSubscription: false,
+          isAdmin: false,
           isLoading: false
         })
       }

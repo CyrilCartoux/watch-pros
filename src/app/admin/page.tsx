@@ -1,530 +1,644 @@
-'use client'
+"use client"
 
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { Seller } from '@/types/db/Sellers'
-import { SellerAddress } from '@/types/db/SellerAddresses'
-import { useToast } from '@/components/ui/use-toast'
-import { createClient } from '@/lib/supabase/client'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
+import { useState, useEffect } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
+import { Skeleton } from "@/components/ui/skeleton"
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { 
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
+import {
+  Users,
+  Tag,
+  MessageSquare,
+  Bell,
+  Heart,
+  Mail,
+  DollarSign,
+  TrendingUp,
+  Star,
+  Eye,
+  Search,
+  BarChart3,
+  Calendar,
+  Download,
+  RefreshCw,
+  Shield
+} from "lucide-react"
+import { useAuth } from "@/contexts/AuthContext"
+import { useToast } from "@/components/ui/use-toast"
+import { useRouter } from "next/navigation"
+import dynamic from "next/dynamic"
+import { PendingIdentitiesTab } from "@/components/admin/PendingIdentitiesTab"
 
-type SellerWithAddress = Seller & {
-  seller_addresses: SellerAddress[]
+// Dynamically import charts to avoid SSR issues
+const LineChart = dynamic(() => import("@/components/admin/LineChart"), { ssr: false })
+const BarChart = dynamic(() => import("@/components/admin/BarChart"), { ssr: false })
+const PieChart = dynamic(() => import("@/components/admin/PieChart"), { ssr: false })
+
+interface DashboardStats {
+  users: {
+    total: number
+    new_period: number
+    admins: number
+    regular: number
+  }
   subscriptions: {
-    id: string
-    status: 'incomplete' | 'incomplete_expired' | 'trialing' | 'active' | 'past_due' | 'canceled' | 'unpaid'
-    price_id: string
-    current_period_start: string | null
-    current_period_end: string | null
-    pm_type: 'card' | 'sepa_debit' | null
-    pm_last4: string | null
-    pm_brand: string | null
-  }[]
+    active: number
+    trialing: number
+    canceled: number
+    new_period: number
+  }
+  listings: {
+    total: number
+    active: number
+    sold: number
+    draft: number
+    new_period: number
+    sold_period: number
+  }
+  messages: {
+    total: number
+    new_period: number
+  }
+  custom_alerts: {
+    total: number
+    new_period: number
+    avg_per_user: number
+  }
+  favorites: {
+    total: number
+    new_period: number
+  }
+  newsletter: {
+    active_subscribers: number
+    new_period: number
+  }
+  offers: {
+    total: number
+    accepted: number
+    rejected: number
+    pending: number
+    new_period: number
+  }
+  reviews: {
+    total: number
+    new_period: number
+    avg_rating: number
+  }
+  pricing: {
+    avg_price: number
+    median_price: number
+    total_gmv: number
+  }
+  sales_rate: number
+  active_searches: {
+    active_count: number
+    new_period: number
+  }
 }
 
-export default function AdminPage() {
-  const [pendingSellers, setPendingSellers] = useState<SellerWithAddress[]>([])
-  const [loading, setLoading] = useState(true)
-  const [processingSeller, setProcessingSeller] = useState<string | null>(null)
-  const [rejectDialogOpen, setRejectDialogOpen] = useState(false)
-  const [selectedSeller, setSelectedSeller] = useState<SellerWithAddress | null>(null)
-  const [rejectionReason, setRejectionReason] = useState('')
-  const router = useRouter()
+interface BrandsModelsData {
+  top_brands: Array<{
+    brand_name: string
+    brand_slug: string
+    listing_count: number
+    sold_count: number
+    avg_price: number
+    total_value: number
+  }>
+  top_models: Array<{
+    model_name: string
+    model_slug: string
+    brand_name: string
+    listing_count: number
+    sold_count: number
+    avg_price: number
+    total_value: number
+  }>
+}
+
+interface TimeSeriesData {
+  period: string
+  count: number
+  sold_count?: number
+  avg_price?: number
+  accepted_count?: number
+  rejected_count?: number
+  avg_rating?: number
+}
+
+export default function AdminDashboard()  {
+const { user, loading: authLoading } = useAuth()
   const { toast } = useToast()
-  const supabase = createClient()
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    const options: Intl.DateTimeFormatOptions = {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    }
-    return date.toLocaleDateString('fr-FR', options)
-  }
-
-  const getCompanyStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'active':
-        return 'bg-green-100 text-green-800'
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'suspended':
-        return 'bg-red-100 text-red-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }
+  const router = useRouter()
+  
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [brandsModels, setBrandsModels] = useState<BrandsModelsData | null>(null)
+  const [timeSeriesData, setTimeSeriesData] = useState<TimeSeriesData[]>([])
+  const [loading, setLoading] = useState(true)
+  const [selectedPeriod, setSelectedPeriod] = useState("all")
+  const [selectedMetric, setSelectedMetric] = useState("listings")
+  const [selectedChartPeriod, setSelectedChartPeriod] = useState("month")
 
   useEffect(() => {
-    checkAdminAccess()
-  }, [])
+    // Attendre que l'authentification soit chargée
+    if (!authLoading) {
+      if (user) {
+        checkAdminRole()
+      } else {
+        router.push("/auth")
+      }
+    }
+  }, [user, authLoading])
 
-  const checkAdminAccess = async () => {
+  const checkAdminRole = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        router.push('/auth')
-        return
-      }
-
-      // Check if user has admin role
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-
-      if (profile?.role !== 'admin') {
-        router.push('/')
+      const response = await fetch("/api/admin/dashboard")
+      if (response.status === 403) {
         toast({
+          title: "Access Denied",
+          description: "You need admin privileges to access this page",
           variant: "destructive",
-          title: "Accès refusé",
-          description: "Vous n'avez pas les permissions nécessaires pour accéder à cette page",
         })
+        router.push("/")
         return
       }
-
-      fetchPendingSellers()
+      if (response.ok) {
+        fetchDashboardData()
+      }
     } catch (error) {
-      console.error('Error checking admin access:', error)
-      router.push('/')
+      console.error("Error checking admin role:", error)
     }
   }
 
-  const fetchPendingSellers = async () => {
+  const fetchDashboardData = async () => {
+    setLoading(true)
     try {
-      const response = await fetch('/api/admin/sellers')
-      if (!response.ok) {
-        throw new Error('Failed to fetch sellers')
+      const [statsResponse, brandsResponse] = await Promise.all([
+        fetch(`/api/admin/dashboard?period=${selectedPeriod}`),
+        fetch("/api/admin/dashboard")
+      ])
+
+      if (statsResponse.ok && brandsResponse.ok) {
+        const statsData = await statsResponse.json()
+        const brandsData = await brandsResponse.json()
+        
+        setStats(statsData.stats)
+        setBrandsModels(brandsData.brandsModels)
       }
-      const data = await response.json()
-      setPendingSellers(data.sellers || [])
     } catch (error) {
-      console.error('Error fetching pending sellers:', error)
+      console.error("Error fetching dashboard data:", error)
+      toast({
+        title: "Error",
+        description: "Failed to load dashboard data",
+        variant: "destructive",
+      })
     } finally {
       setLoading(false)
     }
   }
 
-  const handleApprove = async (sellerId: string) => {
+  const fetchChartData = async () => {
     try {
-      setProcessingSeller(sellerId)
-      const response = await fetch('/api/admin/sellers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          sellerId,
-          action: 'approve',
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to approve seller')
+      const response = await fetch(`/api/admin/charts?metric=${selectedMetric}&period=${selectedChartPeriod}`)
+      if (response.ok) {
+        const data = await response.json()
+        setTimeSeriesData(data.data || [])
       }
-
-      toast({
-        title: "Succès",
-        description: "Le vendeur a été approuvé avec succès",
-      })
-      fetchPendingSellers()
     } catch (error) {
-      console.error('Error approving seller:', error)
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Une erreur est survenue lors de l'approbation du vendeur",
-      })
-    } finally {
-      setProcessingSeller(null)
+      console.error("Error fetching chart data:", error)
     }
   }
 
-  const handleDecline = async (sellerId: string) => {
-    const seller = pendingSellers.find(s => s.id === sellerId)
-    if (!seller) return
-    
-    setSelectedSeller(seller)
-    setRejectDialogOpen(true)
+  useEffect(() => {
+    if (stats) {
+      fetchChartData()
+    }
+  }, [selectedMetric, selectedChartPeriod, stats])
+
+  const formatNumber = (num: number) => {
+    return new Intl.NumberFormat().format(num)
   }
 
-  const handleConfirmDecline = async () => {
-    if (!selectedSeller || !rejectionReason.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Veuillez saisir une raison pour le rejet",
-      })
-      return
-    }
-
-    try {
-      setProcessingSeller(selectedSeller.id)
-      const response = await fetch('/api/admin/sellers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          sellerId: selectedSeller.id,
-          reason: rejectionReason,
-          action: 'decline',
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to decline seller')
-      }
-
-      toast({
-        title: "Succès",
-        description: "Le vendeur a été rejeté avec succès",
-      })
-      fetchPendingSellers()
-      setRejectDialogOpen(false)
-      setRejectionReason('')
-      setSelectedSeller(null)
-    } catch (error) {
-      console.error('Error declining seller:', error)
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Une erreur est survenue lors du rejet du vendeur",
-      })
-    } finally {
-      setProcessingSeller(null)
-    }
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount)
   }
 
   if (loading) {
+    return <DashboardSkeleton />
+  }
+
+  if (!stats) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="container py-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-red-500 mb-4">Error</h2>
+          <p className="text-muted-foreground">Failed to load dashboard data</p>
+          <Button onClick={fetchDashboardData} className="mt-4">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Retry
+          </Button>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="mt-2 text-sm text-gray-600">
-              {pendingSellers.length} vendeurs en attente de validation
-            </p>
-          </div>
-          <button
-            onClick={fetchPendingSellers}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <svg className="-ml-1 mr-2 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Actualiser
-          </button>
+    <div className="container py-8 space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <p className="text-muted-foreground">
+            Monitor your platform's performance and user activity
+          </p>
         </div>
-
-        <div className="grid gap-6">
-          {pendingSellers.map((seller) => (
-            <div key={seller.id} className="bg-white shadow rounded-lg overflow-hidden">
-              <div className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center space-x-4">
-                    {seller.company_logo_url ? (
-                      <img
-                        src={seller.company_logo_url}
-                        alt={`${seller.company_name} logo`}
-                        className="h-16 w-16 rounded-lg object-cover"
-                      />
-                    ) : (
-                      <div className="h-16 w-16 rounded-lg bg-gray-200 flex items-center justify-center">
-                        <span className="text-2xl text-gray-500">{seller.company_name[0]}</span>
-                      </div>
-                    )}
-                    <div>
-                      <h2 className="text-xl font-semibold text-gray-900">{seller.company_name}</h2>
-                      <p className="text-sm text-gray-500">@{seller.watch_pros_name}</p>
-                    </div>
-                  </div>
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={() => handleApprove(seller.id)}
-                      disabled={processingSeller === seller.id}
-                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {processingSeller === seller.id ? (
-                        <>
-                          <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Traitement...
-                        </>
-                      ) : (
-                        <>
-                          <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          Approuver
-                        </>
-                      )}
-                    </button>
-                    <button
-                      onClick={() => handleDecline(seller.id)}
-                      disabled={processingSeller === seller.id}
-                      className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {processingSeller === seller.id ? (
-                        <>
-                          <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Traitement...
-                        </>
-                      ) : (
-                        <>
-                          <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                          Rejeter
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">Informations de contact</h3>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <dl className="grid grid-cols-1 gap-4">
-                        <div>
-                          <dt className="text-sm font-medium text-gray-500">Contact principal</dt>
-                          <dd className="mt-1 text-sm text-gray-900">{seller.first_name} {seller.last_name}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-sm font-medium text-gray-500">Email</dt>
-                          <dd className="mt-1 text-sm text-gray-900">{seller.email}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-sm font-medium text-gray-500">Téléphone</dt>
-                          <dd className="mt-1 text-sm text-gray-900">+{seller.phone_prefix} {seller.phone}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-sm font-medium text-gray-500">Pays</dt>
-                          <dd className="mt-1 text-sm text-gray-900">{seller.country}</dd>
-                        </div>
-                      </dl>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">Informations légales</h3>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <dl className="grid grid-cols-1 gap-4">
-                        <div>
-                          <dt className="text-sm font-medium text-gray-500">Statut de l'entreprise</dt>
-                          <dd className="mt-1">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCompanyStatusColor(seller.company_status)}`}>
-                              {seller.company_status}
-                            </span>
-                          </dd>
-                        </div>
-                        {seller.seller_addresses?.[0]?.siren && (
-                          <div>
-                            <dt className="text-sm font-medium text-gray-500">SIREN</dt>
-                            <dd className="mt-1 text-sm text-gray-900">{seller.seller_addresses[0].siren}</dd>
-                          </div>
-                        )}
-                        {seller.seller_addresses?.[0]?.tax_id && (
-                          <div>
-                            <dt className="text-sm font-medium text-gray-500">Numéro fiscal</dt>
-                            <dd className="mt-1 text-sm text-gray-900">{seller.seller_addresses[0].tax_id}</dd>
-                          </div>
-                        )}
-                        {seller.seller_addresses?.[0]?.vat_number && (
-                          <div>
-                            <dt className="text-sm font-medium text-gray-500">Numéro de TVA</dt>
-                            <dd className="mt-1 text-sm text-gray-900">{seller.seller_addresses[0].vat_number}</dd>
-                          </div>
-                        )}
-                      </dl>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">Documents</h3>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <div className="grid grid-cols-1 gap-4">
-                        {seller.id_card_front_url && (
-                          <a
-                            href={seller.id_card_front_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
-                          >
-                            <svg className="mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                            </svg>
-                            Carte d'identité (recto)
-                          </a>
-                        )}
-                        {seller.id_card_back_url && (
-                          <a
-                            href={seller.id_card_back_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
-                          >
-                            <svg className="mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                            </svg>
-                            Carte d'identité (verso)
-                          </a>
-                        )}
-                        {seller.proof_of_address_url && (
-                          <a
-                            href={seller.proof_of_address_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800"
-                          >
-                            <svg className="mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                            </svg>
-                            Justificatif de domicile
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 mb-2">Informations de souscription</h3>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <dl className="grid grid-cols-1 gap-4">
-                        {seller.subscriptions?.[0] ? (
-                          <>
-                            <div>
-                              <dt className="text-sm font-medium text-gray-500">Statut</dt>
-                              <dd className="mt-1">
-                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                  seller.subscriptions[0].status === 'active' ? 'bg-green-100 text-green-800' :
-                                  seller.subscriptions[0].status === 'incomplete' ? 'bg-yellow-100 text-yellow-800' :
-                                  'bg-red-100 text-red-800'
-                                }`}>
-                                  {seller.subscriptions[0].status}
-                                </span>
-                              </dd>
-                            </div>
-                            {seller.subscriptions[0].pm_type && (
-                              <div>
-                                <dt className="text-sm font-medium text-gray-500">Méthode de paiement</dt>
-                                <dd className="mt-1 text-sm text-gray-900">
-                                  {seller.subscriptions[0].pm_brand?.toUpperCase()} •••• {seller.subscriptions[0].pm_last4}
-                                </dd>
-                              </div>
-                            )}
-                            {seller.subscriptions[0].current_period_start && (
-                              <div>
-                                <dt className="text-sm font-medium text-gray-500">Début de période</dt>
-                                <dd className="mt-1 text-sm text-gray-900">
-                                  {new Date(seller.subscriptions[0].current_period_start).toLocaleDateString('fr-FR')}
-                                </dd>
-                              </div>
-                            )}
-                            {seller.subscriptions[0].current_period_end && (
-                              <div>
-                                <dt className="text-sm font-medium text-gray-500">Fin de période</dt>
-                                <dd className="mt-1 text-sm text-gray-900">
-                                  {new Date(seller.subscriptions[0].current_period_end).toLocaleDateString('fr-FR')}
-                                </dd>
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          <div>
-                            <dt className="text-sm font-medium text-gray-500">Aucune souscription</dt>
-                            <dd className="mt-1 text-sm text-gray-900">Le vendeur n'a pas encore souscrit à un plan</dd>
-                          </div>
-                        )}
-                      </dl>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex items-center justify-between text-sm text-gray-500">
-                  <div>
-                    <span>Inscription le </span>
-                    <time dateTime={seller.created_at}>
-                      {formatDate(seller.created_at)}
-                    </time>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      seller.crypto_friendly ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {seller.crypto_friendly ? 'Accepte les cryptos' : 'N\'accepte pas les cryptos'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="flex items-center gap-4">
+          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Time</SelectItem>
+              <SelectItem value="week">Last Week</SelectItem>
+              <SelectItem value="month">Last Month</SelectItem>
+              <SelectItem value="year">Last Year</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={fetchDashboardData} variant="outline" size="sm">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
         </div>
       </div>
 
-      <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Rejeter la vérification</DialogTitle>
-            <DialogDescription>
-              Veuillez saisir la raison du rejet. Cette raison sera envoyée par email au vendeur.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <Textarea
-              placeholder="Raison du rejet..."
-              value={rejectionReason}
-              onChange={(e) => setRejectionReason(e.target.value)}
-              className="min-h-[100px]"
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <MetricCard
+          title="Total Users"
+          value={formatNumber(stats.users.total)}
+          change={stats.users.new_period}
+          icon={Users}
+          description="Registered users"
+        />
+        <MetricCard
+          title="Active Listings"
+          value={formatNumber(stats.listings.active)}
+          change={stats.listings.new_period}
+          icon={Tag}
+          description="Currently active"
+        />
+        <MetricCard
+          title="Total GMV"
+          value={formatCurrency(stats.pricing.total_gmv)}
+          change={stats.listings.sold_period}
+          icon={DollarSign}
+          description="Gross Merchandise Value"
+        />
+        <MetricCard
+          title="Sales Rate"
+          value={`${stats.sales_rate}%`}
+          change={stats.listings.sold_period}
+          icon={TrendingUp}
+          description="Conversion rate"
+        />
+      </div>
+
+      {/* Charts Section */}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="brands">Brands & Models</TabsTrigger>
+          <TabsTrigger value="pending">Pending Identities</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          {/* Time Series Chart */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Activity Over Time</CardTitle>
+                  <CardDescription>Track platform activity trends</CardDescription>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Select value={selectedMetric} onValueChange={setSelectedMetric}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="listings">Listings</SelectItem>
+                      <SelectItem value="users">Users</SelectItem>
+                      <SelectItem value="messages">Messages</SelectItem>
+                      <SelectItem value="reviews">Reviews</SelectItem>
+                      <SelectItem value="offers">Offers</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={selectedChartPeriod} onValueChange={setSelectedChartPeriod}>
+                    <SelectTrigger className="w-24">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="week">Week</SelectItem>
+                      <SelectItem value="month">Month</SelectItem>
+                      <SelectItem value="year">Year</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <LineChart data={timeSeriesData} metric={selectedMetric} />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Distribution Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Listings Status</CardTitle>
+                <CardDescription>Distribution of listing statuses</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64">
+                  <PieChart
+                    data={[
+                      { name: 'Active', value: stats.listings.active, color: '#10b981' },
+                      { name: 'Sold', value: stats.listings.sold, color: '#3b82f6' },
+                      { name: 'Hold', value: stats.listings.draft, color: '#f59e0b' },
+                    ]}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Offers Status</CardTitle>
+                <CardDescription>Distribution of offer responses</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64">
+                  <PieChart
+                    data={[
+                      { name: 'Accepted', value: stats.offers.accepted, color: '#10b981' },
+                      { name: 'Rejected', value: stats.offers.rejected, color: '#ef4444' },
+                      { name: 'Pending', value: stats.offers.pending, color: '#f59e0b' },
+                    ]}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-6">
+          {/* Detailed Analytics */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <AnalyticsCard
+              title="User Engagement"
+              metrics={[
+                { label: "Messages Sent", value: formatNumber(stats.messages.total) },
+                { label: "Favorites Added", value: formatNumber(stats.favorites.total) },
+                { label: "Custom Alerts", value: formatNumber(stats.custom_alerts.total) },
+                { label: "Active Searches", value: formatNumber(stats.active_searches.active_count) },
+              ]}
+              icon={BarChart3}
+            />
+            
+            <AnalyticsCard
+              title="Subscription Metrics"
+              metrics={[
+                { label: "Active Subscriptions", value: formatNumber(stats.subscriptions.active) },
+                { label: "Trial Subscriptions", value: formatNumber(stats.subscriptions.trialing) },
+                { label: "Canceled Subscriptions", value: formatNumber(stats.subscriptions.canceled) },
+                { label: "New This Period", value: formatNumber(stats.subscriptions.new_period) },
+              ]}
+              icon={TrendingUp}
+            />
+            
+            <AnalyticsCard
+              title="Content & Reviews"
+              metrics={[
+                { label: "Total Reviews", value: formatNumber(stats.reviews.total) },
+                { label: "Average Rating", value: `${stats.reviews.avg_rating}/5` },
+                { label: "Newsletter Subscribers", value: formatNumber(stats.newsletter.active_subscribers) },
+                { label: "New Reviews", value: formatNumber(stats.reviews.new_period) },
+              ]}
+              icon={Star}
             />
           </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setRejectDialogOpen(false)
-                setRejectionReason('')
-                setSelectedSeller(null)
-              }}
-            >
-              Annuler
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleConfirmDecline}
-              disabled={!rejectionReason.trim() || processingSeller === selectedSeller?.id}
-            >
-              {processingSeller === selectedSeller?.id ? 'Traitement...' : 'Confirmer le rejet'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
+          {/* Pricing Analytics */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Pricing Analytics</CardTitle>
+              <CardDescription>Price distribution and trends</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">
+                    {formatCurrency(stats.pricing.avg_price)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Average Price</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">
+                    {formatCurrency(stats.pricing.median_price)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Median Price</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">
+                    {formatCurrency(stats.pricing.total_gmv)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Total GMV</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="brands" className="space-y-6">
+          {brandsModels && (
+            <>
+              {/* Top Brands */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Top 10 Brands</CardTitle>
+                  <CardDescription>Most listed brands by volume</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-80">
+                    <BarChart
+                      data={brandsModels.top_brands.map(brand => ({
+                        name: brand.brand_name,
+                        listings: brand.listing_count,
+                        sold: brand.sold_count,
+                        avgPrice: brand.avg_price,
+                      }))}
+                      type="brands"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Top Models */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Top 10 Models</CardTitle>
+                  <CardDescription>Most listed models by volume</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-80">
+                    <BarChart
+                      data={brandsModels.top_models.map(model => ({
+                        name: `${model.brand_name} ${model.model_name}`,
+                        listings: model.listing_count,
+                        sold: model.sold_count,
+                        avgPrice: model.avg_price,
+                      }))}
+                      type="models"
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+        </TabsContent>
+
+        <TabsContent value="pending" className="space-y-6">
+          <PendingIdentitiesTab />
+        </TabsContent>
+      </Tabs>
     </div>
   )
-} 
+}
+
+// Metric Card Component
+function MetricCard({ 
+  title, 
+  value, 
+  change, 
+  icon: Icon, 
+  description 
+}: {
+  title: string
+  value: string
+  change: number
+  icon: any
+  description: string
+}) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <Icon className="h-4 w-4 text-muted-foreground" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{value}</div>
+        <p className="text-xs text-muted-foreground">{description}</p>
+        {change > 0 && (
+          <div className="flex items-center text-xs text-green-600 mt-1">
+            <TrendingUp className="h-3 w-3 mr-1" />
+            +{change} this period
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+// Analytics Card Component
+function AnalyticsCard({ 
+  title, 
+  metrics, 
+  icon: Icon 
+}: {
+  title: string
+  metrics: Array<{ label: string; value: string }>
+  icon: any
+}) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <Icon className="h-4 w-4 text-muted-foreground" />
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          {metrics.map((metric, index) => (
+            <div key={index} className="flex justify-between items-center">
+              <span className="text-sm text-muted-foreground">{metric.label}</span>
+              <span className="text-sm font-medium">{metric.value}</span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+// Loading Skeleton
+function DashboardSkeleton() {
+  return (
+    <div className="container py-8 space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <Skeleton className="h-8 w-48 mb-2" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-10 w-32" />
+          <Skeleton className="h-10 w-24" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card key={i}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-4" />
+            </CardHeader>
+            <CardContent>
+              <Skeleton className="h-8 w-20 mb-2" />
+              <Skeleton className="h-3 w-32" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-6 w-48 mb-2" />
+          <Skeleton className="h-4 w-64" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-80 w-full" />
+        </CardContent>
+      </Card>
+    </div>
+  )
+}

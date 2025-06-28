@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Menu, User, Bell, LogOut, Heart, MessageSquare, LayoutDashboard, MoreHorizontal, Tag } from "lucide-react"
+import { Menu, User, Bell, LogOut, Heart, MessageSquare, LayoutDashboard, MoreHorizontal, Tag, Shield } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import { Badge } from "./ui/badge"
 import { useAuth } from "@/contexts/AuthContext"
@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import Image from "next/image"
+import { useAuthStatus } from "@/hooks/useAuthStatus"
 
 const navigation = [
   { name: "Brands", href: "/brands" },
@@ -26,6 +27,7 @@ const navigation = [
 
 export function Navbar() {
   const { user, signOut } = useAuth()
+  const { isAdmin } = useAuthStatus()
   const { unreadCount } = useNotifications()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -88,6 +90,15 @@ export function Navbar() {
             >
               Brands
             </Link>
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="transition-colors hover:text-foreground/80 text-foreground/60 flex items-center gap-1"
+              >
+                <Shield className="h-4 w-4" />
+                Admin
+              </Link>
+            )}
           </nav>
         </div>
 
@@ -139,6 +150,17 @@ export function Navbar() {
                       {user.email}
                     </div>
                     <DropdownMenuSeparator />
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link href="/admin" className="flex items-center">
+                            <Shield className="mr-2 h-4 w-4" />
+                            Admin Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
                     <DropdownMenuItem asChild>
                       <Link href="/account?tab=dashboard" className="flex items-center">
                         <LayoutDashboard className="mr-2 h-4 w-4" />
@@ -238,6 +260,14 @@ export function Navbar() {
               <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
                 <Link href="/brands" onClick={handleLinkClick}>Brands</Link>
               </Button>
+              {isAdmin && (
+                <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
+                  <Link href="/admin" onClick={handleLinkClick} className="flex items-center gap-2">
+                    <Shield className="h-4 w-4" />
+                    Admin
+                  </Link>
+                </Button>
+              )}
             </div>
             {user ? (
               <div className="flex flex-col gap-1 pt-3 border-t">
