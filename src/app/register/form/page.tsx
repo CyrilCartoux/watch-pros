@@ -1031,7 +1031,7 @@ export default function RegisterFormPage() {
 
                     <div>
                       <Label htmlFor="website">Website</Label>
-                      <Input id="website" type="url" placeholder="mywebsite.com or www.mywebsite.com" {...addressForm.register("website")} />
+                      <Input id="website" type="text" placeholder="mywebsite.com or www.mywebsite.com" {...addressForm.register("website")} />
                       <FormError error={addressForm.formState.errors.website?.message as string} isSubmitted={isSubmitted.address} />
                     </div>
 
