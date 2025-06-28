@@ -20,7 +20,9 @@ import {
   Calendar,
   Coins,
   ExternalLink,
-  Eye
+  Eye,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { countries } from "@/data/form-options"
@@ -81,6 +83,7 @@ export function PendingIdentitiesTab() {
   const [loading, setLoading] = useState(true)
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null)
   const [isDocumentModalOpen, setIsDocumentModalOpen] = useState(false)
+  const [expandedSellers, setExpandedSellers] = useState<Set<string>>(new Set())
   const { toast } = useToast()
 
   useEffect(() => {
@@ -173,6 +176,16 @@ export function PendingIdentitiesTab() {
     setIsDocumentModalOpen(true)
   }
 
+  const toggleSellerExpansion = (sellerId: string) => {
+    const newExpanded = new Set(expandedSellers)
+    if (newExpanded.has(sellerId)) {
+      newExpanded.delete(sellerId)
+    } else {
+      newExpanded.add(sellerId)
+    }
+    setExpandedSellers(newExpanded)
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
       day: '2-digit',
@@ -198,18 +211,24 @@ export function PendingIdentitiesTab() {
     return (
       <div className="space-y-4">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Card key={i}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                  <Skeleton className="h-4 w-48" />
-                  <Skeleton className="h-3 w-32" />
+          <Card key={i} className="border-2 border-orange-200">
+            <CardHeader className="pb-4">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="w-12 h-12 rounded-lg" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <Skeleton className="h-8 w-16" />
                   <Skeleton className="h-8 w-16" />
                 </div>
               </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <Skeleton className="h-32 w-full" />
             </CardContent>
           </Card>
         ))}
@@ -224,11 +243,11 @@ export function PendingIdentitiesTab() {
   if (pendingSellersList.length === 0) {
     return (
       <Card>
-        <CardContent className="p-8 text-center">
+        <CardContent className="p-6 sm:p-8 text-center">
           <div className="text-muted-foreground">
             <Shield className="h-12 w-12 mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">No Pending Identities</h3>
-            <p>All seller identities have been reviewed.</p>
+            <p className="text-sm">All seller identities have been reviewed.</p>
           </div>
         </CardContent>
       </Card>
@@ -236,13 +255,14 @@ export function PendingIdentitiesTab() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header - Mobile Optimized */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h3 className="text-lg font-semibold mb-2">
+          <h3 className="text-lg sm:text-xl font-semibold mb-1">
             {pendingSellersList.length} vendeur{pendingSellersList.length > 1 ? 's' : ''} en attente de validation
           </h3>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Review and approve seller identity documents
           </p>
         </div>
@@ -250,25 +270,28 @@ export function PendingIdentitiesTab() {
           variant="outline"
           size="sm"
           onClick={fetchPendingSellers}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 w-full sm:w-auto"
         >
           <RefreshCw className="h-4 w-4" />
           Actualiser
         </Button>
       </div>
 
-      <div className="space-y-6">
+      {/* Sellers List - Mobile Optimized */}
+      <div className="space-y-4 sm:space-y-6">
         {pendingSellersList.map((seller) => {
           const address = seller.seller_addresses[0]
           const subscription = seller.subscriptions[0]
+          const isExpanded = expandedSellers.has(seller.id)
           
           return (
-            <Card key={seller.id} className="border-2 border-orange-200">
-              <CardHeader>
+            <Card key={seller.id} className="border-2 border-orange-200 hover:shadow-lg transition-shadow">
+              {/* Header - Always Visible */}
+              <CardHeader className="pb-4">
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
                     {seller.company_logo_url && (
-                      <div className="w-12 h-12 rounded-lg overflow-hidden border">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg overflow-hidden border flex-shrink-0">
                         <Image
                           src={seller.company_logo_url}
                           alt={`${seller.company_name} logo`}
@@ -278,231 +301,258 @@ export function PendingIdentitiesTab() {
                         />
                       </div>
                     )}
-                    <div>
-                      <CardTitle className="text-xl">{seller.company_name}</CardTitle>
-                      <p className="text-muted-foreground">@{seller.watch_pros_name}</p>
+                    <div className="flex-1 min-w-0">
+                      <CardTitle className="text-base sm:text-xl truncate">{seller.company_name}</CardTitle>
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate">@{seller.watch_pros_name}</p>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2 ml-2">
                     <Button
                       size="sm"
                       onClick={() => handleApprove(seller.id)}
-                      className="bg-green-600 hover:bg-green-700"
+                      className="bg-green-600 hover:bg-green-700 text-xs sm:text-sm h-8 sm:h-9"
                     >
-                      <CheckCircle className="h-4 w-4 mr-1" />
-                      Approuver
+                      <CheckCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                      <span className="hidden sm:inline">Approuver</span>
+                      <span className="sm:hidden">✓</span>
                     </Button>
                     <Button
                       size="sm"
                       variant="destructive"
                       onClick={() => handleReject(seller.id)}
+                      className="text-xs sm:text-sm h-8 sm:h-9"
                     >
-                      <XCircle className="h-4 w-4 mr-1" />
-                      Rejeter
+                      <XCircle className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                      <span className="hidden sm:inline">Rejeter</span>
+                      <span className="sm:hidden">✗</span>
                     </Button>
                   </div>
                 </div>
+                
+                {/* Expand/Collapse Button */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => toggleSellerExpansion(seller.id)}
+                  className="w-full mt-3 h-8 text-xs"
+                >
+                  {isExpanded ? (
+                    <>
+                      <ChevronUp className="h-3 w-3 mr-1" />
+                      Masquer les détails
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="h-3 w-3 mr-1" />
+                      Voir les détails
+                    </>
+                  )}
+                </Button>
               </CardHeader>
 
-              <CardContent className="space-y-6">
-                {/* Contact Information */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <h4 className="font-semibold text-lg flex items-center gap-2">
-                      <Mail className="h-5 w-5" />
-                      Informations de contact
-                    </h4>
-                    
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Contact principal</p>
-                        <p className="font-medium">{seller.first_name} {seller.last_name}</p>
-                      </div>
+              {/* Expandable Content */}
+              {isExpanded && (
+                <CardContent className="pt-0 space-y-4 sm:space-y-6">
+                  {/* Contact & Legal Information - Mobile Optimized */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                    {/* Contact Information */}
+                    <div className="space-y-3 sm:space-y-4">
+                      <h4 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+                        <Mail className="h-4 w-4 sm:h-5 sm:w-5" />
+                        Informations de contact
+                      </h4>
                       
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{seller.email}</span>
+                      <div className="space-y-2 sm:space-y-3">
+                        <div>
+                          <p className="text-xs sm:text-sm font-medium text-muted-foreground">Contact principal</p>
+                          <p className="font-medium text-sm sm:text-base">{seller.first_name} {seller.last_name}</p>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <Mail className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                          <span className="text-xs sm:text-sm truncate">{seller.email}</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                          <span className="text-xs sm:text-sm">{seller.phone_prefix} {seller.phone}</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
+                          <span className="text-xs sm:text-sm">
+                            {getCountryFlag(seller.country)} {getCountryLabel(seller.country)}
+                          </span>
+                        </div>
                       </div>
+                    </div>
+
+                    {/* Legal Information */}
+                    <div className="space-y-3 sm:space-y-4">
+                      <h4 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+                        <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                        Informations légales
+                      </h4>
                       
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{seller.phone_prefix} {seller.phone}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">
-                          {getCountryFlag(seller.country)} {getCountryLabel(seller.country)}
-                        </span>
+                      <div className="space-y-2 sm:space-y-3">
+                        <div>
+                          <p className="text-xs sm:text-sm font-medium text-muted-foreground">Statut de l'entreprise</p>
+                          <p className="font-medium text-sm sm:text-base">{seller.company_status}</p>
+                        </div>
+                        
+                        {address && (
+                          <>
+                            <div>
+                              <p className="text-xs sm:text-sm font-medium text-muted-foreground">SIREN</p>
+                              <p className="font-medium text-sm sm:text-base">{address.siren}</p>
+                            </div>
+                            
+                            <div>
+                              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Numéro fiscal</p>
+                              <p className="font-medium text-sm sm:text-base">{address.tax_id}</p>
+                            </div>
+                            
+                            <div>
+                              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Numéro de TVA</p>
+                              <p className="font-medium text-sm sm:text-base">{address.vat_number}</p>
+                            </div>
+                            
+                            <div>
+                              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Adresse</p>
+                              <p className="font-medium text-sm sm:text-base">
+                                {address.street}<br />
+                                {address.postal_code} {address.city}<br />
+                                {getCountryFlag(address.country)} {getCountryLabel(address.country)}
+                              </p>
+                            </div>
+                            
+                            {address.website && (
+                              <div>
+                                <p className="text-xs sm:text-sm font-medium text-muted-foreground">Site web</p>
+                                <a 
+                                  href={address.website} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="text-primary hover:underline flex items-center gap-1 text-sm sm:text-base"
+                                >
+                                  <span className="truncate">{address.website}</span>
+                                  <ExternalLink className="h-3 w-3 flex-shrink-0" />
+                                </a>
+                              </div>
+                            )}
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  {/* Legal Information */}
-                  <div className="space-y-4">
-                    <h4 className="font-semibold text-lg flex items-center gap-2">
-                      <Building2 className="h-5 w-5" />
-                      Informations légales
+                  {/* Documents - Mobile Optimized */}
+                  <div className="space-y-3 sm:space-y-4">
+                    <h4 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+                      <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
+                      Documents (cliquable pour afficher le document)
                     </h4>
                     
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">Statut de l'entreprise</p>
-                        <p className="font-medium">{seller.company_status}</p>
-                      </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                      {seller.id_card_front_url && (
+                        <Button
+                          variant="outline"
+                          className="h-20 sm:h-24 flex flex-col items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm"
+                          onClick={() => openDocument(seller.id_card_front_url)}
+                        >
+                          <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                          <span className="text-center">Carte d'identité (recto)</span>
+                        </Button>
+                      )}
                       
-                      {address && (
-                        <>
-                          <div>
-                            <p className="text-sm font-medium text-muted-foreground">SIREN</p>
-                            <p className="font-medium">{address.siren}</p>
-                          </div>
-                          
-                          <div>
-                            <p className="text-sm font-medium text-muted-foreground">Numéro fiscal</p>
-                            <p className="font-medium">{address.tax_id}</p>
-                          </div>
-                          
-                          <div>
-                            <p className="text-sm font-medium text-muted-foreground">Numéro de TVA</p>
-                            <p className="font-medium">{address.vat_number}</p>
-                          </div>
-                          
-                          <div>
-                            <p className="text-sm font-medium text-muted-foreground">Adresse</p>
-                            <p className="font-medium">
-                              {address.street}<br />
-                              {address.postal_code} {address.city}<br />
-                              {getCountryFlag(address.country)} {getCountryLabel(address.country)}
-                            </p>
-                          </div>
-                          
-                          {address.website && (
-                            <div>
-                              <p className="text-sm font-medium text-muted-foreground">Site web</p>
-                              <a 
-                                href={address.website} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="text-primary hover:underline flex items-center gap-1"
-                              >
-                                {address.website}
-                                <ExternalLink className="h-3 w-3" />
-                              </a>
-                            </div>
-                          )}
-                        </>
+                      {seller.id_card_back_url && (
+                        <Button
+                          variant="outline"
+                          className="h-20 sm:h-24 flex flex-col items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm"
+                          onClick={() => openDocument(seller.id_card_back_url)}
+                        >
+                          <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                          <span className="text-center">Carte d'identité (verso)</span>
+                        </Button>
+                      )}
+                      
+                      {seller.proof_of_address_url && (
+                        <Button
+                          variant="outline"
+                          className="h-20 sm:h-24 flex flex-col items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm"
+                          onClick={() => openDocument(seller.proof_of_address_url)}
+                        >
+                          <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                          <span className="text-center">Justificatif de domicile</span>
+                        </Button>
                       )}
                     </div>
                   </div>
-                </div>
 
-                {/* Documents */}
-                <div className="space-y-4">
-                  <h4 className="font-semibold text-lg flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    Documents (cliquable pour afficher le document)
-                  </h4>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {seller.id_card_front_url && (
-                      <Button
-                        variant="outline"
-                        className="h-24 flex flex-col items-center justify-center gap-2"
-                        onClick={() => openDocument(seller.id_card_front_url)}
-                      >
-                        <Eye className="h-5 w-5" />
-                        <span className="text-sm">Carte d'identité (recto)</span>
-                      </Button>
-                    )}
+                  {/* Subscription Information - Mobile Optimized */}
+                  <div className="space-y-3 sm:space-y-4">
+                    <h4 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+                      <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />
+                      Informations de souscription
+                    </h4>
                     
-                    {seller.id_card_back_url && (
-                      <Button
-                        variant="outline"
-                        className="h-24 flex flex-col items-center justify-center gap-2"
-                        onClick={() => openDocument(seller.id_card_back_url)}
-                      >
-                        <Eye className="h-5 w-5" />
-                        <span className="text-sm">Carte d'identité (verso)</span>
-                      </Button>
-                    )}
-                    
-                    {seller.proof_of_address_url && (
-                      <Button
-                        variant="outline"
-                        className="h-24 flex flex-col items-center justify-center gap-2"
-                        onClick={() => openDocument(seller.proof_of_address_url)}
-                      >
-                        <Eye className="h-5 w-5" />
-                        <span className="text-sm">Justificatif de domicile</span>
-                      </Button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Subscription Information */}
-                <div className="space-y-4">
-                  <h4 className="font-semibold text-lg flex items-center gap-2">
-                    <CreditCard className="h-5 w-5" />
-                    Informations de souscription
-                  </h4>
-                  
-                  {subscription && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-3">
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">Statut</p>
-                          <Badge variant={subscription.status === 'active' ? 'default' : 'secondary'}>
-                            {subscription.status}
-                          </Badge>
+                    {subscription && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                        <div className="space-y-2 sm:space-y-3">
+                          <div>
+                            <p className="text-xs sm:text-sm font-medium text-muted-foreground">Statut</p>
+                            <Badge variant={subscription.status === 'active' ? 'default' : 'secondary'} className="text-xs">
+                              {subscription.status}
+                            </Badge>
+                          </div>
+                          
+                          <div>
+                            <p className="text-xs sm:text-sm font-medium text-muted-foreground">Méthode de paiement</p>
+                            <p className="font-medium text-sm sm:text-base">
+                              {subscription.pm_brand?.toUpperCase()} •••• {subscription.pm_last4}
+                            </p>
+                          </div>
                         </div>
                         
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">Méthode de paiement</p>
-                          <p className="font-medium">
-                            {subscription.pm_brand?.toUpperCase()} •••• {subscription.pm_last4}
-                          </p>
+                        <div className="space-y-2 sm:space-y-3">
+                          <div>
+                            <p className="text-xs sm:text-sm font-medium text-muted-foreground">Début de période</p>
+                            <p className="font-medium text-sm sm:text-base">{formatDate(subscription.current_period_start)}</p>
+                          </div>
+                          
+                          <div>
+                            <p className="text-xs sm:text-sm font-medium text-muted-foreground">Fin de période</p>
+                            <p className="font-medium text-sm sm:text-base">{formatDate(subscription.current_period_end)}</p>
+                          </div>
                         </div>
+                      </div>
+                    )}
+                    
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-3 border-t">
+                      <div>
+                        <p className="text-xs sm:text-sm font-medium text-muted-foreground">Inscription le {formatDate(seller.created_at)}</p>
                       </div>
                       
-                      <div className="space-y-3">
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">Début de période</p>
-                          <p className="font-medium">{formatDate(subscription.current_period_start)}</p>
-                        </div>
-                        
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">Fin de période</p>
-                          <p className="font-medium">{formatDate(subscription.current_period_end)}</p>
-                        </div>
-                      </div>
+                      {seller.crypto_friendly && (
+                        <Badge variant="outline" className="border-amber-500 text-amber-500 bg-amber-500/10 text-xs sm:text-sm w-fit">
+                          <Coins className="h-3 w-3 mr-1" />
+                          Accepte les cryptos
+                        </Badge>
+                      )}
                     </div>
-                  )}
-                  
-                  <div className="flex items-center justify-between pt-4 border-t">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Inscription le {formatDate(seller.created_at)}</p>
-                    </div>
-                    
-                    {seller.crypto_friendly && (
-                      <Badge variant="outline" className="border-amber-500 text-amber-500 bg-amber-500/10">
-                        <Coins className="h-3 w-3 mr-1" />
-                        Accepte les cryptos
-                      </Badge>
-                    )}
                   </div>
-                </div>
-              </CardContent>
+                </CardContent>
+              )}
             </Card>
           )
         })}
       </div>
 
-      {/* Document Modal */}
+      {/* Document Modal - Mobile Optimized */}
       <Dialog open={isDocumentModalOpen} onOpenChange={setIsDocumentModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Document</DialogTitle>
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+          <DialogHeader className="pb-4">
+            <DialogTitle className="text-lg sm:text-xl">Document</DialogTitle>
           </DialogHeader>
           {selectedDocument && (
             <div className="flex justify-center">
@@ -511,7 +561,7 @@ export function PendingIdentitiesTab() {
                 alt="Document"
                 width={800}
                 height={600}
-                className="max-w-full h-auto rounded-lg"
+                className="max-w-full h-auto rounded-lg shadow-lg"
               />
             </div>
           )}
