@@ -33,7 +33,7 @@ interface NewsletterData {
 }
 
 export default function NewsletterPage() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const { toast } = useToast()
   const router = useRouter()
   
@@ -45,12 +45,15 @@ export default function NewsletterPage() {
   const [limit] = useState(50)
 
   useEffect(() => {
-    if (user) {
-      checkAdminRole()
-    } else {
-      router.push("/auth")
+    // Attendre que l'authentification soit chargée
+    if (!authLoading) {
+      if (user) {
+        checkAdminRole()
+      } else {
+        router.push("/auth")
+      }
     }
-  }, [user])
+  }, [user, authLoading])
 
   const checkAdminRole = async () => {
     try {

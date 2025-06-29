@@ -293,6 +293,15 @@ const { user, loading: authLoading } = useAuth()
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh
               </Button>
+              <Button 
+                onClick={() => router.push('/admin/newsletter')} 
+                variant="outline" 
+                size="sm" 
+                className="w-full sm:w-auto"
+              >
+                <Mail className="w-4 h-4 mr-2" />
+                Newsletter
+              </Button>
             </div>
           </div>
         </div>
