@@ -13,8 +13,7 @@ const navigation = {
     { name: "Browse Accessories", href: "/listings?listingType=accessory", icon: Search },
     { name: "Active Searches", href: "/searches", icon: Eye },
     { name: "Sellers Directory", href: "/sellers", icon: Users },
-    { name: "Brands", href: "/brands", icon: Search },
-    { name: "Models", href: "/models", icon: Search },
+    { name: "Brands", href: "/brands", icon: Search }
   ],
   sell: [
     { name: "Sell a Watch", href: "/sell/watch", icon: Plus },
