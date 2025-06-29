@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 import Stripe from 'stripe'
-import { createClient } from '@/lib/supabase/server'
 import stripe from '@/lib/stripe/stripe'
+import { supabaseAdmin } from '@/lib/supabase/admin'
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
 
@@ -25,8 +25,6 @@ export async function POST(request: Request) {
     console.error('[Stripe Webhook] Signature invalide', err)
     return NextResponse.json({ error: 'Signature invalide' }, { status: 400 })
   }
-
-  const supabase = await createClient()
 
   if (
     event.type === 'customer.subscription.created' ||
@@ -54,7 +52,7 @@ export async function POST(request: Request) {
       : null
 
     // Récupère l'utilisateur lié à ce customer Stripe
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('id')
       .eq('stripe_customer_id', stripeCustomerId)
@@ -66,7 +64,7 @@ export async function POST(request: Request) {
     }
 
     // Upsert la subscription dans la table subscriptions
-    const { error: upsertError } = await supabase
+    const { error: upsertError } = await supabaseAdmin
       .from('subscriptions')
       .upsert({
         user_id: profile.id,
