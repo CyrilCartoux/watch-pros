@@ -145,7 +145,7 @@ export default function AdminDashboard()  {
 const { user, loading: authLoading } = useAuth()
   const { toast } = useToast()
   const router = useRouter()
-  
+
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [brandsModels, setBrandsModels] = useState<BrandsModelsData | null>(null)
   const [timeSeriesData, setTimeSeriesData] = useState<TimeSeriesData[]>([])
@@ -228,7 +228,7 @@ const { user, loading: authLoading } = useAuth()
   useEffect(() => {
     if (stats) {
       fetchChartData()
-    }
+  }
   }, [selectedMetric, selectedChartPeriod, stats])
 
   const formatNumber = (num: number) => {
@@ -302,10 +302,10 @@ const { user, loading: authLoading } = useAuth()
                 <Mail className="w-4 h-4 mr-2" />
                 Newsletter
               </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+                    </div>
+                  </div>
+                  </div>
+                </div>
 
       {/* Key Metrics - Mobile Optimized Grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
@@ -337,7 +337,7 @@ const { user, loading: authLoading } = useAuth()
           icon={TrendingUp}
           description="Conversion rate"
         />
-      </div>
+                        </div>
 
       {/* Charts Section - Mobile Optimized Tabs */}
       <Tabs defaultValue="overview" className="space-y-4 sm:space-y-6">
@@ -357,17 +357,17 @@ const { user, loading: authLoading } = useAuth()
               Pending
             </TabsTrigger>
           </TabsList>
-        </div>
+                        </div>
 
         <TabsContent value="overview" className="space-y-4 sm:space-y-6">
           {/* Time Series Chart - Mobile Optimized */}
           <Card>
             <CardHeader className="pb-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
+                        <div>
                   <CardTitle className="text-lg sm:text-xl">Activity Over Time</CardTitle>
                   <CardDescription className="text-sm">Track platform activity trends</CardDescription>
-                </div>
+                        </div>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <Select value={selectedMetric} onValueChange={setSelectedMetric}>
                     <SelectTrigger className="w-full sm:w-32 text-sm">
@@ -391,13 +391,13 @@ const { user, loading: authLoading } = useAuth()
                       <SelectItem value="year">Year</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-              </div>
+                    </div>
+                  </div>
             </CardHeader>
             <CardContent className="pt-0">
               <div className="h-64 sm:h-80">
                 <LineChart data={timeSeriesData} metric={selectedMetric} />
-              </div>
+                        </div>
             </CardContent>
           </Card>
 
@@ -417,7 +417,7 @@ const { user, loading: authLoading } = useAuth()
                       { name: 'Hold', value: stats.listings.draft, color: '#f59e0b' },
                     ]}
                   />
-                </div>
+                          </div>
               </CardContent>
             </Card>
 
@@ -435,10 +435,10 @@ const { user, loading: authLoading } = useAuth()
                       { name: 'Pending', value: stats.offers.pending, color: '#f59e0b' },
                     ]}
                   />
-                </div>
+                          </div>
               </CardContent>
             </Card>
-          </div>
+                          </div>
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4 sm:space-y-6">
@@ -476,7 +476,7 @@ const { user, loading: authLoading } = useAuth()
               ]}
               icon={Star}
             />
-          </div>
+                    </div>
 
           {/* Pricing Analytics - Mobile Optimized */}
           <Card>
@@ -491,13 +491,13 @@ const { user, loading: authLoading } = useAuth()
                     {formatCurrency(stats.pricing.avg_price)}
                   </div>
                   <div className="text-xs sm:text-sm text-muted-foreground mt-1">Average Price</div>
-                </div>
+                      </div>
                 <div className="text-center p-4 bg-muted/30 rounded-lg">
                   <div className="text-xl sm:text-2xl font-bold text-primary">
                     {formatCurrency(stats.pricing.median_price)}
                   </div>
                   <div className="text-xs sm:text-sm text-muted-foreground mt-1">Median Price</div>
-                </div>
+                            </div>
                 <div className="text-center p-4 bg-muted/30 rounded-lg">
                   <div className="text-xl sm:text-2xl font-bold text-primary">
                     {formatCurrency(stats.pricing.total_gmv)}
@@ -561,7 +561,7 @@ const { user, loading: authLoading } = useAuth()
           <PendingIdentitiesTab />
         </TabsContent>
       </Tabs>
-    </div>
+                </div>
   )
 }
 
@@ -592,7 +592,7 @@ function MetricCard({
           <div className="flex items-center text-xs text-green-600 mt-2">
             <TrendingUp className="h-3 w-3 mr-1 flex-shrink-0" />
             <span className="truncate">+{change} this period</span>
-          </div>
+              </div>
         )}
       </CardContent>
     </Card>
@@ -657,7 +657,7 @@ function DashboardSkeleton() {
             </CardContent>
           </Card>
         ))}
-      </div>
+          </div>
 
       <Card>
         <CardHeader className="pb-4">
@@ -670,4 +670,4 @@ function DashboardSkeleton() {
       </Card>
     </div>
   )
-}
+} 

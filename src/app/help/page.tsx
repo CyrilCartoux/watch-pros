@@ -68,123 +68,153 @@ export default function HelpPage() {
       >
         {/* Hero Section */}
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold">Help & Contact</h1>
-          <p className="text-muted-foreground text-lg">
-            Everything you need to know about Watch Pros and how to get in touch with us.
+          <h1 className="text-4xl font-bold">Help & Support</h1>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            Welcome to Watch Pros, the leading B2B marketplace for luxury watch professionals. Here you'll find everything you need to get started, maximize your experience, and get in touch with our team.
           </p>
         </div>
 
-        {/* FAQ Sections */}
+        {/* Platform Overview */}
         <div className="space-y-8">
           <section>
-            <h2 className="text-2xl font-semibold mb-4">About the Platform</h2>
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="what-is">
-                <AccordionTrigger>What is Watch Pros?</AccordionTrigger>
+            <h2 className="text-2xl font-semibold mb-4">About Watch Pros</h2>
+            <p className="mb-4 text-muted-foreground">
+              Watch Pros is a secure, invitation-only B2B platform designed exclusively for professional watch dealers, jewelers, and brokers. Our mission is to streamline the way professionals connect, trade, and grow their business globally—without the chaos of WhatsApp groups or the risks of unverified marketplaces.
+            </p>
+            <ul className="list-disc list-inside text-muted-foreground space-y-1">
+              <li>100% B2B: Only verified professionals can join and access listings.</li>
+              <li>Zero Commission: Keep 100% of your sales. Transparent monthly subscription.</li>
+              <li>Global Network: Connect with trusted dealers in 50+ countries.</li>
+              <li>Advanced Tools: Dashboard, statistics, alerts, messaging, and more.</li>
+              <li>Security First: KYC verification, listing moderation, and encrypted data.</li>
+            </ul>
+          </section>
+
+          {/* Features Section */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">Key Features</h2>
+            <Accordion type="multiple" className="w-full">
+              <AccordionItem value="dashboard">
+                <AccordionTrigger>Professional Dashboard</AccordionTrigger>
                 <AccordionContent>
-                  Watch Pros is a 100% B2B platform connecting professional watch dealers. Our goal is simple: to facilitate exchanges between verified professionals in a clear, fast, and reliable manner.
+                  Manage your listings, track performance, and monitor your business at a glance. Access real-time statistics on views, contacts, sales, and conversion rates.
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="who-can-join">
-                <AccordionTrigger>Who can register?</AccordionTrigger>
+              <AccordionItem value="alerts">
+                <AccordionTrigger>Custom Alerts & Active Searches</AccordionTrigger>
                 <AccordionContent>
-                  Only professionals in the watch industry can access the platform (dealers, jewelers, brokers, etc.). Each registration is subject to verification (Kbis extract, SIRET number, etc.).
+                  Set up personalized alerts for specific models, brands, or price changes. Create active searches to let the network know what you're looking for and receive direct offers from other professionals.
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="private-access">
-                <AccordionTrigger>Is the platform open to private individuals?</AccordionTrigger>
+              <AccordionItem value="messaging">
+                <AccordionTrigger>Secure Messaging</AccordionTrigger>
                 <AccordionContent>
-                  No. This is a platform strictly reserved for professionals. Listings, prices, and profiles are only visible to certified dealers.
+                  Communicate directly with other verified dealers via our integrated messaging system. Set your contact preferences (email, phone, WhatsApp) and keep all your B2B conversations organized.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="verification">
+                <AccordionTrigger>Dealer Verification & Security</AccordionTrigger>
+                <AccordionContent>
+                  Every member undergoes a strict KYC process. Only certified professionals can access the platform. Listings are moderated to ensure quality and compliance.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="global">
+                <AccordionTrigger>International Reach</AccordionTrigger>
+                <AccordionContent>
+                  Expand your business with access to a global network of trusted professionals. List in multiple currencies, set your location, and connect with buyers and sellers worldwide.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="subscription">
+                <AccordionTrigger>Subscription & Pricing</AccordionTrigger>
+                <AccordionContent>
+                  Enjoy unlimited access to all features for a simple monthly or annual fee. No hidden costs, no commission on sales. See our <a href="/subscription" className="text-primary underline">pricing page</a> for details.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
           </section>
 
+          {/* Onboarding & Usage */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4">Listings & Operation</h2>
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="how-to-list">
-                <AccordionTrigger>How to publish a watch?</AccordionTrigger>
+            <h2 className="text-2xl font-semibold mb-4">Getting Started</h2>
+            <Accordion type="multiple" className="w-full">
+              <AccordionItem value="who-can-join">
+                <AccordionTrigger>Who can join Watch Pros?</AccordionTrigger>
                 <AccordionContent>
-                  Once your account is validated, you can publish your products from your professional space: brand, model, reference, year, price, HD photos, availability, etc.
+                  Only professionals in the watch industry (dealers, jewelers, brokers, etc.) are eligible. Each application is reviewed and verified for authenticity and compliance.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="register">
+                <AccordionTrigger>How do I register and get verified?</AccordionTrigger>
+                <AccordionContent>
+                  Click <a href="/auth?mode=register" className="text-primary underline">here</a> to start your registration. You'll be asked to provide business credentials (company registration, VAT, etc.). Our team will review your application and notify you upon approval.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="listings">
+                <AccordionTrigger>How do I list a watch or accessory?</AccordionTrigger>
+                <AccordionContent>
+                  Once verified, you can create listings from your dashboard. Add detailed information (brand, model, reference, year, price, photos, etc.) and publish instantly to the network.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="edit-listing">
-                <AccordionTrigger>Can I modify a listing?</AccordionTrigger>
+                <AccordionTrigger>Can I edit or remove my listings?</AccordionTrigger>
                 <AccordionContent>
-                  Yes, all your listings can be modified at any time from your dashboard.
+                  Yes, you can update or remove your listings at any time from your dashboard. All changes are reflected in real time.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="accessories">
-                <AccordionTrigger>Can I publish accessories or spare parts?</AccordionTrigger>
+                <AccordionTrigger>Can I list accessories or spare parts?</AccordionTrigger>
                 <AccordionContent>
-                  Yes. You can select the product type: Watch / Accessory / Spare part.
+                  Absolutely. Select the appropriate product type (Watch / Accessory / Spare Part) when creating your listing.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
           </section>
 
+          {/* Security & Compliance */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4">Security & Compliance</h2>
+            <Accordion type="multiple" className="w-full">
+              <AccordionItem value="kyc">
+                <AccordionTrigger>How does Watch Pros ensure security?</AccordionTrigger>
+                <AccordionContent>
+                  All members are KYC-verified. Listings are moderated, and suspicious activity is monitored. Your data is encrypted and never shared with third parties.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="moderation">
+                <AccordionTrigger>Are listings moderated?</AccordionTrigger>
+                <AccordionContent>
+                  Yes, our team reviews listings for accuracy and compliance. Non-compliant or suspicious listings may be suspended or removed.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="privacy">
+                <AccordionTrigger>Is my information private?</AccordionTrigger>
+                <AccordionContent>
+                  Yes. Only verified members can view your listings and profile. We never share your data outside the platform. See our <a href="/terms/privacy" className="text-primary underline">Privacy Policy</a> for more details.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </section>
+
+          {/* FAQ: Payments & Fees */}
           <section>
             <h2 className="text-2xl font-semibold mb-4">Payments & Fees</h2>
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="payment-handling">
-                <AccordionTrigger>Does the platform handle payments?</AccordionTrigger>
+            <Accordion type="multiple" className="w-full">
+              <AccordionItem value="payments">
+                <AccordionTrigger>Does Watch Pros handle payments?</AccordionTrigger>
                 <AccordionContent>
-                  No, Watch Pros is a connection platform. Payments are made directly between dealers.
+                  No. All transactions are conducted directly between professionals. Watch Pros does not act as an intermediary or escrow.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="commission">
-                <AccordionTrigger>Do you take a commission on sales?</AccordionTrigger>
+                <AccordionTrigger>Are there any commissions or hidden fees?</AccordionTrigger>
                 <AccordionContent>
-                  No. The business model is based on a monthly subscription. You keep 100% of your sales.
+                  Never. Our business model is based solely on a transparent subscription. You keep 100% of your sales revenue.
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="subscription-cost">
+              <AccordionItem value="pricing">
                 <AccordionTrigger>How much does the subscription cost?</AccordionTrigger>
                 <AccordionContent>
-                  The price depends on the chosen plan. We offer an early-access offer starting at XX €/month for the first dealers. [Link to pricing]
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">Security & Verification</h2>
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="seller-quality">
-                <AccordionTrigger>How do you guarantee seller quality?</AccordionTrigger>
-                <AccordionContent>
-                  Each professional is verified manually or through an automated process (pro KYC). We filter registrations to ensure a serious and secure environment.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="listing-moderation">
-                <AccordionTrigger>Are listings moderated?</AccordionTrigger>
-                <AccordionContent>
-                  Yes, we perform consistency checks and may suspend any suspicious or non-compliant listings.
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">Features & Tools</h2>
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="alerts">
-                <AccordionTrigger>Can I create alerts?</AccordionTrigger>
-                <AccordionContent>
-                  Yes. You can be notified when a specific model is listed for sale or when a favorite changes price or is sold.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="stats">
-                <AccordionTrigger>Can I see my listing statistics?</AccordionTrigger>
-                <AccordionContent>
-                  Of course. You have access to views, contacts, click-through rates, and more in your dashboard.
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="boost">
-                <AccordionTrigger>Can I boost my listings?</AccordionTrigger>
-                <AccordionContent>
-                  This is under development. You will soon be able to feature your listings (paid option).
+                  See our <a href="/subscription" className="text-primary underline">pricing page</a> for current offers. Early-bird rates are available for a limited time.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
@@ -194,6 +224,9 @@ export default function HelpPage() {
         {/* Contact Form */}
         <section className="bg-card rounded-lg p-6 border">
           <h2 className="text-2xl font-semibold mb-6">Contact Us</h2>
+          <p className="mb-4 text-muted-foreground">
+            Can't find the answer you're looking for? Our team is here to help. Fill out the form below and we'll get back to you as soon as possible.
+          </p>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="subject">Subject</Label>
@@ -235,10 +268,10 @@ export default function HelpPage() {
           <a href="/terms" className="text-muted-foreground hover:text-primary">
             Terms of Service
           </a>
-          <a href="/privacy" className="text-muted-foreground hover:text-primary">
+          <a href="/terms/privacy" className="text-muted-foreground hover:text-primary">
             Privacy Policy
           </a>
-          <a href="/pricing" className="text-muted-foreground hover:text-primary">
+          <a href="/subscription" className="text-muted-foreground hover:text-primary">
             Pricing
           </a>
         </div>

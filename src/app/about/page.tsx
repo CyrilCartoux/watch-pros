@@ -122,7 +122,7 @@ export default function AboutPage() {
                 Our Vision
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground mb-6 md:mb-8 px-4 md:px-0">
-                Revolutionizing luxury watch B2B trade by offering a professional, efficient and accessible platform.
+                Empowering the global luxury watch trade with a secure, efficient, and trusted B2B platform. We believe professionals deserve a modern, commission-free marketplace designed for their unique needs.
               </p>
               <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 px-4 md:px-0">
                 <Link href="/register" className="w-full sm:w-auto">
@@ -143,29 +143,28 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* Platform Philosophy Section */}
       <section className="py-12 md:py-16 bg-muted/30">
         <div className="container px-4 md:px-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8">
-            {stats.map((stat, index) => (
+          <div className="max-w-3xl mx-auto text-center">
               <motion.div
-                key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
-                className="text-center p-4 md:p-0"
               >
-                <div className="text-3xl md:text-4xl font-bold text-primary mb-2">{stat.value}</div>
-                <div className="text-base md:text-lg font-semibold mb-1">{stat.label}</div>
-                <div className="text-sm md:text-base text-muted-foreground">{stat.description}</div>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-3 md:mb-4">
+                Built for B2B Excellence
+              </h2>
+              <p className="text-lg md:text-xl text-muted-foreground mb-6 md:mb-8 px-4 md:px-0">
+                Watch Pros is more than a marketplace—it's a new standard for trust, efficiency, and growth in the luxury watch industry. We empower professionals with the tools and environment they need to thrive, without distractions or hidden costs.
+              </p>
               </motion.div>
-            ))}
           </div>
         </div>
       </section>
 
-      {/* Problems */}
+      {/* Problems We Solve */}
       <section className="py-16 md:py-24">
         <div className="container px-4 md:px-6">
           <motion.div
@@ -176,42 +175,58 @@ export default function AboutPage() {
             className="text-center mb-12 md:mb-16"
           >
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-3 md:mb-4">
-              Market Challenges
+              The B2B Challenges We Solve
             </h2>
             <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto px-4 md:px-0">
-              We have identified the main obstacles faced by watch industry professionals.
+              Watch Pros was born from the real pain points of professional dealers, brokers, and industry players.
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {problems.map((problem, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} viewport={{ once: true }}>
+              <Card className="border-none shadow-none bg-muted/50 h-full">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                    <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <h3 className="font-semibold text-base md:text-lg">High Platform Costs</h3>
+                  </div>
+                  <p className="text-sm md:text-base text-muted-foreground">
+                    Traditional B2B platforms charge high commissions and subscription fees, eating into your margins.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} viewport={{ once: true }}>
                 <Card className="border-none shadow-none bg-muted/50 h-full">
                   <CardContent className="p-4 md:p-6">
                     <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                        <problem.icon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <MessageSquare className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <h3 className="font-semibold text-base md:text-lg">WhatsApp Group Chaos</h3>
                       </div>
-                      <h3 className="font-semibold text-base md:text-lg">{problem.title}</h3>
+                  <p className="text-sm md:text-base text-muted-foreground">
+                    Unstructured chats, no search, no filters, and no way to track offers or availability. Time wasted, opportunities lost.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} viewport={{ once: true }}>
+              <Card className="border-none shadow-none bg-muted/50 h-full">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                    <Users className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <h3 className="font-semibold text-base md:text-lg">Lack of Trust & Transparency</h3>
                     </div>
                     <p className="text-sm md:text-base text-muted-foreground">
-                      {problem.description}
+                    No professional verification, no reputation system, and no secure environment for high-value deals.
                     </p>
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
           </div>
         </div>
       </section>
 
-      {/* Solutions */}
+      {/* Our Solutions & Features */}
       <section className="py-16 md:py-24 bg-muted/30">
         <div className="container px-4 md:px-6">
           <motion.div
@@ -222,42 +237,58 @@ export default function AboutPage() {
             className="text-center mb-12 md:mb-16"
           >
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-3 md:mb-4">
-              Our Solutions
+              Our Solution: The Modern B2B Marketplace
             </h2>
             <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto px-4 md:px-0">
-              Concrete answers to market challenges, designed for professionals.
+              Watch Pros delivers a unified, secure, and efficient platform built for professionals.
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {solutions.map((solution, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} viewport={{ once: true }}>
+              <Card className="border-none shadow-none bg-background h-full">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                    <Shield className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <h3 className="font-semibold text-base md:text-lg">Verified Professional Network</h3>
+                  </div>
+                  <p className="text-sm md:text-base text-muted-foreground">
+                    Every member is KYC-verified. Only trusted professionals can access the marketplace.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} viewport={{ once: true }}>
                 <Card className="border-none shadow-none bg-background h-full">
                   <CardContent className="p-4 md:p-6">
                     <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                        <solution.icon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <Clock className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <h3 className="font-semibold text-base md:text-lg">Efficiency & Time Savings</h3>
                       </div>
-                      <h3 className="font-semibold text-base md:text-lg">{solution.title}</h3>
+                  <p className="text-sm md:text-base text-muted-foreground">
+                    Advanced search, real-time availability, and instant alerts. Manage your business, not your inbox.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} viewport={{ once: true }}>
+              <Card className="border-none shadow-none bg-background h-full">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                    <Users className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <h3 className="font-semibold text-base md:text-lg">Trust & Reputation</h3>
                     </div>
                     <p className="text-sm md:text-base text-muted-foreground">
-                      {solution.description}
+                    Build your reputation with verified badges, reviews, and transparent transaction history.
                     </p>
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
           </div>
         </div>
       </section>
 
-      {/* Features */}
+      {/* Platform Features */}
       <section className="py-16 md:py-24">
         <div className="container px-4 md:px-6">
           <motion.div
@@ -268,42 +299,71 @@ export default function AboutPage() {
             className="text-center mb-12 md:mb-16"
           >
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-3 md:mb-4">
-              Key Features
+              Platform Features
             </h2>
             <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto px-4 md:px-0">
-              Powerful tools to optimize your business.
+              Everything you need to grow your B2B watch business.
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} viewport={{ once: true }}>
+              <Card className="border-none shadow-none bg-muted/50 h-full">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                    <Search className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <h3 className="font-semibold text-base md:text-lg">Advanced Search & Filters</h3>
+                  </div>
+                  <p className="text-sm md:text-base text-muted-foreground">
+                    Instantly find the right watches or accessories by brand, model, condition, country, and more.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} viewport={{ once: true }}>
+              <Card className="border-none shadow-none bg-muted/50 h-full">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                    <Bell className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <h3 className="font-semibold text-base md:text-lg">Custom Alerts</h3>
+                  </div>
+                  <p className="text-sm md:text-base text-muted-foreground">
+                    Get notified instantly when a sought-after model is listed or a price changes.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} viewport={{ once: true }}>
                 <Card className="border-none shadow-none bg-muted/50 h-full">
                   <CardContent className="p-4 md:p-6">
                     <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                        <feature.icon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <MessageSquare className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <h3 className="font-semibold text-base md:text-lg">Integrated Messaging</h3>
                       </div>
-                      <h3 className="font-semibold text-base md:text-lg">{feature.title}</h3>
+                  <p className="text-sm md:text-base text-muted-foreground">
+                    Communicate securely with other professionals—on-platform or via your preferred channels.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} viewport={{ once: true }}>
+              <Card className="border-none shadow-none bg-muted/50 h-full">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                    <Award className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <h3 className="font-semibold text-base md:text-lg">Professional Badges</h3>
                     </div>
                     <p className="text-sm md:text-base text-muted-foreground">
-                      {feature.description}
+                    Showcase your verified status and build trust with every transaction.
                     </p>
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
           </div>
         </div>
       </section>
 
-      {/* Values */}
+      {/* Our Values */}
       <section className="py-16 md:py-24 bg-muted/30">
         <div className="container px-4 md:px-6">
           <motion.div
@@ -314,37 +374,66 @@ export default function AboutPage() {
             className="text-center mb-12 md:mb-16"
           >
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-3 md:mb-4">
-              Our Values
+              Our Core Values
             </h2>
             <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto px-4 md:px-0">
-              The principles that guide our daily actions.
+              The principles that guide our team and our platform.
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-            {values.map((value, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} viewport={{ once: true }}>
+              <Card className="border-none shadow-none bg-background">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                    <Zap className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <h3 className="font-semibold text-base md:text-lg">Innovation</h3>
+                  </div>
+                  <p className="text-sm md:text-base text-muted-foreground">
+                    We constantly rethink and improve our platform to deliver the best B2B experience.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} viewport={{ once: true }}>
+              <Card className="border-none shadow-none bg-background">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                    <Shield className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <h3 className="font-semibold text-base md:text-lg">Trust & Security</h3>
+                  </div>
+                  <p className="text-sm md:text-base text-muted-foreground">
+                    Security and reliability are at the heart of everything we do, from KYC to data protection.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} viewport={{ once: true }}>
                 <Card className="border-none shadow-none bg-background">
                   <CardContent className="p-4 md:p-6">
                     <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                        <value.icon className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <Target className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <h3 className="font-semibold text-base md:text-lg">Efficiency</h3>
                       </div>
-                      <h3 className="font-semibold text-base md:text-lg">{value.title}</h3>
+                  <p className="text-sm md:text-base text-muted-foreground">
+                    We help professionals save time and focus on what matters: growing their business.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} viewport={{ once: true }}>
+              <Card className="border-none shadow-none bg-background">
+                <CardContent className="p-4 md:p-6">
+                  <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                    <Globe className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+                    <h3 className="font-semibold text-base md:text-lg">Global Accessibility</h3>
                     </div>
                     <p className="text-sm md:text-base text-muted-foreground">
-                      {value.description}
+                    We make luxury watch B2B trade accessible to all professionals, regardless of size or location.
                     </p>
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
           </div>
         </div>
       </section>
@@ -360,10 +449,10 @@ export default function AboutPage() {
             className="max-w-3xl mx-auto text-center"
           >
             <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-4 md:mb-6">
-              Ready to join the revolution?
+              Ready to transform your B2B watch business?
             </h2>
             <p className="text-sm md:text-base text-muted-foreground mb-6 md:mb-8 px-4 md:px-0">
-              Join the community of professionals who are already transforming the way they do business.
+              Join the global network of professionals who are already redefining the industry with Watch Pros.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 px-4 md:px-0">
               <Link href="/register" className="w-full sm:w-auto">

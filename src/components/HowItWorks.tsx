@@ -305,7 +305,7 @@ export function HowItWorks() {
                 <CardContent className="p-6 sm:p-8 text-center">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-blue-500/10 flex items-center justify-center mx-auto mb-4 sm:mb-6 group-hover:scale-110 transition-transform">
                     <ShieldCheck className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
-                  </div>
+          </div>
                   <h4 className="text-lg sm:text-xl font-semibold mb-2 sm:mb-3">Verified Network</h4>
                   <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
                     Every member undergoes professional KYC verification. 
@@ -349,8 +349,8 @@ export function HowItWorks() {
                 <Link href="/about" passHref className="w-full sm:w-auto">
                   <Button variant="outline" size="lg" className="w-full sm:w-auto h-11 sm:h-12 px-6 sm:px-8 text-sm sm:text-base font-semibold">
                     Learn More
-                  </Button>
-                </Link>
+              </Button>
+            </Link>
               </div>
             </div>
           </div>

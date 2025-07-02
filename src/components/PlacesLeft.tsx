@@ -55,8 +55,9 @@ export function PlacesLeft() {
   const isLowSpots = data.remainingSpots <= 10
 
   return (
-    <div className="flex items-center gap-3 text-sm">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col sm:flex-row items-center justify-center w-full space-y-2 sm:space-y-0 sm:gap-3 text-sm">
+      {/* Badge */}
+      <div className="flex items-center">
         <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold px-3 py-1.5 text-xs border-0 shadow-lg">
           <Crown className="h-3 w-3 mr-1" />
           PIONEER
@@ -68,24 +69,20 @@ export function PlacesLeft() {
         <span className="font-medium">{data.activeSubscriptions}</span>
         <span className="text-muted-foreground">active</span>
       </div>
-
-      {/* Separator */}
-      <div className="w-px h-4 bg-border" />
-
+      {/* Separator (affiché seulement sur desktop) */}
+      <div className="hidden sm:block w-px h-4 bg-border" />
       {/* Remaining Spots */}
       <div className="flex items-center gap-1.5">
         <Clock className="w-4 h-4 text-amber-500" />
         <span className="font-medium">{data.remainingSpots}</span>
         <span className="text-muted-foreground">spots left</span>
-        
         {isLowSpots && (
           <Badge variant="destructive" className="ml-1 text-xs">
             Limited
           </Badge>
         )}
       </div>
-
-      {/* Progress Bar */}
+      {/* Progress Bar (affiché seulement sur desktop) */}
       <div className="hidden sm:flex items-center gap-2">
         <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
           <div 

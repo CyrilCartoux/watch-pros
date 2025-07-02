@@ -98,7 +98,7 @@ export function SellCTA({ className = "" }: SellCTAProps) {
               <h2 id="sell-cta-title" className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight mb-4 sm:mb-6 px-2">
                 Ready to Scale Your
                 <span className="text-primary block">Watch Business?</span>
-              </h2>
+            </h2>
               <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl sm:max-w-3xl mx-auto leading-relaxed px-4">
                 Join the professional B2B marketplace that replaces WhatsApp groups. Connect with verified dealers worldwide, 
                 keep 100% of your sales, and grow your business globally.
@@ -198,7 +198,7 @@ export function SellCTA({ className = "" }: SellCTAProps) {
                   <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
                     Access buyers from 50+ countries. 
                     Expand your market reach instantly.
-                  </p>
+            </p>
                 </CardContent>
               </Card>
             </div>

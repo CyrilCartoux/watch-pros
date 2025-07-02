@@ -82,7 +82,7 @@ const validateAndNormalizeUrl = (url: string): string | null => {
 const accountSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
   watchProsName: z.string().min(1, "Watch Pros name is required"),
-  companyStatus: z.string().min(1, "Company status is required"),
+  companyStatus: z.string().optional(),
   country: z.string().min(1, "Country is required"),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
@@ -833,7 +833,7 @@ export default function RegisterFormPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="companyStatus">Company Status *</Label>
+                      <Label htmlFor="companyStatus">Company Status</Label>
                       <Input id="companyStatus" placeholder="Enter your company status" {...accountForm.register("companyStatus")} />
                       <FormError error={accountForm.formState.errors.companyStatus?.message as string} isSubmitted={isSubmitted.account} />
                     </div>

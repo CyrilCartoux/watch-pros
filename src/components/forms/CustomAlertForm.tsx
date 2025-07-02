@@ -29,7 +29,7 @@ const alertSchema = z
   .object({
     alert_type: z.enum(["watch", "accessory"]),
     brand_id: z.string().min(1, "Brand is required"),
-    model_id: z.string().min(1, "Model is required"),
+    model_id: z.string().optional(),
     reference: z.string().nullable(),
     dial_color: z.string().nullable(),
     accessory_type: z.string().nullable(),
@@ -317,7 +317,7 @@ export default function CustomAlertForm({ onSubmit, isSubmitting = false }: Prop
             <>
               {models[brandId]?.filter((m) => m.popular).length > 0 && (
                 <>
-                  <Label>Popular Models *</Label>
+                  <Label>Popular Models</Label>
                   <div className="grid grid-cols-4 gap-2">
                     {models[brandId]
                       ?.filter((m) => m.popular)

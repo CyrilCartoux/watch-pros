@@ -273,7 +273,7 @@ export default function SubscriptionPage() {
               <h3 className="text-xl font-bold text-amber-800">Limited Time Offer</h3>
             </div>
             
-            <div className="flex justify-center">
+            <div className="flex justify-center ">
               <PlacesLeft />
             </div>
             

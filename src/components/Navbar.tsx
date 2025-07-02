@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Menu, User, Bell, LogOut, Heart, MessageSquare, LayoutDashboard, MoreHorizontal, Tag, Shield } from "lucide-react"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef } from "react"
 import { Badge } from "./ui/badge"
 import { useAuth } from "@/contexts/AuthContext"
 import { useNotifications } from "@/contexts/NotificationsContext"
@@ -31,19 +31,6 @@ export function Navbar() {
   const { unreadCount } = useNotifications()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsMenuOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
 
   const handleLinkClick = () => {
     setIsMenuOpen(false)
@@ -220,7 +207,10 @@ export function Navbar() {
               variant="ghost"
               size="icon"
               className="h-9 w-9"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={e => {
+                e.stopPropagation();
+                setIsMenuOpen(!isMenuOpen);
+              }}
             >
               <Menu className="h-4 w-4" />
               <span className="sr-only">Toggle menu</span>
@@ -231,7 +221,7 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="md:hidden shadow-lg" ref={menuRef}>
+        <div className="md:hidden shadow-lg" ref={menuRef} onClick={e => e.stopPropagation()}>
           <div className="container space-y-3 py-3 bg-background">
             {user && (
               <div className="px-2 py-1.5 text-sm text-muted-foreground truncate">

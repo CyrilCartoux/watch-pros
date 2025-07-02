@@ -74,17 +74,17 @@ export function Hero() {
         <div className="max-w-6xl mx-auto text-center">
           
           {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="mb-6 sm:mb-8"
-          >
+      >
             <Badge variant="secondary" className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-medium border-primary/20 bg-primary/5">
               <Building2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
               B2B Professional Network
             </Badge>
-          </motion.div>
+      </motion.div>
 
           {/* Main Title */}
           <motion.h1

@@ -78,6 +78,10 @@ export async function POST(request: Request) {
   try {
     // 1. Parse and validate request body
     const body = await request.json()
+    // Transform all "" to null
+    Object.keys(body).forEach(key => {
+      if (body[key] === "") body[key] = null;
+    });
     const parse = Schema.safeParse(body)
     if (!parse.success) {
       return NextResponse.json(
