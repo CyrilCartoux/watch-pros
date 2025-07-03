@@ -127,7 +127,7 @@ export default function AboutPage() {
               <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 px-4 md:px-0">
                 <Link href="/register" className="w-full sm:w-auto">
                   <Button size="lg" className="w-full sm:w-auto gap-2">
-                    Join Watch Pros
+                    Join Watch Pros®
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
@@ -157,7 +157,7 @@ export default function AboutPage() {
                 Built for B2B Excellence
               </h2>
               <p className="text-lg md:text-xl text-muted-foreground mb-6 md:mb-8 px-4 md:px-0">
-                Watch Pros is more than a marketplace—it's a new standard for trust, efficiency, and growth in the luxury watch industry. We empower professionals with the tools and environment they need to thrive, without distractions or hidden costs.
+                Watch Pros® is more than a marketplace—it's a new standard for trust, efficiency, and growth in the luxury watch industry. We empower professionals with the tools and environment they need to thrive, without distractions or hidden costs.
               </p>
               </motion.div>
           </div>
@@ -178,7 +178,7 @@ export default function AboutPage() {
               The B2B Challenges We Solve
             </h2>
             <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto px-4 md:px-0">
-              Watch Pros was born from the real pain points of professional dealers, brokers, and industry players.
+              Watch Pros® was born from the real pain points of professional dealers, brokers, and industry players.
             </p>
           </motion.div>
 
@@ -240,7 +240,7 @@ export default function AboutPage() {
               Our Solution: The Modern B2B Marketplace
             </h2>
             <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto px-4 md:px-0">
-              Watch Pros delivers a unified, secure, and efficient platform built for professionals.
+              Watch Pros® delivers a unified, secure, and efficient platform built for professionals.
             </p>
           </motion.div>
 
@@ -452,7 +452,7 @@ export default function AboutPage() {
               Ready to transform your B2B watch business?
             </h2>
             <p className="text-sm md:text-base text-muted-foreground mb-6 md:mb-8 px-4 md:px-0">
-              Join the global network of professionals who are already redefining the industry with Watch Pros.
+              Join the global network of professionals who are already redefining the industry with Watch Pros®.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 px-4 md:px-0">
               <Link href="/register" className="w-full sm:w-auto">

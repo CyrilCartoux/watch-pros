@@ -11,7 +11,7 @@ export type EmailTemplate = {
 export async function sendEmail({ to, subject, html }: EmailTemplate) {
   try {
     const { data, error } = await resend.emails.send({
-      from: 'Watch Pros <notifications@watch-pros.com>',
+      from: 'Watch Pros® <notifications@watch-pros.com>',
       to,
       subject,
       html,
@@ -69,8 +69,8 @@ export const emailTemplates = {
         </div>
 
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
-          <p>This email was sent because you're following this watch on Watch Pros.</p>
-          <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
+          <p>This email was sent because you're following this watch on Watch Pros®.</p>
+          <p>© ${new Date().getFullYear()} Watch Pros®. All rights reserved.</p>
         </div>
       </div>
     `,
@@ -100,8 +100,8 @@ export const emailTemplates = {
         </div>
 
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
-          <p>This email was sent because you were following this watch on Watch Pros.</p>
-          <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
+          <p>This email was sent because you were following this watch on Watch Pros®.</p>
+          <p>© ${new Date().getFullYear()} Watch Pros®. All rights reserved.</p>
         </div>
       </div>
     `,
@@ -155,8 +155,8 @@ export const emailTemplates = {
         </div>
 
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
-          <p>This email was sent because you received a new message on Watch Pros.</p>
-          <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
+          <p>This email was sent because you received a new message on Watch Pros®.</p>
+          <p>© ${new Date().getFullYear()} Watch Pros®. All rights reserved.</p>
         </div>
       </div>
     `,
@@ -186,8 +186,8 @@ export const emailTemplates = {
         </div>
 
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
-          <p>This email was sent because you received a new offer on Watch Pros.</p>
-          <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
+          <p>This email was sent because you received a new offer on Watch Pros®.</p>
+          <p>© ${new Date().getFullYear()} Watch Pros®. All rights reserved.</p>
         </div>
       </div>
     `,
@@ -217,8 +217,8 @@ export const emailTemplates = {
         </div>
 
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
-          <p>This email was sent because your offer was accepted on Watch Pros.</p>
-          <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
+          <p>This email was sent because your offer was accepted on Watch Pros®.</p>
+          <p>© ${new Date().getFullYear()} Watch Pros®. All rights reserved.</p>
         </div>
       </div>
     `,
@@ -248,8 +248,8 @@ export const emailTemplates = {
         </div>
 
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
-          <p>This email was sent because your offer was declined on Watch Pros.</p>
-          <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
+          <p>This email was sent because your offer was declined on Watch Pros®.</p>
+          <p>© ${new Date().getFullYear()} Watch Pros®. All rights reserved.</p>
         </div>
       </div>
     `,
@@ -307,26 +307,26 @@ export const emailTemplates = {
         </div>
 
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
-          <p>This email was sent because a new watch matching your search criteria was listed on Watch Pros.</p>
-          <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
+          <p>This email was sent because a new watch matching your search criteria was listed on Watch Pros®.</p>
+          <p>© ${new Date().getFullYear()} Watch Pros®. All rights reserved.</p>
         </div>
       </div>
     `,
   }),
 
   sellerVerified: (companyName: string) => ({
-    subject: `Your Watch Pros Account Has Been Verified`,
+    subject: `Your Watch Pros® Account Has Been Verified`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
         <div style="text-align: center; margin-bottom: 30px;">
           <h1 style="color: #2c3e50; margin-bottom: 10px;">Account Verified!</h1>
-          <p style="color: #7f8c8d; font-size: 16px;">Congratulations! Your Watch Pros seller account has been verified</p>
+          <p style="color: #7f8c8d; font-size: 16px;">Congratulations! Your Watch Pros® seller account has been verified</p>
         </div>
         
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 30px;">
           <h2 style="color: #2c3e50; margin-top: 0;">${companyName}</h2>
           <p style="font-size: 16px; color: #34495e; margin: 20px 0;">
-            Your account has been successfully verified. You can now start listing watches and managing your inventory on Watch Pros.
+            Your account has been successfully verified. You can now start listing watches and managing your inventory on Watch Pros®.
           </p>
         </div>
 
@@ -338,20 +338,20 @@ export const emailTemplates = {
         </div>
 
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
-          <p>This email was sent because your Watch Pros seller account has been verified.</p>
-          <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
+          <p>This email was sent because your Watch Pros® seller account has been verified.</p>
+          <p>© ${new Date().getFullYear()} Watch Pros®. All rights reserved.</p>
         </div>
       </div>
     `,
   }),
 
   sellerRejected: (companyName: string, reason: string) => ({
-    subject: `Watch Pros Account Verification Update`,
+    subject: `Watch Pros® Account Verification Update`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
         <div style="text-align: center; margin-bottom: 30px;">
           <h1 style="color: #2c3e50; margin-bottom: 10px;">Account Verification Update</h1>
-          <p style="color: #7f8c8d; font-size: 16px;">Your Watch Pros seller account verification requires additional attention</p>
+          <p style="color: #7f8c8d; font-size: 16px;">Your Watch Pros® seller account verification requires additional attention</p>
         </div>
         
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 30px;">
@@ -376,8 +376,8 @@ export const emailTemplates = {
         </div>
 
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
-          <p>This email was sent regarding your Watch Pros seller account verification.</p>
-          <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
+          <p>This email was sent regarding your Watch Pros® seller account verification.</p>
+          <p>© ${new Date().getFullYear()} Watch Pros®. All rights reserved.</p>
         </div>
       </div>
     `,
@@ -405,8 +405,8 @@ export const emailTemplates = {
           </a>
         </div>
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
-          <p>This email was sent because you received a new review on Watch Pros.</p>
-          <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
+          <p>This email was sent because you received a new review on Watch Pros®.</p>
+          <p>© ${new Date().getFullYear()} Watch Pros®. All rights reserved.</p>
         </div>
       </div>
     `,
@@ -418,7 +418,7 @@ export const emailTemplates = {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
         <div style="text-align: center; margin-bottom: 30px;">
           <h1 style="color: #2c3e50; margin-bottom: 10px;">New Seller Registration</h1>
-          <p style="color: #7f8c8d; font-size: 16px;">A new seller has just registered on Watch Pros.</p>
+          <p style="color: #7f8c8d; font-size: 16px;">A new seller has just registered on Watch Pros®.</p>
         </div>
         <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 30px;">
           <h2 style="color: #2c3e50; margin-top: 0;">${companyName}</h2>
@@ -432,8 +432,8 @@ export const emailTemplates = {
           </a>
         </div>
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0; text-align: center; color: #7f8c8d; font-size: 12px;">
-          <p>This email was sent to notify you of a new seller registration on Watch Pros.</p>
-          <p>© ${new Date().getFullYear()} Watch Pros. All rights reserved.</p>
+          <p>This email was sent to notify you of a new seller registration on Watch Pros®.</p>
+          <p>© ${new Date().getFullYear()} Watch Pros®. All rights reserved.</p>
         </div>
       </div>
     `

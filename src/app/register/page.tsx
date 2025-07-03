@@ -48,7 +48,7 @@ export default function RegisterPage() {
           className="text-center mb-12"
         >
           <h1 className="text-4xl font-bold tracking-tight mb-4">
-            Register as a Professional on Watch Pros
+            Register as a Professional on Watch Pros®
           </h1>
           <p className="text-muted-foreground text-lg">
             Join our community of professionals and grow your business internationally
@@ -104,7 +104,7 @@ export default function RegisterPage() {
           className="bg-muted/50 rounded-lg p-6 mb-12"
         >
           <p className="text-muted-foreground">
-            As Watch Pros is based in France, we must comply with current European legislation. This means we need certain information about your business to ensure a secure and compliant marketplace for all professionals.
+            As Watch Pros® is based in France, we must comply with current European legislation. This means we need certain information about your business to ensure a secure and compliant marketplace for all professionals.
           </p>
         </motion.div>
 

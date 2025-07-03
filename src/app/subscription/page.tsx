@@ -322,7 +322,7 @@ export default function SubscriptionPage() {
                 </span>
               </div>
               <p className="text-gray-600">
-                Choose a plan below to start selling your watches on Watch Pros.
+                Choose a plan below to start selling your watches on Watch Pros®.
               </p>
               {subscriptionData?.activeListingsCount > 0 && (
                 <div className="text-sm text-gray-600">

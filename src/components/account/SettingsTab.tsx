@@ -397,8 +397,8 @@ export function SettingsTab() {
   const handleShareProfile = async () => {
     try {
       const shareData = {
-        title: 'Review my Watch Pros Profile',
-        text: `Please review my profile on Watch Pros: ${seller?.account.companyName}`,
+        title: 'Review my Watch Pros® Profile',
+        text: `Please review my profile on Watch Pros®: ${seller?.account.companyName}`,
         url: `${window.location.origin}/sellers/${seller?.account.watchProsName}`
       }
 

@@ -77,10 +77,10 @@ export function SellCTA({ className = "" }: SellCTAProps) {
   return (
     <>
       <Head>
-        <title>Sell Your Luxury Watches | Join Watch Pros B2B Marketplace</title>
+        <title>Sell Your Luxury Watches | Join Watch Pros® B2B Marketplace</title>
         <meta
           name="description"
-          content="Join Watch Pros, the B2B marketplace for luxury watches: no commission, verified sellers and global visibility. Start selling today!"
+          content="Join Watch Pros®, the B2B marketplace for luxury watches: no commission, verified sellers and global visibility. Start selling today!"
         />
         <link rel="canonical" href="https://votresite.com/sell" />
       </Head>
@@ -138,7 +138,7 @@ export function SellCTA({ className = "" }: SellCTAProps) {
                 {/* Solutions */}
                 <div className="space-y-4">
                   <h4 className="text-lg sm:text-xl font-semibold text-green-600 mb-6 text-center">
-                    ✅ Watch Pros Solutions
+                    ✅ Watch Pros® Solutions
                   </h4>
                   <div className="space-y-4">
                     {solutions.map((solution, i) => (

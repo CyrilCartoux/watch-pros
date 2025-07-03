@@ -2,8 +2,8 @@ import { Metadata } from "next"
 import { Separator } from "@/components/ui/separator"
 
 export const metadata: Metadata = {
-  title: "Privacy Policy - Watch Pros",
-  description: "Privacy Policy and Data Protection for Watch Pros platform",
+  title: "Privacy Policy - Watch Pros®",
+  description: "Privacy Policy and Data Protection for Watch Pros® platform",
 }
 
 export default function PrivacyPolicyPage() {

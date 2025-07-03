@@ -111,10 +111,10 @@ export function HowItWorks() {
   return (
     <>
       <Head>
-        <title>How it works – Watch Pros B2B Marketplace</title>
+        <title>How it works – Watch Pros® B2B Marketplace</title>
         <meta
           name="description"
-          content="Discover Watch Pros: the B2B marketplace for luxury watches. Join 500+ verified dealers worldwide with zero commission fees."
+          content="Discover Watch Pros®: the B2B marketplace for luxury watches. Join 500+ verified dealers worldwide with zero commission fees."
         />
         <link rel="canonical" href="https://yourdomain.com/how-it-works" />
       </Head>
@@ -171,7 +171,7 @@ export function HowItWorks() {
               {/* Solutions */}
               <div className="space-y-4">
                 <h4 className="text-lg sm:text-xl font-semibold text-green-600 mb-6 text-center">
-                  ✅ Watch Pros Solutions
+                  ✅ Watch Pros® Solutions
                 </h4>
                 <div className="space-y-4">
                   {solutions.map((solution, i) => (
@@ -285,7 +285,7 @@ export function HowItWorks() {
           {/* Key Benefits */}
           <div className="mb-16 sm:mb-20">
             <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-8 sm:mb-12 px-2">
-              Why Professionals Choose Watch Pros
+              Why Professionals Choose Watch Pros®
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
               <Card className="group hover:shadow-lg transition-all duration-300 border-0 bg-background/50 backdrop-blur-sm">

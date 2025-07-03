@@ -116,7 +116,7 @@ export default function BrandsPage() {
               <CardContent className="p-8">
                 <h2 className="text-3xl font-bold mb-6 text-center">The Greatest Watch Brands in the World</h2>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Looking to buy a luxury watch? On Watch Pros, you have a wide selection of manufacturers, 
+                  Looking to buy a luxury watch? On Watch Pros®, you have a wide selection of manufacturers, 
                   brands, and models. Several factors come into play when buying a watch: design, 
                   history, and finishing quality are criteria just as important as mechanism complexity, 
                   price, value retention, or model prestige.

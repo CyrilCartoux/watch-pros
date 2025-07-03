@@ -70,16 +70,16 @@ export default function HelpPage() {
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold">Help & Support</h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Welcome to Watch Pros, the leading B2B marketplace for luxury watch professionals. Here you'll find everything you need to get started, maximize your experience, and get in touch with our team.
+            Welcome to Watch Pros®, the leading B2B marketplace for luxury watch professionals. Here you'll find everything you need to get started, maximize your experience, and get in touch with our team.
           </p>
         </div>
 
         {/* Platform Overview */}
         <div className="space-y-8">
           <section>
-            <h2 className="text-2xl font-semibold mb-4">About Watch Pros</h2>
+            <h2 className="text-2xl font-semibold mb-4">About Watch Pros®</h2>
             <p className="mb-4 text-muted-foreground">
-              Watch Pros is a secure, invitation-only B2B platform designed exclusively for professional watch dealers, jewelers, and brokers. Our mission is to streamline the way professionals connect, trade, and grow their business globally—without the chaos of WhatsApp groups or the risks of unverified marketplaces.
+              Watch Pros® is a secure, invitation-only B2B platform designed exclusively for professional watch dealers, jewelers, and brokers. Our mission is to streamline the way professionals connect, trade, and grow their business globally—without the chaos of WhatsApp groups or the risks of unverified marketplaces.
             </p>
             <ul className="list-disc list-inside text-muted-foreground space-y-1">
               <li>100% B2B: Only verified professionals can join and access listings.</li>
@@ -138,7 +138,7 @@ export default function HelpPage() {
             <h2 className="text-2xl font-semibold mb-4">Getting Started</h2>
             <Accordion type="multiple" className="w-full">
               <AccordionItem value="who-can-join">
-                <AccordionTrigger>Who can join Watch Pros?</AccordionTrigger>
+                <AccordionTrigger>Who can join Watch Pros®?</AccordionTrigger>
                 <AccordionContent>
                   Only professionals in the watch industry (dealers, jewelers, brokers, etc.) are eligible. Each application is reviewed and verified for authenticity and compliance.
                 </AccordionContent>
@@ -175,7 +175,7 @@ export default function HelpPage() {
             <h2 className="text-2xl font-semibold mb-4">Security & Compliance</h2>
             <Accordion type="multiple" className="w-full">
               <AccordionItem value="kyc">
-                <AccordionTrigger>How does Watch Pros ensure security?</AccordionTrigger>
+                <AccordionTrigger>How does Watch Pros® ensure security?</AccordionTrigger>
                 <AccordionContent>
                   All members are KYC-verified. Listings are moderated, and suspicious activity is monitored. Your data is encrypted and never shared with third parties.
                 </AccordionContent>
@@ -200,9 +200,9 @@ export default function HelpPage() {
             <h2 className="text-2xl font-semibold mb-4">Payments & Fees</h2>
             <Accordion type="multiple" className="w-full">
               <AccordionItem value="payments">
-                <AccordionTrigger>Does Watch Pros handle payments?</AccordionTrigger>
+                <AccordionTrigger>Does Watch Pros® handle payments?</AccordionTrigger>
                 <AccordionContent>
-                  No. All transactions are conducted directly between professionals. Watch Pros does not act as an intermediary or escrow.
+                  No. All transactions are conducted directly between professionals. Watch Pros® does not act as an intermediary or escrow.
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="commission">

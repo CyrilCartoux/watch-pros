@@ -139,7 +139,7 @@ export function Hero() {
             {/* Solutions */}
             <div className="space-y-4">
               <h3 className="text-lg sm:text-xl font-semibold text-green-600 mb-4">
-                ✅ What Watch Pros Changes for You
+                ✅ What Watch Pros® Changes for You
               </h3>
               <div className="space-y-3">
                 {solutions.map((solution, i) => (

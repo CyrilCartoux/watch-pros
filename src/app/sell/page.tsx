@@ -16,7 +16,7 @@ export default function SellPage() {
               List for Sale
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-6 md:mb-8 px-4 md:px-0">
-              Choose the type of product you want to sell on Watch Pros
+              Choose the type of product you want to sell on Watch Pros®
             </p>
           </div>
         </div>
@@ -74,7 +74,7 @@ export default function SellPage() {
         <div className="container px-4 md:px-6">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">
-              Why sell on Watch Pros?
+              Why sell on Watch Pros®?
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
               <div className="p-4">

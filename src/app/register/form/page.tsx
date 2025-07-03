@@ -81,7 +81,7 @@ const validateAndNormalizeUrl = (url: string): string | null => {
 // Validation schema for professional account
 const accountSchema = z.object({
   companyName: z.string().min(1, "Company name is required"),
-  watchProsName: z.string().min(1, "Watch Pros name is required"),
+  watchProsName: z.string().min(1, "Watch Pros® name is required"),
   companyStatus: z.string().optional(),
   country: z.string().min(1, "Country is required"),
   firstName: z.string().min(1, "First name is required"),
@@ -763,7 +763,7 @@ export default function RegisterFormPage() {
                 <div className="mb-8">
                   <h2 className="text-2xl font-semibold mb-2">Open your professional account</h2>
                   <p className="text-muted-foreground">
-                    First, we need some essential information about your company. You can then register your access credentials for your Watch Pros professional account.
+                    First, we need some essential information about your company. You can then register your access credentials for your Watch Pros® professional account.
                   </p>
                 </div>
 
@@ -827,8 +827,8 @@ export default function RegisterFormPage() {
                     </div>
 
                     <div>
-                      <Label htmlFor="watchProsName">Name on Watch Pros *</Label>
-                      <Input id="watchProsName" placeholder="Enter the name that will appear on Watch Pros" {...accountForm.register("watchProsName")} />
+                      <Label htmlFor="watchProsName">Name on Watch Pros® *</Label>
+                      <Input id="watchProsName" placeholder="Enter the name that will appear on Watch Pros®" {...accountForm.register("watchProsName")} />
                       <FormError error={accountForm.formState.errors.watchProsName?.message as string} isSubmitted={isSubmitted.account} />
                     </div>
 

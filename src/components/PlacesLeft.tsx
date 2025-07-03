@@ -56,12 +56,13 @@ export function PlacesLeft() {
 
   return (
     <div className="flex flex-col sm:flex-row items-center justify-center w-full space-y-2 sm:space-y-0 sm:gap-3 text-sm">
-      {/* Badge */}
-      <div className="flex items-center">
-        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold px-3 py-1.5 text-xs border-0 shadow-lg">
+      {/* Badge + headline */}
+      <div className="flex flex-col items-center sm:items-start">
+        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold px-3 py-1.5 text-xs border-0 shadow-lg mb-1">
           <Crown className="h-3 w-3 mr-1" />
-          PIONEER
+          PIONEER OFFER
         </Badge>
+        <span className="text-xs text-amber-700 font-semibold text-center sm:text-left">Founding offer: only {data.remainingSpots} spots left at reduced price</span>
       </div>
       {/* Active Subscriptions */}
       <div className="flex items-center gap-1.5">
@@ -69,7 +70,7 @@ export function PlacesLeft() {
         <span className="font-medium">{data.activeSubscriptions}</span>
         <span className="text-muted-foreground">active</span>
       </div>
-      {/* Separator (affiché seulement sur desktop) */}
+      {/* Separator (desktop only) */}
       <div className="hidden sm:block w-px h-4 bg-border" />
       {/* Remaining Spots */}
       <div className="flex items-center gap-1.5">
@@ -82,7 +83,7 @@ export function PlacesLeft() {
           </Badge>
         )}
       </div>
-      {/* Progress Bar (affiché seulement sur desktop) */}
+      {/* Progress Bar (desktop only) */}
       <div className="hidden sm:flex items-center gap-2">
         <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
           <div 
@@ -93,6 +94,10 @@ export function PlacesLeft() {
         <span className="text-xs text-muted-foreground w-8">
           {percentageUsed}%
         </span>
+      </div>
+      {/* FOMO message */}
+      <div className="w-full text-center mt-1">
+        <span className="text-xs text-amber-700 font-medium">Become a founding member and lock in the lowest price forever!</span>
       </div>
     </div>
   )

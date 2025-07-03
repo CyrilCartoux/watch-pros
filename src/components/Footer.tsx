@@ -97,7 +97,7 @@ export function Footer() {
             {/* Branding & Description */}
             <div className="lg:col-span-1 space-y-6">
               <Link href="/" className="inline-block">
-                <h2 className="text-2xl font-bold">Watch Pros</h2>
+                <h2 className="text-2xl font-bold">Watch Pros®</h2>
               </Link>
               <p className="text-muted-foreground leading-relaxed">
                 The premier B2B marketplace for luxury watches. Connect with trusted dealers and collectors worldwide for secure, professional transactions.
@@ -244,7 +244,7 @@ export function Footer() {
           <div className="pt-8 border-t border-border/50">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-sm text-muted-foreground text-center md:text-left">
-                © {new Date().getFullYear()} Watch Pros. All rights reserved.
+                © {new Date().getFullYear()} Watch Pros®. All rights reserved.
               </p>
               
               <div className="flex items-center gap-6 text-sm text-muted-foreground">

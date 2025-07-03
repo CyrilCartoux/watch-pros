@@ -2,8 +2,8 @@ import { Metadata } from "next"
 import { Separator } from "@/components/ui/separator"
 
 export const metadata: Metadata = {
-  title: "Terms of Service - Watch Pros",
-  description: "Terms of Service and Conditions of Use for Watch Pros platform",
+  title: "Terms of Service - Watch Pros®",
+  description: "Terms of Service and Conditions of Use for Watch Pros® platform",
 }
 
 export default function TermsPage() {

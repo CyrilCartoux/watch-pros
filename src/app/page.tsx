@@ -31,6 +31,9 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { useAuthStatus } from "@/hooks/useAuthStatus"
 import { PlacesLeft } from "@/components/PlacesLeft"
+import { useEffect, useState } from "react"
+import { ListingCard } from "@/components/ListingCard"
+import Image from "next/image"
 
 
 const painPoints = [
@@ -127,9 +130,78 @@ const benefits = [
   }
 ]
 
+// Utility: display "X minutes/hours ago" in English
+function timeAgo(dateString: string) {
+  const now = new Date()
+  const date = new Date(dateString)
+  const diff = Math.floor((now.getTime() - date.getTime()) / 1000)
+  if (diff < 60) return `${diff} sec. ago`
+  if (diff < 3600) return `${Math.floor(diff / 60)} min. ago`
+  if (diff < 86400) return `${Math.floor(diff / 3600)} h. ago`
+  return `${Math.floor(diff / 86400)} d. ago`
+}
+
+function getCountryFlag(countryCode: string) {
+  if (!countryCode) return '';
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+}
+
+function SellerMiniCard({ seller }: { seller: any }) {
+  return (
+    <div className="relative flex flex-col items-center p-2 rounded-xl bg-white border border-muted shadow w-full max-w-xs mx-auto">
+      {/* Badge New */}
+      <span className="absolute top-1 right-1 bg-amber-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm">NEW</span>
+      {/* Logo/photo */}
+      <div className="w-10 h-10 rounded-full overflow-hidden border bg-muted flex items-center justify-center mb-1">
+        {seller.company_logo_url ? (
+          <Image src={seller.company_logo_url} alt={seller.company_name} width={40} height={40} className="object-cover w-full h-full" />
+        ) : (
+          <span className="text-lg font-bold text-muted-foreground">{seller.company_name.charAt(0)}</span>
+        )}
+      </div>
+      {/* Nom vendeur */}
+      <div className="font-medium text-sm truncate text-center w-full">{seller.watch_pros_name}</div>
+      {/* Company */}
+      <div className="text-xs text-muted-foreground truncate text-center w-full">{seller.company_name}</div>
+      {/* Pays avec drapeau */}
+      <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground mt-0.5">
+        <span>{getCountryFlag(seller.country)}</span>
+        <span>{seller.country}</span>
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
   const { isAuthenticated, isSeller, isVerified, hasActiveSubscription } = useAuthStatus()
   
+  const [latest, setLatest] = useState<{ latestListing: any, latestSeller: any } | null>(null)
+  const [loadingLatest, setLoadingLatest] = useState(true)
+
+  useEffect(() => {
+    const fetchLatest = async () => {
+      setLoadingLatest(true)
+      try {
+        const res = await fetch("/api/activity/latest")
+        if (!res.ok) throw new Error("Failed to fetch latest activity")
+        const data = await res.json()
+        setLatest(data)
+      } catch {
+        setLatest(null)
+      } finally {
+        setLoadingLatest(false)
+      }
+    }
+    fetchLatest()
+    // Optionally, refresh every hour
+    const interval = setInterval(fetchLatest, 60 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <main className="relative">
       {/* Hero Section */}
@@ -184,7 +256,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center items-center mb-12 sm:mb-16 px-4"
+              className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center items-center mb-6 sm:mb-8 px-4"
             >
               <Link href={isAuthenticated ? "/seller/register" : "/auth?mode=register"} passHref className="w-full sm:w-auto">
                 <Button
@@ -197,36 +269,24 @@ export default function Home() {
               </Link>
             </motion.div>
 
-            {/* Trust Indicators */}
-            <motion.div
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-muted-foreground px-4"
-            >
-              <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm">4.9/5 Rating</span>
-              </div>
-              <div className="hidden sm:block w-px h-4 bg-border" />
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4" />
-                <span className="text-sm">SSL Secured</span>
-              </div>
-              <div className="hidden sm:block w-px h-4 bg-border" />
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4" />
-                <span className="text-sm">24/7 Support</span>
-              </div>
-            </motion.div>
+            {/* Last seller joined (FOMO B2B, compact, centered) */}
+            <div className="flex justify-center mb-8">
+              {loadingLatest ? (
+                <div className="w-full h-20 bg-muted animate-pulse rounded-lg max-w-xs" />
+              ) : latest?.latestSeller ? (
+                <div className="w-full max-w-xs text-center">
+                  <div className="flex items-center justify-center gap-1 text-xs text-primary font-semibold mb-1">
+                    <span role="img" aria-label="new">🆕</span> Just joined!
+                  </div>
+                  <SellerMiniCard seller={latest.latestSeller} />
+                  <div className="text-[11px] text-muted-foreground mt-1">
+                    {timeAgo(latest.latestSeller.created_at)}
+                  </div>
+                  <div className="text-[11px] text-amber-600 mt-1 font-medium">A new professional dealer joined the network. <span className="font-bold">Don't miss out!</span></div>
+                </div>
+              ) : null}
+            </div>
 
-            {/* Pioneer Badge for Subscribers */}
-            <motion.div
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1.0 }}
-              className="flex justify-center mt-8"
-            >
-              <PlacesLeft />
-            </motion.div>
           </div>
         </div>
       </section>
@@ -279,7 +339,7 @@ export default function Home() {
 
               {/* Solutions */}
               <div className="space-y-4">
-                <h4 className="text-lg sm:text-xl font-semibold text-green-600 text-center mb-4">✅ What Watch Pros Changes for you</h4>
+                <h4 className="text-lg sm:text-xl font-semibold text-green-600 text-center mb-4">✅ What Watch Pros® Changes for you</h4>
                 {solutions.map((solution, i) => (
                   <Card key={i} className="border-green-200/50 bg-green-50/30 hover:shadow-lg transition-all duration-300">
                     <CardContent className="p-4 sm:p-6">
@@ -307,7 +367,11 @@ export default function Home() {
             <p className="text-lg sm:text-xl text-muted-foreground text-center mb-8 sm:mb-12 max-w-2xl mx-auto px-4">
               Choose the plan that fits your business needs. No hidden fees, no surprises.
             </p>
-            
+
+            {/* Pioneer Badge for Subscribers (PlacesLeft) */}
+            <div className="flex justify-center mt-8 mb-8">
+              <PlacesLeft />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 max-w-4xl mx-auto">
               {/* Monthly Plan */}
               <Card className="border-2 border-border hover:border-primary/40 transition-all duration-300 group h-full flex flex-col">
@@ -317,7 +381,6 @@ export default function Home() {
                     <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">€59</div>
                     <div className="text-muted-foreground">per month</div>
                   </div>
-                  
                   <div className="space-y-3 mb-6 flex-1">
                     <div className="flex items-center gap-2 text-sm">
                       <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
@@ -332,7 +395,6 @@ export default function Home() {
                       <span>Cancel anytime</span>
                     </div>
                   </div>
-
                   <Link href="/subscription" passHref className="w-full mt-auto">
                     <Button
                       variant="outline"
@@ -344,7 +406,6 @@ export default function Home() {
                   </Link>
                 </CardContent>
               </Card>
-
               {/* Annual Plan */}
               <Card className="border-2 border-primary/20 bg-primary/5 hover:border-primary/40 transition-all duration-300 group relative h-full flex flex-col">
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -364,7 +425,6 @@ export default function Home() {
                       Only €49.9/month
                     </div>
                   </div>
-                  
                   <div className="space-y-3 mb-6 flex-1">
                     <div className="flex items-center gap-2 text-sm">
                       <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
@@ -379,7 +439,6 @@ export default function Home() {
                       <span>Priority support</span>
                     </div>
                   </div>
-
                   <Link href="/subscription" passHref className="w-full mt-auto">
                     <Button
                       size="lg"
@@ -390,6 +449,23 @@ export default function Home() {
                   </Link>
                 </CardContent>
               </Card>
+            </div>
+            {/* Last listing posted (FOMO B2B, compact, centered) */}
+            <div className="flex justify-center mt-6">
+              {loadingLatest ? (
+                <div className="w-full h-40 bg-muted animate-pulse rounded-lg max-w-xs" />
+              ) : latest?.latestListing ? (
+                <div className="w-full max-w-xs text-center">
+                  <div className="flex items-center justify-center gap-1 text-xs text-primary font-semibold mb-1">
+                    <span role="img" aria-label="clock">⏰</span> Just listed!
+                  </div>
+                  <ListingCard listing={latest.latestListing} isFavorite={false} onFavoriteClick={() => {}} />
+                  <div className="text-[11px] text-muted-foreground mt-1">
+                    {timeAgo(latest.latestListing.created_at)}
+                  </div>
+                  <div className="text-[11px] text-amber-600 mt-1 font-medium">A new watch was just listed. <span className="font-bold">Don't miss the latest deals!</span></div>
+                </div>
+              ) : null}
             </div>
           </div>
 
@@ -458,7 +534,7 @@ export default function Home() {
           {/* Key Benefits */}
           <div className="mb-16 sm:mb-20">
             <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-8 sm:mb-12 px-2">
-              Why Professionals Choose Watch Pros
+              Why Professionals Choose Watch Pros®
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
               {benefits.map((benefit, i) => (

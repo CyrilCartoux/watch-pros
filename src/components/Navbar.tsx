@@ -42,7 +42,7 @@ export function Navbar() {
         {/* Left side: Logo + Nav Links */}
         <div className="mr-4 hidden items-center md:flex">
           <Link href="/listings?listingType=watch" className="mr-6 text-xl font-bold">
-            Watch Pros
+            Watch Pros®
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
             <Link
@@ -92,7 +92,7 @@ export function Navbar() {
         {/* Mobile Logo */}
         <div className="flex md:hidden">
           <Link href="/" className="flex items-center space-x-2 text-2xl sm:text-3xl font-extrabold">
-            Watch Pros
+            Watch Pros®
           </Link>
         </div>
 
