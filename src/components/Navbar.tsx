@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Menu, User, Bell, LogOut, Heart, MessageSquare, LayoutDashboard, MoreHorizontal, Tag, Shield } from "lucide-react"
+import { Menu, User, Bell, LogOut, Heart, MessageSquare, LayoutDashboard, MoreHorizontal, Tag, Shield, List } from "lucide-react"
 import { useState, useRef } from "react"
 import { Badge } from "./ui/badge"
 import { useAuth } from "@/contexts/AuthContext"
@@ -222,98 +222,93 @@ export function Navbar() {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden shadow-lg" ref={menuRef} onClick={e => e.stopPropagation()}>
-          <div className="container space-y-3 py-3 bg-background">
+          <div className="container py-4 bg-background flex flex-col gap-4">
             {user && (
-              <div className="px-2 py-1.5 text-sm text-muted-foreground truncate">
+              <div className="px-2 py-1.5 text-sm text-muted-foreground truncate text-center">
                 {user.email}
               </div>
             )}
-            <div className="flex flex-col gap-1">
-              <Button asChild className="w-full mb-2">
-                <Link href="/sell" onClick={handleLinkClick}>Sell a Watch</Link>
-              </Button>
-              <Button asChild className="w-full mb-2">
-                <Link href="/searches" onClick={handleLinkClick}>Search for a Watch</Link>
-              </Button>
-              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/listings?listingType=watch" onClick={handleLinkClick}>Watches</Link>
-              </Button>
-              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/listings?listingType=accessory" onClick={handleLinkClick}>Accessories</Link>
-              </Button>
-              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/searches" onClick={handleLinkClick}>Searches</Link>
-              </Button>
-              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/sellers" onClick={handleLinkClick}>Sellers</Link>
-              </Button>
-              <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                <Link href="/brands" onClick={handleLinkClick}>Brands</Link>
-              </Button>
+            {/* Actions principales */}
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              <Link href="/sell" onClick={handleLinkClick} className="flex flex-col items-center justify-center gap-1 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition">
+                <Tag className="h-5 w-5 text-primary" />
+                <span className="text-xs font-medium">Sell</span>
+              </Link>
+              <Link href="/searches" onClick={handleLinkClick} className="flex flex-col items-center justify-center gap-1 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition">
+                <MessageSquare className="h-5 w-5 text-primary" />
+                <span className="text-xs font-medium">Search</span>
+              </Link>
+            </div>
+            {/* Navigation principale */}
+            <div className="grid grid-cols-3 gap-2">
+              <Link href="/listings?listingType=watch" onClick={handleLinkClick} className="flex flex-col items-center gap-1 py-3 rounded-lg hover:bg-muted transition">
+                <Tag className="h-5 w-5" />
+                <span className="text-xs">Watches</span>
+              </Link>
+              <Link href="/listings?listingType=accessory" onClick={handleLinkClick} className="flex flex-col items-center gap-1 py-3 rounded-lg hover:bg-muted transition">
+                <Tag className="h-5 w-5" />
+                <span className="text-xs">Accessories</span>
+              </Link>
+              <Link href="/searches" onClick={handleLinkClick} className="flex flex-col items-center gap-1 py-3 rounded-lg hover:bg-muted transition">
+                <MessageSquare className="h-5 w-5" />
+                <span className="text-xs">Searches</span>
+              </Link>
+              <Link href="/sellers" onClick={handleLinkClick} className="flex flex-col items-center gap-1 py-3 rounded-lg hover:bg-muted transition">
+                <User className="h-5 w-5" />
+                <span className="text-xs">Sellers</span>
+              </Link>
+              <Link href="/brands" onClick={handleLinkClick} className="flex flex-col items-center gap-1 py-3 rounded-lg hover:bg-muted transition">
+                <Shield className="h-5 w-5" />
+                <span className="text-xs">Brands</span>
+              </Link>
               {isAdmin && (
-                <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                  <Link href="/admin" onClick={handleLinkClick} className="flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
-                    Admin
-                  </Link>
-                </Button>
+                <Link href="/admin" onClick={handleLinkClick} className="flex flex-col items-center gap-1 py-3 rounded-lg hover:bg-muted transition">
+                  <Shield className="h-5 w-5 text-red-500" />
+                  <span className="text-xs text-red-600 font-semibold">Admin</span>
+                </Link>
               )}
             </div>
-            {user ? (
-              <div className="flex flex-col gap-1 pt-3 border-t">
-                <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                  <Link href="/account?tab=dashboard" onClick={handleLinkClick} className="flex items-center gap-2">
-                    <LayoutDashboard className="h-4 w-4" />
-                    Dashboard
+            {/* Section compte */}
+            <div className="border-t pt-3 mt-2">
+              {user ? (
+                <div className="grid grid-cols-3 gap-2">
+                  <Link href="/account?tab=dashboard" onClick={handleLinkClick} className="flex flex-col items-center gap-1 py-2 rounded-lg hover:bg-muted transition">
+                    <LayoutDashboard className="h-5 w-5" />
+                    <span className="text-xs">Dashboard</span>
                   </Link>
-                </Button>
-                <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                  <Link href="/account?tab=listings" onClick={handleLinkClick} className="flex items-center gap-2">
-                    <Tag className="h-4 w-4" />
-                    My Listings
+                  <Link href="/account?tab=listings" onClick={handleLinkClick} className="flex flex-col items-center gap-1 py-2 rounded-lg hover:bg-muted transition">
+                    <Tag className="h-5 w-5" />
+                    <span className="text-xs">Listings</span>
                   </Link>
-                </Button>
-                <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                  <Link href="/account?tab=messages" onClick={handleLinkClick} className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4" />
-                    Messages
+                  <Link href="/account?tab=messages" onClick={handleLinkClick} className="flex flex-col items-center gap-1 py-2 rounded-lg hover:bg-muted transition">
+                    <List className="h-5 w-5" />
+                    <span className="text-xs">Sales</span>
                   </Link>
-                </Button>
-                <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                  <Link href="/account?tab=favorites" onClick={handleLinkClick} className="flex items-center gap-2">
-                    <Heart className="h-4 w-4" />
-                    Favorites
+                  <Link href="/account?tab=favorites" onClick={handleLinkClick} className="flex flex-col items-center gap-1 py-2 rounded-lg hover:bg-muted transition">
+                    <Heart className="h-5 w-5" />
+                    <span className="text-xs">Favorites</span>
                   </Link>
-                </Button>
-                <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                  <Link href="/account?tab=settings" onClick={handleLinkClick} className="flex items-center gap-2">
-                    <User className="h-4 w-4" />
-                    Settings
+                  <Link href="/account?tab=settings" onClick={handleLinkClick} className="flex flex-col items-center gap-1 py-2 rounded-lg hover:bg-muted transition">
+                    <User className="h-5 w-5" />
+                    <span className="text-xs">Settings</span>
                   </Link>
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full justify-start h-9 text-red-600 hover:text-red-600 hover:bg-red-50"
-                  onClick={() => {
-                    signOut()
-                    handleLinkClick()
-                  }}
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Logout
-                </Button>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-1 pt-3 border-t">
-                <Button variant="ghost" size="sm" className="w-full justify-start h-9" asChild>
-                  <Link href="/auth" onClick={handleLinkClick} className="flex items-center gap-2">
-                    <User className="h-4 w-4" />
-                    Login / Signup
+                  <button
+                    onClick={() => { signOut(); handleLinkClick(); }}
+                    className="flex flex-col items-center gap-1 py-2 rounded-lg hover:bg-red-50 transition text-red-600"
+                  >
+                    <LogOut className="h-5 w-5" />
+                    <span className="text-xs">Logout</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <Link href="/auth" onClick={handleLinkClick} className="flex flex-col items-center gap-1 py-2 rounded-lg hover:bg-muted transition">
+                    <User className="h-5 w-5" />
+                    <span className="text-xs">Login</span>
                   </Link>
-                </Button>
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
