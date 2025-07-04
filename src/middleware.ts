@@ -123,14 +123,14 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/register', request.url))
     }
 
+    if (!hasActiveSubscription) {
+      return NextResponse.redirect(new URL('/subscription', request.url))
+    }
     const seller = profile.sellers as any
     if (!seller?.identity_verified || seller?.identity_rejected) {
       return NextResponse.redirect(new URL('/register/pending', request.url))
     }
 
-    if (!hasActiveSubscription) {
-      return NextResponse.redirect(new URL('/subscription', request.url))
-    }
 
     // Si toutes les vérifications sont passées, continuer
     return res

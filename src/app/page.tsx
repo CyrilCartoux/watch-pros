@@ -268,25 +268,6 @@ export default function Home() {
                 </Button>
               </Link>
             </motion.div>
-
-            {/* Last seller joined (FOMO B2B, compact, centered) */}
-            <div className="flex justify-center mb-8">
-              {loadingLatest ? (
-                <div className="w-full h-20 bg-muted animate-pulse rounded-lg max-w-xs" />
-              ) : latest?.latestSeller ? (
-                <div className="w-full max-w-xs text-center">
-                  <div className="flex items-center justify-center gap-1 text-xs text-primary font-semibold mb-1">
-                    <span role="img" aria-label="new">🆕</span> Just joined!
-                  </div>
-                  <SellerMiniCard seller={latest.latestSeller} />
-                  <div className="text-[11px] text-muted-foreground mt-1">
-                    {timeAgo(latest.latestSeller.created_at)}
-                  </div>
-                  <div className="text-[11px] text-amber-600 mt-1 font-medium">A new professional dealer joined the network. <span className="font-bold">Don't miss out!</span></div>
-                </div>
-              ) : null}
-            </div>
-
           </div>
         </div>
       </section>
@@ -449,23 +430,6 @@ export default function Home() {
                   </Link>
                 </CardContent>
               </Card>
-            </div>
-            {/* Last listing posted (FOMO B2B, compact, centered) */}
-            <div className="flex justify-center mt-6">
-              {loadingLatest ? (
-                <div className="w-full h-40 bg-muted animate-pulse rounded-lg max-w-xs" />
-              ) : latest?.latestListing ? (
-                <div className="w-full max-w-xs text-center">
-                  <div className="flex items-center justify-center gap-1 text-xs text-primary font-semibold mb-1">
-                    <span role="img" aria-label="clock">⏰</span> Just listed!
-                  </div>
-                  <ListingCard listing={latest.latestListing} isFavorite={false} onFavoriteClick={() => {}} />
-                  <div className="text-[11px] text-muted-foreground mt-1">
-                    {timeAgo(latest.latestListing.created_at)}
-                  </div>
-                  <div className="text-[11px] text-amber-600 mt-1 font-medium">A new watch was just listed. <span className="font-bold">Don't miss the latest deals!</span></div>
-                </div>
-              ) : null}
             </div>
           </div>
 

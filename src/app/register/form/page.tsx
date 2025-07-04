@@ -256,6 +256,7 @@ export default function RegisterFormPage() {
   const idCardBackInputRef = useRef<HTMLInputElement>(null)
   const proofOfAddressInputRef = useRef<HTMLInputElement>(null)
   const [loadingSellerRegistration, setLoadingSellerRegistration] = useState(false)
+  const [isSellerRegistered, setIsSellerRegistered] = useState(false)
 
   const accountForm = useForm({
     resolver: zodResolver(accountSchema),
@@ -277,6 +278,7 @@ export default function RegisterFormPage() {
 
   // Détermine si on doit désactiver les boutons
   const disableContinue = isLoading
+  const disableBack = isLoading || isSellerRegistered
 
   // Alert message
   let alertMessage = null
@@ -290,6 +292,16 @@ export default function RegisterFormPage() {
 
   // Function to check if a tab is accessible
   const isTabAccessible = (tab: string) => {
+    // Si l'utilisateur est déjà enregistré, empêcher l'accès aux étapes précédentes
+    if (isSellerRegistered) {
+      switch (tab) {
+        case "subscription":
+          return true
+        default:
+          return false
+      }
+    }
+    
     switch (tab) {
       case "account":
         return true
@@ -297,6 +309,8 @@ export default function RegisterFormPage() {
         return isFormValid.account
       case "documents":
         return isFormValid.account && isFormValid.address
+      case "subscription":
+        return isFormValid.account && isFormValid.address && isFormValid.documents
       default:
         return false
     }
@@ -318,6 +332,13 @@ export default function RegisterFormPage() {
 
     validateForms()
   }, [accountForm, addressForm, documentsForm])
+
+  // Forcer l'onglet subscription si l'utilisateur est enregistré
+  useEffect(() => {
+    if (isSellerRegistered && currentTab !== "subscription") {
+      setCurrentTab("subscription")
+    }
+  }, [isSellerRegistered, currentTab])
 
   // Handle seller registration (Step 3)
   const handleSellerRegistration = async () => {
@@ -392,6 +413,7 @@ export default function RegisterFormPage() {
           throw new Error(error.error || 'Error registering seller')
         }
         await response.json()
+        setIsSellerRegistered(true)
         handleNext()
         setLoadingSellerRegistration(false)
       } catch (error) {
@@ -500,6 +522,11 @@ export default function RegisterFormPage() {
   }
 
   const handleBack = () => {
+    // Empêcher le retour si l'utilisateur a déjà été enregistré
+    if (isSellerRegistered) {
+      return
+    }
+    
     switch (currentTab) {
       case "address":
         setCurrentTab("account")
@@ -716,6 +743,10 @@ export default function RegisterFormPage() {
         <Tabs 
           value={currentTab} 
           onValueChange={(value) => {
+            // Empêcher le changement d'onglet si l'utilisateur est déjà enregistré
+            if (isSellerRegistered && value !== "subscription") {
+              return
+            }
             if (isTabAccessible(value)) {
               setCurrentTab(value)
             }
@@ -944,7 +975,7 @@ export default function RegisterFormPage() {
                   <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6">
                     <p className="text-sm text-muted-foreground order-2 sm:order-1">* Required field</p>
                     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto order-1 sm:order-2">
-                      <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto" disabled={disableContinue}>
+                      <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto" disabled={disableBack}>
                         Back
                       </Button>
                       <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={disableContinue}>
@@ -1069,7 +1100,7 @@ export default function RegisterFormPage() {
                   <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6">
                     <p className="text-sm text-muted-foreground order-2 sm:order-1">* Required field</p>
                     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto order-1 sm:order-2">
-                      <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto" disabled={disableContinue}>
+                      <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto" disabled={disableBack}>
                         Back
                       </Button>
                       <Button type="submit" size="lg" className="w-full sm:w-auto" disabled={disableContinue}>
@@ -1318,7 +1349,7 @@ export default function RegisterFormPage() {
                   <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6">
                     <p className="text-sm text-muted-foreground order-2 sm:order-1">* Required field</p>
                     <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto order-1 sm:order-2">
-                      <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto" disabled={disableContinue}>
+                      <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto" disabled={disableBack}>
                         Back
                       </Button>
                       <Button 
@@ -1359,6 +1390,19 @@ export default function RegisterFormPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="space-y-6">
+                  {/* Message informatif si l'utilisateur est enregistré */}
+                  {isSellerRegistered && (
+                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-center gap-2 text-blue-700 mb-2">
+                        <CheckCircle2 className="h-5 w-5" />
+                        <span className="font-semibold">Registration Complete!</span>
+                      </div>
+                      <p className="text-sm text-blue-600">
+                        Your professional account has been successfully registered. You can now proceed with the subscription payment to activate your account.
+                      </p>
+                    </div>
+                  )}
+                  
                   <div className="space-y-4">
                     <div className="space-y-4 mb-6">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -1485,7 +1529,7 @@ export default function RegisterFormPage() {
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6">
                       <p className="text-sm text-muted-foreground order-2 sm:order-1">* Required field</p>
                       <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto order-1 sm:order-2">
-                        <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto" disabled={disableContinue}>
+                        <Button type="button" variant="outline" size="lg" onClick={handleBack} className="w-full sm:w-auto" disabled={disableBack}>
                           Back
                         </Button>
                         <Button 
@@ -1511,13 +1555,13 @@ export default function RegisterFormPage() {
             </Card>
           </TabsContent>
         </Tabs>
-        <div className="h-10">
+        {/* <div className="h-10">
           <Button onClick={() => {
             console.log('[LOG] Debug Form - account:', accountForm.getValues())
             console.log('[LOG] Debug Form - address:', addressForm.getValues())
             console.log('[LOG] Debug Form - documents:', documentsForm.getValues())
           }}>Debug Form</Button>
-        </div>
+        </div> */}
       </div>
     </main>
   )

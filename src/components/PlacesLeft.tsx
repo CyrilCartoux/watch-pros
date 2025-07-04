@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
-import { Users, Clock, Crown} from "lucide-react"
+import { Users, Clock, Crown } from "lucide-react"
 
 interface PlacesLeftData {
   activeSubscriptions: number
@@ -23,15 +23,12 @@ export function PlacesLeft() {
     try {
       setLoading(true)
       const response = await fetch('/api/subscriptions/places-left')
-      
       if (!response.ok) {
         throw new Error('Failed to fetch places left data')
       }
-      
       const result = await response.json()
       setData(result)
     } catch (err) {
-      console.error('Error fetching places left:', err)
       setError('Failed to load data')
     } finally {
       setLoading(false)
@@ -40,65 +37,61 @@ export function PlacesLeft() {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <div className="w-4 h-4 bg-muted animate-pulse rounded" />
-        <span>Loading...</span>
+      <div className="flex flex-col items-center justify-center w-full py-6 animate-pulse">
+        <div className="w-10 h-10 bg-muted rounded-full mb-2" />
+        <span className="text-muted-foreground text-sm">Loading places...</span>
       </div>
     )
   }
 
   if (error || !data) {
-    return null // Don't show anything if there's an error
+    return (
+      <div className="flex flex-col items-center justify-center w-full py-6">
+        <span className="text-destructive text-sm font-medium">{error || "Unknown error"}</span>
+      </div>
+    )
   }
 
   const percentageUsed = Math.round((data.activeSubscriptions / data.totalSpots) * 100)
   const isLowSpots = data.remainingSpots <= 10
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-center w-full space-y-2 sm:space-y-0 sm:gap-3 text-sm">
-      {/* Badge + headline */}
-      <div className="flex flex-col items-center sm:items-start">
-        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold px-3 py-1.5 text-xs border-0 shadow-lg mb-1">
-          <Crown className="h-3 w-3 mr-1" />
+    <section className="w-full max-w-xl mx-auto rounded-xl border bg-background shadow-lg px-6 py-5 flex flex-col gap-4 items-center">
+      {/* Header badge */}
+      <div className="flex items-center gap-2 mb-1">
+        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold px-4 py-2 text-sm border-0 shadow">
+          <Crown className="h-4 w-4 mr-2 -ml-1" />
           PIONEER OFFER
         </Badge>
-        <span className="text-xs text-amber-700 font-semibold text-center sm:text-left">Founding offer: only {data.remainingSpots} spots left at reduced price</span>
-      </div>
-      {/* Active Subscriptions */}
-      <div className="flex items-center gap-1.5">
-        <Users className="w-4 h-4 text-primary" />
-        <span className="font-medium">{data.activeSubscriptions}</span>
-        <span className="text-muted-foreground">active</span>
-      </div>
-      {/* Separator (desktop only) */}
-      <div className="hidden sm:block w-px h-4 bg-border" />
-      {/* Remaining Spots */}
-      <div className="flex items-center gap-1.5">
-        <Clock className="w-4 h-4 text-amber-500" />
-        <span className="font-medium">{data.remainingSpots}</span>
-        <span className="text-muted-foreground">spots left</span>
         {isLowSpots && (
-          <Badge variant="destructive" className="ml-1 text-xs">
-            Limited
-          </Badge>
+          <Badge variant="destructive" className="text-xs px-2 py-1 animate-bounce">Only {data.remainingSpots} spots left!</Badge>
         )}
       </div>
-      {/* Progress Bar (desktop only) */}
-      <div className="hidden sm:flex items-center gap-2">
-        <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-500"
+      {/* Places left big number */}
+      <div className="flex flex-col items-center">
+        <span className="text-4xl font-extrabold text-amber-600 flex items-center gap-2">
+          <Clock className="w-7 h-7 text-amber-500" />
+          {data.remainingSpots}
+        </span>
+        <span className="text-sm text-muted-foreground font-medium mt-1">spots at reduced price</span>
+      </div>
+      {/* Progress bar */}
+      <div className="w-full flex flex-col items-center gap-1">
+        <div className="w-full h-3 bg-muted rounded-full overflow-hidden relative">
+          <div
+            className="h-full bg-gradient-to-r from-amber-500 to-orange-400 transition-all duration-700"
             style={{ width: `${percentageUsed}%` }}
           />
+          <span className="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-white font-bold drop-shadow">
+            {percentageUsed}%
+          </span>
         </div>
-        <span className="text-xs text-muted-foreground w-8">
-          {percentageUsed}%
-        </span>
+        <span className="text-xs text-muted-foreground">{data.activeSubscriptions} active subscribers / {data.totalSpots} total spots</span>
       </div>
       {/* FOMO message */}
-      <div className="w-full text-center mt-1">
-        <span className="text-xs text-amber-700 font-medium">Become a founding member and lock in the lowest price forever!</span>
+      <div className="w-full text-center mt-2">
+        <span className="text-sm text-amber-700 font-semibold">Become a founding member and lock in this price forever!</span>
       </div>
-    </div>
+    </section>
   )
 } 
