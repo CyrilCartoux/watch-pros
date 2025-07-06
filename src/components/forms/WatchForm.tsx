@@ -1056,7 +1056,7 @@ export default function WatchForm({
         </Card>
       </div>
       {/* Add debug button to see all errors */}
-      <div className="fixed bottom-4 right-4">
+      {/* <div className="fixed bottom-4 right-4">
         <Button
           variant="outline"
           size="sm"
@@ -1073,7 +1073,7 @@ export default function WatchForm({
         >
           Debug Form
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 }

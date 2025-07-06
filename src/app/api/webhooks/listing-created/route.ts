@@ -138,10 +138,10 @@ export async function POST(request: Request) {
 
     const country = sellerAddr?.country ?? null
 
-    // Build filter for custom alerts
+    // Build filter for custom alerts based on listing type
     const { data: rawAlerts, error: alertError } = await supabaseAdmin
       .from('custom_alerts')
-      .select('id, user_id, brand_id, model_id, reference, max_price, location, dial_color')
+      .select('id, user_id, brand_id, model_id, reference, max_price, location, dial_color, type, accessory_type')
       .or(`and(brand_id.eq.${listingDetails.brand_id},model_id.eq.${listingDetails.model_id}),and(brand_id.eq.${listingDetails.brand_id},model_id.is.null),and(brand_id.is.null,model_id.eq.${listingDetails.model_id})`)
 
     if (alertError) {
@@ -154,17 +154,30 @@ export async function POST(request: Request) {
     } else {
       // Filter alerts by additional criteria
       const matchingAlerts = rawAlerts.filter(alert => {
-        if (listingDetails.listing_type !== 'watch') {
+        // Check if alert type matches listing type
+        if (alert.type && alert.type !== listingDetails.listing_type) {
           return false
         }
+        
+        // For accessories, check accessory_type if specified
+        if (listingDetails.listing_type === 'accessory' && alert.accessory_type) {
+          if (alert.accessory_type !== record.accessory_type) {
+            return false
+          }
+        }
+        
+        // For watches, check dial_color if specified
+        if (listingDetails.listing_type === 'watch' && alert.dial_color) {
+          if (alert.dial_color !== record.dial_color) {
+            return false
+          }
+        }
+        
         // Check reference if specified
         if (alert.reference && alert.reference !== listingDetails.reference) {
           return false
         }
-        // Check dial_color if specified
-        if (alert.dial_color && alert.dial_color !== record.dial_color) {
-          return false
-        }
+        
         // Check location if specified
         if (alert.location) {
           const targetLoc = alert.location.toLowerCase()
@@ -173,10 +186,12 @@ export async function POST(request: Request) {
             return false
           }
         }
+        
         // Check max price if specified
         if (alert.max_price && listingDetails.price > alert.max_price) {
           return false
         }
+        
         return true
       })
 
@@ -269,4 +284,4 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
-} 
+}

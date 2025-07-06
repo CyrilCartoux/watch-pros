@@ -1443,14 +1443,6 @@ export default function RegisterFormPage() {
                             <PlacesLeft />
                           </div>
                           
-                          <div className="bg-white/80 rounded-lg p-3 max-w-sm mx-auto">
-                            <p className="text-sm text-amber-700 font-medium">
-                              ⚡ <strong>Early Bird Pricing</strong> - Lock in these rates forever!
-                            </p>
-                            <p className="text-xs text-amber-600 mt-1">
-                              Once all spots are filled, pricing will increase to regular rates
-                            </p>
-                          </div>
                         </div>
                       </div>
 

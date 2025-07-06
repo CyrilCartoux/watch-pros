@@ -290,10 +290,10 @@ export function MessagesTab() {
         // Update messages list
         setMessages(prev => {
           const newMessages = [...prev, newMessage]
-          // Use nextTick for scroll
+          // Use nextTick for scroll - only if we're in the active conversation
           queueMicrotask(() => {
-            if (isMounted.current) {
-              messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+            if (isMounted.current && selectedConversation?.id === newMessage.conversation_id) {
+              scrollToBottom()
             }
           })
           return newMessages
