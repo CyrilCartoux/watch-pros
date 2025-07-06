@@ -399,30 +399,6 @@ export default function WatchForm({
                               <SelectValue placeholder="Select a brand" />
                             </SelectTrigger>
                             <SelectContent>
-                              <div className="p-2">
-                                <Input
-                                  placeholder="Search brands..."
-                                  className="mb-2"
-                                  onChange={(e) => {
-                                    const searchTerm = e.target.value.toLowerCase()
-                                    const filteredBrands = brands.filter(brand =>
-                                      brand.label.toLowerCase().includes(searchTerm)
-                                    )
-                                    // Update the SelectContent with filtered options
-                                    const selectContent = e.target.closest('[role="listbox"]')
-                                    if (selectContent) {
-                                      const items = selectContent.querySelectorAll('[role="option"]')
-                                      items.forEach((item, index) => {
-                                        const brand = brands[index]
-                                        if (brand) {
-                                          const isVisible = brand.label.toLowerCase().includes(searchTerm)
-                                          ;(item as HTMLElement).style.display = isVisible ? 'block' : 'none'
-                                        }
-                                      })
-                                    }
-                                  }}
-                                />
-                              </div>
                               {brands.map((brand) => (
                                 <SelectItem key={brand.id} value={brand.id}>
                                   {brand.label}
@@ -482,31 +458,6 @@ export default function WatchForm({
                               <SelectValue placeholder="Select a model" />
                             </SelectTrigger>
                             <SelectContent>
-                              <div className="p-2">
-                                <Input
-                                  placeholder="Search models..."
-                                  className="mb-2"
-                                  onChange={(e) => {
-                                    const searchTerm = e.target.value.toLowerCase()
-                                    const currentModels = selectedBrand ? models[selectedBrand] || [] : []
-                                    const filteredModels = currentModels.filter(model =>
-                                      model.label.toLowerCase().includes(searchTerm)
-                                    )
-                                    // Update the SelectContent with filtered options
-                                    const selectContent = e.target.closest('[role="listbox"]')
-                                    if (selectContent) {
-                                      const items = selectContent.querySelectorAll('[role="option"]')
-                                      items.forEach((item, index) => {
-                                        const model = currentModels[index]
-                                        if (model) {
-                                          const isVisible = model.label.toLowerCase().includes(searchTerm)
-                                          ;(item as HTMLElement).style.display = isVisible ? 'block' : 'none'
-                                        }
-                                      })
-                                    }
-                                  }}
-                                />
-                              </div>
                               {selectedBrand &&
                                 models[selectedBrand]?.map((model) => (
                                   <SelectItem key={model.id} value={model.id}>
