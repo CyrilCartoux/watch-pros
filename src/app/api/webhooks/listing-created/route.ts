@@ -228,7 +228,8 @@ export async function POST(request: Request) {
                 listingDetails.currency,
                 conditionLabel || null,
                 includedLabel || null,
-                countries.find(c => c.value === country)?.label || null
+                countries.find(c => c.value === country)?.label || null,
+                listingId
               )
               return sendEmail({
                 to,

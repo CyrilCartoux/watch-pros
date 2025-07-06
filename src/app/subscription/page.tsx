@@ -87,6 +87,12 @@ export default function SubscriptionPage() {
   }
 
   const handlePlanSelect = async (plan: Plan) => {
+    if (!user) {
+      // Redirect to login if not authenticated
+      router.push('/auth')
+      return
+    }
+
     if (subscriptionData?.hasActiveSubscription) {
       // Si changement d'abonnement, ouvrir le dialog
       setSelectedPlan(plan)
@@ -246,7 +252,8 @@ export default function SubscriptionPage() {
     })
   }
 
-  if (subscriptionData === null) {
+  // Show loading only if user is authenticated and we're fetching subscription data
+  if (user && subscriptionData === null) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -288,50 +295,52 @@ export default function SubscriptionPage() {
           </div>
         </div>
 
-        {/* Current Subscription Status */}
-        <div className="text-center mb-12">
-          {subscriptionData?.hasActiveSubscription && subscriptionData.subscription ? (
-            <div className="space-y-4">
-              <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-800">
-                <span className="font-medium">
-                  Current Plan: {plans.find(p => p.priceId === subscriptionData.subscription?.price_id)?.name}
-                </span>
-                {subscriptionData.subscription.current_period_end && (
-                  <span className="ml-2 text-sm">
-                    (Renewal on {formatDate(subscriptionData.subscription.current_period_end)})
+        {/* Current Subscription Status - Only show if user is authenticated */}
+        {user && (
+          <div className="text-center mb-12">
+            {subscriptionData?.hasActiveSubscription && subscriptionData.subscription ? (
+              <div className="space-y-4">
+                <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-800">
+                  <span className="font-medium">
+                    Current Plan: {plans.find(p => p.priceId === subscriptionData.subscription?.price_id)?.name}
                   </span>
+                  {subscriptionData.subscription.current_period_end && (
+                    <span className="ml-2 text-sm">
+                      (Renewal on {formatDate(subscriptionData.subscription.current_period_end)})
+                    </span>
+                  )}
+                </div>
+                {getPaymentMethodInfo(subscriptionData.subscription) && (
+                  <div className="text-sm text-gray-600">
+                    Payment by {getPaymentMethodInfo(subscriptionData.subscription)?.brand} ending in {getPaymentMethodInfo(subscriptionData.subscription)?.last4}
+                  </div>
+                )}
+                <div className="text-sm text-gray-600">
+                  You currently have <span className="font-semibold">{subscriptionData?.activeListingsCount || 0}</span> active listings
+                  {subscriptionData?.subscription?.subscription_plans?.max_listings && (
+                    <span> out of {subscriptionData.subscription.subscription_plans.max_listings} allowed</span>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="inline-flex items-center px-4 py-2 rounded-full bg-yellow-100 text-yellow-800">
+                  <span className="font-medium">
+                    No active subscription
+                  </span>
+                </div>
+                <p className="text-gray-600">
+                  Choose a plan below to start selling your watches on Watch Pros®.
+                </p>
+                {subscriptionData?.activeListingsCount && subscriptionData.activeListingsCount > 0 && (
+                  <div className="text-sm text-gray-600">
+                    You currently have <span className="font-semibold">{subscriptionData.activeListingsCount}</span> active listings
+                  </div>
                 )}
               </div>
-              {getPaymentMethodInfo(subscriptionData.subscription) && (
-                <div className="text-sm text-gray-600">
-                  Payment by {getPaymentMethodInfo(subscriptionData.subscription)?.brand} ending in {getPaymentMethodInfo(subscriptionData.subscription)?.last4}
-                </div>
-              )}
-              <div className="text-sm text-gray-600">
-                You currently have <span className="font-semibold">{subscriptionData.activeListingsCount}</span> active listings
-                {subscriptionData.subscription.subscription_plans?.max_listings && (
-                  <span> out of {subscriptionData.subscription.subscription_plans.max_listings} allowed</span>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="inline-flex items-center px-4 py-2 rounded-full bg-yellow-100 text-yellow-800">
-                <span className="font-medium">
-                  No active subscription
-                </span>
-              </div>
-              <p className="text-gray-600">
-                Choose a plan below to start selling your watches on Watch Pros®.
-              </p>
-              {subscriptionData?.activeListingsCount > 0 && (
-                <div className="text-sm text-gray-600">
-                  You currently have <span className="font-semibold">{subscriptionData.activeListingsCount}</span> active listings
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* Pricing Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto">
@@ -370,22 +379,31 @@ export default function SubscriptionPage() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button
-                className="w-full"
-                variant={subscriptionData?.subscription?.price_id === 'price_1ReeZ8RWMXxAzKAEUqSNvFBS' ? "outline" : "default"}
-                onClick={() => handlePlanSelect({ 
-                  name: 'Pioneer Program - Unlimited', 
-                  priceId: 'price_1ReeZ8RWMXxAzKAEUqSNvFBS', 
-                  price: { early: 59, regular: 59 },
-                  description: 'Limited time early bird pricing',
-                  features: ['No commitment', 'Unlimited listings', 'Cancel anytime', 'Professional dashboard', 'Zero commission'],
-                  maxListings: null
-                })}
-                disabled={subscriptionData?.subscription?.price_id === 'price_1ReeZ8RWMXxAzKAEUqSNvFBS'}
-              >
-                {subscriptionData?.subscription?.price_id === 'price_1ReeZ8RWMXxAzKAEUqSNvFBS' ? 'Current Plan' : 
-                 subscriptionData?.hasActiveSubscription ? 'Change Plan' : 'Subscribe'}
-              </Button>
+              {user ? (
+                <Button
+                  className="w-full"
+                  variant={subscriptionData?.subscription?.price_id === 'price_1ReeZ8RWMXxAzKAEUqSNvFBS' ? "outline" : "default"}
+                  onClick={() => handlePlanSelect({ 
+                    name: 'Pioneer Program - Unlimited', 
+                    priceId: 'price_1ReeZ8RWMXxAzKAEUqSNvFBS', 
+                    price: { early: 59, regular: 59 },
+                    description: 'Limited time early bird pricing',
+                    features: ['No commitment', 'Unlimited listings', 'Cancel anytime', 'Professional dashboard', 'Zero commission'],
+                    maxListings: null
+                  })}
+                  disabled={subscriptionData?.subscription?.price_id === 'price_1ReeZ8RWMXxAzKAEUqSNvFBS'}
+                >
+                  {subscriptionData?.subscription?.price_id === 'price_1ReeZ8RWMXxAzKAEUqSNvFBS' ? 'Current Plan' : 
+                   (subscriptionData?.hasActiveSubscription ? 'Change Plan' : 'Subscribe')}
+                </Button>
+              ) : (
+                <Button
+                  className="w-full"
+                  onClick={() => router.push('/auth')}
+                >
+                  Sign in to Subscribe
+                </Button>
+              )}
             </CardFooter>
           </Card>
 
@@ -435,22 +453,31 @@ export default function SubscriptionPage() {
               </ul>
             </CardContent>
             <CardFooter>
-              <Button
-                className="w-full"
-                variant={subscriptionData?.subscription?.price_id === 'price_1ReeeLRWMXxAzKAERWs4Bgrd' ? "outline" : "default"}
-                onClick={() => handlePlanSelect({ 
-                  name: 'Pioneer Program - Unlimited (1 year)', 
-                  priceId: 'price_1ReeeLRWMXxAzKAERWs4Bgrd', 
-                  price: { early: 599, regular: 708 },
-                  description: 'Lock in early-bird pricing and save €109 per year',
-                  features: ['2 months free', 'Unlimited listings', 'Priority support', 'Professional dashboard', 'Zero commission'],
-                  maxListings: null
-                })}
-                disabled={subscriptionData?.subscription?.price_id === 'price_1ReeeLRWMXxAzKAERWs4Bgrd'}
-              >
-                {subscriptionData?.subscription?.price_id === 'price_1ReeeLRWMXxAzKAERWs4Bgrd' ? 'Current Plan' : 
-                 subscriptionData?.hasActiveSubscription ? 'Change Plan' : 'Subscribe'}
-              </Button>
+              {user ? (
+                <Button
+                  className="w-full"
+                  variant={subscriptionData?.subscription?.price_id === 'price_1ReeeLRWMXxAzKAERWs4Bgrd' ? "outline" : "default"}
+                  onClick={() => handlePlanSelect({ 
+                    name: 'Pioneer Program - Unlimited (1 year)', 
+                    priceId: 'price_1ReeeLRWMXxAzKAERWs4Bgrd', 
+                    price: { early: 599, regular: 708 },
+                    description: 'Lock in early-bird pricing and save €109 per year',
+                    features: ['2 months free', 'Unlimited listings', 'Priority support', 'Professional dashboard', 'Zero commission'],
+                    maxListings: null
+                  })}
+                  disabled={subscriptionData?.subscription?.price_id === 'price_1ReeeLRWMXxAzKAERWs4Bgrd'}
+                >
+                  {subscriptionData?.subscription?.price_id === 'price_1ReeeLRWMXxAzKAERWs4Bgrd' ? 'Current Plan' : 
+                   (subscriptionData?.hasActiveSubscription ? 'Change Plan' : 'Subscribe')}
+                </Button>
+              ) : (
+                <Button
+                  className="w-full"
+                  onClick={() => router.push('/auth')}
+                >
+                  Sign in to Subscribe
+                </Button>
+              )}
             </CardFooter>
           </Card>
         </div>
@@ -483,126 +510,131 @@ export default function SubscriptionPage() {
         </div>
       </div>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Change Subscription Plan</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to switch from{' '}
-              <span className="font-semibold">
-                {plans.find(p => p.priceId === subscriptionData.subscription?.price_id)?.name}
-              </span>{' '}
-              to{' '}
-              <span className="font-semibold">{selectedPlan?.name}</span>?
-              {subscriptionData.subscription?.cancel_at_period_end && (
-                <div className="mt-2 text-sm text-yellow-600">
-                  Note: Your subscription is currently set to cancel at the end of the billing period.
-                  Changing plans will remove this cancellation.
-                </div>
-              )}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsDialogOpen(false)
-                setSelectedPlan(null)
-              }}
-              disabled={isUpdating}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleConfirmSubscription}
-              disabled={isUpdating || !selectedPlan}
-            >
-              {isUpdating ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Processing...
-                </>
-              ) : (
-                'Confirm Change'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Only show dialogs if user is authenticated */}
+      {user && (
+        <>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Change Subscription Plan</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to switch from{' '}
+                  <span className="font-semibold">
+                    {plans.find(p => p.priceId === subscriptionData.subscription?.price_id)?.name}
+                  </span>{' '}
+                  to{' '}
+                  <span className="font-semibold">{selectedPlan?.name}</span>?
+                  {subscriptionData.subscription?.cancel_at_period_end && (
+                    <div className="mt-2 text-sm text-yellow-600">
+                      Note: Your subscription is currently set to cancel at the end of the billing period.
+                      Changing plans will remove this cancellation.
+                    </div>
+                  )}
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsDialogOpen(false)
+                    setSelectedPlan(null)
+                  }}
+                  disabled={isUpdating}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleConfirmSubscription}
+                  disabled={isUpdating || !selectedPlan}
+                >
+                  {isUpdating ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Processing...
+                    </>
+                  ) : (
+                    'Confirm Change'
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
-      {/* Payment Form Dialog */}
-      <Dialog open={showPaymentForm} onOpenChange={setShowPaymentForm}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle>Complete Your Subscription</DialogTitle>
-            <DialogDescription>
-              You are about to subscribe to the{' '}
-              <span className="font-semibold">{selectedPlan?.name}</span> plan.
-              <div className="mt-2 text-sm text-gray-600">
-                This plan includes:
-                <ul className="list-disc list-inside mt-1">
-                  {selectedPlan?.features.map((feature, index) => (
-                    <li key={index}>{feature}</li>
-                  ))}
-                </ul>
+          {/* Payment Form Dialog */}
+          <Dialog open={showPaymentForm} onOpenChange={setShowPaymentForm}>
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] flex flex-col">
+              <DialogHeader>
+                <DialogTitle>Complete Your Subscription</DialogTitle>
+                <DialogDescription>
+                  You are about to subscribe to the{' '}
+                  <span className="font-semibold">{selectedPlan?.name}</span> plan.
+                  <div className="mt-2 text-sm text-gray-600">
+                    This plan includes:
+                    <ul className="list-disc list-inside mt-1">
+                      {selectedPlan?.features.map((feature, index) => (
+                        <li key={index}>{feature}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4 overflow-y-auto flex-1">
+                {clientSecret && (
+                  <Elements
+                    stripe={stripePromise}
+                    options={{
+                      clientSecret,
+                      appearance: {
+                        theme: "stripe",
+                        variables: {
+                          colorPrimary: "#0f172a",
+                        },
+                      },
+                    }}
+                  >
+                    <PaymentFormWrapper
+                      onPaymentComplete={handlePaymentComplete}
+                      onPaymentError={handlePaymentError}
+                      onPaymentFormChange={setIsPaymentFormComplete}
+                    />
+                  </Elements>
+                )}
               </div>
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4 overflow-y-auto flex-1">
-            {clientSecret && (
-              <Elements
-                stripe={stripePromise}
-                options={{
-                  clientSecret,
-                  appearance: {
-                    theme: "stripe",
-                    variables: {
-                      colorPrimary: "#0f172a",
-                    },
-                  },
-                }}
-              >
-                <PaymentFormWrapper
-                  onPaymentComplete={handlePaymentComplete}
-                  onPaymentError={handlePaymentError}
-                  onPaymentFormChange={setIsPaymentFormComplete}
-                />
-              </Elements>
-            )}
-          </div>
-          <DialogFooter className="flex-shrink-0">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowPaymentForm(false)
-                setSelectedPlan(null)
-              }}
-              disabled={isUpdating}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handlePaymentComplete}
-              disabled={isUpdating || !isPaymentFormComplete}
-            >
-              {isUpdating ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Processing...
-                </>
-              ) : (
-                'Complete Subscription'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              <DialogFooter className="flex-shrink-0">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowPaymentForm(false)
+                    setSelectedPlan(null)
+                  }}
+                  disabled={isUpdating}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handlePaymentComplete}
+                  disabled={isUpdating || !isPaymentFormComplete}
+                >
+                  {isUpdating ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Processing...
+                    </>
+                  ) : (
+                    'Complete Subscription'
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </>
+      )}
     </div>
   )
 }

@@ -708,7 +708,7 @@ export default function ListingPage({ params }: Props) {
                   variant="outline"
                   size="icon"
                   onClick={() => {
-                    const shareText = `Hot B2B Deal on WatchPros! Limited availability!\n\n${listing.title}\n${brandsList.find(b => b.slug === listing.brand)?.label} ${models[listing.brand].find(m => m.model_slug === listing.model)?.model_label}\nRef: ${listing.reference}\nYear: ${listing.year}\nCondition: ${watchConditions.find(w => w.slug === listing.condition)?.label}\n\n💰 Trade Price: ${listing.price.toLocaleString()} ${listing.currency}\n⚡ Shipping: ${listing.shippingDelay}days\n\nExclusive offer for watch industry professionals.\nSecure this piece now: ${window.location.href}`
+                    const shareText = `Professional Watch Trade Opportunity\n\n${brandsList.find(b => b.slug === listing.brand)?.label} ${models[listing.brand].find(m => m.model_slug === listing.model)?.model_label}\nReference: ${listing.reference}\nYear: ${listing.year}\nCondition: ${watchConditions.find(w => w.slug === listing.condition)?.label}\n\nTrade Price: ${listing.price.toLocaleString()} ${listing.currency}\nEstimated Delivery: ${listing.shippingDelay} business days\n\nExclusive wholesale opportunity for verified watch industry professionals.\n\nView full details: ${window.location.href}`
                     const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`
                     window.open(whatsappUrl, '_blank')
                   }}

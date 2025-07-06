@@ -131,7 +131,7 @@ export default function AboutPage() {
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
-                <Link href="/contact" className="w-full sm:w-auto">
+                <Link href="/help" className="w-full sm:w-auto">
                   <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2">
                     Contact us
                     <ArrowRight className="w-4 h-4" />
@@ -461,7 +461,7 @@ export default function AboutPage() {
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
-              <Link href="/contact" className="w-full sm:w-auto">
+              <Link href="/help" className="w-full sm:w-auto">
                 <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2">
                   Learn more
                   <ArrowRight className="w-4 h-4" />

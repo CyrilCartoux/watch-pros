@@ -17,6 +17,7 @@ type Profile = {
 type ListingDetails = {
   id: string
   seller_id: string
+  currency: string
   brands: {
     label: string
   }
@@ -84,6 +85,7 @@ export async function POST(request: Request) {
       .select(`
         id,
         seller_id,
+        currency,
         brands:brand_id (
           label
         ),
@@ -107,6 +109,7 @@ export async function POST(request: Request) {
     const brandName = listingDetails.brands?.label
     const modelName = listingDetails.models?.label
     const sellerId = listingDetails.seller_id
+    const currency = listingDetails.currency
 
     if (!brandName || !modelName) {
       console.error('❌ Missing brand or model name:', { brandName, modelName })
@@ -124,7 +127,8 @@ export async function POST(request: Request) {
       oldStatus,
       newStatus,
       brand: brandName,
-      model: modelName
+      model: modelName,
+      currency
     })
 
     let totalEmailsSent = 0
@@ -253,8 +257,9 @@ export async function POST(request: Request) {
               const emailContent = emailTemplates.priceUpdate(
                 listingTitle,
                 newPrice,
-                'EUR',
-                oldPrice
+                currency,
+                oldPrice,
+                listingId
               )
               return sendEmail({
                 to,

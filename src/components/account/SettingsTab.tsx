@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button"
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { Badge } from "@/components/ui/badge"
-import { Coins, Shield, Loader2, CheckCircle2, CreditCard, Calendar, Share2 } from "lucide-react"
+import { Coins, Shield, Loader2, CheckCircle2, CreditCard, Calendar, Share2, AlertTriangle, Lock } from "lucide-react"
 import Image from "next/image"
 import { countries } from "@/data/form-options"
 import { useToast } from "@/components/ui/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRouter } from 'next/navigation'
+
 
 interface Profile {
   id: string
@@ -265,107 +266,6 @@ export function SettingsTab() {
     fetchData()
   }, [])
 
-  const handleInputChange = (field: string, value: string) => {
-    if (seller) {
-      setSeller(prev => prev ? {
-        ...prev,
-        account: {
-          ...prev.account,
-          [field]: value
-        }
-      } : null)
-    } else {
-      setProfile(prev => prev ? {
-        ...prev,
-        [field]: value
-      } : null)
-    }
-  }
-
-  const handleAddressChange = (field: string, value: string) => {
-    if (seller && seller.address) {
-      setSeller(prev => {
-        if (!prev || !prev.address) return prev
-        return {
-          ...prev,
-          address: {
-            ...prev.address,
-            [field]: value
-          } as SellerAddress
-        }
-      })
-    }
-  }
-
-  const handleUpdate = async () => {
-    if (!seller) return
-
-    setIsUpdating(true)
-    setError(null)
-    setShowSuccess(false)
-
-    try {
-      const response = await fetch(`/api/sellers/${seller.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          account: {
-            companyName: seller.account.companyName,
-            companyLogo: seller.account.companyLogo,
-            watchProsName: seller.account.watchProsName,
-            companyStatus: seller.account.companyStatus,
-            firstName: seller.account.firstName,
-            lastName: seller.account.lastName,
-            email: seller.account.email,
-            country: seller.account.country,
-            title: seller.account.title,
-            phonePrefix: seller.account.phonePrefix,
-            phone: seller.account.phone,
-            cryptoFriendly: seller.account.cryptoFriendly
-          },
-          address: seller.address ? {
-            street: seller.address.street,
-            city: seller.address.city,
-            country: seller.address.country,
-            postalCode: seller.address.postalCode,
-            website: seller.address.website
-          } : undefined
-        })
-      })
-
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to update seller')
-      }
-
-      const updatedSeller = await response.json()
-      setSeller(updatedSeller)
-      setShowSuccess(true)
-      toast({
-        title: "Success",
-        description: "Your profile has been updated successfully.",
-        variant: "default",
-      })
-
-      // Hide success message after 3 seconds
-      setTimeout(() => {
-        setShowSuccess(false)
-      }, 3000)
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred while updating your profile'
-      setError(errorMessage)
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      })
-    } finally {
-      setIsUpdating(false)
-    }
-  }
-
   const getPaymentMethodIcon = (brand: string | null) => {
     switch (brand?.toLowerCase()) {
       case 'visa':
@@ -424,11 +324,25 @@ export function SettingsTab() {
 
   return (
     <div className="space-y-6">
+      {/* Security Alert */}
+      <div className="border-amber-200 bg-amber-50 rounded-lg p-4">
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+          <div className="text-amber-800">
+            <strong>Profile editing is temporarily disabled</strong> for security reasons. 
+            All fields are displayed in read-only mode. Please contact support if you need to update your information.
+          </div>
+        </div>
+      </div>
+
       {/* Profile */}
       <Card>
         <CardHeader>
-          <CardTitle>Profile</CardTitle>
-          <CardDescription>Your account information</CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <Lock className="h-5 w-5 text-muted-foreground" />
+            Profile
+          </CardTitle>
+          <CardDescription>Your account information (read-only)</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {seller && (
@@ -485,14 +399,16 @@ export function SettingsTab() {
               <Label>First Name</Label>
               <Input
                 value={seller?.account.firstName || profile.first_name || ''}
-                onChange={(e) => handleInputChange("firstName", e.target.value)}
+                disabled
+                className="bg-muted"
               />
             </div>
             <div className="space-y-2">
               <Label>Last Name</Label>
               <Input
                 value={seller?.account.lastName || profile.last_name || ''}
-                onChange={(e) => handleInputChange("lastName", e.target.value)}
+                disabled
+                className="bg-muted"
               />
             </div>
           </div>
@@ -502,7 +418,19 @@ export function SettingsTab() {
               <Label>Company Name</Label>
               <Input
                 value={seller.account.companyName}
-                onChange={(e) => handleInputChange("companyName", e.target.value)}
+                disabled
+                className="bg-muted"
+              />
+            </div>
+          )}
+
+          {seller && (
+            <div className="space-y-2">
+              <Label>Watch Pros Name</Label>
+              <Input
+                value={seller.account.watchProsName}
+                disabled
+                className="bg-muted"
               />
             </div>
           )}
@@ -513,15 +441,19 @@ export function SettingsTab() {
       {seller && seller.address && (
         <Card>
           <CardHeader>
-            <CardTitle>Address</CardTitle>
-            <CardDescription>Your company address</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-muted-foreground" />
+              Address
+            </CardTitle>
+            <CardDescription>Your company address (read-only)</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label>Street</Label>
               <Input
                 value={seller.address.street}
-                onChange={(e) => handleAddressChange("street", e.target.value)}
+                disabled
+                className="bg-muted"
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -529,22 +461,33 @@ export function SettingsTab() {
                 <Label>Postal Code</Label>
                 <Input
                   value={seller.address.postalCode}
-                  onChange={(e) => handleAddressChange("postalCode", e.target.value)}
+                  disabled
+                  className="bg-muted"
                 />
               </div>
               <div className="space-y-2">
                 <Label>City</Label>
                 <Input
                   value={seller.address.city}
-                  onChange={(e) => handleAddressChange("city", e.target.value)}
+                  disabled
+                  className="bg-muted"
                 />
               </div>
             </div>
+                          <div className="space-y-2">
+                <Label>Country</Label>
+                <Input
+                  value={countries.find(c => c.value === seller.address?.country)?.label || seller.address?.country || 'Not provided'}
+                  disabled
+                  className="bg-muted"
+                />
+              </div>
             <div className="space-y-2">
               <Label>Website</Label>
               <Input
-                value={seller.address.website}
-                onChange={(e) => handleAddressChange("website", e.target.value)}
+                value={seller.address.website || 'Not provided'}
+                disabled
+                className="bg-muted"
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -580,8 +523,11 @@ export function SettingsTab() {
       {/* Contact */}
       <Card>
         <CardHeader>
-          <CardTitle>Contact</CardTitle>
-          <CardDescription>Contact information</CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <Lock className="h-5 w-5 text-muted-foreground" />
+            Contact
+          </CardTitle>
+          <CardDescription>Contact information (read-only)</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
@@ -589,7 +535,8 @@ export function SettingsTab() {
             <Input
               type="email"
               value={seller?.account.email || profile.email || ''}
-              onChange={(e) => handleInputChange("email", e.target.value)}
+              disabled
+              className="bg-muted"
             />
           </div>
           {seller && (
@@ -599,23 +546,18 @@ export function SettingsTab() {
                   <Label>Phone Prefix</Label>
                   <Input
                     value={seller.account.phonePrefix}
-                    onChange={(e) => handleInputChange("phonePrefix", e.target.value)}
+                    disabled
+                    className="bg-muted"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Phone</Label>
                   <Input
                     value={seller.account.phone}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
+                    disabled
+                    className="bg-muted"
                   />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Title</Label>
-                <Input
-                  value={seller.account.title}
-                  onChange={(e) => handleInputChange("title", e.target.value)}
-                />
               </div>
             </>
           )}
@@ -623,11 +565,11 @@ export function SettingsTab() {
             <Label>Password</Label>
             <Input
               type="password"
-              value="********"
+              value="••••••••"
               disabled
               className="bg-muted"
             />
-            <Button variant="outline" className="mt-2">
+            <Button variant="outline" className="mt-2" disabled>
               Change Password
             </Button>
           </div>
@@ -727,29 +669,6 @@ export function SettingsTab() {
           )}
         </CardContent>
       </Card>
-
-      <div className="flex justify-end gap-4">
-        {showSuccess && (
-          <div className="flex items-center gap-2 text-green-600">
-            <CheckCircle2 className="h-5 w-5" />
-            <span>Profile updated successfully</span>
-          </div>
-        )}
-        <Button 
-          onClick={handleUpdate}
-          disabled={isUpdating}
-          className="min-w-[200px]"
-        >
-          {isUpdating ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Updating...
-            </>
-          ) : (
-            'Save Changes'
-          )}
-        </Button>
-      </div>
     </div>
   )
 }

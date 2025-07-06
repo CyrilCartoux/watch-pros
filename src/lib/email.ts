@@ -31,7 +31,7 @@ export async function sendEmail({ to, subject, html }: EmailTemplate) {
 
 // Templates d'emails
 export const emailTemplates = {
-  priceUpdate: (listingTitle: string, price: number, currency: string, oldPrice?: number) => ({
+  priceUpdate: (listingTitle: string, price: number, currency: string, oldPrice?: number, listingId?: string) => ({
     subject: `Price Update: ${listingTitle}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
@@ -62,7 +62,7 @@ export const emailTemplates = {
         </div>
 
         <div style="text-align: center;">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/listings" 
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/listings/${listingId}" 
              style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">
             View Listing
           </a>
@@ -266,7 +266,8 @@ export const emailTemplates = {
     currency: string,
     condition: string | null,
     included: string | null,
-    country: string | null
+    country: string | null,
+    listingId: string
   ) => ({
     subject: `New Watch Match: ${brandName} ${modelName}`,
     html: `
@@ -300,7 +301,7 @@ export const emailTemplates = {
         </div>
 
         <div style="text-align: center;">
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/listings" 
+          <a href="${process.env.NEXT_PUBLIC_APP_URL}/listings/${listingId}" 
              style="background-color: #3498db; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">
             View Listing
           </a>

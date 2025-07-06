@@ -117,7 +117,7 @@ export default function PrivacyPolicyPage() {
                   <li>Right to object or restrict processing</li>
                 </ul>
                 <p>
-                  To exercise your rights, you can contact us at: [email@yoursite.com]
+                  To exercise your rights, you can contact us at: [admin@watch-pros.com]
                 </p>
               </div>
             </section>
