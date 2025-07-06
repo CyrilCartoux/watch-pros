@@ -520,11 +520,11 @@ export default function SubscriptionPage() {
                 <DialogDescription>
                   Are you sure you want to switch from{' '}
                   <span className="font-semibold">
-                    {plans.find(p => p.priceId === subscriptionData.subscription?.price_id)?.name}
+                    {plans.find(p => p.priceId === subscriptionData?.subscription?.price_id)?.name}
                   </span>{' '}
                   to{' '}
                   <span className="font-semibold">{selectedPlan?.name}</span>?
-                  {subscriptionData.subscription?.cancel_at_period_end && (
+                  {subscriptionData?.subscription?.cancel_at_period_end && (
                     <div className="mt-2 text-sm text-yellow-600">
                       Note: Your subscription is currently set to cancel at the end of the billing period.
                       Changing plans will remove this cancellation.
