@@ -1356,7 +1356,7 @@ export default function RegisterFormPage() {
                         type="button" 
                         onClick={handleSellerRegistration}
                         size="lg"
-                        disabled={disableContinue || loadingSellerRegistration || isDocumentsIncomplete}
+                        disabled={disableContinue || loadingSellerRegistration || isDocumentsIncomplete || isSeller}
                       >
                         {loadingSellerRegistration ? (
                           <div className="flex items-center gap-2">

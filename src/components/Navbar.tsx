@@ -321,7 +321,7 @@ export function Navbar() {
                         <Tag className="h-5 w-5" />
                         <span className="text-xs">Listings</span>
                       </Link>
-                      <Link href="/account?tab=messages" onClick={handleLinkClick} className="flex flex-col items-center gap-1 py-2 rounded-lg hover:bg-muted transition">
+                      <Link href="/account?tab=sales" onClick={handleLinkClick} className="flex flex-col items-center gap-1 py-2 rounded-lg hover:bg-muted transition">
                         <List className="h-5 w-5" />
                         <span className="text-xs">Sales</span>
                       </Link>
