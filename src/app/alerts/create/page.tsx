@@ -46,12 +46,10 @@ export default function CreateAlertPage() {
           </p>
         </div>
 
-        <div className="bg-card rounded-lg border p-6">
           <CustomAlertForm
             onSubmit={onSubmit}
             isSubmitting={isSubmitting}
           />
-        </div>
       </div>
     </main>
   )

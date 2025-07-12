@@ -182,60 +182,48 @@ export default function CustomAlertForm({ onSubmit, isSubmitting = false }: Prop
     <Card>
       <CardContent className="p-6">
         <form onSubmit={handleSubmit(submitHandler)} className="space-y-6">
-          <h3 className="text-lg font-semibold">Create a Custom Alert</h3>
-          <p className="text-sm text-muted-foreground">
-            Be notified when a {alertType} matching your criteria is listed.
-          </p>
-
           {/* Alert Type Selection */}
           <div className="space-y-2">
             <Label>Alert Type *</Label>
             <div className="grid grid-cols-2 gap-4">
-              <Card
-                className={`cursor-pointer transition-colors ${
+              <button
+                type="button"
+                onClick={() => onAlertTypeChange("watch")}
+                className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 p-3 sm:p-4 rounded-lg border-2 transition-colors w-full max-w-full overflow-hidden ${
                   alertType === "watch"
                     ? "border-primary bg-primary/5"
-                    : "hover:border-primary/50"
+                    : "border-input hover:border-primary/50"
                 }`}
-                onClick={() => onAlertTypeChange("watch")}
               >
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                      <span className="text-primary text-lg">⌚</span>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Watch</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Get notified for watch listings
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card
-                className={`cursor-pointer transition-colors ${
+                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center shrink-0 mb-1 sm:mb-0">
+                  <span className="text-primary text-lg">⌚</span>
+                </div>
+                <div className="flex flex-col items-center sm:items-start flex-1 min-w-0 overflow-hidden text-center sm:text-left">
+                  <h4 className="font-medium text-sm">Watch</h4>
+                  <p className="text-xs text-muted-foreground break-words whitespace-normal leading-tight">
+                    Get notified for watch listings
+                  </p>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => onAlertTypeChange("accessory")}
+                className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 p-3 sm:p-4 rounded-lg border-2 transition-colors w-full max-w-full overflow-hidden ${
                   alertType === "accessory"
                     ? "border-primary bg-primary/5"
-                    : "hover:border-primary/50"
+                    : "border-input hover:border-primary/50"
                 }`}
-                onClick={() => onAlertTypeChange("accessory")}
               >
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                      <span className="text-primary text-lg">🔧</span>
-                    </div>
-                    <div>
-                      <h4 className="font-medium">Accessory</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Get notified for accessory listings
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center shrink-0 mb-1 sm:mb-0">
+                  <span className="text-primary text-lg">🔧</span>
+                </div>
+                <div className="flex flex-col items-center sm:items-start flex-1 min-w-0 overflow-hidden text-center sm:text-left">
+                  <h4 className="font-medium text-sm">Accessory</h4>
+                  <p className="text-xs text-muted-foreground break-words whitespace-normal leading-tight">
+                    Get notified for accessory listings
+                  </p>
+                </div>
+              </button>
             </div>
           </div>
 
@@ -268,7 +256,7 @@ export default function CustomAlertForm({ onSubmit, isSubmitting = false }: Prop
           {/* Brand */}
           <div className="space-y-2">
             <Label>Popular Brands *</Label>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-5 sm:grid-cols-3 md:grid-cols-5 gap-1 sm:gap-2">
               {popularBrandsData.map((b) => (
                 <button
                 key={b.id}
@@ -318,21 +306,26 @@ export default function CustomAlertForm({ onSubmit, isSubmitting = false }: Prop
               {models[brandId]?.filter((m) => m.popular).length > 0 && (
                 <>
                   <Label>Popular Models</Label>
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2">
                     {models[brandId]
                       ?.filter((m) => m.popular)
+                      .slice(0, 4)
                       .map((m) => (
                         <button
                           key={m.id}
                           type="button"
                           onClick={() => onModelChange(m.id)}
-                          className={`aspect-[4/1] rounded-lg border-2 transition-colors ${
+                          className={`relative aspect-[4/1] sm:aspect-[3/2] rounded-lg border-2 transition-colors ${
                             modelId === m.id
-                              ? "border-primary bg-primary/10"
-                              : "border-input hover:border-primary"
+                              ? "border-primary bg-primary/5"
+                              : "border-input hover:border-primary/50"
                           }`}
                         >
-                          <span className="text-xs font-medium truncate">{m.label}</span>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center p-0.5 sm:p-2">
+                            <span className="text-[10px] sm:text-xs font-medium text-center line-clamp-1 sm:line-clamp-2 break-words w-full px-0.5">
+                              {m.label}
+                            </span>
+                          </div>
                         </button>
                       ))}
                   </div>
