@@ -326,7 +326,7 @@ export default function ListingsPage() {
       shippingDelay:"",
       country:      "",
       listingType: filters.listingType,
-      accessoryType: filters.accessoryType,
+      accessoryType: "",
     }
     setFilters(empty)
     setCurrentPage(1)

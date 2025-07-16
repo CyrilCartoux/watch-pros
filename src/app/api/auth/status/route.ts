@@ -6,11 +6,9 @@ export async function GET() {
   const supabase = await createClient()
 
   try {
-    console.log('GET AUTH STATUS')
     // Get the current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     if (userError || !user) {
-      console.log('NO USER')
       return NextResponse.json({
         isAuthenticated: false,
         isSeller: false,
@@ -36,7 +34,6 @@ export async function GET() {
       `)
       .eq('id', user.id)
       .single()
-    console.log('PROFILE', profile)
 
     if (profileError) {
       console.error('Error fetching profile:', profileError)

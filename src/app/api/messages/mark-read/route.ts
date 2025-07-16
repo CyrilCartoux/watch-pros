@@ -8,16 +8,13 @@ const MarkReadSchema = z.object({
 })
 
 export async function POST(request: Request) {
-  console.log('=== POST /api/messages/mark-read called ===')
   
   try {
     // Parse and validate request body
     const body = await request.json()
-    console.log('Request body:', body)
     
     const parse = MarkReadSchema.safeParse(body)
     if (!parse.success) {
-      console.log('Validation error:', parse.error.format())
       return NextResponse.json(
         { error: 'Invalid request', details: parse.error.format() },
         { status: 400 }
@@ -25,17 +22,12 @@ export async function POST(request: Request) {
     }
     const { messageIds } = parse.data
 
-    console.log('Message IDs to mark as read:', messageIds)
-
     const supabase = await createClient()
     
     // Get the current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     
-    console.log('User auth result:', { user: user?.id, error: userError })
-    
     if (userError || !user) {
-      console.log('ERROR: User not authenticated')
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -71,10 +63,7 @@ export async function POST(request: Request) {
       )
       .map(msg => msg.id)
 
-    console.log('User message IDs to update:', userMessageIds)
-
     if (userMessageIds.length === 0) {
-      console.log('No valid messages found for user')
       return NextResponse.json({ success: true, updatedCount: 0 })
     }
 
@@ -84,7 +73,6 @@ export async function POST(request: Request) {
       .update({ read: true })
       .in('id', userMessageIds)
 
-    console.log('Update operation result:', { error: updateErr })
 
     if (updateErr) {
       console.error('Error marking messages as read:', updateErr)
@@ -94,7 +82,6 @@ export async function POST(request: Request) {
       )
     }
 
-    console.log('Messages marked as read successfully')
     return NextResponse.json({ 
       success: true, 
       updatedCount: userMessageIds.length 

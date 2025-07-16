@@ -40,10 +40,10 @@ const navigation = {
     { name: "Verified Sellers", icon: Users },
   ],
   social: [
-    { name: "Facebook", href: "https://facebook.com/WatchPros", icon: Facebook },
-    { name: "Instagram", href: "https://instagram.com/WatchPros", icon: Instagram },
-    { name: "Twitter", href: "https://twitter.com/WatchPros", icon: Twitter },
-    { name: "LinkedIn", href: "https://linkedin.com/company/WatchPros", icon: Linkedin },
+    { name: "Facebook", href: "", icon: Facebook },
+    { name: "Instagram", href: "", icon: Instagram },
+    { name: "Twitter", href: "", icon: Twitter },
+    { name: "LinkedIn", href: "", icon: Linkedin },
   ],
 }
 

@@ -61,7 +61,6 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
       }
 
       const count = messages?.length || 0
-      console.log('Unread messages count:', count, 'for user:', user.id)
       setUnreadCount(count)
     } catch (error) {
       console.error('Failed to fetch unread messages count:', error)
@@ -88,7 +87,6 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
         table: 'messages',
         filter: `sender_id=neq.${user.id}`
       }, (payload) => {
-        console.log('New message received:', payload)
         // Check if the message is for the current user
         const newMessage = payload.new as any
         if (newMessage && !newMessage.read) {
@@ -100,7 +98,6 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
             .single()
             .then(({ data: conv }) => {
               if (conv && (conv.participant1_id === user.id || conv.participant2_id === user.id)) {
-                console.log('Incrementing unread count for user')
                 setUnreadCount(prev => prev + 1)
               }
             })
@@ -112,7 +109,6 @@ export function MessagesProvider({ children }: { children: ReactNode }) {
         table: 'messages',
         filter: `sender_id=neq.${user.id}`
       }, (payload) => {
-        console.log('Message updated:', payload)
         // Refresh count when messages are marked as read
         fetchUnreadCount()
       })

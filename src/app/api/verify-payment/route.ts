@@ -60,13 +60,10 @@ export async function POST(request: Request) {
 
     // Get payment method details if available
     let paymentMethodDetails = null
-    console.log('paymentIntent', paymentIntent.payment_method)
-    console.log('paymentIntent.payment_method_types', paymentIntent.payment_method_types)
 
     if (paymentIntent.payment_method && typeof paymentIntent.payment_method === 'string') {
       paymentMethodDetails = await stripe.paymentMethods.retrieve(paymentIntent.payment_method)
     }
-    console.log('paymentMethodDetails', paymentMethodDetails)
 
     // Prepare payment method details based on type
     let pmType = paymentMethodDetails?.type || null

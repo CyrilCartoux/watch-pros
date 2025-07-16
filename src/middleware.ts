@@ -52,14 +52,12 @@ export async function middleware(request: NextRequest) {
 
     // Vérifier l'utilisateur de manière sécurisée
     const { data: { user }, error: userError } = await supabase.auth.getUser()
-    console.log('user', user)
 
     if (userError || !user) {
       // Si l'utilisateur n'est pas connecté et accède à la racine, laisser passer
       if (path === '/') {
         return NextResponse.next()
       }
-      console.log('redirecting to auth', userError, user)
       const redirectUrl = new URL('/auth', request.url)
       redirectUrl.searchParams.set('redirect', path)
       return NextResponse.redirect(redirectUrl)
@@ -96,7 +94,6 @@ export async function middleware(request: NextRequest) {
         .single()
 
       if (profileError) {
-        console.log('redirecting to auth, profile error', profileError)
         return NextResponse.redirect(new URL('/auth', request.url))
       }
 
@@ -105,11 +102,9 @@ export async function middleware(request: NextRequest) {
       profileCache.set(user.id, { profile: data, timestamp: now })
     }
 
-    console.log('profile', profile)
 
     // Si l'utilisateur est admin, autoriser l'accès à toutes les routes
     if (profile?.role === 'admin') {
-      console.log('admin, returning res', res)
       return res
     }
 

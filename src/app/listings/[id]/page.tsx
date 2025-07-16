@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Heart, Share2, Shield, Clock, Package, Star, ChevronLeft, ChevronRight, CheckCircle2, MessageSquare, Bell, MapPin, Phone, Mail, Coins, X } from "lucide-react"
+import { Heart, Share2, Shield, Clock, Package, Star, ChevronLeft, ChevronRight, CheckCircle2, MessageSquare, Bell, MapPin, Phone, Mail, Coins, X, Eye } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useState, useEffect, useCallback } from "react"
@@ -22,6 +22,7 @@ import { brandsList } from "@/data/brands-list"
 import { models } from "@/data/models"
 import { motion } from "framer-motion"
 import { FaWhatsapp } from "react-icons/fa"
+import { useListingView } from "@/hooks/useListingView";
 
 interface ListingData {
   id: string
@@ -80,6 +81,7 @@ interface ListingData {
   listing_type: string
   type: string
   country?: string
+  views_count?: number;
 }
 
 interface Props {
@@ -118,6 +120,8 @@ export default function ListingPage({ params }: Props) {
   const [finalPrice, setFinalPrice] = useState("")
   const [isSubmittingSale, setIsSubmittingSale] = useState(false)
   const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false)
+
+  useListingView(listing?.id);
 
   const nextImage = useCallback(() => {
     if (!listing) return
@@ -654,6 +658,10 @@ export default function ListingPage({ params }: Props) {
               <div>
                 <h1 className="text-2xl font-bold">{listing.title}</h1>
                 <p className="text-muted-foreground">{listing.reference}</p>
+                  <div className="flex items-center gap-2 text-muted-foreground text-sm mt-1">
+                    <Eye className="w-4 h-4" />
+                    <span>{listing.views_count ?? 0} vues</span>
+                  </div>
               </div>
               <div className="flex gap-2">
                 <Button

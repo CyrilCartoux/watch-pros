@@ -160,6 +160,7 @@ export async function GET(
       currency: listing.currency,
       shippingDelay: listing.shipping_delay,
       listing_type: listing.listing_type,
+      views_count: listing.views_count,
       seller: listing.sellers ? {
         id: listing.sellers.id,
         name: listing.sellers.watch_pros_name,

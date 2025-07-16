@@ -285,7 +285,6 @@ export function MessagesTab() {
     newChannel
       .on('broadcast', { event: 'message' }, (payload) => {
         const newMessage = payload.payload as Message
-        console.log('Received broadcast message:', newMessage)
         
         // Update messages list
         setMessages(prev => {
@@ -341,7 +340,6 @@ export function MessagesTab() {
         }
       })
       .subscribe((status) => {
-        console.log('Subscription status:', status)
         if (status === 'SUBSCRIBED') {
           setIsConnected(true)
         }
@@ -350,7 +348,6 @@ export function MessagesTab() {
     setChannel(newChannel)
 
     return () => {
-      console.log('Cleaning up channel subscription')
       supabase.removeChannel(newChannel)
     }
   }, [user, selectedConversation, supabase, debouncedMarkAsRead, fetchUnreadCount])
@@ -409,7 +406,6 @@ export function MessagesTab() {
         filter: `sender_id=neq.${user.id}`
       }, (payload) => {
         const updatedMessage = payload.new as Message
-        console.log('Global: Message updated:', updatedMessage)
         
         // If message was marked as read, update conversation unread count
         if (updatedMessage.read) {
