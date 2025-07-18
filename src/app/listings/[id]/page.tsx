@@ -660,7 +660,7 @@ export default function ListingPage({ params }: Props) {
                 <p className="text-muted-foreground">{listing.reference}</p>
                   <div className="flex items-center gap-2 text-muted-foreground text-sm mt-1">
                     <Eye className="w-4 h-4" />
-                    <span>{listing.views_count ?? 0} vues</span>
+                    <span>{listing.views_count ?? 0} views</span>
                   </div>
               </div>
               <div className="flex gap-2">
