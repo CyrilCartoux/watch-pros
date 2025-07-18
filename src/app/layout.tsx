@@ -4,7 +4,7 @@ import { Metadata, Viewport } from "next/types"
 import dynamic from "next/dynamic"
 import ClientLayout from "./client-layout"
 import { defaultMetadata } from "./metadata"
-import { useEffect } from "react"
+import PwaInstaller from "@/components/PwaInstaller"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -18,15 +18,6 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: light)", color: "white" },
     { media: "(prefers-color-scheme: dark)", color: "black" }
   ],
-}
-
-function PwaInstaller() {
-  useEffect(() => {
-    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js");
-    }
-  }, []);
-  return null;
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -49,3 +40,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   )
 }
+
