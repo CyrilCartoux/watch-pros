@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { 
   Shield, 
   RefreshCw, 
@@ -84,6 +86,10 @@ export function PendingIdentitiesTab() {
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null)
   const [isDocumentModalOpen, setIsDocumentModalOpen] = useState(false)
   const [expandedSellers, setExpandedSellers] = useState<Set<string>>(new Set())
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false)
+  const [selectedSellerId, setSelectedSellerId] = useState<string | null>(null)
+  const [rejectionReason, setRejectionReason] = useState("")
+  const [isSubmittingRejection, setIsSubmittingRejection] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -141,6 +147,21 @@ export function PendingIdentitiesTab() {
   }
 
   const handleReject = async (sellerId: string) => {
+    setSelectedSellerId(sellerId)
+    setIsRejectModalOpen(true)
+  }
+
+  const handleSubmitRejection = async () => {
+    if (!selectedSellerId || !rejectionReason.trim()) {
+      toast({
+        title: "Error",
+        description: "Please provide a reason for rejection",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsSubmittingRejection(true)
     try {
       const response = await fetch('/api/admin/sellers', {
         method: 'POST',
@@ -148,16 +169,20 @@ export function PendingIdentitiesTab() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          sellerId,
-          action: 'reject'
+          sellerId: selectedSellerId,
+          action: 'decline',
+          reason: rejectionReason.trim()
         }),
       })
 
       if (response.ok) {
         toast({
           title: "Success",
-          description: "Seller identity rejected",
+          description: "Seller identity declined",
         })
+        setIsRejectModalOpen(false)
+        setRejectionReason("")
+        setSelectedSellerId(null)
         fetchPendingSellers() // Refresh the list
       } else {
         throw new Error('Failed to reject seller')
@@ -168,6 +193,8 @@ export function PendingIdentitiesTab() {
         description: "Failed to reject seller identity",
         variant: "destructive",
       })
+    } finally {
+      setIsSubmittingRejection(false)
     }
   }
 
@@ -565,6 +592,53 @@ export function PendingIdentitiesTab() {
               />
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Rejection Modal */}
+      <Dialog open={isRejectModalOpen} onOpenChange={setIsRejectModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Rejeter la demande</DialogTitle>
+            <DialogDescription>
+              Veuillez fournir un motif de refus pour cette demande d'identité. Ce motif sera envoyé au vendeur par email.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="rejection-reason">Motif de refus</Label>
+              <Textarea
+                id="rejection-reason"
+                placeholder="Ex: Documents incomplets, informations manquantes, etc."
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                className="min-h-[120px]"
+              />
+              <p className="text-sm text-muted-foreground">
+                {rejectionReason.length} / 500 caractères
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsRejectModalOpen(false)
+                setRejectionReason("")
+                setSelectedSellerId(null)
+              }}
+              disabled={isSubmittingRejection}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleSubmitRejection}
+              disabled={!rejectionReason.trim() || isSubmittingRejection}
+            >
+              {isSubmittingRejection ? "Envoi..." : "Rejeter"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
