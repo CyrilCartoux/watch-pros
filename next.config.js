@@ -1,8 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    unoptimized: true,
-    domains: ['images.unsplash.com'],
+    domains: [
+      'images.unsplash.com',
+      'yxherqptduszoafpsapp.supabase.co'
+    ],
     remotePatterns: [
       {
         protocol: 'https',
@@ -11,11 +13,8 @@ const nextConfig = {
         pathname: '/storage/v1/object/public/**',
       },
     ],
+    unoptimized: true,
   },
-}
-
-module.exports = {
-  // ... autres options Next.js ...
   async headers() {
     return [
       {
@@ -36,4 +35,6 @@ module.exports = {
       },
     ];
   },
-}; 
+};
+
+module.exports = nextConfig;
