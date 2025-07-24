@@ -9,6 +9,7 @@ import { Footer } from "@/components/Footer"
 import { Toaster } from "@/components/ui/toaster"
 import { MobileBottomNav } from "@/components/MobileBottomNav"
 import LogRocketProvider from "@/components/LogRocketProvider"
+import PWAInstaller from "@/components/PWAInstaller"
 
 export default function ClientLayout({
   children,
@@ -22,14 +23,15 @@ export default function ClientLayout({
         <MessagesProvider>
           <BrandsAndModelsProvider>
             <div className="flex flex-col min-h-screen">
-      <Navbar />
-            <main className="flex-grow pb-16 md:pb-0">{children}</main>
-      <Footer />
-          </div>
-          <MobileBottomNav />
-      <Toaster />
-        </BrandsAndModelsProvider>
-      </MessagesProvider>
+              <PWAInstaller />
+              <Navbar />
+              <main className="flex-grow pb-16 md:pb-0">{children}</main>
+              <Footer />
+            </div>
+            <MobileBottomNav />
+            <Toaster />
+          </BrandsAndModelsProvider>
+        </MessagesProvider>
       </NotificationsProvider>
     </AuthProvider>
   )

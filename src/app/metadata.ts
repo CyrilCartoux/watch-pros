@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 
 export const defaultMetadata: Metadata = {
   metadataBase: new URL('https://watch-pros.com'),
+  manifest: '/manifest.json',
   title: {
     default: 'Watch Pros® - B2B Marketplace for Professional Watch Dealers',
     template: '%s | Watch Pros® B2B'

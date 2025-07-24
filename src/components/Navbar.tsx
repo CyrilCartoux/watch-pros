@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Menu, User, Bell, LogOut, Heart, MessageSquare, LayoutDashboard, MoreHorizontal, Tag, Shield, List } from "lucide-react"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Badge } from "./ui/badge"
 import { useAuth } from "@/contexts/AuthContext"
 import { useNotifications } from "@/contexts/NotificationsContext"
@@ -46,8 +46,18 @@ export function Navbar() {
   // Show navigation only if user is authenticated, verified, and has active subscription
   const showNavigation = isAuthenticated && isVerified && hasActiveSubscription
 
+  // Gestion du margin-top dynamique selon le prompt PWA
+  const [marginTop, setMarginTop] = useState(0)
+  useEffect(() => {
+    const handler = (e: any) => {
+      setMarginTop(e.detail ? 44 : 0)
+    }
+    window.addEventListener('pwa-prompt-visibility', handler)
+    return () => window.removeEventListener('pwa-prompt-visibility', handler)
+  }, [])
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-all duration-200" style={{ marginTop }}>
       <div className="container flex h-14 items-center">
         {/* Left side: Logo + Nav Links */}
         <div className="mr-4 hidden items-center md:flex">
