@@ -271,7 +271,6 @@ export async function GET(
         { status: 500 }
       )
     }
-    console.log('reviewerProfiles', reviewerProfiles)
     // Créer un map des reviewers pour un accès facile
     const reviewerMap = new Map(
       reviewerProfiles?.map(profile => [

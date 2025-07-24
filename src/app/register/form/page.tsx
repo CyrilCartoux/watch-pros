@@ -677,6 +677,7 @@ export default function RegisterFormPage() {
             stripe={stripePromise}
             options={{
               clientSecret,
+              locale: "en",
               appearance: {
                 theme: "stripe",
                 variables: {
@@ -869,15 +870,15 @@ export default function RegisterFormPage() {
                       <FormError error={accountForm.formState.errors.companyStatus?.message as string} isSubmitted={isSubmitted.account} />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
+                    <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 sm:gap-4">
+                      <div className="col-span-2 sm:col-span-1">
                         <Label htmlFor="country">Country *</Label>
                         <Controller
                           name="country"
                           control={accountForm.control}
                           render={({ field }) => (
                             <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger>
+                              <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Select a country" />
                               </SelectTrigger>
                               <SelectContent>
@@ -894,36 +895,16 @@ export default function RegisterFormPage() {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="firstName">First Name *</Label>
-                        <Input id="firstName" placeholder="First name for billing address" {...accountForm.register("firstName")} />
-                        <FormError error={accountForm.formState.errors.firstName?.message as string} isSubmitted={isSubmitted.account} />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="lastName">Last Name *</Label>
-                        <Input id="lastName" placeholder="Last name for billing address" {...accountForm.register("lastName")} />
-                        <FormError error={accountForm.formState.errors.lastName?.message as string} isSubmitted={isSubmitted.account} />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="email">Email Address *</Label>
-                      <Input id="email" type="email" placeholder="your@email.com" {...accountForm.register("email")} />
-                      <FormError error={accountForm.formState.errors.email?.message as string} isSubmitted={isSubmitted.account} />
-                    </div>
-
                     <div>
                       <Label htmlFor="phone">Phone *</Label>
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
                         <Controller
                           name="phonePrefix"
                           control={accountForm.control}
                           defaultValue=""
                           render={({ field }) => (
                             <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger className="w-[180px]">
+                              <SelectTrigger className="w-24 min-w-[80px]">
                                 <SelectValue placeholder="Prefix" />
                               </SelectTrigger>
                               <SelectContent>

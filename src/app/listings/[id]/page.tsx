@@ -23,6 +23,7 @@ import { models } from "@/data/models"
 import { motion } from "framer-motion"
 import { FaWhatsapp } from "react-icons/fa"
 import { useListingView } from "@/hooks/useListingView";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface ListingData {
   id: string
@@ -660,7 +661,7 @@ export default function ListingPage({ params }: Props) {
                 <p className="text-muted-foreground">{listing.reference}</p>
                   <div className="flex items-center gap-2 text-muted-foreground text-sm mt-1">
                     <Eye className="w-4 h-4" />
-                    <span>{listing.views_count ?? 0} vues</span>
+                    <span>{listing.views_count ?? 0} views</span>
                   </div>
               </div>
               <div className="flex gap-2">
@@ -712,18 +713,28 @@ export default function ListingPage({ params }: Props) {
                     </div>
                   </DialogContent>
                 </Dialog>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => {
-                    const shareText = `Professional Watch Trade Opportunity\n\n${brandsList.find(b => b.slug === listing.brand)?.label} ${models[listing.brand].find(m => m.model_slug === listing.model)?.model_label}\nReference: ${listing.reference}\nYear: ${listing.year}\nCondition: ${watchConditions.find(w => w.slug === listing.condition)?.label}\n\nTrade Price: ${listing.price.toLocaleString()} ${listing.currency}\nEstimated Delivery: ${listing.shippingDelay} business days\n\nExclusive wholesale opportunity for verified watch industry professionals.\n\nView full details: ${window.location.href}`
-                    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`
-                    window.open(whatsappUrl, '_blank')
-                  }}
-                  aria-label="Share on WhatsApp"
-                >
-                  <FaWhatsapp className="h-5 w-5 text-green-500" />
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        onClick={() => {
+                          const shareText = `Professional Watch Trade Opportunity\n\n${brandsList.find(b => b.slug === listing.brand)?.label} ${models[listing.brand].find(m => m.model_slug === listing.model)?.model_label}\nReference: ${listing.reference}\nYear: ${listing.year}\nCondition: ${watchConditions.find(w => w.slug === listing.condition)?.label}\n\nTrade Price: ${listing.price.toLocaleString()} ${listing.currency}\nEstimated Delivery: ${listing.shippingDelay} business days\n\nExclusive wholesale opportunity for verified watch industry professionals.\n\nView full details: ${window.location.href}`
+                          const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText)}`
+                          window.open(whatsappUrl, '_blank')
+                        }}
+                        className="flex items-center gap-2 rounded-full px-4 py-2 bg-[#25D366] hover:bg-[#1ebe57] text-white font-semibold shadow transition-colors focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:ring-offset-2"
+                        aria-label="Share on WhatsApp"
+                      >
+                        <FaWhatsapp className="h-5 w-5 mr-1" />
+                        <span>Share</span>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Partager cette annonce sur WhatsApp
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </div>
 

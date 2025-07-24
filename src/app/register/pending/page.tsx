@@ -50,15 +50,21 @@ export default function PendingPage() {
                   <h2 className="font-semibold mb-2">What happens next?</h2>
                   <ul className="space-y-2 text-sm text-muted-foreground">
                     <li className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-primary" />
+                      <div className="w-5 h-5 flex items-center justify-center">
+                        <Shield className="w-5 h-5 text-primary" />
+                      </div>
                       <span>Our team verifies your documents and information</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                      <div className="w-5 h-5 flex items-center justify-center">
+                        <CheckCircle2 className="w-5 h-5 text-primary" />
+                      </div>
                       <span>You will receive a confirmation email once your account is validated</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                      <div className="w-5 h-5 flex items-center justify-center">
+                        <CheckCircle2 className="w-5 h-5 text-primary" />
+                      </div>
                       <span>You can then start publishing your listings</span>
                     </li>
                   </ul>

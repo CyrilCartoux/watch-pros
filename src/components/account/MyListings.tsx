@@ -163,7 +163,6 @@ export default function MyListings() {
     return (
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold">My Listings</h2>
           <Link href="/sell">
             <Button size="sm">
               <Plus className="h-4 w-4 mr-2" />
@@ -198,7 +197,6 @@ export default function MyListings() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
-        <h2 className="text-2xl font-bold">My Listings</h2>
         
         {/* Status Filter Tabs */}
         <Tabs defaultValue="active" value={status} onValueChange={(value) => setStatus(value as 'active' | 'sold' | 'paused' | 'hold')}>

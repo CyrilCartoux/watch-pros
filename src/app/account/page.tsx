@@ -17,6 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useSearchParams, useRouter } from "next/navigation"
+import { Button } from "@/components/ui/button"
 
 export default function AccountPage() {
   const searchParams = useSearchParams()
@@ -29,53 +30,81 @@ export default function AccountPage() {
 
   return (
     <div className="container py-4 md:py-8">
-      <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8">My Account</h1>
-
       <Tabs value={tab} onValueChange={handleTabChange} className="space-y-4 md:space-y-6">
-        {/* Mobile Tabs */}
-        <div className="md:hidden flex items-center gap-2 overflow-x-auto pb-2">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="dashboard" className="flex items-center gap-2">
-              <BarChart className="h-4 w-4" />
-            </TabsTrigger>
-            <TabsTrigger value="listings" className="flex items-center gap-2">
-              <ShoppingBag className="h-4 w-4" />
-            </TabsTrigger>
-            <TabsTrigger value="searches" className="flex items-center gap-2">
-              <Search className="h-4 w-4" />
-            </TabsTrigger>
-          </TabsList>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10">
-                <MoreHorizontal className="h-4 w-4" />
-                <span className="sr-only">More options</span>
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleTabChange("favorites")}>
-                <Heart className="h-4 w-4 mr-2" />
-                Favorites
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleTabChange("messages")}>
-                <MessageSquare className="h-4 w-4 mr-2" />
-                Messages
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleTabChange("reviews")}>
-                <Star className="h-4 w-4 mr-2" />
-                Reviews
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleTabChange("sales")}>
-                <List className="h-4 w-4 mr-2" />
-                Sales
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleTabChange("settings")}>
-                <Settings className="h-4 w-4 mr-2" />
-                Settings
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        {/* Mobile Tabs - grid 2x4, tous visibles, DS friendly */}
+        <div className="md:hidden grid grid-cols-4 gap-2 pb-2">
+          <Button
+            variant={tab === 'dashboard' ? 'default' : 'outline'}
+            size="sm"
+            className="flex flex-col items-center justify-center py-3"
+            onClick={() => handleTabChange('dashboard')}
+          >
+            <BarChart className="h-5 w-5 mb-1" />
+            <span className="text-xs">Dashboard</span>
+          </Button>
+          <Button
+            variant={tab === 'listings' ? 'default' : 'outline'}
+            size="sm"
+            className="flex flex-col items-center justify-center py-3"
+            onClick={() => handleTabChange('listings')}
+          >
+            <ShoppingBag className="h-5 w-5 mb-1" />
+            <span className="text-xs">Listings</span>
+          </Button>
+          <Button
+            variant={tab === 'searches' ? 'default' : 'outline'}
+            size="sm"
+            className="flex flex-col items-center justify-center py-3"
+            onClick={() => handleTabChange('searches')}
+          >
+            <Search className="h-5 w-5 mb-1" />
+            <span className="text-xs">Searches</span>
+          </Button>
+          <Button
+            variant={tab === 'favorites' ? 'default' : 'outline'}
+            size="sm"
+            className="flex flex-col items-center justify-center py-3"
+            onClick={() => handleTabChange('favorites')}
+          >
+            <Heart className="h-5 w-5 mb-1" />
+            <span className="text-xs">Favorites</span>
+          </Button>
+          <Button
+            variant={tab === 'messages' ? 'default' : 'outline'}
+            size="sm"
+            className="flex flex-col items-center justify-center py-3"
+            onClick={() => handleTabChange('messages')}
+          >
+            <MessageSquare className="h-5 w-5 mb-1" />
+            <span className="text-xs">Messages</span>
+          </Button>
+          <Button
+            variant={tab === 'reviews' ? 'default' : 'outline'}
+            size="sm"
+            className="flex flex-col items-center justify-center py-3"
+            onClick={() => handleTabChange('reviews')}
+          >
+            <Star className="h-5 w-5 mb-1" />
+            <span className="text-xs">Reviews</span>
+          </Button>
+          <Button
+            variant={tab === 'sales' ? 'default' : 'outline'}
+            size="sm"
+            className="flex flex-col items-center justify-center py-3"
+            onClick={() => handleTabChange('sales')}
+          >
+            <List className="h-5 w-5 mb-1" />
+            <span className="text-xs">Sales</span>
+          </Button>
+          <Button
+            variant={tab === 'settings' ? 'default' : 'outline'}
+            size="sm"
+            className="flex flex-col items-center justify-center py-3"
+            onClick={() => handleTabChange('settings')}
+          >
+            <Settings className="h-5 w-5 mb-1" />
+            <span className="text-xs">Settings</span>
+          </Button>
         </div>
 
         {/* Desktop Tabs */}

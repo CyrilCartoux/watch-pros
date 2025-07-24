@@ -185,13 +185,10 @@ export function ActiveSearchesTab() {
   return (
     <>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold">My Searches</h2>
-            <p className="text-muted-foreground">
-              Manage your active searches and contact preferences
-            </p>
-          </div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+          <p className="text-muted-foreground">
+            Manage your active searches and contact preferences
+          </p>
           <Button onClick={() => router.push('/search/create')}>
             Create New Search
           </Button>

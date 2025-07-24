@@ -10,8 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Eye, EyeOff, Mail, Phone, MessageSquare } from "lucide-react"
+import { Eye, EyeOff, Mail, Phone } from "lucide-react"
 import { FaWhatsapp } from "react-icons/fa"
 import {
   Select,
@@ -35,7 +34,7 @@ const activeSearchSchema = z.object({
   max_price: z.string().optional(),
   location: z.string().optional(),
   accessory_type: z.string().optional(),
-  currency: z.string().min(1, "Currency is required"),
+  currency: z.string().optional(),
   is_public: z.boolean().default(true),
   contact_preferences: z.object({
     email: z.boolean().default(true),
@@ -137,7 +136,7 @@ export default function ActiveSearchForm({ onSubmit, isSubmitting = false, initi
         max_price: data.max_price && data.max_price !== "" ? parseFloat(data.max_price) : null,
         location: data.location || null,
         accessory_type: data.accessory_type || null,
-        currency: data.currency,
+        currency: data.currency || null,
         is_public: isPublic,
         contact_preferences: contactPrefs
       })
@@ -290,7 +289,7 @@ export default function ActiveSearchForm({ onSubmit, isSubmitting = false, initi
             </div>
             <div>
               <Label htmlFor="currency">Currency</Label>
-              <Select onValueChange={value => setValue("currency", value)} required>
+              <Select onValueChange={value => setValue("currency", value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select currency" />
                 </SelectTrigger>

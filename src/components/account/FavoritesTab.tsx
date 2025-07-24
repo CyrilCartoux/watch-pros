@@ -54,7 +54,6 @@ export function FavoritesTab() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold mb-4">Favorite Watches</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {favorites.map((favorite) => (
             <Link href={`/listings/${favorite.listing_id}`} key={favorite.id}>
